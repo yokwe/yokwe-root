@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>yokwe</groupId>
+        <artifactId>yokwe-root</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    
+    <artifactId>yokwe-stock-jp</artifactId>
+    
+    <properties>
+        <automatic-module-name>yokwe.stock.jp</automatic-module-name>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>yokwe</groupId>
+            <artifactId>yokwe-util</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.30</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.xml/jaxb-impl -->
+        <dependency>
+            <groupId>javax.xml</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.1</version>
+        </dependency>
+    </dependencies>
+</project>

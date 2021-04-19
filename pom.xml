@@ -1,0 +1,92 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>yokwe</groupId>
+    <artifactId>yokwe-root</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>yokwe-util</module>
+        <module>yokwe-stock-jp</module>
+    </modules>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.release>11</maven.compiler.release>
+    </properties>
+    
+    <profiles>
+        <profile>
+            <id>freebsd</id>
+            <activation>
+                <os>
+                    <name>freebsd</name>
+                </os>
+            </activation>
+            <!-- libreoffice 7.1 -->
+            <properties>
+                <libreoffice.install.dir>/usr/local/lib/libreoffice/program</libreoffice.install.dir>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.libreoffice</groupId>
+                    <artifactId>libreoffice</artifactId>
+                    <version>7.1</version>
+                    <scope>system</scope>
+                    <systemPath>${libreoffice.install.dir}/classes/libreoffice.jar</systemPath>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <name>linux</name>
+                </os>
+            </activation>
+            <!-- libreoffice 6.4 -->
+            <properties>
+                <libreoffice.install.dir>/usr/lib/libreoffice/program</libreoffice.install.dir>
+            </properties>
+        </profile>
+    </profiles>
+    
+    
+    <build>
+        <plugins>
+            <!-- compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!--  require version 3.7 or higher for java module -->
+                <version>3.8.1</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/test/*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jar-plugin</artifactId>
+              <version>3.1.0</version>
+              <configuration>
+                <archive>
+                  <manifestEntries>
+                    <Automatic-Module-Name>${automatic-module-name}</Automatic-Module-Name>
+                  </manifestEntries>
+                </archive>
+              </configuration>
+            </plugin>
+            
+        </plugins>
+    </build>
+        
+</project>
