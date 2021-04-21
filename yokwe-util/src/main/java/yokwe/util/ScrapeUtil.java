@@ -25,11 +25,16 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 public class ScrapeUtil {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(StringUtil.class);
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(ScrapeUtil.class);
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
 	public static @interface AsNumber {}
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	public @interface Ignore {
+	}
 
 	private static final String NBSP = "&nbsp;";
 	
@@ -251,6 +256,9 @@ public class ScrapeUtil {
 						
 						// Skip static
 						if (Modifier.isStatic(modifiers)) continue;
+						
+						// Skip if field has Ignore annotation
+						if (field.isAnnotationPresent(Ignore.class)) continue;
 
 						// Sanity check
 						if (!Modifier.isPublic(modifiers)) {
