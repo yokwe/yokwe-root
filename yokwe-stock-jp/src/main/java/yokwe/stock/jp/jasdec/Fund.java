@@ -12,7 +12,7 @@ public class Fund implements Comparable<Fund> {
 	public static final String PREFIX = "jasdec";
 	
 	public static final String getPath() {
-		return Storage.getPath(PREFIX, "fund-list.csv");
+		return Storage.getPath(PREFIX, "fund.csv");
 	}
 	
 	public static void save(List<Fund> funds) {
