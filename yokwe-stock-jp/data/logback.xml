@@ -8,7 +8,7 @@
   </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>tmp/yokwe-stock-jps.log</file>
+    <file>tmp/yokwe-stock-jp.log</file>
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-8logger{0} - %msg%n</pattern>
     </encoder>
