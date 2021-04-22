@@ -19,7 +19,29 @@
 			<include name="ridl.jar" />
 		</fileset>
 	</path>
+	
+	<!-- Application -->
+	<target name="update-jasdec-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jasdec.UpdateFund" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="update-toushin-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateFund" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
+
+	<!-- OLD APPL -->
 	<target name="update-stock">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateStock" fork="true">
 			<modulepath refid="build.classpath" />
@@ -40,14 +62,4 @@
 		</java>
 	</target>
 	
-	<target name="updateFund">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.jasdec.UpdateFund" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-
 </project>
