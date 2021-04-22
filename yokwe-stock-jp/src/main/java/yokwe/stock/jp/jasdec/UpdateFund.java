@@ -95,11 +95,11 @@ public class UpdateFund {
 				".+?" +
 				"<span class=\"hy\">(?:.+?)</span>" + // 設定日
 				".+?" +
-				"<span class=\"hy\">(?<offerDate>.+?)</span>" +
+				"<span class=\"hy\">(?<issueDate>.+?)</span>" +
 				".+?" +
 				"<span class=\"hy\">(?:.+?)</span>" + // 償還日
 				".+?" +
-				"<span class=\"hy\">(?<repaymentDate>.+?)</span>" +
+				"<span class=\"hy\">(?<redemptionDate>.+?)</span>" +
 				".+?" +
 				"<a href=\"it_details.php\\?idno_1=(?<idno>[0-9]+)\"" +
 				".+?" +
@@ -171,7 +171,7 @@ public class UpdateFund {
 //			logger.info("page {}", page.length());
 			
 			List<Item> items = Item.getInstance(page);			
-			logger.info("items {}", items.size());
+//			logger.info("items {}", items.size());
 			
 			for(var e: items) {
 				Fund fund = new Fund(Integer.parseInt(e.idno), e.isinCode, e.issueDate, e.redemptionDate, e.offerCategory, e.fundCategory, e.issuer, e.name);
@@ -180,7 +180,7 @@ public class UpdateFund {
 		
 			// Make pause for not stress server
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				logger.error("Unexpected InterruptedException");
 				
@@ -190,7 +190,7 @@ public class UpdateFund {
 			}
 		}
 		
-		logger.info("fund-list {} {}", Fund.getPath(), fundList.size());
+		logger.info("save {} {}", fundList.size(), Fund.getPath());
 		Fund.save(fundList);
 		
 		logger.info("STOP");
