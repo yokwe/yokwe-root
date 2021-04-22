@@ -12,6 +12,7 @@ module yokwe.stock.jp {
 	exports yokwe.stock.jp.sony.json;
 	exports yokwe.stock.jp.sony.xml;
 	exports yokwe.stock.jp.tdnet;
+	exports yokwe.stock.jp.toushin;
 	exports yokwe.stock.jp.xbrl;
 	exports yokwe.stock.jp.xbrl.inline;
 	exports yokwe.stock.jp.xbrl.label;
