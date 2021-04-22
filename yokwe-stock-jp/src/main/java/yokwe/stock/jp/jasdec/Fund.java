@@ -15,9 +15,9 @@ public class Fund implements Comparable<Fund> {
 		return Storage.getPath(PREFIX, "fund.csv");
 	}
 	
-	public static void save(List<Fund> funds) {
-		Collections.sort(funds);
-		CSVUtil.write(Fund.class).file(getPath(), funds);
+	public static void save(List<Fund> list) {
+		Collections.sort(list);
+		CSVUtil.write(Fund.class).file(getPath(), list);
 	}
 	public static List<Fund> load() {
 		return CSVUtil.read(Fund.class).file(getPath());
