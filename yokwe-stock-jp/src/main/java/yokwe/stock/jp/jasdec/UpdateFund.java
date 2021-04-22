@@ -113,23 +113,23 @@ public class UpdateFund {
 		
 		public String idno;           // IDNO
 		public String isinCode;       // ISINコード
-		public String offerDate;      // 設定日
-		public String repaymentDate;  // 償還日
+		public String issueDate;      // 設定日
+		public String redemptionDate; // 償還日
 		public String offerCategory;  // 募集区分
 		public String fundCategory;   // 投信区分
 		public String issuer;         // 発行者名	
 		public String name;           // 銘柄正式名称
 		
-		public Item(String idno, String isinCode, String offerDate, String repaymentDate, String offerCategory, String fundCategory, String issuer, String name) {
+		public Item(String idno, String isinCode, String issueDate, String redemptionDate, String offerCategory, String fundCategory, String issuer, String name) {
 			this.idno          = idno.trim();
 			
 			this.isinCode      = isinCode.trim();
 			
 			// YYYY/MM/DD => YYYY-MM-DD
-			this.offerDate     = offerDate.trim().replace("/", "-");
-			this.repaymentDate = repaymentDate.trim().replace("/", "-");
-			if (this.repaymentDate.equals("無期限")) {
-				this.repaymentDate = Fund.NO_LIMIT;
+			this.issueDate     = issueDate.trim().replace("/", "-");
+			this.redemptionDate = redemptionDate.trim().replace("/", "-");
+			if (this.redemptionDate.equals("無期限")) {
+				this.redemptionDate = Fund.NO_LIMIT;
 			}
 			
 			this.offerCategory = offerCategory.trim().replace("<br>", "");
@@ -174,7 +174,7 @@ public class UpdateFund {
 			logger.info("items {}", items.size());
 			
 			for(var e: items) {
-				Fund fund = new Fund(Integer.parseInt(e.idno), e.isinCode, e.offerDate, e.repaymentDate, e.offerCategory, e.fundCategory, e.issuer, e.name);
+				Fund fund = new Fund(Integer.parseInt(e.idno), e.isinCode, e.issueDate, e.redemptionDate, e.offerCategory, e.fundCategory, e.issuer, e.name);
 				fundList.add(fund);
 			}
 		

@@ -25,22 +25,22 @@ public class Fund implements Comparable<Fund> {
 
 	public int    idno;           // IDNO
 	public String isinCode;       // ISINコード
-	public String offerDate;      // 設定日
-	public String repaymentDate;  // 償還日
+	public String issueDate;      // 設定日
+	public String redemptionDate; // 償還日
 	public String offerCategory;  // 募集区分
 	public String fundCategory;   // 投信区分
 	public String issuer;         // 発行者名	
 	public String name;           // 銘柄正式名称
 	
-	public Fund(int idno, String isinCode, String offerDate, String repaymentDate, String offerCategory, String fundCategory, String issuer, String name) {
-		this.idno          = idno;
-		this.isinCode      = isinCode;
-		this.offerDate     = offerDate;
-		this.repaymentDate = repaymentDate;
-		this.offerCategory = offerCategory;
-		this.fundCategory  = fundCategory;
-		this.issuer        = issuer;
-		this.name          = name;
+	public Fund(int idno, String isinCode, String issueDate, String redemptionDate, String offerCategory, String fundCategory, String issuer, String name) {
+		this.idno           = idno;
+		this.isinCode       = isinCode;
+		this.issueDate      = issueDate;
+		this.redemptionDate = redemptionDate;
+		this.offerCategory  = offerCategory;
+		this.fundCategory   = fundCategory;
+		this.issuer         = issuer;
+		this.name           = name;
 	}
 	public Fund() {
 		this(0, null, null, null, null, null, null, null);
