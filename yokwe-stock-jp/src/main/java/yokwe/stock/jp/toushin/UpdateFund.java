@@ -21,9 +21,6 @@ import yokwe.util.http.Task;
 public class UpdateFund {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFund.class);
 	
-	// https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000?isinCd=JP90C0009VE0
-	// https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd=JP90C0009VE0&associFundCd=2931113C
-	
 	private static final String URL_FUND = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000?isinCd=%s";
 	
 	public static class Toushin {
@@ -135,7 +132,6 @@ public class UpdateFund {
 			}
 			return ret;
 		}
-
 	}
 	
 	private static class MyConsumer implements Consumer<String> {
