@@ -3,13 +3,12 @@ package yokwe.stock.jp.toushin;
 import java.util.Collections;
 import java.util.List;
 
-import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
 
 public class Seller implements Comparable<Seller> {
 	public static final String getPath(String isinCode) {
-		String name = String.format("seller/%s.csv", isinCode);
-		return Storage.getPath(Fund.PREFIX, name);
+		String path = String.format("seller/%s.csv", isinCode);
+		return Fund.getPath(path);
 	}
 	public static void save(String isinCode, List<Seller> list) {
 		Collections.sort(list);
