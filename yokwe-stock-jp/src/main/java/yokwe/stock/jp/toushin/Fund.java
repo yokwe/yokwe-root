@@ -69,6 +69,6 @@ public class Fund implements Comparable<Fund> {
 
 	@Override
 	public int compareTo(Fund that) {
-		return this.isinCode.compareTo(that.isinCode);
+		return this.fundCode.compareTo(that.fundCode);
 	}
 }
