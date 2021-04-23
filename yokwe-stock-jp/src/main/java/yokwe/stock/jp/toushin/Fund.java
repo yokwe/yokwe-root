@@ -5,13 +5,17 @@ import java.util.List;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
+import yokwe.util.StringUtil;
 
 public class Fund implements Comparable<Fund> {
 	public static final String NO_LIMIT = "9999-12-31";
 	public static final String PREFIX = "toushin";
 	
+	public static final String getPath(String path) {
+		return Storage.getPath(PREFIX, path);
+	}
 	public static final String getPath() {
-		return Storage.getPath(PREFIX, "fund.csv");
+		return getPath("fund.csv");
 	}
 	
 	public static void save(List<Fund> funds) {
@@ -70,5 +74,10 @@ public class Fund implements Comparable<Fund> {
 	@Override
 	public int compareTo(Fund that) {
 		return this.fundCode.compareTo(that.fundCode);
+	}
+	
+	@Override
+	public String toString() {
+		return StringUtil.toString(this);
 	}
 }
