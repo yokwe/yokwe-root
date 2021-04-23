@@ -3,15 +3,20 @@ package yokwe.stock.jp.toushin;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.slf4j.LoggerFactory;
 
-import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.http.HttpUtil;
+import yokwe.util.http.Download;
+import yokwe.util.http.DownloadSync;
+import yokwe.util.http.RequesterBuilder;
+import yokwe.util.http.StringTask;
+import yokwe.util.http.Task;
 
 public class UpdateFund {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFund.class);
@@ -103,65 +108,146 @@ public class UpdateFund {
 		}
 	}
 	
-	private static void update(List<Fund> funds, HttpUtil httpUtil, String isinCode) {
-//		logger.info("update {}", isinCode);
-		String url = String.format(URL_FUND, isinCode);
-		String page = httpUtil.download(url).result;
-//		logger.info("page {}", page.length());
+	private static class Context {
+		private List<Fund> funds;
+		private Integer buildCount;
 		
-		if (page.contains("該当ファンドは存在しない")) {
-			logger.warn("no fund data  {}", isinCode);
-			return;
+		public Context() {
+			funds = new ArrayList<>();
+			buildCount = 0;
 		}
 		
-		FileUtil.write().file("tmp/toushin.html", page);
-		Toushin toushin = Toushin.getInstance(page);
+		public void addFund(Fund fund) {
+			synchronized(funds) {
+				funds.add(fund);
+			}
+		}
 		
-		Fund fund = new Fund(
-			toushin.isinCode, toushin.fundCode, 
-			toushin.name, toushin.issuer, toushin.issueDate, toushin.redemptionDate,
-			toushin.settlementFrequency, toushin.settlementDate, 
-			toushin.cancelationFee, toushin.initialFeeLimit, toushin.redemptionFee,
-			toushin.trustFee, toushin.trustFeeOperation, toushin.trustFeeSeller, toushin.trustFeeBank);
-		
-		funds.add(fund);
-	}
+		public void incrementBuildCount() {
+			synchronized(buildCount) {
+				buildCount = buildCount + 1;
+			}
+		}
+		public int getBuildCount() {
+			int ret;
+			synchronized(buildCount) {
+				ret = buildCount;
+			}
+			return ret;
+		}
 
+	}
+	
+	private static class MyConsumer implements Consumer<String> {
+		final Context context;
+		final String isinCode;
+		
+		MyConsumer(Context context, String isinCode) {
+			this.context = context;
+			this.isinCode = isinCode;
+		}
+		
+		@Override
+		public void accept(String string) {
+			context.incrementBuildCount();
+			
+			if (string.contains("該当ファンドは存在しない")) {
+				logger.warn("no fund data  {}", isinCode);
+				return;
+			}
+			
+			Toushin toushin = Toushin.getInstance(string);
+			
+			Fund fund = new Fund(
+				toushin.isinCode, toushin.fundCode, 
+				toushin.name, toushin.issuer, toushin.issueDate, toushin.redemptionDate,
+				toushin.settlementFrequency, toushin.settlementDate, 
+				toushin.cancelationFee, toushin.initialFeeLimit, toushin.redemptionFee,
+				toushin.trustFee, toushin.trustFeeOperation, toushin.trustFeeSeller, toushin.trustFeeBank);
+			
+			context.addFund(fund);
+		}
+	}
+	
+	private static void buildContext(Context context) {
+		int threadCount = 5; // 50 is too high for this site
+		int maxPerRoute = 50;
+		int maxTotal    = 100;
+		int soTimeout   = 30;
+		logger.info("threadCount {}", threadCount);
+		logger.info("maxPerRoute {}", maxPerRoute);
+		logger.info("maxTotal    {}", maxTotal);
+		logger.info("soTimeout   {}", soTimeout);
+		
+		RequesterBuilder requesterBuilder = RequesterBuilder.custom()
+				.setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+				.setSoTimeout(soTimeout)
+				.setMaxTotal(maxTotal)
+				.setDefaultMaxPerRoute(maxPerRoute);
+
+//		Download download = new DownloadAsync();
+		Download download = new DownloadSync();
+		
+		download.setRequesterBuilder(requesterBuilder);
+		
+		// Configure custom header
+		download.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit");
+		
+		// Configure thread count
+		download.setThreadCount(threadCount);
+		
+		//
+		List<yokwe.stock.jp.jasdec.Fund> list = yokwe.stock.jp.jasdec.Fund.load();
+		Collections.shuffle(list);
+		
+		final int listSize = list.size();
+
+		for(var e: list) {
+			String isinCode  = e.isinCode;
+			String uriString = String.format(URL_FUND, isinCode);
+			
+			Task task = StringTask.text(uriString, new MyConsumer(context, isinCode));
+			download.addTask(task);
+		}
+		
+		logger.info("BEFORE RUN");
+		download.startAndWait();
+		logger.info("AFTER  RUN");
+//		download.showRunCount();
+		
+		try {
+			for(int i = 0; i < 10; i++) {
+				int buildCount = context.getBuildCount();
+				if (buildCount == listSize) break;
+				logger.info("buildCount {} / {}", buildCount, listSize);
+				Thread.sleep(1000);
+			}
+			{
+				int buildCount = context.getBuildCount();
+				if (buildCount != listSize) {
+					logger.error("Unexpected");
+					logger.error("  buildCount {}", buildCount);
+					logger.error("  listSize   {}", listSize);
+					throw new UnexpectedException("Unexpected");
+				}
+			}
+			logger.info("AFTER  WAIT");
+		} catch (InterruptedException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		}
+	}
+	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		HttpUtil httpUtil = HttpUtil.getInstance();
+		Context context = new Context();
+		buildContext(context);
 		
-		List<yokwe.stock.jp.jasdec.Fund> fundList = yokwe.stock.jp.jasdec.Fund.load();
-		
-		Collections.shuffle(fundList);
-		
-		List<Fund> funds = new ArrayList<>();
-		
-		int count = 0;
-		for(var fund: fundList) {
-			if ((count % 10) == 0) {
-				logger.info("{} {}", String.format("%5d / %5d", count, fundList.size()), fund.isinCode);
-			}
-			count++;
+		logger.info("save {} {}", context.funds.size(), Fund.getPath());
+		Fund.save(context.funds);
 
-			update(funds, httpUtil, fund.isinCode);
-						
-			// Make pause for not stress server
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				logger.error("Unexpected InterruptedException");
-				
-				String exceptionName = e.getClass().getSimpleName();
-				logger.error("{} {}", exceptionName, e);
-				throw new UnexpectedException("Unexpected InterruptedException");
-			}
-		}
-		
-		logger.info("save {} {}", funds.size(), Fund.getPath());
-		Fund.save(funds);
-		
 		logger.info("STOP");
 	}
 }
