@@ -1,7 +1,7 @@
 package yokwe.util.http;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -12,9 +12,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.DeflaterInputStream;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
@@ -25,6 +28,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
@@ -67,31 +71,35 @@ public class HttpUtil {
 	private static final boolean DEFAULT_TRACE      = false;
 	private static final String  DEFAULT_TRACE_DIR  = "tmp/http";
 	private static final Charset DEFAULT_CHARSET    = StandardCharsets.UTF_8;
-	private static final String  DEFAULT_REFERER    = null;
-	private static final String  DEFAULT_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
-	private static final String  DEFAULT_COOKIE     = null;
-	private static final String  DEFAULT_CONNECTION = "keep-alive";
 	private static final boolean DEFAULT_RAW_DATA   = false;
+	private static final String  DEFAULT_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
+	private static final String  DEFAULT_CONNECTION = "keep-alive";
 
 	public static class Context {
 		boolean trace;
 		String  traceDir;
 		Charset charset;
-		String  referer;
-		String  userAgent;
-		String  cookie;
-		String  connection;
 		boolean rawData;
+
+		Map<String, String> headerMap;
+		
+		// For POST
+		String postBody;
+		String postContentType;
 		
 		private Context() {
 			trace      = DEFAULT_TRACE;
 			traceDir   = DEFAULT_TRACE_DIR;
 			charset    = DEFAULT_CHARSET;
-			referer    = DEFAULT_REFERER;
-			userAgent  = DEFAULT_USER_AGENT;
-			cookie     = DEFAULT_COOKIE;
-			connection = DEFAULT_CONNECTION;
 			rawData    = DEFAULT_RAW_DATA;
+
+			headerMap  =  new TreeMap<>();
+			
+			postBody        = null;
+			postContentType = null;
+			
+			if (DEFAULT_USER_AGENT != null) headerMap.put("User-Agent", DEFAULT_USER_AGENT);
+			if (DEFAULT_CONNECTION != null) headerMap.put("Connection", DEFAULT_CONNECTION);
 		}
 	}
 	
@@ -162,24 +170,40 @@ public class HttpUtil {
 		context.charset = Charset.forName(newValue);
 		return this;
 	}
+	public HttpUtil withRawData(boolean newValue) {
+		context.rawData = newValue;
+		return this;
+	}
+	
 	public HttpUtil withReferer(String newValue) {
-		context.referer = newValue;
+		withHeader("Referer", newValue);
 		return this;
 	}
 	public HttpUtil withUserAgent(String newValue) {
-		context.userAgent = newValue;
+		withHeader("User-Agent", newValue);
 		return this;
 	}
 	public HttpUtil withCookie(String newValue) {
-		context.cookie = newValue;
+		withHeader("Cookie", newValue);
 		return this;
 	}
 	public HttpUtil withConnection(String newValue) {
-		context.connection = newValue;
+		withHeader("Connection", newValue);
 		return this;
 	}
-	public HttpUtil withRawData(boolean newValue) {
-		context.rawData = newValue;
+	public HttpUtil withHeader(String name, String value) {
+		if (value == null) {
+			if (context.headerMap.containsKey(name)) {
+				context.headerMap.remove(name);
+			}
+		} else {
+			context.headerMap.put(name, value);
+		}
+		return this;
+	}
+	public HttpUtil withPost(String body, String contentType) {
+		context.postBody        = body;
+		context.postContentType = contentType;
 		return this;
 	}
 	
@@ -192,48 +216,71 @@ public class HttpUtil {
 			this.response = response;
 			
 			HttpEntity entity = response.getEntity();
+//			logger.info("entity {}", entity);
 			if (entity == null) {
 				charset = null;
 				content = null;
 			} else {
-				String charsetName = entity.getContentEncoding();
-				if (charsetName == null) {
-					this.charset = null;
-				} else {
-					this.charset = Charset.forName(charsetName);
-				}
+				String contentTypeString = entity.getContentType();
+				ContentType conentType = ContentType.parse(contentTypeString);
+				charset = conentType.getCharset();
 
-				int len = (int)entity.getContentLength();
-				ByteArrayOutputStream baos = new ByteArrayOutputStream(0 <= len ? len : 65536);
+				InputStream is = null;
+
 				try {
-					entity.writeTo(baos);
-					content = baos.toByteArray();
+					String contentEncoding = entity.getContentEncoding();
+					if (contentEncoding == null) {
+						is = entity.getContent();
+					} else if (contentEncoding.equalsIgnoreCase("gzip")){
+						is = new GZIPInputStream(entity.getContent());
+					} else if (contentEncoding.equalsIgnoreCase("defalte")){
+						is = new DeflaterInputStream(entity.getContent());
+					} else {
+						logger.error("Unexpected contentEncoding");
+						logger.error("  entity {}", entity);
+						throw new UnexpectedException("Unexpected contentEncoding");
+					}
+					
+					content = is.readAllBytes();
+					is.close();
+					is = null;
 				} catch (IOException e) {
 					String exceptionName = e.getClass().getSimpleName();
 					logger.error("{} {}", exceptionName, e);
 					throw new UnexpectedException(exceptionName, e);
+				} finally {
+					if (is != null) {
+						try {
+							is.close();
+						} catch (IOException e) {
+							String exceptionName = e.getClass().getSimpleName();
+							logger.error("{} {}", exceptionName, e);
+							throw new UnexpectedException(exceptionName, e);
+						}
+					}
 				}
 			}
-			
+//			logger.info("response {} {}", charset, content.length);
 		}
 	}
 	
 	public Result download(String url) {
 		URI                uri     = URI.create(url);
 		HttpHost           target  = HttpHost.create(uri);
-        ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, uri);
+        ClassicHttpRequest request = new BasicClassicHttpRequest((context.postBody != null) ? Method.POST : Method.GET, uri);
 
-		if (context.userAgent != null) {
-			request.setHeader("User-Agent", context.userAgent);
+		for(var e: context.headerMap.entrySet()) {
+			request.setHeader(e.getKey(), e.getValue());
 		}
-		if (context.referer != null) {
-			request.setHeader("Referer", context.referer);
-		}
-		if (context.cookie != null) {
-			request.setHeader("Cookie", context.cookie);
-		}
-		if (context.connection != null) {
-			request.setHeader("Connection", context.connection);
+		String postBody        = context.postBody;
+		String postContentType = context.postContentType;
+		context.postBody        = null;
+		context.postContentType = null;
+		
+		if (postBody != null) {
+			ContentType contentType = ContentType.parse(postContentType);
+			HttpEntity entity = HttpEntities.create(postBody, contentType);
+			request.setEntity(entity);
 		}
 
 		int retryCount = 0;
