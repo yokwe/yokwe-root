@@ -51,6 +51,17 @@
 	</target>
 
 
+	<target name="update-toushin-seller">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateSeller" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
+
 	<!-- OLD APPL -->
 	<target name="update-stock">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateStock" fork="true">
