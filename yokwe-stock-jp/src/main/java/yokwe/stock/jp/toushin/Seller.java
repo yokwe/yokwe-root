@@ -10,7 +10,7 @@ import yokwe.util.StringUtil;
 public class Seller implements Comparable<Seller> {
 	public static final String getPath(String isinCode) {
 		String path = String.format("seller/%s.csv", isinCode);
-		return Fund.getPath(path);
+		return Toushin.getPath(path);
 	}
 	public static void save(String isinCode, List<Seller> list) {
 		Collections.sort(list);

@@ -3,31 +3,32 @@ package yokwe.stock.jp.toushin;
 import java.util.Collections;
 import java.util.List;
 
-import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
+import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 
-public class Fund implements Comparable<Fund> {
-	public static final String NO_LIMIT = "9999-12-31";
-	public static final String PREFIX = "toushin";
+public class MutualFund implements Comparable<MutualFund> {
+	public static final String INDEFINITE = "9999-12-31";
 	
-	public static final String getPath(String path) {
-		return Storage.getPath(PREFIX, path);
-	}
 	public static final String getPath() {
-		return getPath("fund.csv");
+		return Toushin.getPath("mutual-fund.csv");
 	}
 	
-	public static void save(List<Fund> funds) {
-		Collections.sort(funds);
-		CSVUtil.write(Fund.class).file(getPath(), funds);
+	public static void save(List<MutualFund> list) {
+		Collections.sort(list);
+		CSVUtil.write(MutualFund.class).file(getPath(), list);
 	}
-	public static List<Fund> load() {
-		return CSVUtil.read(Fund.class).file(getPath());
+	public static List<MutualFund> load() {
+		return CSVUtil.read(MutualFund.class).file(getPath());
 	}
 
-	public String fundCode;             // associFundCd
 	public String isinCode;             // isinCd
+	public String fundCode;             // associFundCd
+	
+	@ScrapeUtil.Ignore
+	public int    countPrice;
+	@ScrapeUtil.Ignore
+	public int    countSeller;
 	
 	public String issueDate;            // 設定日
 	public String redemptionDate;       // 償還日
@@ -44,15 +45,19 @@ public class Fund implements Comparable<Fund> {
 
 	public String issuer;               // 運用会社名
 	public String name;
-
-	public Fund(
-			String isinCode, String fundCode, 
+	
+	
+	public MutualFund(
+			String isinCode, String fundCode,
+			int countPrice, int countSeller,
 			String name, String issuer, String issueDate, String redemptionDate,
 			String settlementFrequency, String settlementDate, 
 			String cancelationFee, String initialFeeLimit, String redemptionFee,
 			String trustFee, String trustFeeOperation, String trustFeeSeller, String trustFeeBank) {
 		this.isinCode            = isinCode;
 		this.fundCode            = fundCode;
+		this.countPrice          = countPrice;
+		this.countSeller         = countSeller;
 		this.name                = name;
 		this.issuer              = issuer;
 		this.issueDate           = issueDate;
@@ -67,17 +72,16 @@ public class Fund implements Comparable<Fund> {
 		this.trustFeeSeller      = trustFeeSeller;
 		this.trustFeeBank        = trustFeeBank;
 	}
-	public Fund() {
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+	public MutualFund() {
+		this(null, null, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 
 	@Override
-	public int compareTo(Fund that) {
-		return this.fundCode.compareTo(that.fundCode);
-	}
-	
-	@Override
 	public String toString() {
 		return StringUtil.toString(this);
+	}
+	@Override
+	public int compareTo(MutualFund that) {
+		return this.isinCode.compareTo(that.isinCode);
 	}
 }
