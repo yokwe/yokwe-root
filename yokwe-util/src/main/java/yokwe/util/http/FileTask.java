@@ -5,8 +5,10 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
+import org.apache.hc.core5.http.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,10 +25,12 @@ public class FileTask {
 	private static class MyConsumer implements Consumer<Result> {
 		private final File file;
 		private final Mode mode;
+		private final Charset defaultCharset;
 		
-		public MyConsumer(File file, Mode mode) {
-			this.file = file;
-			this.mode = mode;
+		public MyConsumer(File file, Mode mode, Charset defaultCharset) {
+			this.file           = file;
+			this.mode           = mode;
+			this.defaultCharset = defaultCharset;
 		}
 		
 		@Override
@@ -63,14 +67,19 @@ public class FileTask {
 				file.getParentFile().mkdirs();
 			}
 			
-			if (result.charset == null) {
-				logger.error("charset is null");
-				logger.error("  uri         {}", result.task.uri);
-				logger.error("  contentType {}", result.contentType);
-				throw new UnexpectedException("charset is null");
+			Charset charset = result.charset;
+			if (charset == null) {
+				if (defaultCharset != null) {
+					charset = defaultCharset;
+				} else {
+					logger.error("charset is null");
+					logger.error("  uri         {}", result.task.uri);
+					logger.error("  contentType {}", result.contentType);
+					throw new UnexpectedException("charset is null");
+				}
 			}
 			try (FileWriter fw = new FileWriter(file)) {
-				fw.write(new String(result.body, result.charset));
+				fw.write(new String(result.body, charset));
 			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
@@ -79,14 +88,28 @@ public class FileTask {
 		}
 	}
 	
-	private static Task get(String uriString, File file, Mode mode) {
-		return Task.get(new MyConsumer(file, mode), URI.create(uriString));
+	private static Task get(String uriString, File file, Mode mode, Charset defaultCharset) {
+		return Task.get(new MyConsumer(file, mode, defaultCharset), URI.create(uriString));
+	}
+	
+	private static Task post(String uriString, File file, Mode mode, Charset defaultCharset, String content, String contentTypeString) {
+		return Task.post(new MyConsumer(file, mode, defaultCharset), URI.create(uriString), content, ContentType.parse(contentTypeString));
 	}
 	
 	public static Task binary(String uriString, File file) {
-		return get(uriString, file, Mode.BINARY);
+		return get(uriString, file, Mode.BINARY, null);
 	}
 	public static Task text(String uriString, File file) {
-		return get(uriString, file, Mode.TEXT);
+		return get(uriString, file, Mode.TEXT, null);
+	}
+	public static Task text(String uriString, File file, String content, String contentTypeString) {
+		return post(uriString, file, Mode.TEXT, null, content, contentTypeString);
+	}
+	private static final String CONTENT_TYPE_WWW_FORM = "application/x-www-form-urlencoded; charset=UTF-8";
+	public static Task text(String uriString, File file, String content) {
+		return post(uriString, file, Mode.TEXT, null, content, CONTENT_TYPE_WWW_FORM);
+	}
+	public static Task text(String uriString, File file, Charset defaultCharset) {
+		return get(uriString, file, Mode.TEXT, defaultCharset);
 	}
 }
