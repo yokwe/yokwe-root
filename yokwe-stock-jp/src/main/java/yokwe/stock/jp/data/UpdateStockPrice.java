@@ -223,8 +223,7 @@ public class UpdateStockPrice {
 		for(Stock stock: stockList) {
 			String stockCode = stock.stockCode;
 			String uriString = StockPage.getPageURL(stockCode);
-			
-			Task task = StringTask.text(uriString, new MyConsumer(context, stockCode, dateTime));
+			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode, dateTime));
 			download.addTask(task);
 		}
 
