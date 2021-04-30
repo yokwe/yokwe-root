@@ -1,10 +1,14 @@
 package yokwe.util.http;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.zip.DeflaterInputStream;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -43,7 +47,36 @@ public class Result {
 		this.task    = task;
 		
 		this.head    = message.getHead();
-		this.body    = message.getBody();
+		{
+			byte[] byteArray = message.getBody();
+			
+			try {
+				Header contentEncodingHeader = message.getHead().getFirstHeader("Content-Encoding");
+				if (contentEncodingHeader != null) {
+					// uncompress byteArray
+					String contentEncoding = contentEncodingHeader.getValue();
+					
+					InputStream is;
+					if (contentEncoding.equalsIgnoreCase("gzip")) {
+						is = new GZIPInputStream(new ByteArrayInputStream(byteArray));
+					} else if (contentEncoding.equalsIgnoreCase("deflate")) {
+						is = new DeflaterInputStream(new ByteArrayInputStream(byteArray));
+					} else {
+						logger.error("Unexpected content encoding");
+						logger.error("  {}!", contentEncoding);
+						throw new UnexpectedException("Unexpected content encoding");
+					}
+					byte[] newByteArray = is.readAllBytes();
+					is.close();
+					byteArray = newByteArray;
+				}
+			} catch (IOException e) {
+				byteArray = null;
+			}
+			
+			this.body = byteArray;
+		}
+
 		
 		this.version = head.getVersion();
 		this.code    = head.getCode();
@@ -87,6 +120,27 @@ public class Result {
 			} else {
 				try {
 					byteArray = EntityUtils.toByteArray(entity);
+					
+					Header contentEncodingHeader = response.getFirstHeader("Content-Encoding");
+					if (contentEncodingHeader != null) {
+						// uncompress byteArray
+						String contentEncoding = contentEncodingHeader.getValue();
+						
+						InputStream is;
+						if (contentEncoding.equalsIgnoreCase("gzip")) {
+							is = new GZIPInputStream(new ByteArrayInputStream(byteArray));
+						} else if (contentEncoding.equalsIgnoreCase("deflate")) {
+							is = new DeflaterInputStream(new ByteArrayInputStream(byteArray));
+						} else {
+							logger.error("Unexpected content encoding");
+							logger.error("  {}!", contentEncoding);
+							throw new UnexpectedException("Unexpected content encoding");
+						}
+						byte[] newByteArray = is.readAllBytes();
+						is.close();
+						byteArray = newByteArray;
+					}
+
 				} catch (IOException e) {
 					byteArray = null;
 				}
