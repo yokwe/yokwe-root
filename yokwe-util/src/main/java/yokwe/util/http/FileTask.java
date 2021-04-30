@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
-public class FileTask extends Task {
+public class FileTask {
 	static final Logger logger = LoggerFactory.getLogger(FileTask.class);
 
-	public static enum Mode {
+	private static enum Mode {
 		BINARY,
 		TEXT
 	}
@@ -79,24 +79,14 @@ public class FileTask extends Task {
 		}
 	}
 	
-	private FileTask(URI uri, File file, Mode mode) {
-		super(uri, new MyConsumer(file, mode));
+	private static Task get(String uriString, File file, Mode mode) {
+		return Task.get(new MyConsumer(file, mode), URI.create(uriString));
 	}
-	private FileTask(String uriString, File file, Mode mode) {
-		super(uriString, new MyConsumer(file, mode));
+	
+	public static Task binary(String uriString, File file) {
+		return get(uriString, file, Mode.BINARY);
 	}
-
-	public static FileTask binary(URI uri, File file) {
-		return new FileTask(uri, file, Mode.BINARY);
-	}
-	public static FileTask binary(String uriString, File file) {
-		return new FileTask(uriString, file, Mode.BINARY);
-	}
-
-	public static FileTask text(URI uri, File file) {
-		return new FileTask(uri, file, Mode.TEXT);
-	}
-	public static FileTask text(String uriString, File file) {
-		return new FileTask(uriString, file, Mode.TEXT);
+	public static Task text(String uriString, File file) {
+		return get(uriString, file, Mode.TEXT);
 	}
 }

@@ -2,62 +2,66 @@ package yokwe.util.http;
 
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
+import org.apache.hc.core5.http.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
-public class StringTask extends Task {
+public class StringTask {
 	static final Logger logger = LoggerFactory.getLogger(StringTask.class);
 
 	private static class MyConsumer implements Consumer<Result> {		
 		private Consumer<String> consumer;
-		private Charset charset;
+		private Charset          defaultCharset;
 		
-		public MyConsumer(Consumer<String> consumer, Charset charset) {
-			this.consumer = consumer;
-			this.charset = charset;
+		public MyConsumer(Consumer<String> consumer, Charset defaultCharset) {
+			this.consumer        = consumer;
+			this.defaultCharset  = defaultCharset;
 		}
 		
 		@Override
 		public void accept(Result result) {
-			Charset myCharset = result.charset;
-			
-			if (myCharset == null) {
-				if (charset == null) {
-					logger.error("charset is null");
-					logger.error("  uri         {}", result.task.uri);
-					logger.error("  contentType {}", result.contentType);
-					throw new UnexpectedException("charset is null");
-				} else {
-					myCharset = charset;
+			String page;
+			if (result.body == null) {
+				page = "";
+			} else {
+				Charset myCharset = result.charset;
+				
+				if (myCharset == null) {
+					if (defaultCharset == null) {
+						logger.error("defaultCharset is null");
+						logger.error("  uri         {}", result.task.uri);
+						logger.error("  header {}", Arrays.asList(result.head.getHeaders()));
+						throw new UnexpectedException("defaultCharset is null");
+					} else {
+						myCharset = defaultCharset;
+					}
 				}
+				page = new String(result.body, myCharset);
 			}
-			String page = new String(result.body, myCharset);
 			consumer.accept(page);
 		}
 	}
 	
-	private StringTask(URI uri, Consumer<Result> consumer) {
-		super(uri, consumer);
-	}
-	private StringTask(String uriString, Consumer<Result> consumer) {
-		super(uriString, consumer);
-	}
-
-	public static StringTask text(URI uri, Consumer<String> consumer, Charset charset) {
-		return new StringTask(uri, new MyConsumer(consumer, charset));
-	}
-	public static StringTask text(String uriString, Consumer<String> consumer, Charset charset) {
-		return new StringTask(uriString, new MyConsumer(consumer, charset));
+	
+	public static Task post(String uriString, Consumer<String> consumer, String content, String contentTypeString) {
+		return Task.post(new MyConsumer(consumer, null), URI.create(uriString), content, ContentType.parse(contentTypeString));
 	}
 	
-	public static StringTask text(URI uri, Consumer<String> consumer) {
-		return new StringTask(uri, new MyConsumer(consumer, null));
+	private static final ContentType CONTENT_TYPE_WWW_FORM = ContentType.parse("application/x-www-form-urlencoded; charset=UTF-8");
+	public static Task post(String uriString, Consumer<String> consumer, String content) {
+		return Task.post(new MyConsumer(consumer, null), URI.create(uriString), content, CONTENT_TYPE_WWW_FORM);
 	}
-	public static StringTask text(String uriString, Consumer<String> consumer) {
-		return new StringTask(uriString, new MyConsumer(consumer, null));
+
+	public static Task get(String uriString, Consumer<String> consumer, Charset defaultCharset) {
+		return Task.get(new MyConsumer(consumer, defaultCharset), URI.create(uriString));
+	}
+	
+	public static Task get(String uriString, Consumer<String> consumer) {
+		return Task.get(new MyConsumer(consumer, null), URI.create(uriString));
 	}
 }
