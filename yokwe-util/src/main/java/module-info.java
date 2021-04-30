@@ -10,7 +10,7 @@ module yokwe.util {
 	
 	requires httpclient;
 	requires httpcore;
-	requires httpcore5;
+	requires transitive httpcore5;
 	requires transitive httpcore5.h2;
 	
 	requires java.json;
