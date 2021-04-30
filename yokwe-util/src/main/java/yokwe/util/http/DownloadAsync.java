@@ -18,14 +18,15 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
+import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
@@ -44,6 +45,9 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
+//
+// FIXME DownloadSync is OK. But DownloadAsync is not OK.
+//
 public final class DownloadAsync implements Download {
 	static final Logger logger = LoggerFactory.getLogger(DownloadAsync.class);
 
@@ -201,10 +205,15 @@ public final class DownloadAsync implements Download {
 					HttpHost target = HttpHost.create(task.uri);
 					AsyncClientEndpoint clientEndpoint = requester.connect(target, Timeout.ofSeconds(30)).get();
 					
-		            HttpRequest request = new BasicHttpRequest(Method.GET, task.uri);
+		            HttpRequest request = new BasicHttpRequest(task.method, task.uri);
 		            headerList.forEach(o -> request.addHeader(o));
 		            
-		            AsyncRequestProducer                                 requestProducer  = new BasicRequestProducer(request, null);
+		            AsyncEntityProducer asyncEnttityProducer = null;
+		            if (task.entity != null) {
+		            	asyncEnttityProducer = new BasicAsyncEntityProducer(task.entity, task.contentType);
+		            }
+		            
+		            AsyncRequestProducer                                 requestProducer  = new BasicRequestProducer(request, asyncEnttityProducer);
 		            AsyncResponseConsumer<Message<HttpResponse, byte[]>> responseConsumer = new BasicResponseConsumer<>(new BasicAsyncEntityConsumer());
 		            FutureCallback<Message<HttpResponse, byte[]>>        futureCallback   = new FutureCallback<Message<HttpResponse, byte[]>>() {
 		        	    @Override
