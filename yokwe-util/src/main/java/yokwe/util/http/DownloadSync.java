@@ -11,13 +11,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -162,8 +163,12 @@ public final class DownloadSync implements Download {
 	            try {
 					HttpHost target = HttpHost.create(task.uri);
 					
-		            ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, task.uri);
+		            ClassicHttpRequest request = new BasicClassicHttpRequest(task.method, task.uri);
 		            headerList.forEach(o -> request.addHeader(o));
+		            if (task.entity != null) {
+		            	HttpEntity httpEntity = HttpEntities.create(task.entity, task.contentType);
+		            	request.setEntity(httpEntity);
+		            }
 		            
 		            HttpClientResponseHandler<Result> responseHandler = new HttpClientResponseHandler<Result>() {
 		        		@Override
