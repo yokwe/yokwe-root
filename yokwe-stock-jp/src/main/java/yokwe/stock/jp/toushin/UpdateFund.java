@@ -201,8 +201,7 @@ public class UpdateFund {
 		for(var e: list) {
 			String isinCode  = e.isinCode;
 			String uriString = String.format(URL_FUND, isinCode);
-			
-			Task task = StringTask.text(uriString, new MyConsumer(context, isinCode));
+			Task   task      = StringTask.get(uriString, new MyConsumer(context, isinCode));
 			download.addTask(task);
 		}
 		

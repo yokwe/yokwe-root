@@ -128,8 +128,7 @@ public class UpdatePrice {
 		for(var e: list) {
 			String isinCode  = e.isinCode;
 			String uriString = String.format(CSV_URL, e.isinCode, e.fundCode);
-			
-			Task task = StringTask.text(uriString, new MyConsumer(context, isinCode), CSV_CHARSET);
+			Task   task      = StringTask.get(uriString, new MyConsumer(context, isinCode), CSV_CHARSET);
 			download.addTask(task);
 		}
 		
