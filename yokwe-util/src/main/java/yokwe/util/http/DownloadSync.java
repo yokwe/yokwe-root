@@ -60,6 +60,9 @@ public final class DownloadSync implements Download {
 	}
 	
 	private final List<Header> headerList = new ArrayList<>();
+	public void clearHeader() {
+		headerList.clear();
+	}
 	public void addHeader(String name, String value) {
 		headerList.add(new BasicHeader(name, value));
 	}

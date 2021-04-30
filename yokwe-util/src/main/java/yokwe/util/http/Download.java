@@ -5,6 +5,7 @@ public interface Download {
 	
 	public void addTask(Task task);
 	
+	public void clearHeader();
 	public void addHeader(String name, String value);
 	public void setReferer(String value);
 	public void setUserAgent(String value);
