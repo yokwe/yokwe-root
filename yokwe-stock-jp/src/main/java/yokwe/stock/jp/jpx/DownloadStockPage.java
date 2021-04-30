@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.slf4j.LoggerFactory;
 
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.data.Price;
 import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadAsync;
 import yokwe.util.http.FileTask;
