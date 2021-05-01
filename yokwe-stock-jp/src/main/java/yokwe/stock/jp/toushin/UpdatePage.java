@@ -114,12 +114,12 @@ public class UpdatePage {
 			
 			Page page = Page.getInstance(string);
 			MutualFund mutualFund = new MutualFund(
-					page.isinCode, page.fundCode,
-					0, 0,
-					page.name, page.issuer, page.issueDate, page.redemptionDate,
-					page.settlementFrequency, page.settlementDate, 
-					page.cancelationFee, page.initialFeeLimit, page.redemptionFee,
-					page.trustFee, page.trustFeeOperation, page.trustFeeSeller, page.trustFeeBank);
+				page.isinCode, page.fundCode,
+				0, 0,
+				page.name, page.issuer, page.issueDate, page.redemptionDate,
+				page.settlementFrequency, page.settlementDate, 
+				page.cancelationFee, page.initialFeeLimit, page.redemptionFee,
+				page.trustFee, page.trustFeeOperation, page.trustFeeSeller, page.trustFeeBank);
 
 			list.add(mutualFund);
 		}
