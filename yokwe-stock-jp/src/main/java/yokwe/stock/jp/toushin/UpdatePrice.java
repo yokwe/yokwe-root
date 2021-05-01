@@ -17,7 +17,7 @@ public class UpdatePrice {
 		logger.info("update");
 		
 		int count = 0;
-		File dir = new File(DownloadFile.getPathPrice(""));
+		File dir = new File(DownloadFile.Price.getPath());
 		for(var file: dir.listFiles()) {
 			if (file.isDirectory()) continue;
 			String isinCode = file.getName();

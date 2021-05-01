@@ -41,7 +41,7 @@ public class UpdateSeller {
 		logger.info("update");
 
 		int count = 0;
-		File dir = new File(DownloadFile.getPathSeller(""));
+		File dir = new File(DownloadFile.Seller.getPath());
 		for(var file: dir.listFiles()) {
 			if (file.isDirectory()) continue;
 			String isinCode = file.getName();

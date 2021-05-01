@@ -99,7 +99,7 @@ public class UpdatePage {
 	private static final String DOESNOT_EXIST = "該当ファンドは存在しない";
 	public static void update() {
 		logger.info("update");
-		File dir = new File(DownloadFile.getPathPage(""));
+		File dir = new File(DownloadFile.Page.getPath());
 		if (!dir.exists()) {
 			dir.mkdirs();
 		}
@@ -134,6 +134,4 @@ public class UpdatePage {
 		
 		logger.info("STOP");
 	}
-	
-
 }
