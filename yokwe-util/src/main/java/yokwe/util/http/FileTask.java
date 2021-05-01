@@ -96,20 +96,22 @@ public class FileTask {
 		return Task.post(new MyConsumer(file, mode, defaultCharset), URI.create(uriString), content, ContentType.parse(contentTypeString));
 	}
 	
-	public static Task binary(String uriString, File file) {
+	public static Task getRaw(String uriString, File file) {
 		return get(uriString, file, Mode.BINARY, null);
 	}
-	public static Task text(String uriString, File file) {
+	public static Task get(String uriString, File file) {
 		return get(uriString, file, Mode.TEXT, null);
 	}
-	public static Task text(String uriString, File file, String content, String contentTypeString) {
+	public static Task get(String uriString, File file, Charset defaultCharset) {
+		return get(uriString, file, Mode.TEXT, defaultCharset);
+	}
+	
+	public static Task post(String uriString, File file, String content, String contentTypeString) {
 		return post(uriString, file, Mode.TEXT, null, content, contentTypeString);
 	}
+	
 	private static final String CONTENT_TYPE_WWW_FORM = "application/x-www-form-urlencoded; charset=UTF-8";
-	public static Task text(String uriString, File file, String content) {
+	public static Task post(String uriString, File file, String content) {
 		return post(uriString, file, Mode.TEXT, null, content, CONTENT_TYPE_WWW_FORM);
-	}
-	public static Task text(String uriString, File file, Charset defaultCharset) {
-		return get(uriString, file, Mode.TEXT, defaultCharset);
 	}
 }
