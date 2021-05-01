@@ -1,5 +1,6 @@
 package yokwe.stock.jp.toushin;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +30,11 @@ public class MutualFund implements Comparable<MutualFund> {
 	public int    countPrice;
 	@ScrapeUtil.Ignore
 	public int    countSeller;
+	
+	@ScrapeUtil.Ignore
+	public BigDecimal initialFeeMin;    // 購入時手数料 最小
+	@ScrapeUtil.Ignore
+	public BigDecimal initialFeeMax;    // 購入時手数料 最大
 	
 	public String issueDate;            // 設定日
 	public String redemptionDate;       // 償還日
