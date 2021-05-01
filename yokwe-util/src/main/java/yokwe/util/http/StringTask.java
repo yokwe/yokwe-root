@@ -47,21 +47,20 @@ public class StringTask {
 		}
 	}
 	
-	
-	public static Task post(String uriString, Consumer<String> consumer, String content, String contentTypeString) {
-		return Task.post(new MyConsumer(consumer, null), URI.create(uriString), content, ContentType.parse(contentTypeString));
-	}
-	
-	private static final ContentType CONTENT_TYPE_WWW_FORM = ContentType.parse("application/x-www-form-urlencoded; charset=UTF-8");
-	public static Task post(String uriString, Consumer<String> consumer, String content) {
-		return Task.post(new MyConsumer(consumer, null), URI.create(uriString), content, CONTENT_TYPE_WWW_FORM);
-	}
-
 	public static Task get(String uriString, Consumer<String> consumer, Charset defaultCharset) {
 		return Task.get(new MyConsumer(consumer, defaultCharset), URI.create(uriString));
 	}
 	
 	public static Task get(String uriString, Consumer<String> consumer) {
-		return Task.get(new MyConsumer(consumer, null), URI.create(uriString));
+		return get(uriString, consumer, null);
+	}
+	
+	public static Task post(String uriString, Consumer<String> consumer, String content, String contentTypeString) {
+		return Task.post(new MyConsumer(consumer, null), URI.create(uriString), content, ContentType.parse(contentTypeString));
+	}
+	
+	private static final String CONTENT_TYPE_WWW_FORM = "application/x-www-form-urlencoded; charset=UTF-8";
+	public static Task post(String uriString, Consumer<String> consumer, String content) {
+		return post(uriString, consumer, content, CONTENT_TYPE_WWW_FORM);
 	}
 }
