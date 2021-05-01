@@ -96,7 +96,7 @@ public class DownloadStockPage {
 				String uriString = StockPage.getPageURL(stockCode);
 				File   file      = StockPage.getPageFile(stock.stockCode);
 				
-				Task task = FileTask.text(uriString, file);
+				Task task = FileTask.get(uriString, file);
 				download.addTask(task);
 			}
 
