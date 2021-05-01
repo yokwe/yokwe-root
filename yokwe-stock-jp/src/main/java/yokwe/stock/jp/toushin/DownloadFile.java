@@ -98,8 +98,9 @@ public final class DownloadFile {
 		
 		Collections.shuffle(list);
 		
-		context.download.clearHeader();
-		context.download.setUserAgent(USER_AGENT);
+		context.download
+			.clearHeader()
+			.setUserAgent(USER_AGENT);
 		
 		logger.info("download page {}", list.size());
 		for(var isinCode: list) {
@@ -131,8 +132,9 @@ public final class DownloadFile {
 		
 		Collections.shuffle(list);
 		
-		context.download.clearHeader();
-		context.download.setUserAgent(USER_AGENT);
+		context.download
+			.clearHeader()
+			.setUserAgent(USER_AGENT);
 		
 		Charset defaultCharset = Charset.forName("Shift_JIS");
 		
@@ -167,13 +169,14 @@ public final class DownloadFile {
 				
 		Collections.shuffle(list);
 		
-		context.download.clearHeader();
-		context.download.setUserAgent(USER_AGENT);
-		context.download.addHeader("Accept",           "*/*");
-		context.download.addHeader("X-Requested-With", "XMLHttpRequest");
-		context.download.addHeader("Origin",           "toushin-lib.fwg.ne.jp");
-		context.download.addHeader("Accept-Encoding",  "gzip, deflate");
-		context.download.addHeader("Accept-Language",  "ja");
+		context.download
+			.clearHeader()
+			.setUserAgent(USER_AGENT)
+			.addHeader("Accept",           "*/*")
+			.addHeader("X-Requested-With", "XMLHttpRequest")
+			.addHeader("Origin",           "toushin-lib.fwg.ne.jp")
+			.addHeader("Accept-Encoding",  "gzip, deflate")
+			.addHeader("Accept-Language",  "ja");
 
 		logger.info("download seller {}", list.size());
 		for(var isinCode: list) {
