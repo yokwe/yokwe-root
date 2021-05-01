@@ -97,7 +97,6 @@ public final class DownloadSync implements Download {
 		}
 		taskQueueSize = taskQueue.size();
 		
-		logger.info("threadCount {}", threadCount);
 		executor = Executors.newFixedThreadPool(threadCount);
 		
 		workerArray = new Worker[threadCount];

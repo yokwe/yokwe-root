@@ -136,7 +136,6 @@ public final class DownloadAsync implements Download {
 		}
 		taskQueueSize = taskQueue.size();
 		
-		logger.info("threadCount {}", threadCount);
 		executor = Executors.newFixedThreadPool(threadCount);
 		
 		stopLatch = new CountDownLatch(taskQueueSize);
