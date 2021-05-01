@@ -7,8 +7,10 @@ import yokwe.util.CSVUtil;
 import yokwe.util.StringUtil;
 
 public class Price implements Comparable<Price> {
+	public static final String PREFIX = "price";
+	
 	public static final String getPath(String isinCode) {
-		String path = String.format("price/%s.csv", isinCode);
+		String path = String.format("%s/%s.csv", PREFIX, isinCode);
 		return Toushin.getPath(path);
 	}
 	public static void save(String isinCode, List<Price> list) {
