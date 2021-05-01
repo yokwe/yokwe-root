@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
 import yokwe.util.http.FileTask;
@@ -37,23 +38,10 @@ public final class DataFile {
 	
 	private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
 	
-	private static class Context {
-		public Download            download;
-		public Set<String>         set; // isinCode list
-		public Map<String, String> map; // map isinCode -> fundCode
-		
-		public Context(Download download, Set<String> set, Map<String, String> map) {
-			this.download = download;
-			this.set      = set;
-			this.map      = map;
-		}
-	}
-
 	private static void deleteForeignFile(String path, Set<String> set) {
 		File dir = new File(path);
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
+		dir.mkdirs();
+		
 		for(var e: dir.listFiles()) {
 			if (e.isDirectory()) continue;
 			if (e.length() == 0) {
@@ -67,9 +55,7 @@ public final class DataFile {
 	}
 	private static List<String> notExistingList(String path, Set<String> set) {
 		File dir = new File(path);
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
+		dir.mkdirs();
 		
 		List<String> ret = new ArrayList<>();
 		for(var e: set) {
@@ -95,17 +81,17 @@ public final class DataFile {
 		//
 		// download
 		//
-		private static void download(Context context) {
+		private static void download(Download download, Set<String> isinCodeSet) {
 			String dir = getPath();
 			
 			// delete foreign file
-			deleteForeignFile(dir, context.set);
+			deleteForeignFile(dir, isinCodeSet);
 			// create list of not existing file
-			List<String> list = notExistingList(dir, context.set);
+			List<String> list = notExistingList(dir, isinCodeSet);
 			
 			Collections.shuffle(list);
 			
-			context.download
+			download
 				.clearHeader()
 				.setUserAgent(USER_AGENT);
 			
@@ -114,11 +100,11 @@ public final class DataFile {
 				String uriString = String.format(URL, isinCode);
 				File   file      = new File(getPath(isinCode));
 				Task   task      = FileTask.get(uriString, file);
-				context.download.addTask(task);
+				download.addTask(task);
 			}
 			
 			logger.info("BEFORE RUN");
-			context.download.startAndWait();
+			download.startAndWait();
 			logger.info("AFTER  RUN");	
 		}
 
@@ -208,14 +194,12 @@ public final class DataFile {
 		}
 		
 		private static final String DOESNOT_EXIST = "該当ファンドは存在しない";
-		public static void update() {
-			logger.info("update");
+		public static List<MutualFund> update() {
+			logger.info("update page");
 			File dir = new File(DataFile.PageFile.getPath());
-			if (!dir.exists()) {
-				dir.mkdirs();
-			}
+			dir.mkdirs();
 			
-			List<MutualFund> list = new ArrayList<>();
+			List<MutualFund> ret = new ArrayList<>();
 			
 			for(var file: dir.listFiles()) {
 				if (file.isDirectory()) continue;
@@ -232,10 +216,10 @@ public final class DataFile {
 					page.cancelationFee, page.initialFeeLimit, page.redemptionFee,
 					page.trustFee, page.trustFeeOperation, page.trustFeeSeller, page.trustFeeBank);
 
-				list.add(mutualFund);
+				ret.add(mutualFund);
 			}
-			logger.info("save {} {}", list.size(), MutualFund.getPath());
-			MutualFund.save(list);
+			logger.info("count {}", ret.size());
+			return ret;
 		}
 	
 	}
@@ -256,38 +240,31 @@ public final class DataFile {
 		//
 		// download
 		//
-		private static void download(Context context) {
+		private static void download(Download download, Set<String> set, Map<String, String> map) {
 			String dir = getPath();
 			
 			// delete foreign file
-			deleteForeignFile(dir, context.map.keySet());
+			deleteForeignFile(dir, map.keySet());
 			// create list of not existing file
-			List<String> list = new ArrayList<>();
-			{
-				for(var e: notExistingList(dir, context.set)) {
-					if (context.map.containsKey(e)) {
-						list.add(e);
-					}
-				}
-			}
+			List<String> list = notExistingList(dir, set);
 			
 			Collections.shuffle(list);
 			
-			context.download
+			download
 				.clearHeader()
 				.setUserAgent(USER_AGENT);
 						
 			logger.info("download price {}", list.size());
 			for(var isinCode: list) {
-				String fundCode  = context.map.get(isinCode);
+				String fundCode  = map.get(isinCode);
 				String uriString = String.format(URL, isinCode, fundCode);
 				File   file      = new File(getPath(isinCode));
 				Task   task      = FileTask.get(uriString, file, DEFAULT_CHARSET);
-				context.download.addTask(task);
+				download.addTask(task);
 			}
 			
 			logger.info("BEFORE RUN");
-			context.download.startAndWait();
+			download.startAndWait();
 			logger.info("AFTER  RUN");
 		}
 
@@ -296,14 +273,20 @@ public final class DataFile {
 		//
 		private static final String  CSV_HEADER  = "年月日,基準価額(円),純資産総額（百万円）,分配金,決算期";
 		
-		public static void update() {
-			logger.info("update");
+		public static void update(Map<String, MutualFund> fundMap) {
+			logger.info("update price");
 			
 			int count = 0;
 			File dir = new File(DataFile.PriceFile.getPath());
 			for(var file: dir.listFiles()) {
 				if (file.isDirectory()) continue;
 				String isinCode = file.getName();
+				if (!fundMap.containsKey(isinCode)) {
+					logger.error("Unexpected isinCode");
+					logger.error("  {}!", isinCode);
+					throw new UnexpectedException("Unexpected isinCode");
+				}
+				MutualFund fund = fundMap.get(isinCode);
 				
 				String string = FileUtil.read().file(file);
 				
@@ -327,11 +310,13 @@ public final class DataFile {
 							
 							date = date.replace("年", "-").replace("月", "-").replace("日", "");
 
-							Price fundPrice = new Price(date, basePrice, netAssetValue, dividend, period);
-							priceList.add(fundPrice);
+							Price price = new Price(date, basePrice, netAssetValue, dividend, period);
+							priceList.add(price);
 						}
 					}
 					Price.save(isinCode, priceList);
+					fund.countPrice = priceList.size();
+					
 					count++;
 				} else {
 					logger.warn("Unpexpected header");
@@ -359,24 +344,17 @@ public final class DataFile {
 		//
 		// download
 		//
-		private static void download(Context context) {
+		private static void download(Download download, Set<String> set) {
 			String dir = getPath();
 			
 			// delete foreign file
-			deleteForeignFile(dir, context.set);
+			deleteForeignFile(dir, set);
 			// create list of not existing file
-			List<String> list = new ArrayList<>();
-			{
-				for(var e: notExistingList(dir, context.set)) {
-					if (context.map.containsKey(e)) {
-						list.add(e);
-					}
-				}
-			}
+			List<String> list = notExistingList(dir, set);
 					
 			Collections.shuffle(list);
 			
-			context.download
+			download
 				.clearHeader()
 				.setUserAgent(USER_AGENT)
 				.addHeader("Accept",           "*/*")
@@ -391,11 +369,11 @@ public final class DataFile {
 				String content   = String.format("isinCd=%s", isinCode);
 				String path      = getPath(isinCode);
 				Task   task      = FileTask.post(uriString, new File(path), content);
-				context.download.addTask(task);
+				download.addTask(task);
 			}
 			
 			logger.info("BEFORE RUN");
-			context.download.startAndWait();
+			download.startAndWait();
 			logger.info("AFTER  RUN");
 		}
 
@@ -422,28 +400,43 @@ public final class DataFile {
 			}
 		}
 
-		public static void update() {
-			logger.info("update");
+		public static void update(Map<String, MutualFund> fundMap) {
+			logger.info("update seller");
 
 			int count = 0;
 			File dir = new File(DataFile.SellerFile.getPath());
 			for(var file: dir.listFiles()) {
 				if (file.isDirectory()) continue;
 				String isinCode = file.getName();
+				if (!fundMap.containsKey(isinCode)) {
+					logger.error("Unexpected isinCode");
+					logger.error("  {}!", isinCode);
+					throw new UnexpectedException("Unexpected isinCode");
+				}
+				MutualFund fund = fundMap.get(isinCode);
 				
 				String string = FileUtil.read().file(file);
 				
 				if (string.startsWith("[")) {
-					List<Seller> list = new ArrayList<>();
+					BigDecimal initialFeeMin = BigDecimal.ZERO;
+					BigDecimal initialFeeMax = BigDecimal.ZERO;
+					
+					List<Seller> sellerList = new ArrayList<>();
 					for(var e: JSON.getList(SellerInfo.class, string)) {
 						if (e.salesFee == null) {
 							e.salesFee = BigDecimal.ZERO;
 						}
+						initialFeeMin = initialFeeMin.min(e.salesFee);
+						initialFeeMax = initialFeeMin.max(e.salesFee);
 						
-						list.add(new Seller(isinCode, e.fdsInstCd, e.salesFee, e.instName));
+						sellerList.add(new Seller(isinCode, e.fdsInstCd, e.salesFee, e.instName));
 					}
 					
-					Seller.save(isinCode, list);
+					Seller.save(isinCode, sellerList);
+					fund.countSeller   = sellerList.size();
+					fund.initialFeeMin = initialFeeMin;
+					fund.initialFeeMax = initialFeeMax;
+					
 					count++;
 				} else {
 					logger.warn("string is not JSON");
@@ -482,40 +475,35 @@ public final class DataFile {
 			// Configure thread count
 			download.setThreadCount(threadCount);
 		}
-		Set<String> set = new TreeSet<>(yokwe.stock.jp.jasdec.Fund.load().stream().map(o -> o.isinCode).collect(Collectors.toList()));
-		logger.info("jasdec {}", set.size());
-		Map<String, String> map = new TreeMap<>();
+		Set<String> isinCodeSet = new TreeSet<>(yokwe.stock.jp.jasdec.Fund.load().stream().map(o -> o.isinCode).collect(Collectors.toList()));
+		logger.info("jasdec {}", isinCodeSet.size());
 		
-		Context context = new Context(download, set, map);
+		PageFile.download(download, isinCodeSet);
+		List<MutualFund> fundList = PageFile.update();
 		
-		PageFile.download(context);
-		PageFile.update();
-		{
-			List<MutualFund> list = MutualFund.load();
-			if (list != null) {
-				for(var e: list) {
-					context.map.put(e.isinCode, e.fundCode);
-				}
-			}
-			logger.info("context.map {}", context.map.size());
+		// build set and map
+		Set<String>             set     = new TreeSet<>();
+		Map<String, String>     map     = new TreeMap<>();
+		Map<String, MutualFund> fundMap = new TreeMap<>();
+		
+		for(var e: fundList) {
+			set.add(e.isinCode);
+			map.put(e.isinCode, e.fundCode);
+			fundMap.put(e.isinCode, e);
 		}
+		
 
-		PriceFile.download(context);
-		SellerFile.download(context);
+		PriceFile.download(download, set, map);
+		SellerFile.download(download, set);
 		
-		PriceFile.update();
-		SellerFile.update();
+		PriceFile.update(fundMap);
+		SellerFile.update(fundMap);
 		
-		logger.info("update countPrice and countSeller");
-		List<MutualFund> list = MutualFund.load();
-		for(var e: list) {
-			List<Price>	priceList = Price.load(e.isinCode);
-			List<Seller> sellerList = Seller.load(e.isinCode);
-			
-			e.countPrice = priceList.size();
-			e.countSeller = sellerList.size();
+		{
+			List<MutualFund> list = fundMap.values().stream().collect(Collectors.toList());
+			MutualFund.save(list);
+			logger.info("mutual-fund {} {}", list.size(), MutualFund.getPath());
 		}
-		MutualFund.save(list);
 		
 		logger.info("STOP");
 	}	
