@@ -23,27 +23,13 @@ import yokwe.util.http.Task;
 public final class DownloadFile {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DownloadFile.class);
 
-	public static final String PREFIX = "download";
+	private static final String PREFIX = "download";
 	
-	public static final String DIR_PAGE   = "page";
-	public static final String DIR_PRICE  = "price";
-	public static final String DIR_SELLER = "seller";
-	
-	public static final String getPathPage(String isinCode) {
-		return Toushin.getPath(String.format("%s/%s/%s", PREFIX, DIR_PAGE, isinCode));
+	public static String getPath(String path) {
+		return Toushin.getPath(String.format("%s/%s", PREFIX, path));
 	}
-	public static final String getPathPrice(String isinCode) {
-		return Toushin.getPath(String.format("%s/%s/%s", PREFIX, DIR_PRICE, isinCode));
-	}
-	public static final String getPathSeller(String isinCode) {
-		return Toushin.getPath(String.format("%s/%s/%s", PREFIX, DIR_SELLER, isinCode));
-	}
-	
-	private static final String URL_PAGE = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000?isinCd=%s";
 	
 	private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
-	
-	private static final String URL_PRICE = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd=%s&associFundCd=%s";
 	
 	private static class Context {
 		public Download            download;
@@ -88,109 +74,148 @@ public final class DownloadFile {
 		return ret;
 	}
 	
-	private static void downloadPage(Context context) {
-		String dir = getPathPage("");
+	
+	public static final class Page {
+		private static final String DIR = "page";
+		private static final String URL = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000?isinCd=%s";
 		
-		// delete foreign file
-		deleteForeignFile(dir, context.set);
-		// create list of not existing file
-		List<String> list = notExistingList(dir, context.set);
-		
-		Collections.shuffle(list);
-		
-		context.download
-			.clearHeader()
-			.setUserAgent(USER_AGENT);
-		
-		logger.info("download page {}", list.size());
-		for(var isinCode: list) {
-			String uriString = String.format(URL_PAGE, isinCode);
-			File   file      = new File(getPathPage(isinCode));
-			Task   task      = FileTask.text(uriString, file);
-			context.download.addTask(task);
+		public static String getPath(String isinCode) {
+			return DownloadFile.getPath(String.format("%s/%s", DIR, isinCode));
+		}
+		public static String getPath() {
+			return DownloadFile.getPath(DIR);
 		}
 		
-		logger.info("BEFORE RUN");
-		context.download.startAndWait();
-		logger.info("AFTER  RUN");
+		private static void download(Context context) {
+			String dir = getPath();
+			
+			// delete foreign file
+			deleteForeignFile(dir, context.set);
+			// create list of not existing file
+			List<String> list = notExistingList(dir, context.set);
+			
+			Collections.shuffle(list);
+			
+			context.download
+				.clearHeader()
+				.setUserAgent(USER_AGENT);
+			
+			logger.info("download page {}", list.size());
+			for(var isinCode: list) {
+				String uriString = String.format(URL, isinCode);
+				File   file      = new File(getPath(isinCode));
+				Task   task      = FileTask.get(uriString, file);
+				context.download.addTask(task);
+			}
+			
+			logger.info("BEFORE RUN");
+			context.download.startAndWait();
+			logger.info("AFTER  RUN");	
+		}
 	}
 	
-	private static void downloadPrice(Context context) {
-		String dir = getPathPrice("");
-		
-		// delete foreign file
-		deleteForeignFile(dir, context.map.keySet());
-		// create list of not existing file
-		List<String> list = new ArrayList<>();
-		{
-			for(var e: notExistingList(dir, context.set)) {
-				if (context.map.containsKey(e)) {
-					list.add(e);
-				}
-			}
-		}
-		
-		Collections.shuffle(list);
-		
-		context.download
-			.clearHeader()
-			.setUserAgent(USER_AGENT);
-		
-		Charset defaultCharset = Charset.forName("Shift_JIS");
-		
-		logger.info("download price {}", list.size());
-		for(var e: list) {
-			String fundCode  = context.map.get(e);
-			String uriString = String.format(URL_PRICE, e, fundCode);
-			File   file      = new File(getPathPrice(e));
-			Task   task      = FileTask.text(uriString, file, defaultCharset);
-			context.download.addTask(task);
-		}
-		
-		logger.info("BEFORE RUN");
-		context.download.startAndWait();
-		logger.info("AFTER  RUN");
-	}
 	
-	private static void downloadSeller(Context context) {
-		String dir = getPathSeller("");
-		
-		// delete foreign file
-		deleteForeignFile(dir, context.set);
-		// create list of not existing file
-		List<String> list = new ArrayList<>();
-		{
-			for(var e: notExistingList(dir, context.set)) {
-				if (context.map.containsKey(e)) {
-					list.add(e);
-				}
-			}
-		}
-				
-		Collections.shuffle(list);
-		
-		context.download
-			.clearHeader()
-			.setUserAgent(USER_AGENT)
-			.addHeader("Accept",           "*/*")
-			.addHeader("X-Requested-With", "XMLHttpRequest")
-			.addHeader("Origin",           "toushin-lib.fwg.ne.jp")
-			.addHeader("Accept-Encoding",  "gzip, deflate")
-			.addHeader("Accept-Language",  "ja");
+	public static final class Price {
+		private static final String  DIR = "price";
+		private static final String  URL = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd=%s&associFundCd=%s";
+		private static final Charset DEFAULT_CHARSET = Charset.forName("Shift_JIS");
 
-		logger.info("download seller {}", list.size());
-		for(var isinCode: list) {
-			String uriString = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/company-search";
-			String content   = String.format("isinCd=%s", isinCode);
-			String path      = getPathSeller(isinCode);
-			Task   task      = FileTask.text(uriString, new File(path), content);
-			context.download.addTask(task);
+		public static String getPath(String isinCode) {
+			return DownloadFile.getPath(String.format("%s/%s", DIR, isinCode));
 		}
-		
-		logger.info("BEFORE RUN");
-		context.download.startAndWait();
-		logger.info("AFTER  RUN");
+		public static String getPath() {
+			return DownloadFile.getPath(DIR);
+		}
+
+		private static void download(Context context) {
+			String dir = getPath();
+			
+			// delete foreign file
+			deleteForeignFile(dir, context.map.keySet());
+			// create list of not existing file
+			List<String> list = new ArrayList<>();
+			{
+				for(var e: notExistingList(dir, context.set)) {
+					if (context.map.containsKey(e)) {
+						list.add(e);
+					}
+				}
+			}
+			
+			Collections.shuffle(list);
+			
+			context.download
+				.clearHeader()
+				.setUserAgent(USER_AGENT);
+						
+			logger.info("download price {}", list.size());
+			for(var isinCode: list) {
+				String fundCode  = context.map.get(isinCode);
+				String uriString = String.format(URL, isinCode, fundCode);
+				File   file      = new File(getPath(isinCode));
+				Task   task      = FileTask.get(uriString, file, DEFAULT_CHARSET);
+				context.download.addTask(task);
+			}
+			
+			logger.info("BEFORE RUN");
+			context.download.startAndWait();
+			logger.info("AFTER  RUN");
+		}
 	}
+	
+	
+	public static final class Seller {
+		private static final String DIR = "seller";
+		private static final String URL = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/company-search";
+		
+		public static String getPath(String isinCode) {
+			return DownloadFile.getPath(String.format("%s/%s", DIR, isinCode));
+		}
+		public static String getPath() {
+			return DownloadFile.getPath(DIR);
+		}
+
+		private static void download(Context context) {
+			String dir = getPath();
+			
+			// delete foreign file
+			deleteForeignFile(dir, context.set);
+			// create list of not existing file
+			List<String> list = new ArrayList<>();
+			{
+				for(var e: notExistingList(dir, context.set)) {
+					if (context.map.containsKey(e)) {
+						list.add(e);
+					}
+				}
+			}
+					
+			Collections.shuffle(list);
+			
+			context.download
+				.clearHeader()
+				.setUserAgent(USER_AGENT)
+				.addHeader("Accept",           "*/*")
+				.addHeader("X-Requested-With", "XMLHttpRequest")
+				.addHeader("Origin",           "toushin-lib.fwg.ne.jp")
+				.addHeader("Accept-Encoding",  "gzip, deflate")
+				.addHeader("Accept-Language",  "ja");
+
+			logger.info("download seller {}", list.size());
+			for(var isinCode: list) {
+				String uriString = URL;
+				String content   = String.format("isinCd=%s", isinCode);
+				String path      = getPath(isinCode);
+				Task   task      = FileTask.post(uriString, new File(path), content);
+				context.download.addTask(task);
+			}
+			
+			logger.info("BEFORE RUN");
+			context.download.startAndWait();
+			logger.info("AFTER  RUN");
+		}
+	}
+	
 	
 	public static void main(String[] args) {
 		logger.info("START");
@@ -223,7 +248,7 @@ public final class DownloadFile {
 		
 		Context context = new Context(download, set, map);
 		
-		downloadPage(context);
+		Page.download(context);
 		UpdatePage.update();
 		{
 			List<MutualFund> list = MutualFund.load();
@@ -235,8 +260,8 @@ public final class DownloadFile {
 			logger.info("context.map {}", context.map.size());
 		}
 
-		downloadPrice(context);
-		downloadSeller(context);
+		Price.download(context);
+		Seller.download(context);
 		
 		logger.info("STOP");
 	}
