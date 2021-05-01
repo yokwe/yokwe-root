@@ -34,7 +34,7 @@ public final class DownloadSync implements Download {
 
 	private HttpRequester requester = null;
 	
-	public void setRequesterBuilder(RequesterBuilder requesterBuilder) {
+	public DownloadSync setRequesterBuilder(RequesterBuilder requesterBuilder) {
 		SocketConfig socketConfig = SocketConfig.custom()
                 .setSoTimeout(requesterBuilder.soTimeout, TimeUnit.SECONDS)
                 .build();
@@ -52,30 +52,38 @@ public final class DownloadSync implements Download {
                 requester.close(CloseMode.GRACEFUL);
            }
         });
+        
+        return this;
 	}
 	
 	private final LinkedList<Task> taskQueue = new LinkedList<Task>();
-	public void addTask(Task task) {
+	public DownloadSync addTask(Task task) {
 		taskQueue.add(task);
+		return this;
 	}
 	
 	private final List<Header> headerList = new ArrayList<>();
-	public void clearHeader() {
+	public DownloadSync clearHeader() {
 		headerList.clear();
+		return this;
 	}
-	public void addHeader(String name, String value) {
+	public DownloadSync addHeader(String name, String value) {
 		headerList.add(new BasicHeader(name, value));
+		return this;
 	}
-	public void setReferer(String value) {
+	public DownloadSync setReferer(String value) {
 		addHeader("Referer", value);
+		return this;
 	}
-	public void setUserAgent(String value) {
+	public DownloadSync setUserAgent(String value) {
 		addHeader("User-Agent", value);
+		return this;
 	}
 	
 	private int threadCount = 1;
-	public void setThreadCount(int newValue) {
+	public DownloadSync setThreadCount(int newValue) {
 		threadCount = newValue;
+		return this;
 	}
 	
 	private ExecutorService executor      = null;

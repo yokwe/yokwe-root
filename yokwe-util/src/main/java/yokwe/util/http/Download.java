@@ -1,16 +1,16 @@
 package yokwe.util.http;
 
 public interface Download {
-	public void setRequesterBuilder(RequesterBuilder requesterBuilder);
+	public Download setRequesterBuilder(RequesterBuilder requesterBuilder);
 	
-	public void addTask(Task task);
+	public Download addTask(Task task);
 	
-	public void clearHeader();
-	public void addHeader(String name, String value);
-	public void setReferer(String value);
-	public void setUserAgent(String value);
+	public Download clearHeader();
+	public Download addHeader(String name, String value);
+	public Download setReferer(String value);
+	public Download setUserAgent(String value);
 	
-	public void setThreadCount(int newValue);
+	public Download setThreadCount(int newValue);
 	
 	public void startProcessTask();
 	public void waitProcessTask();

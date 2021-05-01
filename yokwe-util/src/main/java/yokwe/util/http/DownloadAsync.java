@@ -53,7 +53,7 @@ public final class DownloadAsync implements Download {
 
 	private HttpAsyncRequester requester = null;
 	
-	public void setRequesterBuilder(RequesterBuilder requesterBuilder) {
+	public DownloadAsync setRequesterBuilder(RequesterBuilder requesterBuilder) {
         H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
                 .build();
@@ -89,30 +89,38 @@ public final class DownloadAsync implements Download {
         });
         
         requester.start(); // Need to start
+        
+        return this;
 	}
 	
 	private final LinkedList<Task> taskQueue = new LinkedList<Task>();
-	public void addTask(Task task) {
+	public DownloadAsync addTask(Task task) {
 		taskQueue.add(task);
+        return this;
 	}
 	
 	private final List<Header> headerList = new ArrayList<>();
-	public void clearHeader() {
+	public DownloadAsync clearHeader() {
 		headerList.clear();
+        return this;
 	}
-	public void addHeader(String name, String value) {
+	public DownloadAsync addHeader(String name, String value) {
 		headerList.add(new BasicHeader(name, value));
+        return this;
 	}
-	public void setReferer(String value) {
+	public DownloadAsync setReferer(String value) {
 		addHeader("Referer", value);
+        return this;
 	}
-	public void setUserAgent(String value) {
+	public DownloadAsync setUserAgent(String value) {
 		addHeader("User-Agent", value);
+        return this;
 	}
 	
 	private int threadCount = 1;
-	public void setThreadCount(int newValue) {
+	public DownloadAsync setThreadCount(int newValue) {
 		threadCount = newValue;
+        return this;
 	}
 	
 	private ExecutorService executor      = null;
