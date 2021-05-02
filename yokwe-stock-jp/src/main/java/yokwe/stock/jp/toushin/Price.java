@@ -28,23 +28,27 @@ public class Price implements Comparable<Price> {
 	// 2014年11月20日,12526,5756,0.00,1
 
 	public LocalDate  date;          // 年月日
-	public BigDecimal basePrice;     // 基準価額(円) = 純資産総額 / (総口数 * 10,000)
-	public BigDecimal netAssetValue; // 純資産総額（百万円）
+	public String     isinCode;		 // isinCode
+	public BigDecimal basePrice;     // 基準価額(円) 1口あたり
+	public BigDecimal netAssetValue; // 純資産総額
 	public BigDecimal totalUnits;    // 総口数
 	
-	public Price(LocalDate date, BigDecimal basePprice, BigDecimal netAssetValue, BigDecimal totalUnits) {
+	public Price(LocalDate date, String isinCode, BigDecimal basePprice, BigDecimal netAssetValue, BigDecimal totalUnits) {
 		this.date          = date;
+		this.isinCode      = isinCode;
 		this.basePrice     = basePprice;
 		this.netAssetValue = netAssetValue;
 		this.totalUnits    = totalUnits;
 	}
 	public Price() {
-		this(null, null, null, null);
+		this(null, null, null, null, null);
 	}
 	
 	@Override
 	public int compareTo(Price that) {
-		return this.date.compareTo(that.date);
+		int ret = this.date.compareTo(that.date);
+		if (ret == 0) ret = this.isinCode.compareTo(that.isinCode);
+		return ret;
 	}
 	
 	@Override

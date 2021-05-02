@@ -376,9 +376,9 @@ public final class DataFile {
 							throw new UnexpectedException("Unexpected field");
 						} else {
 							String dateString          = fields[0]; // 年月日
-							String basePriceString     = fields[1]; // 基準価額(円) = 純資産総額 / (総口数 * 10,000)
+							String basePriceString     = fields[1]; // 基準価額(円) = 純資産総額 / (総口数 * 10,000) 1万口あたり
 							String netAssetValueString = fields[2]; // 純資産総額（百万円）
-							String dividendString      = fields[3]; // 分配金
+							String dividendString      = fields[3]; // 分配金 1万口あたり
 //							String periodString        = fields[4]; // 決算期
 							
 							dateString = dateString.replace("年", "-").replace("月", "-").replace("日", "");
@@ -388,11 +388,11 @@ public final class DataFile {
 							BigDecimal netAssetValue = new BigDecimal(netAssetValueString).movePointRight(6);
 							BigDecimal totalUnits    = netAssetValue.divideToIntegralValue(basePrice);
 
-							priceList.add(new Price(date, basePrice, netAssetValue, totalUnits));
+							priceList.add(new Price(date, isinCode, basePrice, netAssetValue, totalUnits));
 							
 							if (!dividendString.isEmpty()) {
-								BigDecimal dividend = new BigDecimal(dividendString);
-								divList.add(new Dividend(date, normalize(dividend)));
+								BigDecimal dividend = new BigDecimal(dividendString).movePointLeft(4);
+								divList.add(new Dividend(date, isinCode, normalize(dividend)));
 							}
 						}
 					}
@@ -523,7 +523,7 @@ public final class DataFile {
 							initialFeeMax = initialFeeMax.min(e.salesFee);
 						}
 						
-						sellerList.add(new Seller(isinCode, e.fdsInstCd, e.salesFee, e.instName));
+						sellerList.add(new Seller(isinCode, e.salesFee, e.fdsInstCd, e.instName));
 					}
 					
 					Seller.save(isinCode, sellerList);

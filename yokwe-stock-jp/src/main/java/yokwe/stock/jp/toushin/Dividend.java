@@ -23,16 +23,20 @@ public class Dividend implements Comparable<Dividend>{
 	}
 
 	public LocalDate  date;          // 年月日
-	public BigDecimal dividend;      // 分配金
+	public String     isinCode;		 // isinCode
+	public BigDecimal dividend;      // 分配金 1口あたり
 	
-	public Dividend(LocalDate date, BigDecimal dividend) {
+	public Dividend(LocalDate date, String isinCode, BigDecimal dividend) {
 		this.date     = date;
+		this.isinCode = isinCode;
 		this.dividend = dividend;
 	}
 	
 	@Override
 	public int compareTo(Dividend that) {
-		return this.date.compareTo(that.date);
+		int ret = this.date.compareTo(that.date);
+		if (ret == 0) ret = this.isinCode.compareTo(that.isinCode);
+		return ret;
 	}
 	
 	@Override
