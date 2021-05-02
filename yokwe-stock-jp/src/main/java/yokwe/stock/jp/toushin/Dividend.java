@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import yokwe.util.CSVUtil;
+import yokwe.util.StringUtil;
 
 public class Dividend implements Comparable<Dividend>{
 	public static final String PREFIX = "div";
@@ -24,8 +25,18 @@ public class Dividend implements Comparable<Dividend>{
 	public LocalDate  date;          // 年月日
 	public BigDecimal dividend;      // 分配金
 	
+	public Dividend(LocalDate date, BigDecimal dividend) {
+		this.date     = date;
+		this.dividend = dividend;
+	}
+	
 	@Override
 	public int compareTo(Dividend that) {
 		return this.date.compareTo(that.date);
+	}
+	
+	@Override
+	public String toString() {
+		return StringUtil.toString(this);
 	}
 }
