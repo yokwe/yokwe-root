@@ -36,17 +36,23 @@ public class MutualFund implements Comparable<MutualFund> {
 	@ScrapeUtil.Ignore
 	public BigDecimal initialFeeMax;    // 購入時手数料 最大
 	
+	public String cat1;
+	public String cat2;
+	public String cat3;
+	public String cat4;
+	
 	public String issueDate;            // 設定日
 	public String redemptionDate;       // 償還日
 	public String cancelationFee;       // 解約手数料
 	public String initialFeeLimit;      // 購入時手数料 上限
 	public String redemptionFee;        // 信託財産留保額
-	public String trustFee;             // 信託報酬 
-	public String trustFeeOperation ;   // 信託報酬 運用会社
-	public String trustFeeSeller;       // 信託報酬 販売会社
-	public String trustFeeBank;         // 信託報酬 信託銀行
+	
+	public BigDecimal trustFee;             // 信託報酬 
+	public BigDecimal trustFeeOperation ;   // 信託報酬 運用会社
+	public BigDecimal trustFeeSeller;       // 信託報酬 販売会社
+	public BigDecimal trustFeeBank;         // 信託報酬 信託銀行
 
-	public String settlementFrequency;  // 決算頻度
+	public int    settlementFrequency;  // 決算頻度
 	public String settlementDate;       // 決算日
 
 	public String issuer;               // 運用会社名
@@ -56,14 +62,22 @@ public class MutualFund implements Comparable<MutualFund> {
 	public MutualFund(
 			String isinCode, String fundCode,
 			int countPrice, int countSeller,
+			BigDecimal initialFeeMin, BigDecimal initialFeeMax,
+			String cat1, String cat2, String cat3, String cat4,
 			String name, String issuer, String issueDate, String redemptionDate,
-			String settlementFrequency, String settlementDate, 
+			int settlementFrequency, String settlementDate, 
 			String cancelationFee, String initialFeeLimit, String redemptionFee,
-			String trustFee, String trustFeeOperation, String trustFeeSeller, String trustFeeBank) {
+			BigDecimal trustFee, BigDecimal trustFeeOperation, BigDecimal trustFeeSeller, BigDecimal trustFeeBank) {
 		this.isinCode            = isinCode;
 		this.fundCode            = fundCode;
 		this.countPrice          = countPrice;
 		this.countSeller         = countSeller;
+		this.initialFeeMin       = initialFeeMin;
+		this.initialFeeMax       = initialFeeMax;
+		this.cat1				 = cat1;
+		this.cat2				 = cat2;
+		this.cat3				 = cat3;
+		this.cat4				 = cat4;
 		this.name                = name;
 		this.issuer              = issuer;
 		this.issueDate           = issueDate;
@@ -79,7 +93,7 @@ public class MutualFund implements Comparable<MutualFund> {
 		this.trustFeeBank        = trustFeeBank;
 	}
 	public MutualFund() {
-		this(null, null, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, 0, 0, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null, null);
 	}
 
 	@Override

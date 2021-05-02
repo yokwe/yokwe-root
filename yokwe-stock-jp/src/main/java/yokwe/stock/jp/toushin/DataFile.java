@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -65,6 +66,12 @@ public final class DataFile {
 		}
 		return ret;
 	}
+	private static BigDecimal normalize(BigDecimal value) {
+		if (value.compareTo(BigDecimal.ZERO) == 0) {
+			return BigDecimal.ZERO;
+		}
+		return value;
+	}
 	
 	
 	public static final class PageFile {
@@ -117,6 +124,16 @@ public final class DataFile {
 				".+?" +
 				"<div .+?>\\s+運用会社名：(?<issuer>.+?)</div>" +
 				".+?" +
+				"<div .+?>\\s+商品分類.+?</div>\\s+<div .+?>\\s+" +
+					"<span.+?>(?<cat1>.+?)</span>\\s+" +
+					"<span.+?</span>\\s+" +
+					"<span.+?>(?<cat2>.+?)</span>\\s+" +
+					"<span.+?</span>\\s+" +
+					"<span.+?>(?<cat3>.+?)</span>\\s+" +
+					"</div>" +
+				".+?" +
+				"<th>インデックス型<.+?<td .+?>(?<cat4>.+?)</td>" +
+				".+?" +
 				"<th>設定日<.+?<td .+?>(?<issueDate>.+?)</td>" +
 				".+?" +
 				"<th>償還日<.+?<td .+?>(?<redemptionDate>.+?)</td>" +
@@ -148,6 +165,10 @@ public final class DataFile {
 			
 			public String name;
 			public String issuer;               // 運用会社名
+			public String cat1;					// 追加型
+			public String cat2;					// 海外
+			public String cat3;					// 株式
+			public String cat4;					// インデックス型
 			public String issueDate;            // 設定日
 			public String redemptionDate;       // 償還日
 			public String settlementFrequency;  // 決算頻度
@@ -162,12 +183,20 @@ public final class DataFile {
 			public String isinCode;
 			public String fundCode;
 			
-			public PageInfo(String name, String issuer, String issueDate, String redemptionDate,
+			public PageInfo(String name, String issuer,
+					String cat1, String cat2, String cat3, String cat4,
+					String issueDate, String redemptionDate,
 					String settlementFrequency, String settlementDate, String cancelationFee, String initialFeeLimit, String redemptionFee,
 					String trustFee, String trustFeeOperation, String trustFeeSeller, String trustFeeBank,
 					String isinCode, String fundCode) {
 				this.name                = name.trim();
 				this.issuer              = issuer.trim();
+				
+				this.cat1				 = cat1.trim();
+				this.cat2				 = cat2.trim();
+				this.cat3				 = cat3.trim();
+				this.cat4				 = cat4.trim();
+				
 				this.issueDate           = issueDate.trim().replace("/", "-");
 				this.redemptionDate      = redemptionDate.trim().replace("/", "-");
 				if (this.redemptionDate.equals("無期限")) {
@@ -194,6 +223,35 @@ public final class DataFile {
 		}
 		
 		private static final String DOESNOT_EXIST = "該当ファンドは存在しない";
+		
+		private static Pattern PAT_PERCENT_NUMBER = Pattern.compile("(?<number>[0-9]\\.[0-9]{5})%");
+		private static BigDecimal getPercent(String string) {
+			Matcher m = PAT_PERCENT_NUMBER.matcher(string);
+			if (m.matches()) {
+				String percentString = m.group(1);
+				return normalize(new BigDecimal(percentString).movePointLeft(2));
+			} else {
+				logger.error("Unpexpected percent number");
+				logger.error("  {}!", string);
+				throw new UnexpectedException("Unpexpected percent number");
+			}
+		}
+		private static Pattern PAT_YEARLY_COUNT = Pattern.compile("年(?<number>[0-9]{1,2})回");
+		private static int getYearlyCount(String string) {
+			if (string.equals("日々")) return 365;
+			
+			Matcher m = PAT_YEARLY_COUNT.matcher(string);
+			if (m.matches()) {
+				String countString = m.group(1);
+				return Integer.parseInt(countString);
+			} else {
+				logger.error("Unpexpected yearly count number");
+				logger.error("  {}!", string);
+				throw new UnexpectedException("Unpexpected yearly count number");
+			}
+		}
+
+		
 		public static List<MutualFund> update() {
 			logger.info("update page");
 			File dir = new File(DataFile.PageFile.getPath());
@@ -208,13 +266,24 @@ public final class DataFile {
 				if (string.contains(DOESNOT_EXIST)) continue;
 				
 				PageInfo page = PageInfo.getInstance(string);
+				
+				BigDecimal trustFee          = getPercent(page.trustFee);
+				BigDecimal trustFeeOperation = getPercent(page.trustFeeOperation);
+				BigDecimal trustFeeSeller    = getPercent(page.trustFeeSeller);
+				BigDecimal trustFeeBank      = getPercent(page.trustFeeBank);
+				
+				int settlementFrequency = getYearlyCount(page.settlementFrequency);
+				String settlementDate = page.settlementDate.equals("日々") ? "EVERYDAY" : page.settlementDate;
+				
 				MutualFund mutualFund = new MutualFund(
 					page.isinCode, page.fundCode,
 					0, 0,
+					BigDecimal.ZERO, BigDecimal.ZERO,
+					page.cat1, page.cat2, page.cat3, page.cat4,
 					page.name, page.issuer, page.issueDate, page.redemptionDate,
-					page.settlementFrequency, page.settlementDate, 
+					settlementFrequency, settlementDate, 
 					page.cancelationFee, page.initialFeeLimit, page.redemptionFee,
-					page.trustFee, page.trustFeeOperation, page.trustFeeSeller, page.trustFeeBank);
+					trustFee, trustFeeOperation, trustFeeSeller, trustFeeBank);
 
 				ret.add(mutualFund);
 			}
@@ -425,6 +494,8 @@ public final class DataFile {
 					for(var e: JSON.getList(SellerInfo.class, string)) {
 						if (e.salesFee == null) {
 							e.salesFee = BigDecimal.ZERO;
+						} else {
+							e.salesFee = e.salesFee.movePointLeft(2);
 						}
 						initialFeeMin = initialFeeMin.min(e.salesFee);
 						initialFeeMax = initialFeeMin.max(e.salesFee);
@@ -434,8 +505,8 @@ public final class DataFile {
 					
 					Seller.save(isinCode, sellerList);
 					fund.countSeller   = sellerList.size();
-					fund.initialFeeMin = initialFeeMin;
-					fund.initialFeeMax = initialFeeMax;
+					fund.initialFeeMin = normalize(initialFeeMin);
+					fund.initialFeeMax = normalize(initialFeeMax);
 					
 					count++;
 				} else {
