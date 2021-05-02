@@ -29,6 +29,8 @@ public class MutualFund implements Comparable<MutualFund> {
 	@ScrapeUtil.Ignore
 	public int    countPrice;
 	@ScrapeUtil.Ignore
+	public int    countDividend;
+	@ScrapeUtil.Ignore
 	public int    countSeller;
 	
 	@ScrapeUtil.Ignore
@@ -60,7 +62,7 @@ public class MutualFund implements Comparable<MutualFund> {
 	
 	public MutualFund(
 			String isinCode, String fundCode,
-			int countPrice, int countSeller,
+			int countPrice, int countDividend, int countSeller,
 			BigDecimal initialFeeMin, BigDecimal initialFeeMax,
 			String cat1, String cat2, String cat3, String cat4,
 			String name, String issuer, String issueDate, String redemptionDate,
@@ -70,6 +72,7 @@ public class MutualFund implements Comparable<MutualFund> {
 		this.isinCode            = isinCode;
 		this.fundCode            = fundCode;
 		this.countPrice          = countPrice;
+		this.countDividend       = countDividend;
 		this.countSeller         = countSeller;
 		this.initialFeeMin       = initialFeeMin;
 		this.initialFeeMax       = initialFeeMax;
@@ -91,7 +94,7 @@ public class MutualFund implements Comparable<MutualFund> {
 		this.trustFeeBank        = trustFeeBank;
 	}
 	public MutualFund() {
-		this(null, null, 0, 0, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null);
+		this(null, null, 0, 0, 0, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null);
 	}
 
 	@Override
