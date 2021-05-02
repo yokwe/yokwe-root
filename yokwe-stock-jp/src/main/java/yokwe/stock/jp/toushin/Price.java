@@ -1,5 +1,7 @@
 package yokwe.stock.jp.toushin;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,21 +27,19 @@ public class Price implements Comparable<Price> {
 	// 2014年11月19日,12417,5688,,
 	// 2014年11月20日,12526,5756,0.00,1
 
-	public String date;          // 年月日
-	public String basePrice;     // 基準価額(円) = 純資産総額 / (総口数 * 10,000)
-	public String netAssetValue; // 純資産総額（百万円）
-	public String dividend;      // 分配金
-	public String period;        // 決算期
+	public LocalDate  date;          // 年月日
+	public BigDecimal basePrice;     // 基準価額(円) = 純資産総額 / (総口数 * 10,000)
+	public BigDecimal netAssetValue; // 純資産総額（百万円）
+	public BigDecimal totalUnits;    // 総口数
 	
-	public Price(String date, String price, String netAsset, String dividend, String period) {
+	public Price(LocalDate date, BigDecimal basePprice, BigDecimal netAssetValue, BigDecimal totalUnits) {
 		this.date          = date;
-		this.basePrice     = price;
-		this.netAssetValue = netAsset;
-		this.dividend      = dividend;
-		this.period        = period;
+		this.basePrice     = basePprice;
+		this.netAssetValue = netAssetValue;
+		this.totalUnits    = totalUnits;
 	}
 	public Price() {
-		this(null, null, null, null, null);
+		this(null, null, null, null);
 	}
 	
 	@Override
