@@ -3,6 +3,7 @@ package yokwe.stock.jp.toushin;
 import java.io.File;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -279,7 +280,7 @@ public final class DataFile {
 				
 				MutualFund mutualFund = new MutualFund(
 					page.isinCode, page.fundCode,
-					0, 0,
+					0, 0, 0,
 					BigDecimal.ZERO, BigDecimal.ZERO,
 					page.cat1, page.cat2, page.cat3, page.cat4,
 					page.name, page.issuer, page.issueDate, page.redemptionDate,
@@ -363,7 +364,8 @@ public final class DataFile {
 				
 				String[] lines = string.split("[\\r\\n]+");
 				if (lines[0].equals(CSV_HEADER)) {
-					List<Price> priceList = new ArrayList<>();
+					List<Price>    priceList = new ArrayList<>();
+					List<Dividend> divList   = new ArrayList<>();
 					
 					for(int i = 1; i < lines.length; i++) {
 						String line = lines[i];
@@ -371,22 +373,33 @@ public final class DataFile {
 						if (fields.length != 5) {
 							logger.warn("Unexpected field");
 							logger.warn("  {} - {}!", fields.length, line);
-							System.exit(0); // FIXME
+							throw new UnexpectedException("Unexpected field");
 						} else {
-							String date          = fields[0]; // 年月日
-							String basePrice     = fields[1]; // 基準価額(円) = 純資産総額 / (総口数 * 10,000)
-							String netAssetValue = fields[2]; // 純資産総額（百万円）
-							String dividend      = fields[3]; // 分配金
-							String period        = fields[4]; // 決算期
+							String dateString          = fields[0]; // 年月日
+							String basePriceString     = fields[1]; // 基準価額(円) = 純資産総額 / (総口数 * 10,000)
+							String netAssetValueString = fields[2]; // 純資産総額（百万円）
+							String dividendString      = fields[3]; // 分配金
+//							String periodString        = fields[4]; // 決算期
 							
-							date = date.replace("年", "-").replace("月", "-").replace("日", "");
+							dateString = dateString.replace("年", "-").replace("月", "-").replace("日", "");
+							LocalDate date = LocalDate.parse(dateString);
+							
+							BigDecimal basePrice     = new BigDecimal(basePriceString).movePointLeft(4);
+							BigDecimal netAssetValue = new BigDecimal(netAssetValueString).movePointRight(6);
+							BigDecimal totalUnits    = netAssetValue.divideToIntegralValue(basePrice);
 
-							Price price = new Price(date, basePrice, netAssetValue, dividend, period);
-							priceList.add(price);
+							priceList.add(new Price(date, basePrice, netAssetValue, totalUnits));
+							
+							if (!dividendString.isEmpty()) {
+								BigDecimal dividend = new BigDecimal(dividendString);
+								divList.add(new Dividend(date, normalize(dividend)));
+							}
 						}
 					}
 					Price.save(isinCode, priceList);
-					fund.countPrice = priceList.size();
+					Dividend.save(isinCode, divList);
+					fund.countPrice    = priceList.size();
+					fund.countDividend = divList.size();
 					
 					count++;
 				} else {
