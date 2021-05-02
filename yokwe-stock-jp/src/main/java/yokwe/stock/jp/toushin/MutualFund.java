@@ -44,7 +44,6 @@ public class MutualFund implements Comparable<MutualFund> {
 	public String issueDate;            // 設定日
 	public String redemptionDate;       // 償還日
 	public String cancelationFee;       // 解約手数料
-	public String initialFeeLimit;      // 購入時手数料 上限
 	public String redemptionFee;        // 信託財産留保額
 	
 	public BigDecimal trustFee;             // 信託報酬 
@@ -66,7 +65,7 @@ public class MutualFund implements Comparable<MutualFund> {
 			String cat1, String cat2, String cat3, String cat4,
 			String name, String issuer, String issueDate, String redemptionDate,
 			int settlementFrequency, String settlementDate, 
-			String cancelationFee, String initialFeeLimit, String redemptionFee,
+			String cancelationFee, String redemptionFee,
 			BigDecimal trustFee, BigDecimal trustFeeOperation, BigDecimal trustFeeSeller, BigDecimal trustFeeBank) {
 		this.isinCode            = isinCode;
 		this.fundCode            = fundCode;
@@ -85,7 +84,6 @@ public class MutualFund implements Comparable<MutualFund> {
 		this.settlementFrequency = settlementFrequency;
 		this.settlementDate      = settlementDate;
 		this.cancelationFee      = cancelationFee;
-		this.initialFeeLimit     = initialFeeLimit;
 		this.redemptionFee       = redemptionFee;
 		this.trustFee            = trustFee;
 		this.trustFeeOperation   = trustFeeOperation ;
@@ -93,7 +91,7 @@ public class MutualFund implements Comparable<MutualFund> {
 		this.trustFeeBank        = trustFeeBank;
 	}
 	public MutualFund() {
-		this(null, null, 0, 0, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null, null);
+		this(null, null, 0, 0, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null);
 	}
 
 	@Override
