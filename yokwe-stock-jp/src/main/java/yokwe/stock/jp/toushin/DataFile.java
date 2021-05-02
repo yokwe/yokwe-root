@@ -39,6 +39,8 @@ public final class DataFile {
 	
 	private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
 	
+	private static final BigDecimal MINUS_ONE = BigDecimal.ONE.negate();
+	
 	private static void deleteForeignFile(String path, Set<String> set) {
 		File dir = new File(path);
 		dir.mkdirs();
@@ -282,7 +284,7 @@ public final class DataFile {
 					page.cat1, page.cat2, page.cat3, page.cat4,
 					page.name, page.issuer, page.issueDate, page.redemptionDate,
 					settlementFrequency, settlementDate, 
-					page.cancelationFee, page.initialFeeLimit, page.redemptionFee,
+					page.cancelationFee, page.redemptionFee,
 					trustFee, trustFeeOperation, trustFeeSeller, trustFeeBank);
 
 				ret.add(mutualFund);
@@ -487,26 +489,34 @@ public final class DataFile {
 				String string = FileUtil.read().file(file);
 				
 				if (string.startsWith("[")) {
-					BigDecimal initialFeeMin = BigDecimal.ZERO;
-					BigDecimal initialFeeMax = BigDecimal.ZERO;
+					BigDecimal initialFeeMin = null;
+					BigDecimal initialFeeMax = null;
 					
 					List<Seller> sellerList = new ArrayList<>();
 					for(var e: JSON.getList(SellerInfo.class, string)) {
 						if (e.salesFee == null) {
-							e.salesFee = BigDecimal.ZERO;
+							e.salesFee = MINUS_ONE;
 						} else {
 							e.salesFee = e.salesFee.movePointLeft(2);
 						}
-						initialFeeMin = initialFeeMin.min(e.salesFee);
-						initialFeeMax = initialFeeMin.max(e.salesFee);
+						if (initialFeeMin == null) {
+							initialFeeMin = e.salesFee;
+						} else {
+							initialFeeMin = initialFeeMin.min(e.salesFee);
+						}
+						if (initialFeeMax == null) {
+							initialFeeMax = e.salesFee;
+						} else {
+							initialFeeMax = initialFeeMax.min(e.salesFee);
+						}
 						
 						sellerList.add(new Seller(isinCode, e.fdsInstCd, e.salesFee, e.instName));
 					}
 					
 					Seller.save(isinCode, sellerList);
 					fund.countSeller   = sellerList.size();
-					fund.initialFeeMin = normalize(initialFeeMin);
-					fund.initialFeeMax = normalize(initialFeeMax);
+					fund.initialFeeMin = initialFeeMin == null ? MINUS_ONE : normalize(initialFeeMin);
+					fund.initialFeeMax = initialFeeMax == null ? MINUS_ONE : normalize(initialFeeMax);
 					
 					count++;
 				} else {
