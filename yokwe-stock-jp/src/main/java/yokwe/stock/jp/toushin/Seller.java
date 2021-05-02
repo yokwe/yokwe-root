@@ -20,15 +20,15 @@ public class Seller implements Comparable<Seller> {
 		return CSVUtil.read(Seller.class).file(getPath(isinCode));
 	}
 
-	public String     isinCode;
-	public String     sellerCode;
-	public BigDecimal salesFee;
-	public String     sellerName;
+	public String     isinCode;   // isinCode
+	public BigDecimal salesFee;   // 購入時手数料 販売価格に対する割合
+	public String     sellerCode; // 販売会社
+	public String     sellerName; // 販売会社名
 	
-	public Seller(String isinCode, String sellerCode, BigDecimal salesFee, String sellerName) {
+	public Seller(String isinCode, BigDecimal salesFee, String sellerCode, String sellerName) {
 		this.isinCode   = isinCode;
-		this.sellerCode = sellerCode;
 		this.salesFee   = salesFee;
+		this.sellerCode = sellerCode;
 		this.sellerName = sellerName;
 	}
 	public Seller() {
