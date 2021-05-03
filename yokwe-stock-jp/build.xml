@@ -21,8 +21,8 @@
 	</path>
 	
 	<!-- Application -->
-	<target name="update-jasdec-fund">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.jasdec.UpdateFund" fork="true">
+	<target name="jasdec-data-file">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jasdec.DataFile" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
