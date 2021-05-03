@@ -316,7 +316,7 @@ public final class DataFile {
 			String dir = getPath();
 			
 			// delete foreign file
-			deleteForeignFile(dir, map.keySet());
+			deleteForeignFile(dir, set);
 			// create list of not existing file
 			List<String> list = notExistingList(dir, set);
 			
