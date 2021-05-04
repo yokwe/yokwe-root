@@ -232,7 +232,7 @@ public final class DataFile {
 			Matcher m = PAT_PERCENT_NUMBER.matcher(string);
 			if (m.matches()) {
 				String percentString = m.group(1);
-				return normalize(new BigDecimal(percentString).movePointLeft(2));
+				return normalize(new BigDecimal(percentString).movePointLeft(2)); // percent to decimal number
 			} else {
 				logger.error("Unpexpected percent number");
 				logger.error("  {}!", string);
@@ -384,14 +384,14 @@ public final class DataFile {
 							dateString = dateString.replace("年", "-").replace("月", "-").replace("日", "");
 							LocalDate date = LocalDate.parse(dateString);
 							
-							BigDecimal basePrice     = new BigDecimal(basePriceString).movePointLeft(4);
-							BigDecimal netAssetValue = new BigDecimal(netAssetValueString).movePointRight(6);
+							BigDecimal basePrice     = new BigDecimal(basePriceString);
+							BigDecimal netAssetValue = new BigDecimal(netAssetValueString).movePointRight(6); // convert million to number
 							BigDecimal totalUnits    = netAssetValue.divideToIntegralValue(basePrice);
 
 							priceList.add(new Price(date, isinCode, basePrice, netAssetValue, totalUnits));
 							
 							if (!dividendString.isEmpty()) {
-								BigDecimal dividend = new BigDecimal(dividendString).movePointLeft(4);
+								BigDecimal dividend = new BigDecimal(dividendString);
 								divList.add(new Dividend(date, isinCode, normalize(dividend)));
 							}
 						}
@@ -510,7 +510,7 @@ public final class DataFile {
 						if (e.salesFee == null) {
 							e.salesFee = MINUS_ONE;
 						} else {
-							e.salesFee = e.salesFee.movePointLeft(2);
+							e.salesFee = e.salesFee.movePointLeft(2); // percent to decimal number
 						}
 						if (initialFeeMin == null) {
 							initialFeeMin = e.salesFee;
