@@ -1,6 +1,7 @@
 package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 
 public class MutualFund implements Comparable<MutualFund> {
-	public static final String INDEFINITE = "9999-12-31";
+	public static final LocalDate INDEFINITE = LocalDate.parse("9999-12-31");
 	
 	public static final String getPath() {
 		return Toushin.getPath("mutual-fund.csv");
@@ -38,13 +39,13 @@ public class MutualFund implements Comparable<MutualFund> {
 	@ScrapeUtil.Ignore
 	public BigDecimal initialFeeMax;    // 購入時手数料 最大
 	
-	public String cat1;
-	public String cat2;
-	public String cat3;
-	public String cat4;
+	public String cat1; // 追加型 単位型
+	public String cat2; // 国内 海外 内外
+	public String cat3; // 債券 株式 資産複合
+	public String cat4; // インデックス型 該当なし 特殊型
 	
-	public String issueDate;            // 設定日
-	public String redemptionDate;       // 償還日
+	public LocalDate issueDate;         // 設定日
+	public LocalDate redemptionDate;    // 償還日
 	public String cancelationFee;       // 解約手数料
 	public String redemptionFee;        // 信託財産留保額
 	
@@ -65,7 +66,7 @@ public class MutualFund implements Comparable<MutualFund> {
 			int countPrice, int countDividend, int countSeller,
 			BigDecimal initialFeeMin, BigDecimal initialFeeMax,
 			String cat1, String cat2, String cat3, String cat4,
-			String name, String issuer, String issueDate, String redemptionDate,
+			String name, String issuer, LocalDate issueDate, LocalDate redemptionDate,
 			int settlementFrequency, String settlementDate, 
 			String cancelationFee, String redemptionFee,
 			BigDecimal trustFee, BigDecimal trustFeeOperation, BigDecimal trustFeeSeller, BigDecimal trustFeeBank) {

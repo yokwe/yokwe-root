@@ -166,6 +166,8 @@ public final class DataFile {
 				return ScrapeUtil.get(PageInfo.class, PAT, page);
 			}
 			
+			private static final String INDEFINITE_STRING = MutualFund.INDEFINITE.toString();
+			
 			public String name;
 			public String issuer;               // 運用会社名
 			public String cat1;					// 追加型
@@ -202,9 +204,6 @@ public final class DataFile {
 				
 				this.issueDate           = issueDate.trim().replace("/", "-");
 				this.redemptionDate      = redemptionDate.trim().replace("/", "-");
-				if (this.redemptionDate.equals("無期限")) {
-					this.redemptionDate = MutualFund.INDEFINITE;
-				}
 				
 				this.settlementFrequency = settlementFrequency.trim();
 				this.settlementDate      = settlementDate.trim();
@@ -278,12 +277,16 @@ public final class DataFile {
 				int settlementFrequency = getYearlyCount(page.settlementFrequency);
 				String settlementDate = page.settlementDate.equals("日々") ? "EVERYDAY" : page.settlementDate;
 				
+				LocalDate issueDate = LocalDate.parse(page.issueDate);
+				
+				LocalDate redemptionDate = page.redemptionDate.equals("無期限") ? MutualFund.INDEFINITE : LocalDate.parse(page.redemptionDate);
+				
 				MutualFund mutualFund = new MutualFund(
 					page.isinCode, page.fundCode,
 					0, 0, 0,
 					BigDecimal.ZERO, BigDecimal.ZERO,
 					page.cat1, page.cat2, page.cat3, page.cat4,
-					page.name, page.issuer, page.issueDate, page.redemptionDate,
+					page.name, page.issuer, issueDate, redemptionDate,
 					settlementFrequency, settlementDate, 
 					page.cancelationFee, page.redemptionFee,
 					trustFee, trustFeeOperation, trustFeeSeller, trustFeeBank);
