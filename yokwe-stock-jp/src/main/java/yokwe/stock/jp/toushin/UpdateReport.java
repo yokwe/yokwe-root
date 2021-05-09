@@ -54,7 +54,7 @@ public class UpdateReport {
 		Price lastPrice = priceList.get(report.priceC);
 		
 		report.price = lastPrice.basePrice.doubleValue();
-		report.nav   = lastPrice.netAssetValue.doubleValue() / 1_000_000; // unit of NAV is 1_000_000
+		report.nav   = lastPrice.netAssetValue.doubleValue();
 		report.units = lastPrice.totalUnits.doubleValue();
 		
 		report.minPrice = priceList.stream().mapToDouble(o -> o.basePrice.doubleValue()).min().getAsDouble();
@@ -66,8 +66,8 @@ public class UpdateReport {
 			report.maxPricePCT = DoubleUtil.round((report.maxPrice - report.price) / report.price, 5);
 		}
 
-		report.minNav = priceList.stream().mapToDouble(o -> o.netAssetValue.doubleValue()).min().getAsDouble() / 1_000_000; // unit of NAV is 1_000_000
-		report.maxNav = priceList.stream().mapToDouble(o -> o.netAssetValue.doubleValue()).max().getAsDouble() / 1_000_000; // unit of NAV is 1_000_000
+		report.minNav = priceList.stream().mapToDouble(o -> o.netAssetValue.doubleValue()).min().getAsDouble();
+		report.maxNav = priceList.stream().mapToDouble(o -> o.netAssetValue.doubleValue()).max().getAsDouble();
 		if (DoubleUtil.isAlmostZero(report.nav)) {
 			logger.warn("nav is almost zero   {}  {}  {}", fund.isinCode, fund.issuer, fund.name);
 			return;

@@ -387,8 +387,8 @@ public final class DataFile {
 							LocalDate date = LocalDate.parse(dateString);
 							
 							BigDecimal basePrice     = new BigDecimal(basePriceString);
-							BigDecimal netAssetValue = new BigDecimal(netAssetValueString).movePointRight(6); // convert million to number
-							BigDecimal totalUnits    = netAssetValue.divideToIntegralValue(basePrice);
+							BigDecimal netAssetValue = new BigDecimal(netAssetValueString);
+							BigDecimal totalUnits    = netAssetValue.movePointRight(6).divideToIntegralValue(basePrice); // convert million to number in NAVs
 
 							priceList.add(new Price(date, isinCode, basePrice, netAssetValue, totalUnits));
 							
