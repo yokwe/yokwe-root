@@ -31,6 +31,9 @@ public class Dividend implements Comparable<Dividend>{
 		this.isinCode = isinCode;
 		this.dividend = dividend;
 	}
+	public Dividend() {
+		this(null, null, null);
+	}
 	
 	@Override
 	public int compareTo(Dividend that) {
