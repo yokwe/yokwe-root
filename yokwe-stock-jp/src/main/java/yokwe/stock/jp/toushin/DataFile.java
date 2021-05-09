@@ -166,8 +166,6 @@ public final class DataFile {
 				return ScrapeUtil.get(PageInfo.class, PAT, page);
 			}
 			
-			private static final String INDEFINITE_STRING = MutualFund.INDEFINITE.toString();
-			
 			public String name;
 			public String issuer;               // 運用会社名
 			public String cat1;					// 追加型
