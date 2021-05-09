@@ -11,23 +11,23 @@ import yokwe.util.CSVUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 
-public class MutualFund implements Comparable<MutualFund> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(MutualFund.class);
+public class Fund implements Comparable<Fund> {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Fund.class);
 
 	public static final LocalDate INDEFINITE = LocalDate.parse("9999-12-31");
 	
 	public static final String SETTLEMENT_DATE_EVERYDAY = "EVERYDAY";
 	
 	public static final String getPath() {
-		return Toushin.getPath("mutual-fund.csv");
+		return Toushin.getPath("fund.csv");
 	}
 	
-	public static void save(List<MutualFund> list) {
+	public static void save(List<Fund> list) {
 		Collections.sort(list);
-		CSVUtil.write(MutualFund.class).file(getPath(), list);
+		CSVUtil.write(Fund.class).file(getPath(), list);
 	}
-	public static List<MutualFund> load() {
-		return CSVUtil.read(MutualFund.class).file(getPath());
+	public static List<Fund> load() {
+		return CSVUtil.read(Fund.class).file(getPath());
 	}
 	
 	public static enum Offer {
@@ -78,7 +78,7 @@ public class MutualFund implements Comparable<MutualFund> {
 	public String name;
 	
 	
-	public MutualFund(
+	public Fund(
 			String isinCode, String fundCode,
 			int countPrice, int countDividend, int countSeller,
 			BigDecimal initialFeeMin, BigDecimal initialFeeMax,
@@ -114,7 +114,7 @@ public class MutualFund implements Comparable<MutualFund> {
 		this.trustFeeSeller      = trustFeeSeller;
 		this.trustFeeBank        = trustFeeBank;
 	}
-	public MutualFund() {
+	public Fund() {
 		this(null, null, 0, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null);
 	}
 	
@@ -127,7 +127,7 @@ public class MutualFund implements Comparable<MutualFund> {
 		return StringUtil.toString(this);
 	}
 	@Override
-	public int compareTo(MutualFund that) {
+	public int compareTo(Fund that) {
 		return this.isinCode.compareTo(that.isinCode);
 	}
 }

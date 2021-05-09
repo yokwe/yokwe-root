@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.slf4j.LoggerFactory;
 
-import yokwe.stock.jp.toushin.MutualFund.Offer;
+import yokwe.stock.jp.toushin.Fund.Offer;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -252,12 +252,12 @@ public final class DataFile {
 		}
 
 		
-		public static List<MutualFund> update() {
+		public static List<Fund> update() {
 			logger.info("update page");
 			File dir = new File(DataFile.PageFile.getPath());
 			dir.mkdirs();
 			
-			List<MutualFund> ret = new ArrayList<>();
+			List<Fund> ret = new ArrayList<>();
 			
 			for(var file: dir.listFiles()) {
 				if (file.isDirectory()) continue;
@@ -273,13 +273,13 @@ public final class DataFile {
 				BigDecimal trustFeeBank      = getPercent(page.trustFeeBank);
 				
 				int settlementFrequency = getYearlyCount(page.settlementFrequency);
-				String settlementDate = page.settlementDate.equals("日々") ? MutualFund.SETTLEMENT_DATE_EVERYDAY : page.settlementDate;
+				String settlementDate = page.settlementDate.equals("日々") ? Fund.SETTLEMENT_DATE_EVERYDAY : page.settlementDate;
 				
 				LocalDate issueDate = LocalDate.parse(page.issueDate);
 				
-				LocalDate redemptionDate = page.redemptionDate.equals("無期限") ? MutualFund.INDEFINITE : LocalDate.parse(page.redemptionDate);
+				LocalDate redemptionDate = page.redemptionDate.equals("無期限") ? Fund.INDEFINITE : LocalDate.parse(page.redemptionDate);
 				
-				MutualFund mutualFund = new MutualFund(
+				Fund fund = new Fund(
 					page.isinCode, page.fundCode,
 					0, 0, 0,
 					BigDecimal.ZERO, BigDecimal.ZERO,
@@ -290,7 +290,7 @@ public final class DataFile {
 					page.cancelationFee, page.redemptionFee,
 					trustFee, trustFeeOperation, trustFeeSeller, trustFeeBank);
 
-				ret.add(mutualFund);
+				ret.add(fund);
 			}
 			logger.info("count {}", ret.size());
 			return ret;
@@ -314,7 +314,7 @@ public final class DataFile {
 		//
 		// download
 		//
-		private static void download(Download download, Set<String> set, Map<String, MutualFund> map) {
+		private static void download(Download download, Set<String> set, Map<String, Fund> map) {
 			String dir = getPath();
 			
 			// delete foreign file
@@ -347,7 +347,7 @@ public final class DataFile {
 		//
 		private static final String  CSV_HEADER  = "年月日,基準価額(円),純資産総額（百万円）,分配金,決算期";
 		
-		public static void update(Map<String, MutualFund> fundMap) {
+		public static void update(Map<String, Fund> fundMap) {
 			logger.info("update price");
 			
 			int count = 0;
@@ -360,7 +360,7 @@ public final class DataFile {
 					logger.error("  {}!", isinCode);
 					throw new UnexpectedException("Unexpected isinCode");
 				}
-				MutualFund fund = fundMap.get(isinCode);
+				Fund fund = fundMap.get(isinCode);
 				
 				String string = FileUtil.read().file(file);
 				
@@ -486,7 +486,7 @@ public final class DataFile {
 			}
 		}
 
-		public static void update(Map<String, MutualFund> fundMap) {
+		public static void update(Map<String, Fund> fundMap) {
 			logger.info("update seller");
 
 			int count = 0;
@@ -499,7 +499,7 @@ public final class DataFile {
 					logger.error("  {}!", isinCode);
 					throw new UnexpectedException("Unexpected isinCode");
 				}
-				MutualFund fund = fundMap.get(isinCode);
+				Fund fund = fundMap.get(isinCode);
 				
 				String string = FileUtil.read().file(file);
 				
@@ -601,42 +601,42 @@ public final class DataFile {
 			download.setThreadCount(threadCount);
 		}
 		
-		// build mutualFundMap
-		Map<String, MutualFund> mutualFundMap;
+		// build fundMap
+		Map<String, Fund> fundMap;
 		{
 			Map<String, FundInfo> fundInfoMap = yokwe.stock.jp.jasdec.Fund.load().stream().map(e -> new FundInfo(e)).collect(Collectors.toMap(FundInfo::isinCode, e -> e));
 			logger.info("jasdec {}", fundInfoMap.size());
 			
 			PageFile.download(download, fundInfoMap.keySet());
-			List<MutualFund> mutualFundList = PageFile.update();
-			int size = mutualFundList.size();
-			logger.info("mutualFundList {}", size);
+			List<Fund> fundList = PageFile.update();
+			int size = fundList.size();
+			logger.info("fundList {}", size);
 			
-			// update mutualFundList
+			// update fundList
 			for(int i = 0; i < size; i++) {
-				MutualFund mutualFund = mutualFundList.get(i);
+				Fund fund = fundList.get(i);
 				
-				FundInfo fundInfo = fundInfoMap.get(mutualFund.isinCode);
+				FundInfo fundInfo = fundInfoMap.get(fund.isinCode);
 				
-				mutualFund.unitPrice = fundInfo.unitPrice;
-				mutualFund.offer     = fundInfo.offer;
+				fund.unitPrice = fundInfo.unitPrice;
+				fund.offer     = fundInfo.offer;
 			}
-			// build mutualFundMap
-			mutualFundMap = mutualFundList.stream().collect(Collectors.toMap(MutualFund::isinCode, e -> e));
+			// build fundMap
+			fundMap = fundList.stream().collect(Collectors.toMap(Fund::isinCode, e -> e));
 		}
 		
-		Set<String> isinSet = mutualFundMap.keySet();
+		Set<String> isinSet = fundMap.keySet();
 
-		PriceFile.download(download, isinSet, mutualFundMap);
+		PriceFile.download(download, isinSet, fundMap);
 		SellerFile.download(download, isinSet);
 		
-		PriceFile.update(mutualFundMap);
-		SellerFile.update(mutualFundMap);
+		PriceFile.update(fundMap);
+		SellerFile.update(fundMap);
 		
 		{
-			List<MutualFund> list = mutualFundMap.values().stream().collect(Collectors.toList());
-			MutualFund.save(list);
-			logger.info("save {} {}", list.size(), MutualFund.getPath());
+			List<Fund> list = fundMap.values().stream().collect(Collectors.toList());
+			Fund.save(list);
+			logger.info("save {} {}", list.size(), Fund.getPath());
 		}
 		
 		logger.info("STOP");
