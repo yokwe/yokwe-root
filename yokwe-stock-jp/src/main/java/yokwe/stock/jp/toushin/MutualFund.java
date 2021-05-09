@@ -5,12 +5,18 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
+
 import yokwe.util.CSVUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 
 public class MutualFund implements Comparable<MutualFund> {
+	static final org.slf4j.Logger logger = LoggerFactory.getLogger(MutualFund.class);
+
 	public static final LocalDate INDEFINITE = LocalDate.parse("9999-12-31");
+	
+	public static final String SETTLEMENT_DATE_EVERYDAY = "EVERYDAY";
 	
 	public static final String getPath() {
 		return Toushin.getPath("mutual-fund.csv");
@@ -22,6 +28,12 @@ public class MutualFund implements Comparable<MutualFund> {
 	}
 	public static List<MutualFund> load() {
 		return CSVUtil.read(MutualFund.class).file(getPath());
+	}
+	
+	public static enum Offer {
+		PUBLIC,
+		PRIVATE_GENERAL,
+		PRIVATE_INSTITUTIONAL;
 	}
 
 	public String isinCode;             // isinCd
@@ -39,6 +51,11 @@ public class MutualFund implements Comparable<MutualFund> {
 	@ScrapeUtil.Ignore
 	public BigDecimal initialFeeMax;    // 購入時手数料 最大
 	
+	@ScrapeUtil.Ignore
+	public BigDecimal unitPrice;        // 当初1口当たり元本
+	@ScrapeUtil.Ignore
+	public Offer      offer;            // 募集区分
+
 	public String cat1; // 追加型 単位型
 	public String cat2; // 国内 海外 内外
 	public String cat3; // 債券 株式 資産複合
@@ -65,6 +82,7 @@ public class MutualFund implements Comparable<MutualFund> {
 			String isinCode, String fundCode,
 			int countPrice, int countDividend, int countSeller,
 			BigDecimal initialFeeMin, BigDecimal initialFeeMax,
+			BigDecimal unitPrice, Offer offer,
 			String cat1, String cat2, String cat3, String cat4,
 			String name, String issuer, LocalDate issueDate, LocalDate redemptionDate,
 			int settlementFrequency, String settlementDate, 
@@ -77,6 +95,8 @@ public class MutualFund implements Comparable<MutualFund> {
 		this.countSeller         = countSeller;
 		this.initialFeeMin       = initialFeeMin;
 		this.initialFeeMax       = initialFeeMax;
+		this.unitPrice           = unitPrice;
+		this.offer               = offer;
 		this.cat1				 = cat1;
 		this.cat2				 = cat2;
 		this.cat3				 = cat3;
@@ -95,7 +115,11 @@ public class MutualFund implements Comparable<MutualFund> {
 		this.trustFeeBank        = trustFeeBank;
 	}
 	public MutualFund() {
-		this(null, null, 0, 0, 0, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null);
+		this(null, null, 0, 0, 0, null, null, null, null, null, null, null, null, null, null, null, null, 0, null, null, null, null, null, null, null);
+	}
+	
+	public String isinCode() {
+		return this.isinCode;
 	}
 
 	@Override
