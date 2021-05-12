@@ -86,6 +86,18 @@ public final class DownloadSync implements Download {
 		return this;
 	}
 	
+	private int connectionTimeout = 30;
+	public DownloadSync setConnectionTimeout(int newValue) {
+		this.connectionTimeout = newValue;
+		return this;
+	}
+	
+	private int progressInterval = 1000;
+	public DownloadSync setProgressInterval(int newValue) {
+		this.progressInterval = newValue;
+		return this;
+	}
+	
 	private ExecutorService executor      = null;
 	private int 		    taskQueueSize = 0;
 	private Worker[]        workerArray   = null;
@@ -165,7 +177,7 @@ public final class DownloadSync implements Download {
 				}
 				if (task == null) break;
 				
-				if ((count % 1000) == 0) {
+				if ((count % progressInterval) == 0) {
 					logger.info("{}", String.format("%4d / %4d  %s", count, taskQueueSize, task.uri));
 				}
 				runCount++;
@@ -187,7 +199,7 @@ public final class DownloadSync implements Download {
 		        		}
 		            };
 
-		            Result result = requester.execute(target, request, Timeout.ofSeconds(5), coreContext, responseHandler);
+		            Result result = requester.execute(target, request, Timeout.ofSeconds(connectionTimeout), coreContext, responseHandler);
 		            task.process(result);
 
 				} catch (HttpException | IOException e) {

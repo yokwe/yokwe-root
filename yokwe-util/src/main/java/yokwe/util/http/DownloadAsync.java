@@ -123,6 +123,18 @@ public final class DownloadAsync implements Download {
         return this;
 	}
 	
+	private int connectionTimeout = 10;
+	public DownloadAsync setConnectionTimeout(int newValue) {
+		this.connectionTimeout = newValue;
+		return this;
+	}
+	
+	private int progressInterval = 1000;
+	public DownloadAsync setProgressInterval(int newValue) {
+		this.progressInterval = newValue;
+		return this;
+	}
+
 	private ExecutorService executor      = null;
 	private int 		    taskQueueSize = 0;
 	private Worker[]        workerArray   = null;
@@ -206,14 +218,14 @@ public final class DownloadAsync implements Download {
 				}
 				if (task == null) break;
 				
-				if ((count % 1000) == 0) {
+				if ((count % progressInterval) == 0) {
 					logger.info("{}", String.format("%4d / %4d  %s", count, taskQueueSize, task.uri));
 				}
 				runCount++;
 
 	            try {
 					HttpHost target = HttpHost.create(task.uri);
-					AsyncClientEndpoint clientEndpoint = requester.connect(target, Timeout.ofSeconds(30)).get();
+					AsyncClientEndpoint clientEndpoint = requester.connect(target, Timeout.ofSeconds(connectionTimeout)).get(); // FIXME connectionTimeout
 					
 		            HttpRequest request = new BasicHttpRequest(task.method, task.uri);
 		            headerList.forEach(o -> request.addHeader(o));

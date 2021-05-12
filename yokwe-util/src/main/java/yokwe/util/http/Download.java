@@ -11,6 +11,8 @@ public interface Download {
 	public Download setUserAgent(String value);
 	
 	public Download setThreadCount(int newValue);
+	public Download setConnectionTimeout(int newValue); // in seconds
+	public Download setProgressInterval(int newValue);
 	
 	public void startProcessTask();
 	public void waitProcessTask();
