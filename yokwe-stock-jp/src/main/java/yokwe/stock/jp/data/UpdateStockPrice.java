@@ -187,14 +187,18 @@ public class UpdateStockPrice {
 	}
 
 	private static void buildContext(Context context) {
-		int threadCount = 50;
-		int maxPerRoute = 50;
-		int maxTotal    = 100;
-		int soTimeout   = 30;
-		logger.info("threadCount {}", threadCount);
-		logger.info("maxPerRoute {}", maxPerRoute);
-		logger.info("maxTotal    {}", maxTotal);
-		logger.info("soTimeout   {}", soTimeout);
+		int threadCount       = 10;
+		int maxPerRoute       = 50;
+		int maxTotal          = 100;
+		int soTimeout         = 30;
+		int connectionTimeout = 30;
+		int progressInterval  = 100;
+		logger.info("threadCount       {}", threadCount);
+		logger.info("maxPerRoute       {}", maxPerRoute);
+		logger.info("maxTotal          {}", maxTotal);
+		logger.info("soTimeout         {}", soTimeout);
+		logger.info("connectionTimeout {}", connectionTimeout);
+		logger.info("progressInterval  {}", progressInterval);
 		
 		RequesterBuilder requesterBuilder = RequesterBuilder.custom()
 				.setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
@@ -213,6 +217,12 @@ public class UpdateStockPrice {
 		
 		// Configure thread count
 		download.setThreadCount(threadCount);
+		
+		// connection timeout in second
+		download.setConnectionTimeout(connectionTimeout);
+		
+		// progress interval
+		download.setProgressInterval(progressInterval);
 
 		List<Stock> stockList = Stock.getList();
 		Collections.shuffle(stockList);
