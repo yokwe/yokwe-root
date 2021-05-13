@@ -1,4 +1,4 @@
-package yokwe.stock.jp.data;
+package yokwe.stock.jp.jpx;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -15,8 +15,6 @@ import java.util.function.Consumer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.slf4j.LoggerFactory;
 
-import yokwe.stock.jp.jpx.Stock;
-import yokwe.stock.jp.jpx.StockPage;
 import yokwe.stock.jp.jpx.StockPage.BuyPriceTime;
 import yokwe.stock.jp.jpx.StockPage.CompanyInfo;
 import yokwe.stock.jp.jpx.StockPage.CurrentPriceTime;
@@ -41,6 +39,11 @@ import yokwe.util.http.Task;
 public class UpdateStockPrice {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockPrice.class);
 	
+	private static String getPageURL(String stockCode) {
+		String stockCode4 = Stock.toStockCode4(stockCode);
+		return String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode4);
+	}
+
 	private static class Context {
 		private List<StockPrice>               stockPriceList;
 		private List<StockInfo>                stockInfoList;
@@ -192,7 +195,7 @@ public class UpdateStockPrice {
 		int maxTotal          = 100;
 		int soTimeout         = 30;
 		int connectionTimeout = 30;
-		int progressInterval  = 100;
+		int progressInterval  = 1000;
 		logger.info("threadCount       {}", threadCount);
 		logger.info("maxPerRoute       {}", maxPerRoute);
 		logger.info("maxTotal          {}", maxTotal);
@@ -232,7 +235,7 @@ public class UpdateStockPrice {
 		
 		for(Stock stock: stockList) {
 			String stockCode = stock.stockCode;
-			String uriString = StockPage.getPageURL(stockCode);
+			String uriString = getPageURL(stockCode);
 			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode, dateTime));
 			download.addTask(task);
 		}
@@ -291,7 +294,7 @@ public class UpdateStockPrice {
 			}
 			
 			// Update priceMap with priceVolumeList
-			//   Because if stock split, historical price will be adjusted.
+			//   Because if stock split, historical price must be adjusted.
 			{
 				double lastClose = -1;
 				for(PriceVolume priceVolume: context.priceVolumeMap.get(stockCode)) {
@@ -302,39 +305,45 @@ public class UpdateStockPrice {
 					Optional<String> close     = priceVolume.close;
 					long             volume    = priceVolume.volume;
 					
+					Price price;
 					if (priceMap.containsKey(priceDate)) {
-						Price price = priceMap.get(priceDate);
+						price = priceMap.get(priceDate);
+					} else {
+						price = new Price();
+						// 	public Price(String date, String stockCode, double open, double high, double low, double close, long volume) {
+						price.date      = priceDate;
+						price.stockCode = stockCode;
+					}
 						
-						if (volume == 0) {
-							// no price
-							if (lastClose != -1) {
-								price.open   = lastClose;
-								price.high   = lastClose;
-								price.low    = lastClose;
-								price.close  = lastClose;
-								price.volume = 0;
-							}
+					if (volume == 0) {
+						// use lastClose as each price
+						price.open   = lastClose;
+						price.high   = lastClose;
+						price.low    = lastClose;
+						price.close  = lastClose;
+						price.volume = 0;
+					} else {
+						if (open.isPresent() && high.isPresent() && low.isPresent() && close.isPresent()) {
+							price.open   = Double.parseDouble(open.get());
+							price.high   = Double.parseDouble(high.get());
+							price.low    = Double.parseDouble(low.get());
+							price.close  = Double.parseDouble(close.get());
+							price.volume = volume;
 						} else {
-							if (open.isPresent() && high.isPresent() && low.isPresent() && close.isPresent()) {
-								price.open   = Double.parseDouble(open.get());
-								price.high   = Double.parseDouble(high.get());
-								price.low    = Double.parseDouble(low.get());
-								price.close  = Double.parseDouble(close.get());
-								price.volume = volume;
-								
-								priceMap.put(priceDate, price);
-								lastClose = price.close;
-							} else {
-								logger.error("Unexpected");
-								logger.error("  priceVolume {}", priceVolume);
-								throw new UnexpectedException("Unexpected");
-							}
+							logger.error("Unexpected");
+							logger.error("  priceVolume {}", priceVolume);
+							throw new UnexpectedException("Unexpected");
 						}
+					}
+					
+					if (price.close != -1) {
+						priceMap.put(priceDate, price);
+						lastClose = price.close;
 					}
 				}
 			}
 			
-			// update priceMap with data from StockPrice
+			// update priceMap with data with stockPrice
 			{
 				double open;
 				double high;
@@ -393,13 +402,13 @@ public class UpdateStockPrice {
 		// Save data
 		{
 			List<StockPrice> list = context.stockPriceList;
-			logger.info("save {} {}", StockPrice.PATH_FILE, list.size());
+			logger.info("save {} {}", StockPrice.getPath(), list.size());
 			StockPrice.save(list);
 		}
 		
 		{
 			List<StockInfo> list = context.stockInfoList;
-			logger.info("save {} {}",StockInfo.PATH_FILE,  list.size());
+			logger.info("save {} {}",StockInfo.getPath(),  list.size());
 			StockInfo.save(list);
 		}
 

@@ -18,18 +18,22 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class UpdateStock {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStock.class);
 	
+	private static final String URL_DATAFILE  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
+	
+	private static final String PATH_DATAFILE = JPX.getPath("data_j.xls");
+
 	private static void processRequest() {
-		logger.info("download {}", Stock.URL_DOWNLOAD);
+		logger.info("download {}", URL_DATAFILE);
 		HttpUtil http = HttpUtil.getInstance().withRawData(true);
-		HttpUtil.Result result = http.download(Stock.URL_DOWNLOAD);
+		HttpUtil.Result result = http.download(URL_DATAFILE);
 		
 		// Check file and download contents
 		{
 			boolean needsWrite = true;
-			File file = new File(Stock.PATH_DOWNLOAD);
+			File file = new File(PATH_DATAFILE);
 			if (file.exists()) {
 				final String hashOfDownload       = StringUtil.toHexString(HashCode.getHashCode(result.rawData));
-				final String hashOfDownlaodedFile = StringUtil.toHexString(HashCode.getHashCode(new File(Stock.PATH_DOWNLOAD)));
+				final String hashOfDownlaodedFile = StringUtil.toHexString(HashCode.getHashCode(file));
 
 				if (hashOfDownlaodedFile.equals(hashOfDownload)) {
 					logger.info("Download same contents {}", hashOfDownload);
@@ -42,14 +46,14 @@ public class UpdateStock {
 			}
 			
 			if (needsWrite) {
-				logger.info("write {} {}", Stock.PATH_DOWNLOAD, result.rawData.length);
-				FileUtil.rawWrite().file(Stock.PATH_DOWNLOAD, result.rawData);
+				logger.info("write {} {}", PATH_DATAFILE, result.rawData.length);
+				FileUtil.rawWrite().file(file, result.rawData);
 			}
 		}
 
 		String url;
 		try {
-			url = new File(Stock.PATH_DOWNLOAD).toURI().toURL().toString();
+			url = new File(PATH_DATAFILE).toURI().toURL().toString();
 		} catch (MalformedURLException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
@@ -115,7 +119,7 @@ public class UpdateStock {
 				if (sameData) {
 					logger.warn("same data  {}  {}", newDate, newList.size());
 				} else {
-					logger.info("write {}  {}  {}", newDate, newList.size(), Stock.PATH_DATA);
+					logger.info("save {}  {}  {}", newDate, newList.size(), Stock.getPath());
 					Stock.save(newList);
 				}
 			}

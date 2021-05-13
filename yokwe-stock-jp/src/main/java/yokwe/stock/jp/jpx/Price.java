@@ -1,4 +1,4 @@
-package yokwe.stock.jp.data;
+package yokwe.stock.jp.jpx;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,23 +6,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.util.UnexpectedException;
 import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
 
 public class Price implements Comparable<Price> {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Price.class);
 
-	public static final String PATH_DIR_DATA = "tmp/data/price";
 	public static String getPath(String stockCode) {
-		return String.format("%s/%s.csv", PATH_DIR_DATA, stockCode);
+		return JPX.getPath(String.format("price/%s.csv", stockCode));
 	}
-	public static final String PATH_DIR_DATA_DELIST = "tmp/data/price-delist";
-
 
 	public static void save(Collection<Price> collection) {
 		save(new ArrayList<>(collection));
@@ -38,7 +33,12 @@ public class Price implements Comparable<Price> {
 		CSVUtil.write(Price.class).file(path, list);
 	}
 	
-	public static Map<String, Price> getPriceMap(String stockCode) {
+	public static List<Price> getList(String stockCode) {
+		String path = getPath(stockCode);
+		List<Price> ret = CSVUtil.read(Price.class).file(path);
+		return ret == null ? new ArrayList<>() : ret;
+	}
+	public static Map<String, Price> getMap(String stockCode) {
 		//            date		
 		Map<String, Price> ret = new TreeMap<>();
 
@@ -56,21 +56,13 @@ public class Price implements Comparable<Price> {
 		return ret;
 	}
 	
-	public static List<Price> getList(String stockCode) {
-		String path = getPath(stockCode);
-		List<Price> ret = CSVUtil.read(Price.class).file(path);
-		return ret == null ? new ArrayList<>() : ret;
-	}
-	private static Map<String, Map<String, Price>> map = new TreeMap<>();
+	private static Map<String, Map<String, Price>> cacheMap = new TreeMap<>();
 	//                 stockCode   date
 	public static Price getPrice(String stockCode, String date) {
-		Map<String, Price> priceMap;
-		if (map.containsKey(stockCode)) {
-			priceMap = map.get(stockCode);
-		} else {
-			priceMap = getList(stockCode).stream().collect(Collectors.toMap(Price::getDate, Function.identity()));
-			map.put(stockCode, priceMap);
+		if (!cacheMap.containsKey(stockCode)) {
+			cacheMap.put(stockCode, getMap(stockCode));
 		}
+		Map<String, Price> priceMap = cacheMap.get(stockCode);
 		if (priceMap.containsKey(date)) {
 			return priceMap.get(date);
 		} else {

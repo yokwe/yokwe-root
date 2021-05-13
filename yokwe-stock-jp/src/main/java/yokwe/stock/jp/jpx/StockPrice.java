@@ -1,4 +1,4 @@
-package yokwe.stock.jp.data;
+package yokwe.stock.jp.jpx;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,7 +8,11 @@ import java.util.List;
 import yokwe.util.CSVUtil;
 
 public class StockPrice implements Comparable<StockPrice> {
-	public static final String PATH_FILE = "tmp/data/stock-price.csv";
+	private static final String PATH_FILE = getPath();
+
+	public static String getPath() {
+		return JPX.getPath("stock-price.csv");
+	}
 
 	public static List<StockPrice> getList() {
 		List<StockPrice> ret = CSVUtil.read(StockPrice.class).file(PATH_FILE);

@@ -20,32 +20,26 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class Stock extends Sheet implements Comparable<Stock> {	
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Stock.class);
 
-	public static final String URL_DOWNLOAD  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
-	public static final String PATH_DOWNLOAD = "tmp/download/listed-issue.xls";
-	public static final String PATH_DATA     = "tmp/data/stock.csv";
+	public static String getPath() {
+		return JPX.getPath("stock.csv");
+	}
 	
-	private static List<Stock> list = null;
 	public static List<Stock> getList() {
+		List<Stock> list = CSVUtil.read(Stock.class).file(getPath());
 		if (list == null) {
-			list = CSVUtil.read(Stock.class).file(PATH_DATA);
-			if (list == null) {
-				list = new ArrayList<>();
-			}
+			list = new ArrayList<>();
 		}
 		return list;
 	}
-	private static Map<String, Stock> map = null;
 	public static Map<String, Stock> getMap() {
-		if (map == null) {
-			map = new TreeMap<>();
-			for(Stock e: getList()) {
-				String stockCode = e.stockCode;
-				if (map.containsKey(stockCode)) {
-					logger.error("Duplicate stockCode {}", stockCode);
-					throw new UnexpectedException("Duplicate stockCode");
-				} else {
-					map.put(stockCode, e);
-				}
+		Map<String, Stock> map = new TreeMap<>();
+		for(Stock e: getList()) {
+			String stockCode = e.stockCode;
+			if (map.containsKey(stockCode)) {
+				logger.error("Duplicate stockCode {}", stockCode);
+				throw new UnexpectedException("Duplicate stockCode");
+			} else {
+				map.put(stockCode, e);
 			}
 		}
 		return map;
@@ -58,7 +52,7 @@ public class Stock extends Sheet implements Comparable<Stock> {
 		
 		// Sort before save
 		Collections.sort(list);
-		CSVUtil.write(Stock.class).file(PATH_DATA, list);
+		CSVUtil.write(Stock.class).file(getPath(), list);
 	}
 	
 	public static String toStockCode4(String stockCode) {

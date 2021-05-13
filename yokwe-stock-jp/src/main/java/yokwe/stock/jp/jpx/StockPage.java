@@ -1,28 +1,12 @@
 package yokwe.stock.jp.jpx;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 
 public class StockPage {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockPage.class);
-	
-	public static final String PATH_DIR_DATA = "tmp/download/page";
-	
-	public static File getPageFile(String stockCode) {
-		return new File(String.format("%s/%s", PATH_DIR_DATA, stockCode));
-	}
-	public static String getPageURL(String stockCode) {
-		String stockCode4 = Stock.toStockCode4(stockCode);
-		return String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode4);
-	}
-
 	public static final String NO_INFORMATION = "指定された銘柄が見つかりません";
 	
 	// 会社基本情報  コード ISINコード 業種 所属部
@@ -369,40 +353,5 @@ public class StockPage {
 		public String toString() {
 			return String.format("{%s %s %s %s %s %s %s %s}", yyyy, mm, dd, open, high, low, close, volume);
 		}
-	}
-
-	public static void main(String[] args) {
-		logger.info("START");
-		
-		{
-			for(File file: FileUtil.listFile(PATH_DIR_DATA)) {
-				String string = FileUtil.read().file(file);
-				if (string.contains(NO_INFORMATION)) continue;
-
-				logger.info("file  {}", file.getName());
-				logger.info("  companyInfo      {}", CompanyInfo.getInstance(string));
-				logger.info("  currentPriceTime {}", CurrentPriceTime.getInstance(string));
-				logger.info("  sellPrcieTime    {}", SellPriceTime.getInstance(string));
-				logger.info("  buyPriceTime     {}", BuyPriceTime.getInstance(string));
-				logger.info("  openPrice        {}", OpenPrice.getInstance(string));
-				logger.info("  highPrice        {}", HighPrice.getInstance(string));
-				logger.info("  lastClosePrice   {}", LastClosePrice.getInstance(string));
-				logger.info("  lowPrice         {}", LowPrice.getInstance(string));
-				logger.info("  tradeVolume      {}", TradeVolume.getInstance(string));
-				logger.info("  tradeValue       {}", TradeValue.getInstance(string));
-				logger.info("  tradeUnit        {}", TradeUnit.getInstance(string));
-				logger.info("  issued           {}", Issued.getInstance(string));
-				logger.info("  priceVolume      {}", PriceVolume.getInstance(string).size());
-
-//				{
-//					List<PriceVolume> list = PriceVolume.getInstance(string);
-//					for(PriceVolume e: list) {
-//						logger.info("    {}", e);
-//					}
-//				}
-			}
-
-		}
-		logger.info("STOP");
 	}
 }

@@ -1,4 +1,4 @@
-package yokwe.stock.jp.data;
+package yokwe.stock.jp.jpx;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,43 +15,39 @@ import yokwe.util.CSVUtil;
 public class StockInfo implements Comparable<StockInfo> {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockInfo.class);
 
-	public static final String PATH_FILE = "tmp/data/stock-info.csv";
-
-	private static List<StockInfo> list = null;
+	private static final String PATH_FILE = getPath();
+	public static String getPath() {
+		return JPX.getPath("stock-info.csv");
+	}
+	
 	public static List<StockInfo> getList() {
+		List<StockInfo> list = CSVUtil.read(StockInfo.class).file(PATH_FILE);
 		if (list == null) {
-			list = CSVUtil.read(StockInfo.class).file(PATH_FILE);
-			if (list == null) {
-				list = new ArrayList<>();
-			}
+			list = new ArrayList<>();
 		}
 		return list;
 	}
-	private static Map<String, StockInfo> map = null;
-	public static Map<String, StockInfo> getMap() {
-		if (map == null) {
-			map = new TreeMap<>();
-			for(StockInfo stock: getList()) {
-				String stockCode = stock.stockCode;
-				if (map.containsKey(stockCode)) {
-					logger.error("duplicate stockCode {}!", stockCode);
-					logger.error("old {}", map.get(stockCode));
-					logger.error("new {}", stock);
-					throw new UnexpectedException("duplicate stockCode");
-				} else {
-					map.put(stock.stockCode, stock);
-				}
+	private static Map<String, StockInfo> getMap() {
+		Map<String, StockInfo> map = new TreeMap<>();
+		for(StockInfo stock: getList()) {
+			String stockCode = stock.stockCode;
+			if (map.containsKey(stockCode)) {
+				logger.error("duplicate stockCode {}!", stockCode);
+				logger.error("old {}", map.get(stockCode));
+				logger.error("new {}", stock);
+				throw new UnexpectedException("duplicate stockCode");
+			} else {
+				map.put(stock.stockCode, stock);
 			}
 		}
 		return map;
 	}
+	private static Map<String, StockInfo> map = null;
 	public static StockInfo get(String stockCode) {
-		Map<String, StockInfo> map = getMap();
-		if (map.containsKey(stockCode)) {
-			return map.get(stockCode);
-		} else {
-			return null;
+		if (map == null) {
+			map = getMap();
 		}
+		return map.containsKey(stockCode) ? map.get(stockCode) : null;
 	}
 	public static void save(Collection<StockInfo> collection) {
 		save(new ArrayList<>(collection));
