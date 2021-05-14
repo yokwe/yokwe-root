@@ -358,12 +358,7 @@ public class ScrapeUtil {
 
 	
 	private static Object getArg(ClassInfo classInfo, FieldInfo fieldInfo, String stringValue) {
-		if (stringValue == null) {
-			logger.error("stringValue is null");
-			logger.error("  clazz  {}", classInfo.name);
-			logger.error("  name   {}", fieldInfo.name);
-			throw new UnexpectedException("stringValue is null");
-		}
+		if (stringValue == null) return null; // strintValue can be null
 
 		String name      = fieldInfo.name;
 		String typeName  = fieldInfo.typeName;
