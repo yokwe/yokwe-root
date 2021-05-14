@@ -1,19 +1,25 @@
 package yokwe.stock.jp.tdnet;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.slf4j.LoggerFactory;
 
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateRelease {
@@ -201,6 +207,48 @@ public class UpdateRelease {
 					logger.info("save {} {}", list.size(), Release.getPath());
 					Release.save(list);
 				}
+			}
+		}
+		
+		// Save xbrl file in zip file
+		{
+			Map<SummaryFilename, File> map = TDNET.getFileMap();
+			logger.info("tdnet map {}", map.size());
+			
+			int countSave = 0;
+			for(File dataFile: Release.getDataFileList()) {
+				if (dataFile.getName().endsWith(".zip")) {
+					try (ZipFile zipFile = new ZipFile(dataFile)) {
+						Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+					    while(entries.hasMoreElements()){
+					        ZipEntry entry = entries.nextElement();
+					        SummaryFilename filename = SummaryFilename.getInstance(entry.getName());
+					        if (filename == null) continue;
+					        
+					        if (map.containsKey(filename)) {
+					        	// No need to save, because the file is already saved
+					        } else {
+					        	countSave++;
+					        	String path = TDNET.getPath(filename);
+					        	logger.info("save {}", path);
+					        	//
+					        	File file = new File(path);
+						        try (InputStream is = zipFile.getInputStream(entry)) {
+						        	FileUtil.rawWrite().file(file, is);
+						        }
+					        }
+					    }
+					} catch (IOException e) {
+						String exceptionName = e.getClass().getSimpleName();
+						logger.error("{} {}", exceptionName, e);
+						throw new UnexpectedException(exceptionName, e);
+					}
+				}
+			}
+			logger.info("save count {}", countSave);
+			if (0 < countSave) {
+				TDNET.touch();
 			}
 		}
 		
