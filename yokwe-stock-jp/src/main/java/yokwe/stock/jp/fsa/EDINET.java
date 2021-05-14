@@ -1,6 +1,7 @@
 package yokwe.stock.jp.fsa;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,12 +14,16 @@ import yokwe.util.CSVUtil;
 public class EDINET implements Comparable<EDINET> {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(EDINET.class);
 
-	public static final String URL_DOWNLOAD     = "https://disclosure.edinet-fsa.go.jp/E01EW/download?uji.verb=W1E62071EdinetCodeDownload&uji.bean=ee.bean.W1E62071.EEW1E62071Bean&TID=W1E62071&PID=W1E62071&SESSIONKEY=9999&downloadFileName=&lgKbn=2&dflg=0&iflg=0&dispKbn=1";
-	public static final String CHARSET_DOWNLOAD = "MS932";
+	private static final String PATH_DATA = getPath();	
+	public static String getPath() {
+		return FSA.getPath("edinet.csv");
+	}
 	
-	public static final String PATH_DOWNLOAD = "tmp/download/Edinetcode.zip";
-	public static final String PATH_DATA     = "tmp/data/edinet.csv";
-	public static final String ENTRY_NAME    = "EdinetcodeDlInfo.csv";
+	public static final void save(List<EDINET> list) {
+		// Sort before write
+		Collections.sort(list);
+		CSVUtil.write(EDINET.class).file(PATH_DATA, list);
+	}
 	
 	public static List<EDINET> load() {
 		return CSVUtil.read(EDINET.class).file(PATH_DATA);

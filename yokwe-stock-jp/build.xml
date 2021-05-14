@@ -21,6 +21,7 @@
 	</path>
 	
 	<!-- Application -->
+	<!-- JASDEC -->
 	<target name="jasdec-data-file">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.jasdec.DataFile" fork="true">
 			<modulepath refid="build.classpath" />
@@ -31,6 +32,7 @@
 		</java>
 	</target>
 
+	<!-- TOUSHIN -->
 	<target name="toushin-data-file">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.DataFile" fork="true">
 			<modulepath refid="build.classpath" />
@@ -51,6 +53,7 @@
 		</java>
 	</target>
 
+	<!-- JPX -->
 	<target name="jpx-update-stock">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateStock" fork="true">
 			<modulepath refid="build.classpath" />
@@ -71,10 +74,18 @@
 		</java>
 	</target>
 
-
-	<!-- OLD APPL -->
-	<target name="update-stock">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateStock" fork="true">
+	<!-- FSA -->
+	<target name="fsa-update-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.fsa.UpdateFund" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="fsa-update-edinet">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.fsa.UpdateEDINET" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
@@ -83,14 +94,4 @@
 		</java>
 	</target>
 
-	<target name="update-stock-price">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.data.UpdateStockPrice" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	
 </project>

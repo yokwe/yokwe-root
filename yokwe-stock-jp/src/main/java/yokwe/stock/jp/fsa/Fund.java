@@ -1,6 +1,7 @@
 package yokwe.stock.jp.fsa;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,12 +14,17 @@ import yokwe.util.CSVUtil;
 public class Fund implements Comparable<Fund> {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Fund.class);
 
-	public static final String URL_DOWNLOAD     = "https://disclosure.edinet-fsa.go.jp/E01EW/download?uji.verb=W1E62071FundCodeDownload&uji.bean=ee.bean.W1E62071.EEW1E62071Bean&TID=W1E62071&PID=W1E62071&SESSIONKEY=9999&downloadFileName=&lgKbn=2&dflg=0&iflg=0&dispKbn=1";
-	public static final String CHARSET_DOWNLOAD = "MS932";
+	private static final String PATH_DATA = getPath();
 	
-	public static final String PATH_DOWNLOAD = "tmp/download/Fundcode.zip";
-	public static final String PATH_DATA     = "tmp/data/fund.csv";
-	public static final String ENTRY_NAME    = "FundcodeDlInfo.csv";
+	public static final String getPath() {
+		return FSA.getPath("fund.csv");
+	}
+	
+	public static final void save(List<Fund> list) {
+		// Sort before write
+		Collections.sort(list);
+		CSVUtil.write(Fund.class).file(PATH_DATA, list);
+	}
 	
 	public static List<Fund> load() {
 		return CSVUtil.read(Fund.class).file(PATH_DATA);
