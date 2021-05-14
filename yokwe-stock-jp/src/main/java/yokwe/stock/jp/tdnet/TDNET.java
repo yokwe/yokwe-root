@@ -9,21 +9,26 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 
 public class TDNET {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TDNET.class);
-
-	public static final String PATH_TOUCH_FILE = "tmp/data/tdnet.touch";
+	
+	private static final String DIR_BASE = getPath();
+	private static final String DATA_BASE = String.format("%s/%s", DIR_BASE, "data");
+	
+	public static String getPath() {
+		return Storage.getPath("tdnet");
+	}
+	public static String getPath(SummaryFilename filename) {
+		return String.format("%s/%s/%s", DATA_BASE, filename.tdnetCode, filename);
+	}
+	
+	private static final String PATH_TOUCH_FILE = String.format("%s/%s", DIR_BASE, "tdnet.touch");
 	public static void touch() {
 		logger.info("touch {}", TDNET.PATH_TOUCH_FILE);
 		FileUtil.touch(PATH_TOUCH_FILE);
-	}
-	
-	private static final String DIR_BASE     = "tmp/data/tdnet";
-	
-	public static String getPath(SummaryFilename filename) {
-		return String.format("%s/%s/%s", DIR_BASE, filename.tdnetCode, filename);
 	}
 	
 	private static List<File> fileList = null;
@@ -50,8 +55,7 @@ public class TDNET {
 	public static Map<SummaryFilename, File> getFileMap() {
 		if (fileMap == null) {
 			fileMap = new TreeMap<>();
-			File dir = new File(DIR_BASE);
-			for(File file: FileUtil.listFile(dir)) {
+			for(File file: FileUtil.listFile(DATA_BASE)) {
 				SummaryFilename key = SummaryFilename.getInstance(file.getName());
 				if (key == null) {
 					logger.error("Unexpected filename");
