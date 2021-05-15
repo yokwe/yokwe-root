@@ -1,0 +1,34 @@
+SHELL=/usr/local/bin/bash
+MAILTO=hasegawa
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Use english language
+LANG=en_US.UTF-8
+LANGUAGE=en_US:en
+#
+YOKWE_ROOT=/mnt/home/hasegawa/git/yokwe-root
+
+# clear save file - every day
+#m   h     dom mon dow   command
+02   1     *   *     *   cd $YOKWE_ROOT/yokwe-stock-jp; ( make clear-save-file ) 1>>tmp/cron.log 2>&1
+ 
+# clear log file - every Monday
+#m   h     dom mon dow   command
+03   1     *   *     1   cd $YOKWE_ROOT/yokwe-stock-jp; ( make clear-log-file )  1>>tmp/cron.log 2>&1
+
+# TDNET - every hour between 8 to 23 hours
+#m   h     dom mon dow   command
+04   8-23  *   *     *   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-tdnet )    1>>tmp/cron.log 2>&1
+
+# FSA - every Sunday
+#m   h     dom mon dow   command
+01   6     *   *     0   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-fsa )      1>>tmp/cron.log 2>&1
+
+# JASDEC - every Sunday
+#m   h     dom mon dow   command
+01   2     *   *     0   cd $YOKWE_ROOT/yokwe-stock-jp; ( make clear-jasdec )    1>>tmp/cron.log 2>&1
+02   2     *   *     0   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-jasdec )   1>>tmp/cron.log 2>&1
+
+# TOUSHIN - wvery Sunday
+#m   h     dom mon dow   command
+01   4     *   *     0   cd $YOKWE_ROOT/yokwe-stock-jp; ( make clear-toushin )   1>>tmp/cron.log 2>&1
+02   4     *   *     0   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-toushin )  1>>tmp/cron.log 2>&1

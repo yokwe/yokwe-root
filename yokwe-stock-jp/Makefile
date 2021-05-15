@@ -13,6 +13,9 @@ clear-log:
 	echo -n >tmp/yokwe-stock-jp.log
 	echo -n >tmp/cron.log
 
+update-crontab:
+	crontab data/crontab
+
 # JASDEC
 clear-jasdec:
 	rm -rf /mnt/stock/jp/jasdec/download/*
