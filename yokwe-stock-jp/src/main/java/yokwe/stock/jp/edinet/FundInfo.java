@@ -1,4 +1,4 @@
-package yokwe.stock.jp.fsa;
+package yokwe.stock.jp.edinet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,29 +11,29 @@ import org.slf4j.LoggerFactory;
 import yokwe.util.UnexpectedException;
 import yokwe.util.CSVUtil;
 
-public class Fund implements Comparable<Fund> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Fund.class);
+public class FundInfo implements Comparable<FundInfo> {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(FundInfo.class);
 
 	private static final String PATH_DATA = getPath();
 	
 	public static final String getPath() {
-		return FSA.getPath("fund.csv");
+		return EDINET.getPath("fund-info.csv");
 	}
 	
-	public static final void save(List<Fund> list) {
+	public static final void save(List<FundInfo> list) {
 		// Sort before write
 		Collections.sort(list);
-		CSVUtil.write(Fund.class).file(PATH_DATA, list);
+		CSVUtil.write(FundInfo.class).file(PATH_DATA, list);
 	}
 	
-	public static List<Fund> load() {
-		return CSVUtil.read(Fund.class).file(PATH_DATA);
+	public static List<FundInfo> load() {
+		return CSVUtil.read(FundInfo.class).file(PATH_DATA);
 	}
 	
-	private static List<Fund> list = null;
-	public static List<Fund> getList() {
+	private static List<FundInfo> list = null;
+	public static List<FundInfo> getList() {
 		if (list == null) {
-			list = CSVUtil.read(Fund.class).file(PATH_DATA);
+			list = CSVUtil.read(FundInfo.class).file(PATH_DATA);
 			if (list == null) {
 				list = new ArrayList<>();
 			}
@@ -41,12 +41,12 @@ public class Fund implements Comparable<Fund> {
 		return list;
 	}
 	
-	private static Map<String, Fund> map = null;
+	private static Map<String, FundInfo> map = null;
 	//                 fundCode
-	public static Map<String, Fund> getMap() {
+	public static Map<String, FundInfo> getMap() {
 		if (map == null) {
 			map = new TreeMap<>();
-			for(Fund e: getList()) {
+			for(FundInfo e: getList()) {
 				String key = e.fundCode;
 				if (map.containsKey(key)) {
 					logger.error("Duplicate edinetCode");
@@ -60,8 +60,8 @@ public class Fund implements Comparable<Fund> {
 		}
 		return map;
 	}
-	public static Fund get(String edinetCode) {
-		Map<String, Fund> map = getMap();
+	public static FundInfo get(String edinetCode) {
+		Map<String, FundInfo> map = getMap();
 		if (map.containsKey(edinetCode)) {
 			return map.get(edinetCode);
 		} else {
@@ -69,12 +69,12 @@ public class Fund implements Comparable<Fund> {
 		}
 	}
 	
-	private static Map<String, Fund> nameMap = null;
+	private static Map<String, FundInfo> nameMap = null;
 	//                 stockCode-fundName
-	public static Map<String, Fund> getStockCodeNameMap() {
+	public static Map<String, FundInfo> getStockCodeNameMap() {
 		if (nameMap == null) {
 			nameMap = new TreeMap<>();
-			for(Fund e: getList()) {
+			for(FundInfo e: getList()) {
 				if (e.stockCode.isEmpty()) continue;
 				
 				String key = String.format("%s-%s", e.stockCode, e.fundName);
@@ -91,8 +91,8 @@ public class Fund implements Comparable<Fund> {
 		}
 		return nameMap;
 	}
-	public static Fund getFromStockCodeFundName(String stockCode, String fundName) {
-		Map<String, Fund> map = getStockCodeNameMap();
+	public static FundInfo getFromStockCodeFundName(String stockCode, String fundName) {
+		Map<String, FundInfo> map = getStockCodeNameMap();
 		String key = String.format("%s-%s", stockCode, fundName);
 		if (map.containsKey(key)) {
 			return map.get(key);
@@ -138,7 +138,7 @@ public class Fund implements Comparable<Fund> {
 	}
 	
 	@Override
-	public int compareTo(Fund that) {
+	public int compareTo(FundInfo that) {
 		int ret = this.fundCode.compareTo(that.fundCode);
 		return ret;
 	}

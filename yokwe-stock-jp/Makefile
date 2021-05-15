@@ -37,10 +37,10 @@ update-jpx-stock:
 	ant jpx-update-stock
 	tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz /mnt/stock/jp/jpx
 
-# FSA
-update-fsa:
-	ant fsa-data-file
-	tar cfz /mnt/stock/jp/save/fsa_$$(date +%Y%m%d).taz /mnt/stock/jp/fsa
+# EDINET
+update-edinet:
+	ant edinet-data-file
+	tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz /mnt/stock/jp/edinet
 
 # TDNET
 update-tdnet:

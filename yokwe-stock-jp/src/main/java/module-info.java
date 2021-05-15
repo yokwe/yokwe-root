@@ -2,7 +2,6 @@ module yokwe.stock.jp {
 	exports yokwe.stock.jp;
 	exports yokwe.stock.jp.data;
 	exports yokwe.stock.jp.edinet;
-	exports yokwe.stock.jp.fsa;
 	exports yokwe.stock.jp.jasdec;
 	exports yokwe.stock.jp.jpx;
 	exports yokwe.stock.jp.smbctb;

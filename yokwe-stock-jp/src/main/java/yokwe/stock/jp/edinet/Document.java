@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.edinet.API.DocType;
-import yokwe.stock.jp.fsa.InstanceFilename;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 

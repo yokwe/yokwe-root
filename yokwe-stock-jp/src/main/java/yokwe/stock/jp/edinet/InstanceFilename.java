@@ -1,4 +1,4 @@
-package yokwe.stock.jp.fsa;
+package yokwe.stock.jp.edinet;
 
 import java.util.List;
 import java.util.regex.Pattern;

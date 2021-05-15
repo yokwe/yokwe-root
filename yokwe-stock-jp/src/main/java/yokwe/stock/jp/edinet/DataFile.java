@@ -1,4 +1,4 @@
-package yokwe.stock.jp.fsa;
+package yokwe.stock.jp.edinet;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -44,10 +44,10 @@ public class DataFile {
 				        		if (c == '\n') break;
 				        	}
 				        	
-				        	List<EDINET> list = CSVUtil.read(EDINET.class).file(isr);
+				        	List<EDINETInfo> list = CSVUtil.read(EDINETInfo.class).file(isr);
 				        							
-							logger.info("write  {}   {}", list.size(), EDINET.getPath());
-							EDINET.save(list);
+							logger.info("write  {}   {}", list.size(), EDINETInfo.getPath());
+							EDINETInfo.save(list);
 				        }
 			        }
 			    }
@@ -87,9 +87,9 @@ public class DataFile {
 				        		if (c == '\n') break;
 				        	}
 				        	
-				        	List<Fund> list = CSVUtil.read(Fund.class).file(isr);
-							logger.info("write  {}   {}", list.size(), Fund.getPath());
-							Fund.save(list);
+				        	List<FundInfo> list = CSVUtil.read(FundInfo.class).file(isr);
+							logger.info("write  {}   {}", list.size(), FundInfo.getPath());
+							FundInfo.save(list);
 				        }
 			        }
 			    }

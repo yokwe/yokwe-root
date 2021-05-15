@@ -74,9 +74,9 @@
 		</java>
 	</target>
 
-	<!-- FSA -->
-	<target name="fsa-data-file">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.fsa.DataFile" fork="true">
+	<!-- EDINET -->
+	<target name="edinet-data-file">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.edinet.DataFile" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />

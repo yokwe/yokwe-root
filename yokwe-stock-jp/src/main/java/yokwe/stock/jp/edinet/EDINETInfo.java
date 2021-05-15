@@ -1,4 +1,4 @@
-package yokwe.stock.jp.fsa;
+package yokwe.stock.jp.edinet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,28 +11,28 @@ import org.slf4j.LoggerFactory;
 import yokwe.util.UnexpectedException;
 import yokwe.util.CSVUtil;
 
-public class EDINET implements Comparable<EDINET> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(EDINET.class);
+public class EDINETInfo implements Comparable<EDINETInfo> {
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(EDINETInfo.class);
 
 	private static final String PATH_DATA = getPath();	
 	public static String getPath() {
-		return FSA.getPath("edinet.csv");
+		return EDINET.getPath("edinet-info.csv");
 	}
 	
-	public static final void save(List<EDINET> list) {
+	public static final void save(List<EDINETInfo> list) {
 		// Sort before write
 		Collections.sort(list);
-		CSVUtil.write(EDINET.class).file(PATH_DATA, list);
+		CSVUtil.write(EDINETInfo.class).file(PATH_DATA, list);
 	}
 	
-	public static List<EDINET> load() {
-		return CSVUtil.read(EDINET.class).file(PATH_DATA);
+	public static List<EDINETInfo> load() {
+		return CSVUtil.read(EDINETInfo.class).file(PATH_DATA);
 	}
 	
-	private static List<EDINET> list = null;
-	public static List<EDINET> getList() {
+	private static List<EDINETInfo> list = null;
+	public static List<EDINETInfo> getList() {
 		if (list == null) {
-			list = CSVUtil.read(EDINET.class).file(PATH_DATA);
+			list = CSVUtil.read(EDINETInfo.class).file(PATH_DATA);
 			if (list == null) {
 				list = new ArrayList<>();
 			}
@@ -40,12 +40,12 @@ public class EDINET implements Comparable<EDINET> {
 		return list;
 	}
 	
-	private static Map<String, EDINET> map = null;
+	private static Map<String, EDINETInfo> map = null;
 	//                 edinetCode
-	public static Map<String, EDINET> getMap() {
+	public static Map<String, EDINETInfo> getMap() {
 		if (map == null) {
 			map = new TreeMap<>();
-			for(EDINET e: getList()) {
+			for(EDINETInfo e: getList()) {
 				String key = e.edinetCode;
 				if (map.containsKey(key)) {
 					logger.error("Duplicate edinetCode");
@@ -59,8 +59,8 @@ public class EDINET implements Comparable<EDINET> {
 		}
 		return map;
 	}
-	public static EDINET get(String edinetCode) {
-		Map<String, EDINET> map = getMap();
+	public static EDINETInfo get(String edinetCode) {
+		Map<String, EDINETInfo> map = getMap();
 		if (map.containsKey(edinetCode)) {
 			return map.get(edinetCode);
 		} else {
@@ -68,12 +68,12 @@ public class EDINET implements Comparable<EDINET> {
 		}
 	}
 	
-	private static Map<String, EDINET> stockCodeMap = null;
+	private static Map<String, EDINETInfo> stockCodeMap = null;
 	//                 stockCode
-	public static Map<String, EDINET> getStockCodeMap() {
+	public static Map<String, EDINETInfo> getStockCodeMap() {
 		if (stockCodeMap == null) {
 			stockCodeMap = new TreeMap<>();
-			for(EDINET e: getList()) {
+			for(EDINETInfo e: getList()) {
 				String key = e.stockCode;
 				if (key == null || key.isEmpty()) continue;
 				if (stockCodeMap.containsKey(key)) {
@@ -88,8 +88,8 @@ public class EDINET implements Comparable<EDINET> {
 		}
 		return stockCodeMap;
 	}
-	public static EDINET getFromStockCode(String stockCode) {
-		Map<String, EDINET> map = getStockCodeMap();
+	public static EDINETInfo getFromStockCode(String stockCode) {
+		Map<String, EDINETInfo> map = getStockCodeMap();
 		if (map.containsKey(stockCode)) {
 			return map.get(stockCode);
 		} else {
@@ -144,7 +144,7 @@ public class EDINET implements Comparable<EDINET> {
 	}
 	
 	@Override
-	public int compareTo(EDINET that) {
+	public int compareTo(EDINETInfo that) {
 		int ret = this.edinetCode.compareTo(that.edinetCode);
 		return ret;
 	}

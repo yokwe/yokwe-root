@@ -1,4 +1,4 @@
-package yokwe.stock.jp.fsa;
+package yokwe.stock.jp.edinet;
 
 import org.slf4j.LoggerFactory;
 
