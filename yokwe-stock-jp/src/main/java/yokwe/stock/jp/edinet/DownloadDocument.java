@@ -2,14 +2,13 @@ package yokwe.stock.jp.edinet;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.stock.jp.edinet.API.DocType;
 import yokwe.util.FileUtil;
 
 public class DownloadDocument {
@@ -20,38 +19,49 @@ public class DownloadDocument {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		int downloadLimitYear = Integer.getInteger("downloadLimitYear", DEFAULT_DOWNLOAD_LIMIT_YEAR);
-		logger.info("downloadLimitYear {}", downloadLimitYear);
+		int days = Integer.getInteger("days", 10);
+		logger.info("days {}", days);
+		
+		LocalDate date  = LocalDate.now();
+		LocalDate lastDate = date.minusDays(days);
+		logger.info("date {} - {}", lastDate, date);
 		
 		// Existing file map.  key is docID
-		Map<String, File> dataFileMap = Document.getDataFileMap();
+		Map<String, File> dataFileMap = Document.getDocumentFileMap();
 		logger.info("dataFileMap  {}", dataFileMap.size());
 		
-		LocalDate dateStart = LocalDate.now().minusYears(downloadLimitYear);
-		
-		List<Document> documentList = Document.getList().stream().
-				filter(o -> (o.docTypeCode == DocType.ANNUAL_REPORT    ||
-				             o.docTypeCode == DocType.QUARTERLY_REPORT ||
-				             o.docTypeCode == DocType.SEMI_ANNUAL_REPORT)).
-				filter(o -> o.submitDateTime.toLocalDate().isAfter(dateStart)).
-				filter(o -> !(o.fundCode.isEmpty() && o.stockCode.isEmpty())). // Skip if no fundCode and no stockCode
-				filter(o -> !dataFileMap.containsKey(o.docID)).
-				collect(Collectors.toList());
-		logger.info("documentList {}", documentList.size());
-		Collections.shuffle(documentList);
+		List<Document> list = new ArrayList<>();
+		for(var e: Document.getList()) {
+			if (dataFileMap.containsKey(e.docID)) continue;
+			if (e.fundCode.isEmpty() && e.stockCode.isEmpty()) continue;
+			if (e.submitDateTime.toLocalDate().isBefore(lastDate)) continue;
+			
+			switch(e.docTypeCode) {
+			case ANNUAL_REPORT:
+			case QUARTERLY_REPORT:
+			case SEMI_ANNUAL_REPORT:
+				list.add(e);
+				break;
+			default:
+				break;
+			}
+		}
+				
+		logger.info("list {}", list.size());
+		Collections.shuffle(list);
 		
 		int count = 0;
-		for(Document document: documentList) {
+		for(var e: list) {
 			if ((count % 100) == 0) {
-				logger.info("{} {}", String.format("%5d / %5d", count, documentList.size()), document.docID);
+				logger.info("{} {}", String.format("%5d / %5d", count, list.size()), e.docID);
 			}
 			count++;
 			
-			byte[] data = API.Document.getInstance(document.docID, API.Document.Type.WHOLE);
+			byte[] data = API.Document.getInstance(e.docID, API.Document.Type.WHOLE);
 			if (data == null) {
-				logger.info("download failed {}", document.docID);
+				logger.info("download failed {}", e.docID);
 			} else {
-				File file = Document.getDataFile(document.submitDateTime.toLocalDate(), document.docID);
+				File file = Document.getDocumentFile(e.submitDateTime.toLocalDate(), e.docID);
 				FileUtil.rawWrite().file(file, data);
 			}
 		}

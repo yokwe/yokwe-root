@@ -21,50 +21,50 @@ import yokwe.util.FileUtil;
 public class Document implements Comparable<Document> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Document.class);
 	
-	public static final String PATH_TOUCH_FILE = "tmp/data/edinet.touch";
+	public static final String PATH_TOUCH_FILE = EDINET.getPath("edinet.touch");
 	public static void touch() {
 		logger.info("touch {}", PATH_TOUCH_FILE);
 		FileUtil.touch(PATH_TOUCH_FILE);
 	}
 	
-	public static final String PATH_DATA_DIR = "tmp/disclosure";
+	public static final String PATH_DOCUMENT_DIR = EDINET.getPath("document");
 	
-	public static File getDataFile(LocalDate date, String docID) {
+	public static File getDocumentFile(LocalDate date, String docID) {
 		int y = date.getYear();
 		int m = date.getMonthValue();
 		int d = date.getDayOfMonth();
-		String path = String.format("%s/%04d/%02d/%02d/%s", PATH_DATA_DIR, y, m, d, docID);
+		String path = String.format("%s/%04d/%02d/%02d/%s", PATH_DOCUMENT_DIR, y, m, d, docID);
 		return new File(path);
 	}
 	
-	private static List<File> dataFileList = null;
-	public static List<File> getDataFileList() {
-		if (dataFileList == null) {
-			dataFileList = FileUtil.listFile(PATH_DATA_DIR).stream().
+	private static List<File> docmentFileList = null;
+	public static List<File> getDocumentFileList() {
+		if (docmentFileList == null) {
+			docmentFileList = FileUtil.listFile(PATH_DOCUMENT_DIR).stream().
 					collect(Collectors.toList());
 		}
-		return dataFileList;
+		return docmentFileList;
 	}
-	private static Map<String, File> dataFileMap = null;
+	private static Map<String, File> documentFileMap = null;
 	//                 docID
-	public static Map<String, File> getDataFileMap() {
-		if (dataFileMap == null) {
-			dataFileMap = new TreeMap<>();
-			for(File file: getDataFileList()) {
+	public static Map<String, File> getDocumentFileMap() {
+		if (documentFileMap == null) {
+			documentFileMap = new TreeMap<>();
+			for(File file: getDocumentFileList()) {
 				String name = file.getName();
-				dataFileMap.put(name, file);
+				documentFileMap.put(name, file);
 			}
 		}
-		return dataFileMap;
+		return documentFileMap;
 	}
 
 
-	public static final String PATH_FILE     = "tmp/data/edinet-document.csv";
+	public static final String PATH_DOCUMENT_FILE     = EDINET.getPath("document.csv");
 
 	private static List<Document> list = null;
 	public static List<Document> getList() {
 		if (list == null) {
-			list = CSVUtil.read(Document.class).file(PATH_FILE);
+			list = CSVUtil.read(Document.class).file(PATH_DOCUMENT_FILE);
 			if (list == null) {
 				list = new ArrayList<>();
 			}
@@ -97,10 +97,10 @@ public class Document implements Comparable<Document> {
 	public static void save(List<Document> list) {
 		// Sort before save
 		Collections.sort(list);
-		CSVUtil.write(Document.class).file(PATH_FILE, list);
+		CSVUtil.write(Document.class).file(PATH_DOCUMENT_FILE, list);
 	}
 	
-	public static final String PATH_XBRL_DIR = "tmp/data/edinet";
+	public static final String PATH_XBRL_DIR = EDINET.getPath("xbrl");
 	public static File getXBRLFile(InstanceFilename filename) {
 		String path = String.format("%s/%s/%s", PATH_XBRL_DIR, filename.code, filename.toString());
 		return new File(path);

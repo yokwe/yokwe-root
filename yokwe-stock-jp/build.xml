@@ -84,6 +84,26 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="edinet-update-document">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.edinet.UpdateDocument" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+			<sysproperty key="days" value="10" />
+		</java>
+	</target>
+	<target name="edinet-download-document">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.edinet.DownloadDocument" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+			<sysproperty key="days" value="10" />
+		</java>
+	</target>
 	
 	<!-- TDNET -->
 	<target name="tdnet-update-release">
