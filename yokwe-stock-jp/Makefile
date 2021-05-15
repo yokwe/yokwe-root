@@ -1,0 +1,45 @@
+#
+#
+#
+
+all:
+	echo "all"
+
+clear-save-file:
+	find /mnt/stock/jp/save -mtime +30 -delete
+	
+clear-log:
+	tar cfz /mnt/stock/jp/save/log_$$(date +%Y%m%d).taz tmp/*.log
+	echo -n >tmp/yokwe-stock-jp.log
+	echo -n >tmp/cron.log
+
+# JASDEC
+clear-jasdec:
+	rm -rf /mnt/stock/jp/jasdec/download/*
+	
+update-jasdec:
+	ant jasdec-data-file
+	tar cfz /mnt/stock/jp/save/jasdec_$$(date +%Y%m%d).taz /mnt/stock/jp/jasdec
+
+# TOUSHIN
+clear-toushin:
+	rm -rf /mnt/stock/jp/toushin/download/*
+	
+update-toushin:
+	ant toushin-data-file
+	tar cfz /mnt/stock/jp/save/toushin_$$(date +%Y%m%d).taz /mnt/stock/jp/toushin
+
+# JPX
+update-jpx-stock:
+	ant jpx-update-stock
+	tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz /mnt/stock/jp/jpx
+
+# FSA
+update-fsa:
+	ant fsa-update-edinet fsa-update-fund
+	tar cfz /mnt/stock/jp/save/fsa_$$(date +%Y%m%d).taz /mnt/stock/jp/fsa
+
+# TDNET
+update-tdnet:
+	ant tdnet-update-release
+
