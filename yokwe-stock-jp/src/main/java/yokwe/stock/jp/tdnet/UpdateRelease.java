@@ -182,7 +182,7 @@ public class UpdateRelease {
 					{
 						if (!e.xbrl.isEmpty()) {
 							String filename = String.format("%s.zip", e.id);
-							File file = Release.getDataFile(date, filename);
+							File file = Release.getReleaseFile(date, filename);
 
 							if (!file.exists()) {
 								logger.info("file {}", file.getPath());
@@ -210,15 +210,15 @@ public class UpdateRelease {
 			}
 		}
 		
-		// Save xbrl file in zip file
+		// Save summary XBRL file in zip file
 		{
-			Map<SummaryFilename, File> map = TDNET.getFileMap();
+			Map<SummaryFilename, File> map = TDNET.getSummaryFileMap();
 			logger.info("tdnet map {}", map.size());
 			
 			int countSave = 0;
-			for(File dataFile: Release.getDataFileList()) {
-				if (dataFile.getName().endsWith(".zip")) {
-					try (ZipFile zipFile = new ZipFile(dataFile)) {
+			for(File releaseFile: Release.getReleaseFileList()) {
+				if (releaseFile.getName().endsWith(".zip")) {
+					try (ZipFile zipFile = new ZipFile(releaseFile)) {
 						Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
 					    while(entries.hasMoreElements()){
@@ -230,7 +230,7 @@ public class UpdateRelease {
 					        	// No need to save, because the file is already saved
 					        } else {
 					        	countSave++;
-					        	String path = TDNET.getPath(filename);
+					        	String path = TDNET.getSummaryFilePath(filename);
 					        	logger.info("save {}", path);
 					        	//
 					        	File file = new File(path);

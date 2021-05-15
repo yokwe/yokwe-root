@@ -20,24 +20,24 @@ import yokwe.util.UnexpectedException;
 public class Release implements Comparable<Release> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Release.class);
 	
-	private static final String PATH_DATA_DIR = getDataDir();
-	public static String getDataDir() {
+	private static final String PATH_RELEASE_DIR = getReleaseDir();
+	public static String getReleaseDir() {
 		return String.format("%s/release", TDNET.getPath());
 	}
-	private static List<File> dataFileList = null;
-	public static List<File> getDataFileList() {
-		if (dataFileList == null) {
-			dataFileList = FileUtil.listFile(PATH_DATA_DIR).stream().
+	private static List<File> releaseFileList = null;
+	public static List<File> getReleaseFileList() {
+		if (releaseFileList == null) {
+			releaseFileList = FileUtil.listFile(PATH_RELEASE_DIR).stream().
 					filter(o -> o.getName().endsWith(".pdf") || o.getName().endsWith(".zip")).
 					collect(Collectors.toList());
 		}
-		return dataFileList;
+		return releaseFileList;
 	}
-	public static File getDataFile(LocalDate date, String filename) {
+	public static File getReleaseFile(LocalDate date, String filename) {
 		int y = date.getYear();
 		int m = date.getMonthValue();
 		int d = date.getDayOfMonth();
-		String path = String.format("%s/%04d/%02d/%02d/%s", PATH_DATA_DIR, y, m, d, filename);
+		String path = String.format("%s/%04d/%02d/%02d/%s", PATH_RELEASE_DIR, y, m, d, filename);
 		return new File(path);
 	}
 	

@@ -16,13 +16,13 @@ public class TDNET {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TDNET.class);
 	
 	private static final String DIR_BASE = getPath();
-	private static final String DATA_BASE = String.format("%s/%s", DIR_BASE, "data");
+	private static final String SUMMARY_DIR = String.format("%s/%s", DIR_BASE, "summary");
 	
 	public static String getPath() {
 		return Storage.getPath("tdnet");
 	}
-	public static String getPath(SummaryFilename filename) {
-		return String.format("%s/%s/%s", DATA_BASE, filename.tdnetCode, filename);
+	public static String getSummaryFilePath(SummaryFilename filename) {
+		return String.format("%s/%s/%s", SUMMARY_DIR, filename.tdnetCode, filename);
 	}
 	
 	private static final String PATH_TOUCH_FILE = String.format("%s/%s", DIR_BASE, "tdnet.touch");
@@ -31,19 +31,19 @@ public class TDNET {
 		FileUtil.touch(PATH_TOUCH_FILE);
 	}
 	
-	private static List<File> fileList = null;
-	public static List<File> getFileList() {
-		if (fileList == null) {
-			fileList = new ArrayList<>(getFileMap().values());
+	private static List<File> summaryFileList = null;
+	public static List<File> getSummaryFileList() {
+		if (summaryFileList == null) {
+			summaryFileList = new ArrayList<>(getSummaryFileMap().values());
 		}
 		
-		return fileList;
+		return summaryFileList;
 	}
-	public static List<File> getFileList(Category category) {
+	public static List<File> getSummaryFileList(Category category) {
 		List<File> ret = new ArrayList<>();
-		for(Map.Entry<SummaryFilename, File> entry: getFileMap().entrySet()) {
+		for(Map.Entry<SummaryFilename, File> entry: getSummaryFileMap().entrySet()) {
 			SummaryFilename financialSummary = entry.getKey();
-			File             file             = entry.getValue();
+			File            file             = entry.getValue();
 			if (financialSummary.category == category) {
 				ret.add(file);
 			}
@@ -51,11 +51,11 @@ public class TDNET {
 		return ret;
 	}
 
-	private static Map<SummaryFilename, File> fileMap = null;
-	public static Map<SummaryFilename, File> getFileMap() {
-		if (fileMap == null) {
-			fileMap = new TreeMap<>();
-			for(File file: FileUtil.listFile(DATA_BASE)) {
+	private static Map<SummaryFilename, File> summaryFileMap = null;
+	public static Map<SummaryFilename, File> getSummaryFileMap() {
+		if (summaryFileMap == null) {
+			summaryFileMap = new TreeMap<>();
+			for(File file: FileUtil.listFile(SUMMARY_DIR)) {
 				SummaryFilename key = SummaryFilename.getInstance(file.getName());
 				if (key == null) {
 					logger.error("Unexpected filename");
@@ -63,18 +63,18 @@ public class TDNET {
 					throw new UnexpectedException("Unexpected filename");
 				}
 				
-				if (fileMap.containsKey(key)) {
+				if (summaryFileMap.containsKey(key)) {
 					logger.error("Duplicate key {}", key);
 					logger.error("  new {}", file.getName());
-					logger.error("  old {}", fileMap.get(key).getName());
+					logger.error("  old {}", summaryFileMap.get(key).getName());
 					throw new UnexpectedException("Duplicate key");
 				} else {
-					fileMap.put(key, file);
+					summaryFileMap.put(key, file);
 				}
 			}
 		}
 		
-		return fileMap;
+		return summaryFileMap;
 	}
 
 
