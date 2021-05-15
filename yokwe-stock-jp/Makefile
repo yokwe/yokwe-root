@@ -39,7 +39,7 @@ update-jpx-stock:
 
 # FSA
 update-fsa:
-	ant fsa-update-edinet fsa-update-fund
+	ant fsa-data-file
 	tar cfz /mnt/stock/jp/save/fsa_$$(date +%Y%m%d).taz /mnt/stock/jp/fsa
 
 # TDNET

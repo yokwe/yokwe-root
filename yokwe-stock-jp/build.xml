@@ -75,17 +75,8 @@
 	</target>
 
 	<!-- FSA -->
-	<target name="fsa-update-fund">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.fsa.UpdateFund" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="fsa-update-edinet">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.fsa.UpdateEDINET" fork="true">
+	<target name="fsa-data-file">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.fsa.DataFile" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
