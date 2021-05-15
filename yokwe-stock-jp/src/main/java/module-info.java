@@ -5,7 +5,6 @@ module yokwe.stock.jp {
 	exports yokwe.stock.jp.fsa;
 	exports yokwe.stock.jp.jasdec;
 	exports yokwe.stock.jp.jpx;
-	exports yokwe.stock.jp.release;
 	exports yokwe.stock.jp.smbctb;
 	exports yokwe.stock.jp.smbctb.json;
 	exports yokwe.stock.jp.sony;
