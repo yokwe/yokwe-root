@@ -18,7 +18,7 @@ update-crontab:
 
 # JASDEC
 clear-jasdec:
-	rm -rf /mnt/stock/jp/jasdec/download/*
+	rm -rf /mnt/stock/jp/jasdec/download/page/*
 	
 update-jasdec:
 	ant jasdec-data-file
@@ -26,7 +26,7 @@ update-jasdec:
 
 # TOUSHIN
 clear-toushin:
-	rm -rf /mnt/stock/jp/toushin/download/*
+	rm -rf /mnt/stock/jp/toushin/download/price/*
 	
 update-toushin:
 	ant toushin-data-file
