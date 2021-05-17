@@ -61,10 +61,14 @@ public class Document implements Comparable<Document> {
 
 	public static final String PATH_DOCUMENT_FILE     = EDINET.getPath("document.csv");
 
+	public static List<Document> load() {
+		List<Document> ret = CSVUtil.read(Document.class).file(PATH_DOCUMENT_FILE);
+		return ret;
+	}
 	private static List<Document> list = null;
 	public static List<Document> getList() {
 		if (list == null) {
-			list = CSVUtil.read(Document.class).file(PATH_DOCUMENT_FILE);
+			list = load();
 			if (list == null) {
 				list = new ArrayList<>();
 			}

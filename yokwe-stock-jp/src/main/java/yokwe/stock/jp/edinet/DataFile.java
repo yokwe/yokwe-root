@@ -1,114 +1,139 @@
 package yokwe.stock.jp.edinet;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.Map;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.CSVUtil;
+import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.http.HttpUtil;
 
 public class DataFile {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DataFile.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
+	
+	private static void update(LocalDate lastDate) {
+		LocalDate date  = LocalDate.now();
+		int       count = 0;
+		
+		Map<String, Document> map = Document.getMap();
+		
+		for(;;) {
+			API.ListDocument.Response response = API.ListDocument.getInstance(date, API.ListDocument.Type.DATA);
+			logger.info("{}  {}", date, String.format("%4d", response.results.length));
+			for(var e: response.results) {
+				if (e.edinetCode.isEmpty()) {
+					//
+				} else {
+					if (e.docTypeCode == null) {
+						logger.error("docTypeCode is null");
+						logger.error("  {}", e.toString());
+						logger.error("e.edinetCode {}", e.edinetCode);
+						throw new UnexpectedException("docTypeCode is null");
+					}
+					
+					String docID = e.docID;
+					if (!map.containsKey(docID)) {
+						Document document = new Document(
+								e.docID,
+								e.edinetCode,
+								e.stockCode,
+								e.fundCode,
+								e.ordinanceCode,
+								e.formCode,
 
-	private static class EDNETFile {
-		private static final String URL_DOWNLOAD     = "https://disclosure.edinet-fsa.go.jp/E01EW/download?uji.verb=W1E62071EdinetCodeDownload&uji.bean=ee.bean.W1E62071.EEW1E62071Bean&TID=W1E62071&PID=W1E62071&SESSIONKEY=9999&downloadFileName=&lgKbn=2&dflg=0&iflg=0&dispKbn=1";
-		private static final String CHARSET_DOWNLOAD = "MS932";
-		private static final String ENTRY_NAME       = "EdinetcodeDlInfo.csv";
+								e.docTypeCode,
 
-		private static void update(HttpUtil httpUtil) {
-			logger.info("update EDINET");
+								e.submitDateTime);
+						map.put(docID, document);
 
-			HttpUtil.Result result = httpUtil.download(URL_DOWNLOAD);
-			logger.info("result {}", result.rawData.length);
-			
-			try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(result.rawData))) {
-			    for(;;) {
-			        ZipEntry zipEntry = zipInputStream.getNextEntry();
-			        if (zipEntry == null) break;
-			        
-			        String name = zipEntry.getName();		        
-			        logger.info("entry  {}", name);
-			        
-			        if (name.equals(ENTRY_NAME)) {
-				        try (InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(zipInputStream.readAllBytes()), CHARSET_DOWNLOAD)) {
-				        	// Skip first line
-				        	for(;;) {
-				        		int c = isr.read();
-				        		if (c == -1) break;
-				        		if (c == '\n') break;
-				        	}
-				        	
-				        	List<EDINETInfo> list = CSVUtil.read(EDINETInfo.class).file(isr);
-				        							
-							logger.info("write  {}   {}", list.size(), EDINETInfo.getPath());
-							EDINETInfo.save(list);
-				        }
-			        }
-			    }
-			} catch (IOException e) {
-				String exceptionName = e.getClass().getSimpleName();
-				logger.error("{} {}", exceptionName, e);
-				throw new UnexpectedException(exceptionName, e);
+						count++;
+						if ((count % 10000) == 0) {
+							List<Document> list = new ArrayList<>(map.values());
+							logger.info("save {} {}", list.size(), Document.PATH_DOCUMENT_FILE);
+							Document.save(list);
+						}
+					}
+				}
 			}
-
+			
+			date = date.minusDays(1);
+			if (date.equals(lastDate)) break;
+		}
+		
+		logger.info("update {}", count);
+		if (0 < count) {
+			List<Document> list = new ArrayList<>(map.values());
+			logger.info("save {} {}", list.size(), Document.PATH_DOCUMENT_FILE);
+			Document.save(map.values());
 		}
 	}
 	
-	private static class FundFile {
-		private static final String URL_DOWNLOAD     = "https://disclosure.edinet-fsa.go.jp/E01EW/download?uji.verb=W1E62071FundCodeDownload&uji.bean=ee.bean.W1E62071.EEW1E62071Bean&TID=W1E62071&PID=W1E62071&SESSIONKEY=9999&downloadFileName=&lgKbn=2&dflg=0&iflg=0&dispKbn=1";
-		private static final String CHARSET_DOWNLOAD = "MS932";
-		private static final String ENTRY_NAME       = "FundcodeDlInfo.csv";
-
-		private static void update(HttpUtil httpUtil) {
-			logger.info("update Fund");
-			HttpUtil.Result result = httpUtil.download(URL_DOWNLOAD);
-			logger.info("result {}", result.rawData.length);
+	private static void download(LocalDate lastDate) {
+		// Existing file map.  key is docID
+		Map<String, File> documentFileMap = Document.getDocumentFileMap();
+		logger.info("documentFileMap  {}", documentFileMap.size());
+		
+		List<Document> list = new ArrayList<>();
+		for(var e: Document.load()) {
+			if (documentFileMap.containsKey(e.docID)) continue;
+			if (e.fundCode.isEmpty() && e.stockCode.isEmpty()) continue;
+			if (e.submitDateTime.toLocalDate().isBefore(lastDate)) continue;
 			
-			try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(result.rawData))) {
-			    for(;;) {
-			        ZipEntry zipEntry = zipInputStream.getNextEntry();
-			        if (zipEntry == null) break;
-			        
-			        String name = zipEntry.getName();		        
-			        logger.info("entry  {}", name);
-			        
-			        if (name.equals(ENTRY_NAME)) {
-				        try (InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(zipInputStream.readAllBytes()), CHARSET_DOWNLOAD)) {
-				        	// Skip first line
-				        	for(;;) {
-				        		int c = isr.read();
-				        		if (c == -1) break;
-				        		if (c == '\n') break;
-				        	}
-				        	
-				        	List<FundInfo> list = CSVUtil.read(FundInfo.class).file(isr);
-							logger.info("write  {}   {}", list.size(), FundInfo.getPath());
-							FundInfo.save(list);
-				        }
-			        }
-			    }
-			} catch (IOException e) {
-				String exceptionName = e.getClass().getSimpleName();
-				logger.error("{} {}", exceptionName, e);
-				throw new UnexpectedException(exceptionName, e);
+			switch(e.docTypeCode) {
+			case ANNUAL_REPORT:
+			case QUARTERLY_REPORT:
+			case SEMI_ANNUAL_REPORT:
+				list.add(e);
+				break;
+			default:
+				break;
 			}
 		}
+				
+		logger.info("list   {}", list.size());
+		Collections.shuffle(list);
+		
+		int count = 0;
+		for(var e: list) {
+			if ((count % 100) == 0) {
+				logger.info("{} {}", String.format("%5d / %5d", count, list.size()), e.docID);
+			}
+			count++;
+			
+			byte[] data = API.Document.getInstance(e.docID, API.Document.Type.WHOLE);
+			if (data == null) {
+				logger.info("download failed {}", e.docID);
+			} else {
+				File file = Document.getDocumentFile(e.submitDateTime.toLocalDate(), e.docID);
+				FileUtil.rawWrite().file(file, data);
+			}
+		}
+
+		logger.info("update {}", count);
+		if (0 < count) {
+			Document.touch();
+		}
+
 	}
-	
+
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		HttpUtil httpUtil = HttpUtil.getInstance().withRawData(true);
-
-		EDNETFile.update(httpUtil);
-		FundFile.update(httpUtil);
+		int days = Integer.getInteger("days", 10);
+		logger.info("days {}", days);
 		
+		LocalDate date  = LocalDate.now();
+		LocalDate lastDate = date.minusDays(days);
+		logger.info("date {} - {}", lastDate, date);
+
+		logger.info("update");
+		update(lastDate);
+		logger.info("download");
+		download(lastDate);
+
 		logger.info("STOP");
 	}
+
 }
