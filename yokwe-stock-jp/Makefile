@@ -38,9 +38,12 @@ update-jpx-stock:
 	tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz /mnt/stock/jp/jpx
 
 # EDINET
+update-edinet-info:
+	ant edinet-update-info
+	tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz /mnt/stock/jp/edinet/*.csv
+
 update-edinet:
 	ant edinet-data-file
-	tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz /mnt/stock/jp/edinet
 
 # TDNET
 update-tdnet:
