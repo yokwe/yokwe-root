@@ -44,8 +44,10 @@ update-edinet-info:
 
 update-edinet:
 	ant edinet-data-file
+	tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz /mnt/stock/jp/edinet/*.csv
 
 # TDNET
 update-tdnet:
 	ant tdnet-update-release
+	tar cfz /mnt/stock/jp/save/tdnet_$$(date +%Y%m%d).taz /mnt/stock/jp/tdnet/*.csv
 
