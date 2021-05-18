@@ -105,7 +105,14 @@ public class ISINCode {
 		}
 	}
 	
+	
+	private interface Builder {
+		public ISINCode getInstance(String prefix, String basicCode, String checkDigit);
+	}
+	
 	public static class JP extends ISINCode {
+
+// See https://www.jpx.co.jp/sicc/securities-code/nlsgeu0000032d48-att/newcode_20190521.pdf
 //		国コード = JP
 //		基本コード
 //			発行体コード(6桁)
@@ -124,22 +131,47 @@ public class ISINCode {
 //				外国株式:000から始まる連番
 //				債券:通番コード、発行年コード及び発行月コード
 				
-		public enum IssuerType {
-			GBOND     ("1"),
-			MUNICIPAL ("2"),
-			COMPANY   ("3"),
-			USER      ("4"),
-			FOREIGN   ("5"),
-			FINACNE   ("9");
+		public enum IssueType {
+			GOVERNMENT      ("1"),
+			MUNICIPAL       ("2"),
+			PUBLIC_COMPANY  ("3"),
+			USER_AREA       ("4"),
+			FOREIGN_COMPANY ("5"),
+			FINACNE         ("9");
 			
 			public final String value;
 			
-			IssuerType(String value) {
+			IssueType(String value) {
 				this.value = value;
 			}
 			
-			private static final IssuerType[] VALUES = IssuerType.values();
-			public static IssuerType getInstance(String value) {
+			private static final IssueType[] VALUES = IssueType.values();
+			public static IssueType getInstance(String value) {
+				if (value == null || value.isEmpty()) return null;
+				for(var e: VALUES) {
+					if (value.equals(e.value)) return e;
+				}
+				logger.error("Unknown value {}!", value);
+				throw new UnexpectedException("Unknown value");
+			}
+		}
+		
+		public enum StockType {
+			ORDINALY    ("000"), // 普通株式			０００
+			NEW_ISSUES  ("001"), // 新株式			００１
+			NEW_ISSUES2 ("002"), // 第二新株式		００２
+			WARRANT     ("009"), // 新株予約権証券	００９
+			PREFERRED   ("010"), // 優先株式			０１０
+			DEFFERED    ("020"); // 後配株式			０２０
+			
+			public final String value;
+			
+			StockType(String value) {
+				this.value = value;
+			}
+			
+			private static final StockType[] VALUES = StockType.values();
+			public static StockType getInstance(String value) {
 				if (value == null || value.isEmpty()) return null;
 				for(var e: VALUES) {
 					if (value.equals(e.value)) return e;
@@ -149,39 +181,96 @@ public class ISINCode {
 			}
 		}
 
-		public final IssuerType issuerType;
+		public final IssueType issueType;
 		
+		private static Map<IssueType, Builder> builderMap = new TreeMap<>();
+		static {
+			builderMap.put(IssueType.PUBLIC_COMPANY,  ((prefix, basicCode, checkDigit) -> PublicCompany.getInstance(prefix, basicCode, checkDigit)));
+			builderMap.put(IssueType.FOREIGN_COMPANY, ((prefix, basicCode, checkDigit) -> ForeignCompany.getInstance(prefix, basicCode, checkDigit)));
+			builderMap.put(IssueType.FINACNE,         ((prefix, basicCode, checkDigit) -> Finance.getInstance(prefix, basicCode, checkDigit)));
+		}
+
 		private JP(String prefix, String basicCode, String checkDigit) {
 			super(prefix, basicCode, checkDigit);
 			
-			this.issuerType = IssuerType.getInstance(basicCode.substring(0, 1));
+			this.issueType = IssueType.getInstance(basicCode.substring(0, 1));
 		}
 
-		public static JP getInstance(String prefix, String basicCode, String checkDigit) {
-			if (prefix.equals("JP")) {
-				IssuerType issuerType = IssuerType.getInstance(basicCode.substring(0, 1));
-				
-				switch(issuerType) {
-				case FINACNE:
-					return Finance.getInstance(prefix, basicCode, checkDigit);
-				default:
-					logger.error("Unexpected issuerType");
-					logger.error("  {} - {} - {}!", prefix, basicCode, checkDigit);
-					logger.error("  {}", issuerType);
-					throw new UnexpectedException("Unexpected issuerType");
-				}
+		public static ISINCode getInstance(String prefix, String basicCode, String checkDigit) {
+			IssueType issuerType = IssueType.getInstance(basicCode.substring(0, 1));
+
+			if (builderMap.containsKey(issuerType)) {
+				return builderMap.get(issuerType).getInstance(prefix, basicCode, checkDigit);
 			} else {
-				logger.error("Unexpected prefix");
-				logger.error("  {} - {} - {}!", prefix, basicCode, checkDigit);
-				throw new UnexpectedException("Unexpected prefix");
+				logger.error("Unexpected issuerType");
+				logger.error("  {} - {} - {}", prefix, basicCode, checkDigit);
+				logger.error("  {}", issuerType);
+				throw new UnexpectedException("Unexpected issuerType");
+			}
+		}
+		
+		public static class PublicCompany extends JP {
+			// JP90C000LSS5
+			// JP           - prefix
+			//   3          - IssuerType.PUBLIC_COMPANY
+			//    38100     - companyCode
+			//         000  - StockType.ORDINALY
+			//            5 - check digit
+			
+			public final String    companyCode;
+			public final StockType stockType;
+
+			public static PublicCompany getInstance(String prefix, String basicCode, String checkDigit) {
+				return new PublicCompany(prefix, basicCode, checkDigit);
+			}
+			
+			private PublicCompany(String prefix, String basicCode, String checkDigit) {
+				super(prefix, basicCode, checkDigit);
+				companyCode = basicCode.substring(1, 6);
+				stockType = StockType.getInstance(basicCode.substring(6, 9));
+			}
+			
+			@Override
+			public String toString() {
+				return String.format("{%s %s %s %s %s}", prefix, issueType, companyCode, stockType, checkDigit);
+			}
+		}
+		
+		public static class ForeignCompany extends JP {
+			// JP5840060005
+			// JP           - prefix
+			//   5          - IssuerType.FOREIGN_COMPANY
+			//    840       - countryCode
+			//       06     - sequence
+			//         000  - StockType.ORDINALY
+			//            5 - check digit
+			
+			public final String    countryCode;
+			public final String    sequence;
+			public final StockType stockType;
+
+			public static PublicCompany getInstance(String prefix, String basicCode, String checkDigit) {
+				return new PublicCompany(prefix, basicCode, checkDigit);
+			}
+			
+			private ForeignCompany(String prefix, String basicCode, String checkDigit) {
+				super(prefix, basicCode, checkDigit);
+				countryCode = basicCode.substring(1, 4);
+				sequence    = basicCode.substring(4, 6);
+				stockType   = StockType.getInstance(basicCode.substring(6, 9));
+			}
+			
+			@Override
+			public String toString() {
+				return String.format("{%s %s %s %s %s %s}", prefix, issueType, countryCode, sequence, stockType, checkDigit);
 			}
 		}
 		
 		public static class Finance extends JP {
 			public enum FinanceType {
-				COMMERCIAL_PAPER  ("0A"),
-				PRIVATE_PLACEMENT ("0B"),
-				MUTUAL_FUND       ("0C");
+				COMMERCIAL_PAPER  ("0A"), // ペーパーレスＣＰ ０Ａ
+				PRIVATE_PLACEMENT ("0B"), // 未公開会社の私募債又は縁故地方公社債等 ０B
+				MUTUAL_FUND       ("0C"); // 非上場投信 ０C
 				
 				public final String value;
 				
@@ -200,13 +289,18 @@ public class ISINCode {
 				}
 			}
 			
+			private static Map<FinanceType, Builder> builderMap = new TreeMap<>();
+			static {
+				builderMap.put(FinanceType.MUTUAL_FUND, ((prefix, basicCode, checkDigit) -> MutualFund.getInstance(prefix, basicCode, checkDigit)));
+			}
+			
 			public static class MutualFund extends Finance {
 				// JP90C000LSS5
 				// JP           - prefix
 				//   9          - IssuerType.FINANCE
 				//    0C        - FunanceType.MUTUAL_FUND
 				//      000LSS  - code
-				//            5
+				//            5 - check digit
 				public final String code; // 6 digit
 				
 				private MutualFund(String prefix, String basicCode, String checkDigit) {
@@ -221,16 +315,15 @@ public class ISINCode {
 				
 				@Override
 				public String toString() {
-					return String.format("{%s %s %s %s %s}", prefix, issuerType, financeType, code, checkDigit);
+					return String.format("{%s %s %s %s %s}", prefix, issueType, financeType, code, checkDigit);
 				}
 			}
 			
-			public static Finance getInstance(String prefix, String basicCode, String checkDigit) {
+			public static ISINCode getInstance(String prefix, String basicCode, String checkDigit) {
 				FinanceType financeType = FinanceType.getInstance(basicCode.substring(1, 3));
-				switch(financeType) {
-				case MUTUAL_FUND:
-					return MutualFund.getInstance(prefix, basicCode, checkDigit);
-				default:
+				if (builderMap.containsKey(financeType)) {
+					return builderMap.get(financeType).getInstance(prefix, basicCode, checkDigit);
+				} else {
 					logger.error("Unexpected financeType");
 					logger.error("  {} - {} - {}!", prefix, basicCode, checkDigit);
 					logger.error("  {}", financeType);
@@ -245,23 +338,11 @@ public class ISINCode {
 				financeType = FinanceType.getInstance(basicCode.substring(1, 3));
 			}
 		}
-		
-	}
-	
-	private static class JPBuilder implements Builder {
-		@Override
-		public ISINCode getInstance(String prefix, String basicCode, String checkDigit) {
-			return JP.getInstance(prefix, basicCode, checkDigit);
-		}
-	}
-		
-	private interface Builder {
-		public ISINCode getInstance(String prefix, String basicCode, String checkDigit);
 	}
 	
 	private static Map<String, Builder> builderMap = new TreeMap<>();
 	static {
-		builderMap.put("JP", new JPBuilder());
+		builderMap.put("JP", ((prefix, basicCode, checkDigit) -> JP.getInstance(prefix, basicCode, checkDigit)));
 	}
 	
 	
@@ -275,6 +356,7 @@ public class ISINCode {
 		if (builderMap.containsKey(prefix)) {
 			return builderMap.get(prefix).getInstance(prefix, basicCode, checkDigit);
 		} else {
+			logger.warn("Unexpected prefix {}", prefix);
 			return new ISINCode(prefix, basicCode, checkDigit);
 		}
 	}
