@@ -112,7 +112,8 @@ public class ISINCode {
 	
 	public static class JP extends ISINCode {
 
-// See https://www.jpx.co.jp/sicc/securities-code/nlsgeu0000032d48-att/newcode_20190521.pdf
+// See 新証券コード仕様 link in https://www.jpx.co.jp/sicc/securities-code/01.html
+//   https://www.jpx.co.jp/sicc/securities-code/nlsgeu0000032d48-att/newcode_20190521.pdf
 //		国コード = JP
 //		基本コード
 //			発行体コード(6桁)
