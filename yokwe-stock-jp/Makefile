@@ -5,6 +5,10 @@
 all:
 	echo "all"
 
+build:
+	( cd ..; mvn ant:ant clean install )
+
+# maintenance of save, log and crontab
 clear-save-file:
 	find /mnt/stock/jp/save -mtime +30 -delete
 	
