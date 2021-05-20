@@ -105,5 +105,15 @@
 		</java>
 	</target>
 
+	<!-- XBRL/TDNET -->
+	<target name="xbrl-tdent-update-label">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.tdnet.UpdateLabel" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 </project>
