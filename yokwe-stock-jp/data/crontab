@@ -13,7 +13,7 @@ YOKWE_ROOT=/mnt/home/hasegawa/git/yokwe-root
  
 # clear log file - every day
 #m   h     dom mon dow   command
-59   23    *   *     *   cd $YOKWE_ROOT/yokwe-stock-jp; ( make clear-log-file     ) 1>>tmp/cron.log 2>&1
+59   23    *   *     0   cd $YOKWE_ROOT/yokwe-stock-jp; ( make clear-log-file     ) 1>>tmp/cron.log 2>&1
 
 # TDNET - every hour between 8 to 23 hours
 #m   h     dom mon dow   command
