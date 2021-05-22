@@ -12,7 +12,7 @@ build:
 clear-save-file:
 	find /mnt/stock/jp/save -mtime +30 -delete
 	
-clear-log:
+clear-log-file:
 	tar cfz /mnt/stock/jp/save/log_$$(date +%Y%m%d).taz tmp/*.log
 	echo -n >tmp/yokwe-stock-jp.log
 	echo -n >tmp/cron.log
