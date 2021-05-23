@@ -26,7 +26,7 @@ clear-jasdec:
 	
 update-jasdec:
 	ant jasdec-data-file
-	tar cfz /mnt/stock/jp/save/jasdec_$$(date +%Y%m%d).taz /mnt/stock/jp/jasdec
+	tar cfz /mnt/stock/jp/save/jasdec_$$(date +%Y%m%d).taz -C /mnt/stock/jp jasdec
 
 # TOUSHIN
 clear-toushin:
@@ -34,24 +34,28 @@ clear-toushin:
 	
 update-toushin:
 	ant toushin-data-file
-	tar cfz /mnt/stock/jp/save/toushin_$$(date +%Y%m%d).taz /mnt/stock/jp/toushin
+	tar cfz /mnt/stock/jp/save/toushin_$$(date +%Y%m%d).taz -C /mnt/stock/jp toushin
 
 # JPX
 update-jpx-stock:
 	ant jpx-update-stock
-	tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz /mnt/stock/jp/jpx
+	tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz -C /mnt/stock/jp jpx
+
+update-jpx-stock-price:
+	ant jpx-update-stock-price
+	tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz -C /mnt/stock/jp jpx
 
 # EDINET
 update-edinet-info:
 	ant edinet-update-info
-	tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz /mnt/stock/jp/edinet/*.csv
+	tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz -C /mnt/stock/jp edinet/*.csv
 
 update-edinet:
 	ant edinet-data-file
-	tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz /mnt/stock/jp/edinet/*.csv
+	tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz -C /mnt/stock/jp edinet/*.csv
 
 # TDNET
 update-tdnet:
 	ant tdnet-update-release
-	tar cfz /mnt/stock/jp/save/tdnet_$$(date +%Y%m%d).taz /mnt/stock/jp/tdnet/*.csv
+	tar cfz /mnt/stock/jp/save/tdnet_$$(date +%Y%m%d).taz -C /mnt/stock/jp tdnet/*.csv
 
