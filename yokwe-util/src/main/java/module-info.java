@@ -1,4 +1,4 @@
-module yokwe.util {
+open module yokwe.util {
 	exports yokwe.util;
 	exports yokwe.util.libreoffice;
 	exports yokwe.util.stats;
