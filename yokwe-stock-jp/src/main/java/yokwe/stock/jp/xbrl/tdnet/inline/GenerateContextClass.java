@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.inline;
+package yokwe.stock.jp.xbrl.tdnet.inline;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import yokwe.util.StringUtil;
 public class GenerateContextClass {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateContextClass.class);
 		
-	private static final String PATH_FILE = "src/yokwe/security/japan/xbrl/inline/Context.java";
+	private static final String PATH_FILE = "src/main/java/yokwe/stock/jp/xbrl/inline/Context.java";
 
 	public static void main(String[] args) throws IOException, JAXBException {
 		logger.info("START");
@@ -27,7 +27,7 @@ public class GenerateContextClass {
 		Set<String> all = new TreeSet<>();
 		
 		{
-			List<File> fileList = TDNET.getFileList();
+			List<File> fileList = TDNET.getSummaryFileList();
 			logger.info("fileList {}", fileList.size());
 			
 			int count = 0;

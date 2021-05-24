@@ -15,12 +15,16 @@ import yokwe.util.FileUtil;
 public class TDNET {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TDNET.class);
 	
-	private static final String DIR_BASE = getPath();
-	private static final String SUMMARY_DIR = String.format("%s/%s", DIR_BASE, "summary");
-	
+	private static final String DIR_BASE = Storage.getPath("tdnet");
 	public static String getPath() {
-		return Storage.getPath("tdnet");
+		return DIR_BASE;
 	}
+	public static String getPath(String path) {
+		return String.format("%s/%s", DIR_BASE, path);
+	}
+	
+	private static final String SUMMARY_DIR = getPath("summary");
+	
 	public static String getSummaryFilePath(SummaryFilename filename) {
 		return String.format("%s/%s/%s", SUMMARY_DIR, filename.tdnetCode, filename);
 	}

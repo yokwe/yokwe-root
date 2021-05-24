@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.report;
+package yokwe.stock.jp.xbrl.tdnet.report;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,16 +17,16 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.stock.jp.xbrl.tdnet.inline.BooleanValue;
+import yokwe.stock.jp.xbrl.tdnet.inline.Context;
+import yokwe.stock.jp.xbrl.tdnet.inline.DateValue;
+import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.tdnet.inline.InlineXBRL;
+import yokwe.stock.jp.xbrl.tdnet.inline.NumberValue;
+import yokwe.stock.jp.xbrl.tdnet.inline.StringValue;
+import yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_ED_T_LABEL;
+import yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL;
 import yokwe.util.UnexpectedException;
-import yokwe.stock.jp.xbrl.inline.BooleanValue;
-import yokwe.stock.jp.xbrl.inline.Context;
-import yokwe.stock.jp.xbrl.inline.DateValue;
-import yokwe.stock.jp.xbrl.inline.Document;
-import yokwe.stock.jp.xbrl.inline.InlineXBRL;
-import yokwe.stock.jp.xbrl.inline.NumberValue;
-import yokwe.stock.jp.xbrl.inline.StringValue;
-import yokwe.stock.jp.xbrl.taxonomy.TSE_ED_T_LABEL;
-import yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL;
 import yokwe.util.xml.QValue;
 
 public abstract class AbstractReport {

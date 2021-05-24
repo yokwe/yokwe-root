@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.inline;
+package yokwe.stock.jp.xbrl.tdnet.inline;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -6,9 +6,9 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.XML;
+import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 import yokwe.util.xml.Attribute;
 import yokwe.util.xml.Element;

@@ -1,15 +1,15 @@
-package yokwe.stock.jp.xbrl.label;
+package yokwe.stock.jp.xbrl.tdnet.label;
 
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.Unmarshaller;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.xbrl.XML;
+import yokwe.util.UnexpectedException;
 
 // This arc role value is for use on a <labelArc> from a concept Locator (<loc> element) to a <label> element
 // and it indicates that the label conveys human-readable information about the Concept.

@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.inline.Document;
-import yokwe.stock.jp.xbrl.report.StockReport;
+import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.tdnet.report.StockReport;
 
 public class UpdateDividendStock {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividendStock.class);
@@ -28,7 +28,7 @@ public class UpdateDividendStock {
 			Map<SummaryFilename, StockReport> reportMap = StockReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 			
-			Map<SummaryFilename, File> fileMap = TDNET.getFileMap().entrySet().stream().
+			Map<SummaryFilename, File> fileMap = TDNET.getSummaryFileMap().entrySet().stream().
 					filter(o -> o.getKey().category == Category.EDJP || o.getKey().category == Category.EDIF || o.getKey().category == Category.EDUS).
 					collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			logger.info("fileMap {}", fileMap.size());

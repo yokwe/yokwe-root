@@ -1,5 +1,6 @@
 package yokwe.stock.jp.xbrl;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.xml.QValue;
 
 public class XBRL {
@@ -48,5 +49,14 @@ public class XBRL {
 	// Lang
 	public static final String LANG_EN = "en";
 	public static final String LANG_JA = "ja";
+
+	
+	private static final String DIR_BASE = Storage.getPath("xbrl");
+	public static String getPath() {
+		return DIR_BASE;
+	}
+	public static String getPath(String path) {
+		return String.format("%s/%s", DIR_BASE, path);
+	}
 
 }

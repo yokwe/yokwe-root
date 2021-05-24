@@ -1,19 +1,19 @@
-package yokwe.stock.jp.xbrl.label;
+package yokwe.stock.jp.xbrl.tdnet.label;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlEnumValue;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.Unmarshaller;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlEnum;
+import jakarta.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlType;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.xbrl.XML;
+import yokwe.util.UnexpectedException;
 
 public class LabelLink {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LabelLink.class);

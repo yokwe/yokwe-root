@@ -1,10 +1,10 @@
-package yokwe.stock.jp.xbrl.inline;
+package yokwe.stock.jp.xbrl.tdnet.inline;
 
 import java.util.Set;
 import java.util.TreeSet;
 
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.xbrl.XBRL;
+import yokwe.util.UnexpectedException;
 import yokwe.util.xml.Attribute;
 import yokwe.util.xml.Element;
 import yokwe.util.xml.QValue;

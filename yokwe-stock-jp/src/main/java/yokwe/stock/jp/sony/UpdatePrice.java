@@ -7,8 +7,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.DataBindingException;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.DataBindingException;
+import jakarta.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 

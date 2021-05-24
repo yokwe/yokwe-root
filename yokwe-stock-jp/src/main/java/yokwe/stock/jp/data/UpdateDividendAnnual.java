@@ -15,8 +15,8 @@ import yokwe.stock.jp.tdnet.Consolidate;
 import yokwe.stock.jp.tdnet.Detail;
 import yokwe.stock.jp.tdnet.Period;
 import yokwe.stock.jp.tdnet.SummaryFilename;
-import yokwe.stock.jp.xbrl.report.REITReport;
-import yokwe.stock.jp.xbrl.report.StockReport;
+import yokwe.stock.jp.xbrl.tdnet.report.REITReport;
+import yokwe.stock.jp.xbrl.tdnet.report.StockReport;
 import yokwe.util.DoubleUtil;
 
 public class UpdateDividendAnnual {

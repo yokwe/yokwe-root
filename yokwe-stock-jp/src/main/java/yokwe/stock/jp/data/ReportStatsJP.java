@@ -17,9 +17,11 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.stock.jp.fsa.EDINET;
-import yokwe.stock.jp.fsa.Fund;
+import yokwe.stock.jp.edinet.EDINETInfo;
+import yokwe.stock.jp.edinet.FundInfo;
+import yokwe.stock.jp.jpx.Price;
 import yokwe.stock.jp.jpx.Stock;
+import yokwe.stock.jp.jpx.StockInfo;
 import yokwe.util.DoubleUtil;
 import yokwe.util.JapanHoliday;
 import yokwe.util.libreoffice.Sheet;
@@ -44,8 +46,8 @@ public class ReportStatsJP {
 		StatsJP ret = new StatsJP();
 		
 		StockInfo stockInfo = StockInfo.get(stock.stockCode);
-		EDINET    edinet    = EDINET.getFromStockCode(stock.stockCode);
-		Fund      fund      = Fund.getFromStockCodeFundName(stock.stockCode, stock.name);
+		EDINETInfo    edinet    = EDINETInfo.getFromStockCode(stock.stockCode);
+		FundInfo      fund      = FundInfo.getFromStockCodeFundName(stock.stockCode, stock.name);
 
 //		this.exchange = stock.exchange;
 		ret.stockCode = stock.stockCode;

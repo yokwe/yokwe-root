@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl;
+package yokwe.stock.jp.xbrl.tdnet;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -7,20 +7,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
-import yokwe.stock.jp.xbrl.Label.Key;
-import yokwe.stock.jp.xbrl.label.Linkbase;
+import yokwe.stock.jp.xbrl.XBRL;
+import yokwe.stock.jp.xbrl.tdnet.Label.Key;
+import yokwe.stock.jp.xbrl.tdnet.label.Linkbase;
 import yokwe.util.FileUtil;
 
 public class UpdateLabel {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateLabel.class);
 
 	//
-	// Update tmp/data/label.csv
+	// /mnt/stock/jp/xbrl/tdnet/label.csv
 	//
 	
 	private static class PathInfo {
@@ -34,17 +35,17 @@ public class UpdateLabel {
 	}
 	private static final List<PathInfo> pathInfolist= new ArrayList<>();
 	static {
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, "tmp/data/61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab.xml"));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, "tmp/data/61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab-en.xml"));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, TDNET.getPath("61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, TDNET.getPath("61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab-en.xml")));
 		
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, "tmp/data/61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab.xml"));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, "tmp/data/61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab-en.xml"));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, TDNET.getPath("61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, TDNET.getPath("61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab-en.xml")));
 
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, "tmp/data/61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab.xml"));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, "tmp/data/61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab-en.xml"));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, TDNET.getPath("61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, TDNET.getPath("61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab-en.xml")));
 
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_T_CG, "tmp/tse-cg-2015-04-01/jp/br/tdnet/t/cg/2007-06-30/tse-t-cg-2007-06-30-label.xml"));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_T_CG, "tmp/tse-cg-2015-04-01/jp/br/tdnet/t/cg/2007-06-30/tse-t-cg-2007-06-30-label-en.xml"));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_T_CG, TDNET.getPath("tse-cg-2015-04-01/jp/br/tdnet/t/cg/2007-06-30/tse-t-cg-2007-06-30-label.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_T_CG, TDNET.getPath("tse-cg-2015-04-01/jp/br/tdnet/t/cg/2007-06-30/tse-t-cg-2007-06-30-label-en.xml")));
 	}
 
 	public static void main(String[] args) {
@@ -61,7 +62,7 @@ public class UpdateLabel {
 			
 			Map<String, String> labelArcMap = new TreeMap<>();
 			//  to      from
-			for(yokwe.stock.jp.xbrl.label.LabelArc labelArc: linkbase.labelLink.labelArcList) {
+			for(yokwe.stock.jp.xbrl.tdnet.label.LabelArc labelArc: linkbase.labelLink.labelArcList) {
 				if (labelArcMap.containsKey(labelArc.to)) {
 					logger.error("Duplicate tlabelArc.to {}", labelArc);
 					throw new UnexpectedException("Duplicate tlabelArc.to");
@@ -71,7 +72,7 @@ public class UpdateLabel {
 			}
 			Map<String, String> locMap = new TreeMap<>();
 			//  label   href
-			for(yokwe.stock.jp.xbrl.label.Loc loc: linkbase.labelLink.locList) {
+			for(yokwe.stock.jp.xbrl.tdnet.label.Loc loc: linkbase.labelLink.locList) {
 				if (locMap.containsKey(loc.label)) {
 					logger.error("Duplicate loc.label {}", loc);
 					throw new UnexpectedException("Duplicate loc.label");
@@ -81,7 +82,7 @@ public class UpdateLabel {
 			}
 			
 			String hrefPrefix = "_";
-			for(yokwe.stock.jp.xbrl.label.Label label: linkbase.labelLink.labelList) {
+			for(yokwe.stock.jp.xbrl.tdnet.label.Label label: linkbase.labelLink.labelList) {
 				String locLabel = labelArcMap.get(label.label);
 				String href = locMap.get(locLabel);
 				int pos = href.indexOf(hrefPrefix);
@@ -119,7 +120,7 @@ public class UpdateLabel {
 			Collections.sort(list);
 			
 			// Save
-			logger.info("Save {} {}", Label.PATH_DATA_FILE, list.size());
+			logger.info("Save {} {}", list.size(), Label.PATH_DATA_FILE);
 			Label.save(list);
 		}
 		

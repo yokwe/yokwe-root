@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.inline;
+package yokwe.stock.jp.xbrl.tdnet.inline;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.XML;
+import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 import yokwe.util.xml.Element;
 

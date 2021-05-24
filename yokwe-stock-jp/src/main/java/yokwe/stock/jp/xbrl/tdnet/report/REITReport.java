@@ -1,19 +1,19 @@
-package yokwe.stock.jp.xbrl.report;
+package yokwe.stock.jp.xbrl.tdnet.report;
 
-import static yokwe.stock.jp.xbrl.inline.Context.CURRENT_YEAR_DURATION;
-import static yokwe.stock.jp.xbrl.inline.Context.CURRENT_YEAR_INSTANT;
-import static yokwe.stock.jp.xbrl.inline.Context.RESULT_MEMBER;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_PER_UNIT_REIT;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.DISTRIBUTIONS_PAYABLE_DATE_AS_PLANNED_REIT;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.DISTRIBUTIONS_PER_UNIT_EXCLUDING_DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_REIT;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.FILING_DATE;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.FISCAL_YEAR_END;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.ISSUER_NAME_REIT;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.NET_INCOME_PER_UNIT_REIT;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.NUMBER_OF_INVESTMENT_UNITS_INCLUDING_TREASURY_INVESTMENT_UNITS_ISSUED_AT_END_OF_PERIOD_REIT;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.OPERATING_REVENUES_REIT;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.PAYOUT_RATIO;
-import static yokwe.stock.jp.xbrl.taxonomy.TSE_RE_T_LABEL.SECURITIES_CODE;
+import static yokwe.stock.jp.xbrl.tdnet.inline.Context.CURRENT_YEAR_DURATION;
+import static yokwe.stock.jp.xbrl.tdnet.inline.Context.CURRENT_YEAR_INSTANT;
+import static yokwe.stock.jp.xbrl.tdnet.inline.Context.RESULT_MEMBER;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_PER_UNIT_REIT;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.DISTRIBUTIONS_PAYABLE_DATE_AS_PLANNED_REIT;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.DISTRIBUTIONS_PER_UNIT_EXCLUDING_DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_REIT;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.FILING_DATE;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.FISCAL_YEAR_END;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.ISSUER_NAME_REIT;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.NET_INCOME_PER_UNIT_REIT;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.NUMBER_OF_INVESTMENT_UNITS_INCLUDING_TREASURY_INVESTMENT_UNITS_ISSUED_AT_END_OF_PERIOD_REIT;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.OPERATING_REVENUES_REIT;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.PAYOUT_RATIO;
+import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.SECURITIES_CODE;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.tdnet.SummaryFilename;
-import yokwe.stock.jp.xbrl.inline.Document;
-import yokwe.stock.jp.xbrl.inline.InlineXBRL;
+import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.tdnet.inline.InlineXBRL;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 

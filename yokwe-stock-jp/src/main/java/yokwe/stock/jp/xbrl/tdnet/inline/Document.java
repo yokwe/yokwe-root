@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.inline;
+package yokwe.stock.jp.xbrl.tdnet.inline;
 
 import java.io.File;
 import java.util.ArrayList;

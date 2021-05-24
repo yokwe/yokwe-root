@@ -14,8 +14,8 @@ import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.Period;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.inline.Document;
-import yokwe.stock.jp.xbrl.report.REITReport;
+import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.tdnet.report.REITReport;
 
 //
 // Update reit-report.csv
@@ -33,7 +33,7 @@ public class UpdateREITReport {
 
 			List<File> fileList = new ArrayList<>();
 			{
-				Map<SummaryFilename, File> fileMap = TDNET.getFileMap();
+				Map<SummaryFilename, File> fileMap = TDNET.getSummaryFileMap();
 				logger.info("fileMap   {}", fileMap.size());
 				
 				List<SummaryFilename> keyList = fileMap.keySet().stream().

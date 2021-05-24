@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl;
+package yokwe.stock.jp.xbrl.tdnet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
+import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.util.CSVUtil;
 import yokwe.util.xml.QValue;
 
@@ -44,7 +45,7 @@ public class Label implements Comparable<Label> {
 	}
 	private static Map<Key, String> cache = new TreeMap<>();
 
-	public static final String PATH_DATA_FILE = "tmp/data/label.csv";
+	public static final String PATH_DATA_FILE = TDNET.getPath("label.csv");
 		
 	public static List<Label> load() {
 		return CSVUtil.read(Label.class).file(PATH_DATA_FILE);

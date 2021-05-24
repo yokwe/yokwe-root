@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl;
+package yokwe.stock.jp.xbrl.tdnet;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -10,13 +10,14 @@ import java.util.TreeMap;
 import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
+import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
 
 public class GenerateTaxonomyLabelClass {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateTaxonomyLabelClass.class);
 	
-	private static final String PATH_DIR = "src/yokwe/security/japan/xbrl/taxonomy";
+	private static final String PATH_JAVA_SOURCE_TAXONOMY_DIR = "src/main/java/yokwe/stock/jp/xbrl/tdnet/taxonomy";
 	
 	private static Map<String, String> classNameMap = new TreeMap<>();
 	//                 namespace
@@ -34,10 +35,10 @@ public class GenerateTaxonomyLabelClass {
 			logger.warn("entryMap is empty  {}", className);
 			return;
 		}
-		String path = String.format("%s/%s.java", PATH_DIR, className);
+		String path = String.format("%s/%s.java", PATH_JAVA_SOURCE_TAXONOMY_DIR, className);
 		logger.info("generate {} {}", entryMap.size(), path);
 		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(path))) {
-			out.println("package yokwe.security.japan.xbrl.taxonomy;");
+			out.println("package yokwe.stock.jp.xbrl.tdnet.taxonomy;");
 			out.println();
 //			out.println("import java.util.Map;");
 //			out.println("import java.util.TreeMap;");

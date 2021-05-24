@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.taxonomy;
+package yokwe.stock.jp.xbrl.tdnet.taxonomy;
 
 import java.util.Map;
 import java.util.TreeMap;

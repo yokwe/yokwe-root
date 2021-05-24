@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 

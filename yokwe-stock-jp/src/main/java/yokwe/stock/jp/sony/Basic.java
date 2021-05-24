@@ -2,7 +2,7 @@ package yokwe.stock.jp.sony;
 
 import java.io.ByteArrayInputStream;
 
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 
 import org.slf4j.LoggerFactory;
 

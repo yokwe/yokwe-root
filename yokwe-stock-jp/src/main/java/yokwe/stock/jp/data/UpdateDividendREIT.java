@@ -13,8 +13,8 @@ import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.Period;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.inline.Document;
-import yokwe.stock.jp.xbrl.report.REITReport;
+import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.tdnet.report.REITReport;
 
 public class UpdateDividendREIT {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividendREIT.class);
@@ -28,7 +28,7 @@ public class UpdateDividendREIT {
 			Map<SummaryFilename, REITReport> reportMap = REITReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 			
-			Map<SummaryFilename, File> fileMap = TDNET.getFileMap().entrySet().stream().
+			Map<SummaryFilename, File> fileMap = TDNET.getSummaryFileMap().entrySet().stream().
 					filter(o -> o.getKey().category == Category.REJP).
 					filter(o -> o.getKey().period == Period.ANNUAL).
 					collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

@@ -11,7 +11,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class DataFile {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
 	
 	private static void update(LocalDate lastDate) {
 		LocalDate date  = LocalDate.now();

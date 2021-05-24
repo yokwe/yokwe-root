@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.inline;
+package yokwe.stock.jp.xbrl.tdnet.inline;
 
 public enum Context {
     ANNUAL_MEMBER                    ("AnnualMember"),
