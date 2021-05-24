@@ -1,4 +1,4 @@
-module yokwe.stock.jp {
+open module yokwe.stock.jp {
 	exports yokwe.stock.jp;
 	exports yokwe.stock.jp.data;
 	exports yokwe.stock.jp.edinet;
@@ -11,21 +11,24 @@ module yokwe.stock.jp {
 	exports yokwe.stock.jp.sony.xml;
 	exports yokwe.stock.jp.tdnet;
 	exports yokwe.stock.jp.toushin;
-	exports yokwe.stock.jp.xbrl;
-	exports yokwe.stock.jp.xbrl.inline;
-	exports yokwe.stock.jp.xbrl.label;
-	exports yokwe.stock.jp.xbrl.report;
-	exports yokwe.stock.jp.xbrl.taxonomy;
+	exports yokwe.stock.jp.xbrl.tdnet;
+	exports yokwe.stock.jp.xbrl.tdnet.inline;
+	exports yokwe.stock.jp.xbrl.tdnet.label;
+	exports yokwe.stock.jp.xbrl.tdnet.report;
+	exports yokwe.stock.jp.xbrl.tdnet.taxonomy;
 	exports yokwe.stock.jp.xsd;
 
 	// http
 	requires httpcore5;
 	requires httpcore5.h2;
 	
-	// java
-	requires java.json;
-	requires java.xml;
-	requires transitive java.xml.bind;
+	// json
+	requires transitive jakarta.json;
+	requires jakarta.json.bind;
+	
+	// xml binding
+	requires transitive java.xml;
+	requires transitive jakarta.xml.bind;
 	
 	// logging
 	requires org.slf4j;
