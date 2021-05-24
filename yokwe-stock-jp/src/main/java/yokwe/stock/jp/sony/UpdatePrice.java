@@ -25,7 +25,7 @@ public class UpdatePrice {
 		return String.format("%s/%s.xml", URL_BASE_FUNDDATA, msFundCode);
 	}
 	
-	public static final String PATH_DIR_DATA = "tmp/download/sony/page";
+	public static final String PATH_DIR_DATA = "tmp/download/sony/page"; // FIXME
 	public static final String FORMAT_PATH   = String.format("%s/%%s.xml", PATH_DIR_DATA);
 	public static String getPath(String isinCode) {
 		return String.format(FORMAT_PATH, isinCode);

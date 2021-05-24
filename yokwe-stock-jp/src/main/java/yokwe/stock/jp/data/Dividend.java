@@ -10,7 +10,7 @@ import yokwe.util.CSVUtil.DecimalPlaces;
 import yokwe.util.DoubleUtil;
 
 public class Dividend implements Comparable<Dividend> {
-	public static final String PATH_DIR_DATA = "tmp/data/dividend";
+	public static final String PATH_DIR_DATA = "tmp/data/dividend"; // FIXME
 	public static String getPath(String stockCode) {
 		return String.format("%s/%s.csv", PATH_DIR_DATA, stockCode);
 	}

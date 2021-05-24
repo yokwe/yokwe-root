@@ -20,7 +20,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class DividendETF extends Sheet implements Comparable<DividendETF> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendETF.class);
 
-	public static final String PATH_FILE        = "tmp/data/dividend-etf.csv";
+	public static final String PATH_FILE        = "tmp/data/dividend-etf.csv"; // FIXME
 
 	private static List<DividendETF> list = null;
 	public static List<DividendETF> getList() {

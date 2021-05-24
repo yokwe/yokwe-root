@@ -35,7 +35,7 @@ import yokwe.util.CSVUtil.ColumnName;
 public class REITReport extends AbstractReport implements Comparable<REITReport> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(REITReport.class);
 	
-	public static final String PATH_FILE = "tmp/data/reit-report.csv";
+	public static final String PATH_FILE = "tmp/data/reit-report.csv"; // FIXME
 
 	public static List<REITReport> getList() {
 		List<REITReport> ret = CSVUtil.read(REITReport.class).file(PATH_FILE);

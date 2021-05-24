@@ -10,7 +10,7 @@ import java.util.List;
 import yokwe.util.CSVUtil;
 
 public class Price implements Comparable<Price> {
-	public static final String PATH_DIR_DATA = "tmp/data/sony/price";
+	public static final String PATH_DIR_DATA = "tmp/data/sony/price"; // FIXME
 	public static String getPath(String stockCode) {
 		return String.format("%s/%s.csv", PATH_DIR_DATA, stockCode);
 	}

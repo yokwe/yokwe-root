@@ -18,7 +18,7 @@ import yokwe.util.DoubleUtil;
 public class DividendAnnual implements Comparable<DividendAnnual> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendAnnual.class);
 
-	public static final String PATH_FILE = "tmp/data/dividend-annual.csv";
+	public static final String PATH_FILE = "tmp/data/dividend-annual.csv"; // FIXME
 
 	private static List<DividendAnnual> list = null;
 	public static List<DividendAnnual> getList() {

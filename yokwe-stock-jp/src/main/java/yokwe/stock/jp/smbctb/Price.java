@@ -38,7 +38,7 @@ import yokwe.stock.jp.smbctb.Fund.Currency;
 import yokwe.util.CSVUtil;
 
 public final class Price implements Comparable<Price> {
-	public static final String DIR_PATH = "tmp/data/smbc/price";
+	public static final String DIR_PATH = "tmp/data/smbc/price"; // FIXME
 
 	public static String getPath(String secId) {
 		return String.format("%s/%s.csv", DIR_PATH, secId);

@@ -8,7 +8,7 @@ import yokwe.stock.jp.sony.Fund.Target;
 import yokwe.util.CSVUtil;
 
 public class FundStats {
-	public static final String PATH_FILE        = "tmp/data/sony/fund-stats.csv";
+	public static final String PATH_FILE        = "tmp/data/sony/fund-stats.csv"; // FIXME
 
 	public static void save(List<FundStats> statsList) {
 		CSVUtil.write(FundStats.class).file(PATH_FILE, statsList);

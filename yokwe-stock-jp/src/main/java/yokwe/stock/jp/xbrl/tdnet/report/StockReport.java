@@ -51,7 +51,7 @@ import yokwe.util.CSVUtil.ColumnName;
 public class StockReport extends AbstractReport implements Comparable<StockReport> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockReport.class);
 
-	public static final String PATH_FILE = "tmp/data/stock-report.csv";
+	public static final String PATH_FILE = "tmp/data/stock-report.csv"; // FIXME
 
 	public static List<StockReport> getList() {
 		List<StockReport> ret = CSVUtil.read(StockReport.class).file(PATH_FILE);

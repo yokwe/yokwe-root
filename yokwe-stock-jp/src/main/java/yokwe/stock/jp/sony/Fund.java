@@ -16,7 +16,7 @@ import yokwe.util.CSVUtil;
 public class Fund implements Comparable<Fund> {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Fund.class);
 
-	public static final String PATH_FILE = "tmp/data/sony/fund.csv";
+	public static final String PATH_FILE = "tmp/data/sony/fund.csv"; // FIXME
 
 	private static List<Fund> list = null;
 	public static List<Fund> getList() {

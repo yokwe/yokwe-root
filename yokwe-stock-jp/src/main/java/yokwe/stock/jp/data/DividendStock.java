@@ -11,7 +11,7 @@ import yokwe.util.DoubleUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;
 
 public class DividendStock implements Comparable<DividendStock> {
-	public static final String PATH_FILE = "tmp/data/dividend-stock.csv";
+	public static final String PATH_FILE = "tmp/data/dividend-stock.csv"; // FIXME
 
 	public static List<DividendStock> load() {
 		return CSVUtil.read(DividendStock.class).file(PATH_FILE);

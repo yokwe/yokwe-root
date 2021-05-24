@@ -11,7 +11,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.StringUtil;
 
 public class FundInfo implements Comparable<FundInfo> {
-	public static final String PATH_FILE = "tmp/data/sony/fund-info.csv";
+	public static final String PATH_FILE = "tmp/data/sony/fund-info.csv"; // FIXME
 
 	private static List<FundInfo> list = null;
 	public static List<FundInfo> getList() {

@@ -10,7 +10,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class StatsJP extends Sheet {
-	public static final String PATH_FILE        = "tmp/data/stats-jp.csv";
+	public static final String PATH_FILE        = "tmp/data/stats-jp.csv"; // FIXME
 
 	public static void save(List<StatsJP> statsList) {
 		CSVUtil.write(StatsJP.class).file(PATH_FILE, statsList);
