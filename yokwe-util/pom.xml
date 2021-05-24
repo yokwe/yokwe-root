@@ -2,19 +2,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
     <parent>
         <groupId>yokwe</groupId>
         <artifactId>yokwe-root</artifactId>
         <version>1.0.0</version>
     </parent>
-    
     <artifactId>yokwe-util</artifactId>
-    
     <properties>
         <automatic-module-name>yokwe.util</automatic-module-name>
     </properties>
-    
     <dependencies>
         <!-- https://mvnrepository.cosm/artifact/commons-logging/commons-logging -->
         <dependency>
@@ -65,48 +61,44 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version>
         </dependency>
-        
-        <!--  JAKARTA  -->
+        <!-- JAKARTA -->
         <!-- https://mvnrepository.com/artifact/jakarta.activation/jakarta.activation-api -->
-	<dependency>
-	    <groupId>jakarta.activation</groupId>
-	    <artifactId>jakarta.activation-api</artifactId>
-	    <version>2.0.1</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/jakarta.json.bind/jakarta.json.bind-api -->
-	<dependency>
-	    <groupId>jakarta.json.bind</groupId>
-	    <artifactId>jakarta.json.bind-api</artifactId>
-	    <version>2.0.0</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api -->
-	<dependency>
-	    <groupId>jakarta.json</groupId>
-	    <artifactId>jakarta.json-api</artifactId>
-	    <version>2.0.0</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/jakarta.mail/jakarta.mail-api -->
-	<dependency>
-	    <groupId>jakarta.mail</groupId>
-	    <artifactId>jakarta.mail-api</artifactId>
-	    <version>2.0.1</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
-	<dependency>
-	    <groupId>jakarta.xml.bind</groupId>
-	    <artifactId>jakarta.xml.bind-api</artifactId>
-	    <version>3.0.1</version>
-	</dependency>
-
-	<!-- This jar is REQUIRED for jakarta.xml.binding -->
-	<!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
-	<dependency>
-	    <groupId>org.glassfish.jaxb</groupId>
-	    <artifactId>jaxb-runtime</artifactId>
-	    <version>3.0.0</version>
-	</dependency>
-
-	<!-- Use libreoffice installed on Operating System -->
+        <dependency>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/jakarta.json.bind/jakarta.json.bind-api -->
+        <dependency>
+            <groupId>jakarta.json.bind</groupId>
+            <artifactId>jakarta.json.bind-api</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/jakarta.json/jakarta.json-api -->
+        <dependency>
+            <groupId>jakarta.json</groupId>
+            <artifactId>jakarta.json-api</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/jakarta.mail/jakarta.mail-api -->
+        <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <!-- This jar is REQUIRED for jakarta.xml.binding -->
+        <!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <!-- Use libreoffice installed on Operating System -->
     </dependencies>
-    
 </project>

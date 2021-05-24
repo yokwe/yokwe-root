@@ -13,9 +13,16 @@ module yokwe.util {
 	requires transitive httpcore5;
 	requires transitive httpcore5.h2;
 	
-	requires java.json;
+	// json from jakarta ee
+	requires jakarta.json;
+	requires jakarta.json.bind;
+	
+	// xml bind from jakarta ee
 	requires transitive java.xml;
-	requires javax.mail.api;
+	requires jakarta.xml.bind;
+	
+	// mail from jakarta ee
+	requires jakarta.mail;
 	
 	requires logback.classic;
 	requires logback.core;
