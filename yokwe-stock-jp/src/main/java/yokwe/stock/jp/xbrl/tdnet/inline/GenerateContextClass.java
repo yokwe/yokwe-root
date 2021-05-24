@@ -19,7 +19,7 @@ import yokwe.util.StringUtil;
 public class GenerateContextClass {
 	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateContextClass.class);
 		
-	private static final String PATH_FILE = "src/main/java/yokwe/stock/jp/xbrl/inline/Context.java";
+	private static final String PATH_FILE = "src/main/java/yokwe/stock/jp/xbrl/tdnet/inline/Context.java";
 
 	public static void main(String[] args) throws IOException, JAXBException {
 		logger.info("START");
@@ -34,7 +34,7 @@ public class GenerateContextClass {
 			int size = fileList.size();
 			for(File file : fileList) {
 				if ((count % 1000) == 0) {
-					logger.info("{} {}", String.format("%5d / %5d", count, size), file.getName());
+					logger.info("{} {}", String.format("%5d / %5d  %5d", count, size, all.size()), file.getName());
 				}
 				count++;
 				Document document = Document.getInstance(file);
@@ -63,7 +63,7 @@ public class GenerateContextClass {
 		// Output
 		
 		try (AutoIndentPrintWriter out = new AutoIndentPrintWriter(new PrintWriter(PATH_FILE))) {
-			out.println("package yokwe.security.japan.xbrl.inline;");
+			out.println("package yokwe.stock.jp.xbrl.tdnet.inline;");
 			out.println();
 			out.println("public enum Context {");
 
