@@ -4,13 +4,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import org.slf4j.LoggerFactory;
-
 //
 // Generic
 //
 public class GenericInfo {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenericInfo.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericInfo.class);
 
 	public final Class<?>   rawClass;
 	public final Class<?>[] classArguments;

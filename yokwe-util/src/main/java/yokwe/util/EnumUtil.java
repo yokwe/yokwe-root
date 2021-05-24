@@ -3,10 +3,8 @@ package yokwe.util;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 public class EnumUtil {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(EnumUtil.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnumUtil.class);
 
 	private static class EnumInfo {
 		private static Map<String, EnumInfo> map = new TreeMap<>();

@@ -2,8 +2,6 @@ package yokwe.util.libreoffice;
 
 import java.io.Closeable;
 
-import org.slf4j.LoggerFactory;
-
 import com.sun.star.beans.PropertyState;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.comp.helper.Bootstrap;
@@ -24,7 +22,7 @@ import com.sun.star.util.XCloseable;
 import yokwe.util.UnexpectedException;
 
 public class LibreOffice implements Closeable {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LibreOffice.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LibreOffice.class);
 
 	private static final String[] bootstrapOptions = {
 			"--minimized",

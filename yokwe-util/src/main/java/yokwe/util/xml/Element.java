@@ -3,12 +3,10 @@ package yokwe.util.xml;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 
 public class Element {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Element.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Element.class);
 
 	public static Element getInstance(String path, QValue name, org.xml.sax.Attributes attributes, Map<String, String> prefixMap) {
 		return new Element(path, name, attributes, prefixMap);

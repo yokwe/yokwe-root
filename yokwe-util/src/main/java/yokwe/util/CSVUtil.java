@@ -34,10 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 public class CSVUtil {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(CSVUtil.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CSVUtil.class);
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

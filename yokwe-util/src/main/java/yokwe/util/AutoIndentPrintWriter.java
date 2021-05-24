@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
-
 public class AutoIndentPrintWriter implements AutoCloseable {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(AutoIndentPrintWriter.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AutoIndentPrintWriter.class);
 
 	private static final String INDENT = "    ";
 

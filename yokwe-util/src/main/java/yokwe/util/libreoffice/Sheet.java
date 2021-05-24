@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 import com.sun.star.lang.IndexOutOfBoundsException;
 import com.sun.star.sheet.XCellRangeData;
 import com.sun.star.sheet.XSpreadsheet;
@@ -24,7 +22,7 @@ import com.sun.star.util.XNumberFormats;
 import yokwe.util.UnexpectedException;
 
 public class Sheet {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Sheet.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Sheet.class);
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)

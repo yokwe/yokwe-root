@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 public class DateMap<E> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(DateMap.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DateMap.class);
 	
 	private List<String>   dateList = new ArrayList<>();
 	private Map<String, E> map      = new TreeMap<>();

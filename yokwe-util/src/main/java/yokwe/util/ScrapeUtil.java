@@ -22,10 +22,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 public class ScrapeUtil {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(ScrapeUtil.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ScrapeUtil.class);
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

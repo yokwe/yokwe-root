@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.LoggerFactory;
-
 import com.sun.star.beans.PropertyVetoException;
 import com.sun.star.beans.UnknownPropertyException;
 import com.sun.star.beans.XPropertySet;
@@ -37,7 +35,7 @@ import com.sun.star.util.XNumberFormatsSupplier;
 import yokwe.util.UnexpectedException;
 
 public class SpreadSheet extends LibreOffice {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SpreadSheet.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SpreadSheet.class);
 	
 	public static final String FORMAT_STRING  = "@";
 	public static final String FORMAT_DATE    = "YYYY-MM-DD";

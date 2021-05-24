@@ -5,20 +5,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
-import org.slf4j.LoggerFactory;
-
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import yokwe.util.json.JSON;
 
 public class GMail {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GMail.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GMail.class);
 
 	public static final String PATH_DIR = "tmp/gmail";
 	
@@ -67,7 +64,7 @@ public class GMail {
         gmail.config.forEach((k, v) -> prop.put(k, v));
         
         Session session = Session.getInstance(prop,
-            new javax.mail.Authenticator() {
+            new jakarta.mail.Authenticator() {
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(gmail.username, gmail.password);
                 }

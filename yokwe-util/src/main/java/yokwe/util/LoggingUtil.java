@@ -9,7 +9,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class LoggingUtil {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LoggingUtil.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoggingUtil.class);
 	
 	private static final Logger root = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 	private static Deque<Level> stack = new LinkedList<>();
