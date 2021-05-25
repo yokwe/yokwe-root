@@ -16,7 +16,6 @@ open module yokwe.stock.jp {
 	exports yokwe.stock.jp.xbrl.tdnet.label;
 	exports yokwe.stock.jp.xbrl.tdnet.report;
 	exports yokwe.stock.jp.xbrl.tdnet.taxonomy;
-	exports yokwe.stock.jp.xsd;
 
 	// http
 	requires httpcore5;
