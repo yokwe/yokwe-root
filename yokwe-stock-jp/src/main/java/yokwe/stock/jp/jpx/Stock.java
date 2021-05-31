@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -18,7 +16,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class Stock extends Sheet implements Comparable<Stock> {	
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Stock.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Stock.class);
 
 	public static String getPath() {
 		return JPX.getPath("stock.csv");

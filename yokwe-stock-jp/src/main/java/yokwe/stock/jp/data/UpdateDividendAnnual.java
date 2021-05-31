@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.Consolidate;
 import yokwe.stock.jp.tdnet.Detail;
@@ -18,9 +15,10 @@ import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.xbrl.tdnet.report.REITReport;
 import yokwe.stock.jp.xbrl.tdnet.report.StockReport;
 import yokwe.util.DoubleUtil;
+import yokwe.util.UnexpectedException;
 
 public class UpdateDividendAnnual {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividendAnnual.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividendAnnual.class);
 	
 	private static LocalDate getFirstDate(LocalDate lastDate) {
 		LocalDate firstDate = lastDate.minusYears(1).plusMonths(1);

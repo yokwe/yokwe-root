@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.jpx.Stock;
 
 public class UpdateDividend {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividend.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividend.class);
 	
 	public static void main(String[] args) {
 		logger.info("START");

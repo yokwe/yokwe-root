@@ -8,15 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.toushin.Fund.Offer;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
 import yokwe.util.JapanHoliday;
 
 public class UpdateReport {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateReport.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateReport.class);
 
 	private static final DateTimeFormatter FILENAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 	

@@ -8,17 +8,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import jakarta.xml.bind.JAXB;
-
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.tdnet.Label.Key;
 import yokwe.stock.jp.xbrl.tdnet.label.Linkbase;
 import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 
 public class UpdateLabel {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateLabel.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateLabel.class);
 
 	//
 	// /mnt/stock/jp/xbrl/tdnet/label.csv

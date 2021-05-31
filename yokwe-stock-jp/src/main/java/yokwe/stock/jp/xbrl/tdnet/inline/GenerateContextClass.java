@@ -9,15 +9,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import jakarta.xml.bind.JAXBException;
-
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.tdnet.TDNET;
 import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
 
 public class GenerateContextClass {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateContextClass.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenerateContextClass.class);
 		
 	private static final String PATH_FILE = "src/main/java/yokwe/stock/jp/xbrl/tdnet/inline/Context.java";
 

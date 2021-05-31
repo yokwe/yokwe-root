@@ -5,14 +5,12 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.CSVUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 
 public class Fund implements Comparable<Fund> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Fund.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Fund.class);
 
 	public static final LocalDate INDEFINITE = LocalDate.parse("9999-12-31");
 	

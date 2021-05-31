@@ -5,15 +5,12 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlEnum;
 import jakarta.xml.bind.annotation.XmlEnumValue;
 import jakarta.xml.bind.annotation.XmlType;
-
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.UnexpectedException;
 
 // Locators are child elements of an Extended Link that point to resources external to the extended link itself.
 public class Loc {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Loc.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Loc.class);
 
 	@XmlEnum
 	@XmlType(name="Loc-Type")

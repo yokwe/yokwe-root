@@ -8,15 +8,14 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.hc.core5.net.URIBuilder;
-import org.slf4j.LoggerFactory;
 
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.smbctb.json.Price.TimeSeries.Security.HistoryDetail;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
 public class UpdatePrice {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdatePrice.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdatePrice.class);
 
 	// https://gllt.morningstar.com/api/rest.svc/timeseries_price/smbctbfund?currencyId=BAS&endDate=2020-06-23&forwardFill=false&frequency=daily&id=F000000MU9&idType=Morningstar&outputType=json&startDate=1900-01-01
 	public static final String URL_PRICE_BASE = "https://gllt.morningstar.com/api/rest.svc/timeseries_price/smbctbfund";

@@ -11,15 +11,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.edinet.API.DocType;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 
 public class Document implements Comparable<Document> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Document.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Document.class);
 	
 	public static final String PATH_TOUCH_FILE = EDINET.getPath("edinet.touch");
 	public static void touch() {

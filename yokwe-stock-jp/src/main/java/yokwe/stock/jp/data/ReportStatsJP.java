@@ -15,8 +15,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.edinet.EDINETInfo;
 import yokwe.stock.jp.edinet.FundInfo;
 import yokwe.stock.jp.jpx.Price;
@@ -33,7 +31,7 @@ import yokwe.util.stats.MA;
 import yokwe.util.stats.RSI;
 
 public class ReportStatsJP {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ReportStatsJP.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReportStatsJP.class);
 	
 	public static final String TIMESTAMP = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
 

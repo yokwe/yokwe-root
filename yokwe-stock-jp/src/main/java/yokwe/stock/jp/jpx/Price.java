@@ -7,13 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
 
 public class Price implements Comparable<Price> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Price.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Price.class);
 
 	public static String getPath(String stockCode) {
 		return JPX.getPath(String.format("price/%s.csv", stockCode));

@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
 
 public class EDINETInfo implements Comparable<EDINETInfo> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(EDINETInfo.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EDINETInfo.class);
 
 	private static final String PATH_DATA = getPath();	
 	public static String getPath() {

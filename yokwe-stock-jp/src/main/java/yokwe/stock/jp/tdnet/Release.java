@@ -11,14 +11,12 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class Release implements Comparable<Release> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Release.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Release.class);
 	
 	private static final String PATH_RELEASE_DIR = getReleaseDir();
 	public static String getReleaseDir() {

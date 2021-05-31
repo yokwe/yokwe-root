@@ -50,16 +50,13 @@ import jakarta.json.JsonString;
 import jakarta.json.JsonStructure;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
-
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.AutoIndentPrintWriter.Layout;
 import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 
 public class GenearateJSONStub {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenearateJSONStub.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenearateJSONStub.class);
 	
 	public static String toJavaClassName(String name) {
 		return name.substring(0, 1).toUpperCase() + name.substring(1);

@@ -7,13 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
 
 public class StockInfo implements Comparable<StockInfo> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockInfo.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StockInfo.class);
 
 	private static final String PATH_FILE = getPath();
 	public static String getPath() {

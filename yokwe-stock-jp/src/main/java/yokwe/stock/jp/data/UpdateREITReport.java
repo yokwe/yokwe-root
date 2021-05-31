@@ -7,22 +7,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.Period;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
 import yokwe.stock.jp.xbrl.tdnet.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.report.REITReport;
+import yokwe.util.UnexpectedException;
 
 //
 // Update reit-report.csv
 //
 
 public class UpdateREITReport {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateREITReport.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateREITReport.class);
 	
 	public static void main(String[] args) {
 		logger.info("START");

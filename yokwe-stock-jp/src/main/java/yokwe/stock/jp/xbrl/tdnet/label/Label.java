@@ -6,16 +6,13 @@ import jakarta.xml.bind.annotation.XmlEnum;
 import jakarta.xml.bind.annotation.XmlEnumValue;
 import jakarta.xml.bind.annotation.XmlType;
 import jakarta.xml.bind.annotation.XmlValue;
-
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.UnexpectedException;
 
 // Documentation of XBRL Concepts MUST be contained in <label> element.
 public class Label {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Label.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Label.class);
 
 	@XmlEnum
 	@XmlType(name="Label-Type")

@@ -9,14 +9,11 @@ import java.util.List;
 
 import jakarta.xml.bind.DataBindingException;
 import jakarta.xml.bind.JAXB;
-
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.FileUtil;
 import yokwe.util.http.HttpUtil;
 
 public class UpdatePrice {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdatePrice.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdatePrice.class);
 
 	//https://apl.morningstar.co.jp/xml/chart/funddata/2013121001.xml
 	

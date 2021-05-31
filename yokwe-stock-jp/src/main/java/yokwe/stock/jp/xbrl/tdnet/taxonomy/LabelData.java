@@ -3,13 +3,11 @@ package yokwe.stock.jp.xbrl.tdnet.taxonomy;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 
 public class LabelData {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(LabelData.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LabelData.class);
 
 	private static final Map<QValue, LabelData> all = new TreeMap<>();
 	static {

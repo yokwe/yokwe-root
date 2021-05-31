@@ -6,15 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 
 public class Label implements Comparable<Label> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Label.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Label.class);
 	
 	public static class Key implements Comparable<Key> {
 		final String namespace;

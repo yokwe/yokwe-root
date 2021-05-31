@@ -3,14 +3,11 @@ package yokwe.stock.jp.sony;
 import java.io.ByteArrayInputStream;
 
 import jakarta.xml.bind.JAXB;
-
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.StringUtil;
 import yokwe.util.http.HttpUtil;
 
 public class Basic {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Basic.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Basic.class);
 
 	public static void main(String[] args) {
 		logger.info("START");

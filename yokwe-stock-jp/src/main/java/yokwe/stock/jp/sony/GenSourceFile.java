@@ -3,14 +3,12 @@ package yokwe.stock.jp.sony;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.smbctb.GenearateJSONStub;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class GenSourceFile {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenSourceFile.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenSourceFile.class);
 
 	public static void main(String[] args) {
     	logger.info("START");

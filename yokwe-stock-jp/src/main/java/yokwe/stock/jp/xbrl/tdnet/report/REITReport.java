@@ -23,19 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.tdnet.SummaryFilename;
+import yokwe.stock.jp.xbrl.tdnet.TDNET;
 import yokwe.stock.jp.xbrl.tdnet.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.inline.InlineXBRL;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
+import yokwe.util.UnexpectedException;
 
 public class REITReport extends AbstractReport implements Comparable<REITReport> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(REITReport.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(REITReport.class);
 	
-	public static final String PATH_FILE = "tmp/data/reit-report.csv"; // FIXME
+	public static final String PATH_FILE = TDNET.getPath("reit-report.csv");
 
 	public static List<REITReport> getList() {
 		List<REITReport> ret = CSVUtil.read(REITReport.class).file(PATH_FILE);

@@ -7,15 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 
 public class GenerateTaxonomyLabelClass {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenerateTaxonomyLabelClass.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenerateTaxonomyLabelClass.class);
 	
 	private static final String PATH_JAVA_SOURCE_TAXONOMY_DIR = "src/main/java/yokwe/stock/jp/xbrl/tdnet/taxonomy";
 	

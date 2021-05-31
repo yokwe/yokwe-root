@@ -8,13 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
 
 public class Fund implements Comparable<Fund> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(Fund.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Fund.class);
 
 	public static final String PATH_FILE = "tmp/data/sony/fund.csv"; // FIXME
 

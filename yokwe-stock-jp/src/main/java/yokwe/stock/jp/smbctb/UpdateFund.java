@@ -32,17 +32,16 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.hc.core5.net.URIBuilder;
-import org.slf4j.LoggerFactory;
 
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.smbctb.Fund.Currency;
 import yokwe.stock.jp.smbctb.json.Screener;
 import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
 public class UpdateFund {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFund.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateFund.class);
 
 	public static final String URL_SCREENER_BASE = "https://lt.morningstar.com/api/rest.svc/smbctbfund/security/screener";
 	

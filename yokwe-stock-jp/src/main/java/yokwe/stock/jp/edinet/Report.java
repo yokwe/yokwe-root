@@ -1,7 +1,5 @@
 package yokwe.stock.jp.edinet;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 
 public enum Report {
@@ -48,7 +46,7 @@ public enum Report {
 		return value;
 	}
 	
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Report.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Report.class);
 	
 	private static final Report[] VALUES = Report.values();
 	public static Report getInstance(String value) {

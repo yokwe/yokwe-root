@@ -13,7 +13,6 @@ import java.util.TreeMap;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.slf4j.LoggerFactory;
 
 import yokwe.stock.jp.jpx.StockPage.BuyPriceTime;
 import yokwe.stock.jp.jpx.StockPage.CompanyInfo;
@@ -37,7 +36,7 @@ import yokwe.util.http.StringTask;
 import yokwe.util.http.Task;
 
 public class UpdateStockPrice {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockPrice.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateStockPrice.class);
 	
 	private static String getPageURL(String stockCode) {
 		String stockCode4 = Stock.toStockCode4(stockCode);

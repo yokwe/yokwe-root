@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
@@ -16,7 +14,7 @@ import yokwe.stock.jp.xbrl.tdnet.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.report.StockReport;
 
 public class UpdateDividendStock {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividendStock.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividendStock.class);
 	
 	public static void main(String[] args) {
 		logger.info("START");

@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;
 import yokwe.util.DoubleUtil;
@@ -18,7 +16,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class DividendETF extends Sheet implements Comparable<DividendETF> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendETF.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DividendETF.class);
 
 	public static final String PATH_FILE        = "tmp/data/dividend-etf.csv"; // FIXME
 

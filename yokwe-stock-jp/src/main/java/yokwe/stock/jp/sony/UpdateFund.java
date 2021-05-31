@@ -8,17 +8,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.sony.Fund.Region;
 import yokwe.stock.jp.sony.Fund.Target;
 import yokwe.stock.jp.sony.json.FundData;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
 public class UpdateFund {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFund.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateFund.class);
 
 	public static class RawData {
 		public Map<String, FundData.JP90C00002U0> map;

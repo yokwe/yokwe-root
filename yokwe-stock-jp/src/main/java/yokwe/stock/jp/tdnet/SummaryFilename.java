@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 
 // 決算短信サマリー情報及び予想修正報告
 	// インラインXBRLファイル名
@@ -17,7 +15,7 @@ import yokwe.util.StringUtil;
 	//   tse-qcedjpsm-71770-20170725371770-ixbrl.htm
 	//   tse-rvfc-82270-20191222439755-ixbrl.htm
 	public class SummaryFilename implements Comparable<SummaryFilename> {
-		private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SummaryFilename.class);
+		private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SummaryFilename.class);
 
 		private static final Pattern PAT = Pattern.compile("tse-(?<period>[asq]?)(?<consolidate>[cn]?)(?<category>[a-z]{4})(?<detail>(sm|fr)?)-(?<tdnetCode>[0-9]{5})-(?<id>[0-9]{14})-ixbrl.htm");
 		

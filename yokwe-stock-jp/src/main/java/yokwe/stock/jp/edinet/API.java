@@ -4,8 +4,6 @@ import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -13,7 +11,7 @@ import yokwe.util.json.JSON.DateTimeFormat;
 import yokwe.util.json.JSON.Name;
 
 public class API {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(API.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(API.class);
 
 	public static final String URL_BASE = "https://disclosure.edinet-fsa.go.jp/api";
 	

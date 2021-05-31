@@ -9,13 +9,11 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 
 public class UpdateFundStats {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFundStats.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateFundStats.class);
 	
 	private static final String DATE_INFINITY = "無期限";
 	

@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.slf4j.LoggerFactory;
 
 import yokwe.stock.jp.toushin.Fund.Offer;
 import yokwe.util.FileUtil;
@@ -30,7 +29,7 @@ import yokwe.util.http.Task;
 import yokwe.util.json.JSON;
 
 public final class DataFile {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DataFile.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
 
 	private static final String PREFIX = "download";
 	

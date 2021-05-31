@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -14,7 +12,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 //
 
 public class UpdateDividendETF {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateDividendETF.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividendETF.class);
 	
 	public static final String URL_DIVIDEND_ETF = "file:///home/hasegawa/Dropbox/Trade/dividend-etf.ods";
 

@@ -6,14 +6,11 @@ import java.util.TreeMap;
 import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 
 @XmlRootElement(name = "linkbase")
 public class Linkbase {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Linkbase.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Linkbase.class);
 
 	@XmlElement(name = "labelLink")
 	public LabelLink labelLink;

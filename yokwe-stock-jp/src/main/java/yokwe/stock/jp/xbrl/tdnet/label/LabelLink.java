@@ -9,14 +9,11 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlEnum;
 import jakarta.xml.bind.annotation.XmlEnumValue;
 import jakarta.xml.bind.annotation.XmlType;
-
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.UnexpectedException;
 
 public class LabelLink {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(LabelLink.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LabelLink.class);
 
 	@XmlEnum
 	@XmlType(name="LabelLink-Type")

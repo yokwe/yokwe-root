@@ -2,10 +2,8 @@ package yokwe.stock.jp.smbctb;
 
 import java.io.File;
 
-import org.slf4j.LoggerFactory;
-
 public class GenSourceFile {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(GenSourceFile.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenSourceFile.class);
 
 	public static void main(String[] args) {
     	logger.info("START");

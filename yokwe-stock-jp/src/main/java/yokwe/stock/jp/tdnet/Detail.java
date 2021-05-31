@@ -1,7 +1,5 @@
 package yokwe.stock.jp.tdnet;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 
 // 報告詳細区分
@@ -9,7 +7,7 @@ public enum Detail {
 	SUMMARY   ("sm", "サマリー"), // 決算短信サマリー情報
 	FINANCIAL ("fr", "財務諸表"); // 決算短信財務諸表情報
 	
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Detail.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Detail.class);
 
 	private static final Detail[] VALUES = Detail.values();
 	public static Detail getInstance(String value) {

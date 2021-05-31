@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 
 public class InstanceFilename implements Comparable<InstanceFilename> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(InstanceFilename.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InstanceFilename.class);
 
 	// jp{府令略号}{様式番号}-{報告書略号}-{報告書連番(3 桁)}_{EDINET コード又はファンドコード}-{追番(3 桁)}_{報告対象期間期末日|報告義務発生日}_{報告書提出回数(2 桁)}_{報告書提出日}.xbrl 
 	// jp crp 040300     -q3r        -001             _E01442                      -000        _2020-01-31                   _01                 _2020-03-06.xbrl

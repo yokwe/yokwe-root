@@ -7,16 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;
 import yokwe.util.DoubleUtil;
+import yokwe.util.UnexpectedException;
 
 public class DividendAnnual implements Comparable<DividendAnnual> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DividendAnnual.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DividendAnnual.class);
 
 	public static final String PATH_FILE = "tmp/data/dividend-annual.csv"; // FIXME
 

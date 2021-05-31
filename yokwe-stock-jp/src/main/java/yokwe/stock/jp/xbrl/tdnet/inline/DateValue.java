@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.UnexpectedException;
-import yokwe.util.xml.QValue;
 import yokwe.util.xml.Attribute;
 import yokwe.util.xml.Element;
+import yokwe.util.xml.QValue;
 
 public class DateValue extends InlineXBRL {
 	public static Set<QValue> validAttributeSet = new TreeSet<>();

@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.xbrl.tdnet.inline.BooleanValue;
 import yokwe.stock.jp.xbrl.tdnet.inline.Context;
 import yokwe.stock.jp.xbrl.tdnet.inline.DateValue;
@@ -30,7 +28,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 
 public abstract class AbstractReport {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(AbstractReport.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractReport.class);
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

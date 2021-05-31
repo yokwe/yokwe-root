@@ -13,8 +13,6 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -22,7 +20,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class DataFile {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(DataFile.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
 	
 	private static final String PREFIX = "download";
 	

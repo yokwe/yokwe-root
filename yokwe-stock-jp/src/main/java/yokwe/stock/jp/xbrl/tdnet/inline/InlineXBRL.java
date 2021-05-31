@@ -10,16 +10,14 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.UnexpectedException;
-import yokwe.util.xml.QValue;
 import yokwe.util.xml.Element;
+import yokwe.util.xml.QValue;
 
 public abstract class InlineXBRL {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(InlineXBRL.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InlineXBRL.class);
 
 	public enum Kind {
 		STRING, BOOLEAN, DATE, NUMBER

@@ -10,15 +10,13 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateFundInfo {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFundInfo.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateFundInfo.class);
 
 	// 現在値
 	// var msFundCode = '2013121001';

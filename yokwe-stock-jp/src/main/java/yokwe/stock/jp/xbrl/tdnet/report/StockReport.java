@@ -39,19 +39,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.tdnet.SummaryFilename;
+import yokwe.stock.jp.xbrl.tdnet.TDNET;
 import yokwe.stock.jp.xbrl.tdnet.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.inline.InlineXBRL;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
+import yokwe.util.UnexpectedException;
 
 public class StockReport extends AbstractReport implements Comparable<StockReport> {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockReport.class);
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StockReport.class);
 
-	public static final String PATH_FILE = "tmp/data/stock-report.csv"; // FIXME
+	public static final String PATH_FILE = TDNET.getPath("stock-report.csv");
 
 	public static List<StockReport> getList() {
 		List<StockReport> ret = CSVUtil.read(StockReport.class).file(PATH_FILE);

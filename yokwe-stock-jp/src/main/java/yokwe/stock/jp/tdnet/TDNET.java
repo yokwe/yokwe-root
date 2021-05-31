@@ -6,14 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 
 public class TDNET {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TDNET.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TDNET.class);
 	
 	private static final String DIR_BASE = Storage.getPath("tdnet");
 	public static String getPath() {
