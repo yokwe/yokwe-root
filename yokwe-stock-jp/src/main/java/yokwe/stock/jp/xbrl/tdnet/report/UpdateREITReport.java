@@ -1,4 +1,4 @@
-package yokwe.stock.jp.data;
+package yokwe.stock.jp.xbrl.tdnet.report;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ import yokwe.stock.jp.tdnet.Period;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
 import yokwe.stock.jp.xbrl.tdnet.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.report.REITReport;
 import yokwe.util.UnexpectedException;
 
 //

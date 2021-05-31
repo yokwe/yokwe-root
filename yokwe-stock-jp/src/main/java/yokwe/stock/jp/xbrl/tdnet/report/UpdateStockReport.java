@@ -1,4 +1,4 @@
-package yokwe.stock.jp.data;
+package yokwe.stock.jp.xbrl.tdnet.report;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,7 +11,6 @@ import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
 import yokwe.stock.jp.xbrl.tdnet.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.report.StockReport;
 import yokwe.util.UnexpectedException;
 
 //

@@ -133,5 +133,25 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	
+	<!-- XBRL/TDNET/REPORT -->
+	<target name="xbrl-tdent-report-update-reit-report">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.tdnet.report.UpdateREITReport" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="xbrl-tdent-report-update-stock-report">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.tdnet.report.UpdateStockReport" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 </project>
