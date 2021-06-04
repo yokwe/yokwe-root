@@ -242,7 +242,11 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 
 		// Sanity check
 		if (ret.filingDate.isEmpty()) {
-			logger.warn("filingDate is empty  {}", document.filename);
+			String yyyy = document.filename.id.substring(0, 4);
+			String mm   = document.filename.id.substring(4, 6);
+			String dd   = document.filename.id.substring(6, 8);
+			ret.filingDate = String.format("%s-%s-%s", yyyy, mm, dd);
+			logger.warn("filingDate is empty. Create filingDate from filename  {}", document.filename);
 		}
 
 		return ret;
