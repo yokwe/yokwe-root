@@ -10,7 +10,7 @@ import yokwe.util.xml.Attribute;
 import yokwe.util.xml.Element;
 import yokwe.util.xml.QValue;
 
-public class NumberValue extends InlineXBRL {
+public class NumberElement extends BaseElement {
 	public static Set<QValue> validAttributeSet = new TreeSet<>();
 	static {
 		validAttributeSet.add(new QValue("", "contextRef"));
@@ -33,7 +33,7 @@ public class NumberValue extends InlineXBRL {
 	public final BigDecimal numberValue;
 	public final BigDecimal precision;
 	
-	public NumberValue(Element element) {
+	public NumberElement(Element element) {
 		super(Kind.NUMBER, element);
 		this.unitRef  = element.getAttribute("unitRef");
 		

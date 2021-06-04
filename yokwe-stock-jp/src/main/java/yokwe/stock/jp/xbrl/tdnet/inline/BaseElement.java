@@ -13,29 +13,29 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.xml.Element;
 import yokwe.util.xml.QValue;
 
-public abstract class InlineXBRL {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InlineXBRL.class);
+public abstract class BaseElement {
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BaseElement.class);
 
 	public enum Kind {
 		STRING, BOOLEAN, DATE, NUMBER
 	}
 	
 	private interface Builder {
-		public InlineXBRL getInstance(Element element);
+		public BaseElement getInstance(Element element);
 	}
 	
 	private static Map<QValue, Builder> nonNumericBuilderMap = new TreeMap<>();
 	static {
-		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,               o -> new BooleanValue(o));
-		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,              o -> new BooleanValue(o));
-		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK,    o -> new DateValue(o));
-		nonNumericBuilderMap.put(XBRL.IXT_DATE_ERA_YEAR_MONTH_DAY_JP, o -> new DateValue(o));
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,               o -> new BooleanElement(o));
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,              o -> new BooleanElement(o));
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK,    o -> new DateElement(o));
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_ERA_YEAR_MONTH_DAY_JP, o -> new DateElement(o));
 	}
 	private static class NonNumericBuilder implements Builder {
-		public InlineXBRL getInstance(Element element) {
+		public BaseElement getInstance(Element element) {
 			QValue qFormat = getQFormat(element);
 			if (qFormat == null) {
-				return new StringValue(element);
+				return new StringElement(element);
 			} else {
 				if (nonNumericBuilderMap.containsKey(qFormat)) {
 					Builder builder = nonNumericBuilderMap.get(qFormat);
@@ -51,17 +51,17 @@ public abstract class InlineXBRL {
 	
 	private static Map<QValue, Builder> nonFractionalBuilderMap = new TreeMap<>();
 	static {
-		nonFractionalBuilderMap.put(XBRL.IXT_NUM_DOT_DECIMAL,  o -> new NumberValue(o));
-		nonFractionalBuilderMap.put(XBRL.IXT_NUM_UNIT_DECIMAL, o -> new NumberValue(o));
+		nonFractionalBuilderMap.put(XBRL.IXT_NUM_DOT_DECIMAL,  o -> new NumberElement(o));
+		nonFractionalBuilderMap.put(XBRL.IXT_NUM_UNIT_DECIMAL, o -> new NumberElement(o));
 	}
 	private static class NonFractionBuilder implements Builder {
-		public InlineXBRL getInstance(Element element) {
+		public BaseElement getInstance(Element element) {
 			if (isNull(element)) {
-				return new NumberValue(element);
+				return new NumberElement(element);
 			} else {
 				QValue qFormat = getQFormat(element);
 				if (qFormat == null) {
-					return new NumberValue(element);
+					return new NumberElement(element);
 				} else {
 					if (nonFractionalBuilderMap.containsKey(qFormat)) {
 						Builder builder = nonFractionalBuilderMap.get(qFormat);
@@ -95,7 +95,7 @@ public abstract class InlineXBRL {
 		QValue key = new QValue(element);
 		return elementBuilderMap.containsKey(key);
 	}
-	public static InlineXBRL getInstance(Element element) {
+	public static BaseElement getInstance(Element element) {
 		if (canGetInstance(element)) {
 			Builder builder = getBuilder(element);
 			return builder.getInstance(element);
@@ -168,7 +168,7 @@ public abstract class InlineXBRL {
 	public final QValue      qFormat;
 	public final boolean     isNull;
 
-	protected InlineXBRL(Kind kind, Element element) {
+	protected BaseElement(Kind kind, Element element) {
 		this.kind       = kind;
 		this.element    = element;
 		
@@ -184,50 +184,50 @@ public abstract class InlineXBRL {
 	}
 	
 	
-	private static class ContextIncludeAllFilter implements Predicate<InlineXBRL>  {
+	private static class ContextIncludeAllFilter implements Predicate<BaseElement>  {
 		private final String[] contextArray;
 		private ContextIncludeAllFilter(Context... contexts) {
 			contextArray = Arrays.stream(contexts).map(o -> o.toString()).toArray(String[]::new);
 		}
 		
 		@Override
-		public boolean test(InlineXBRL ix) {
+		public boolean test(BaseElement ix) {
 			for(var context: contextArray) {
 				if (!ix.contextSet.contains(context)) return false;
 			}
 			return true;
 		}
 	}
-	public static Predicate<InlineXBRL> contextIncludeAll(Context... contexts) {
+	public static Predicate<BaseElement> contextIncludeAll(Context... contexts) {
 		return new ContextIncludeAllFilter(contexts);
 	}
 	
-	private static class ContextExcludeAnyFilter implements Predicate<InlineXBRL>  {
+	private static class ContextExcludeAnyFilter implements Predicate<BaseElement>  {
 		private final String[] contextArray;
 		private ContextExcludeAnyFilter(Context... contexts) {
 			contextArray = Arrays.stream(contexts).map(o -> o.toString()).toArray(String[]::new);
 		}
 		
 		@Override
-		public boolean test(InlineXBRL ix) {
+		public boolean test(BaseElement ix) {
 			for(var context: contextArray) {
 				if (ix.contextSet.contains(context)) return false;
 			}
 			return true;
 		}
 	}
-	public static Predicate<InlineXBRL> contextExcludeAny(Context... contexts) {
+	public static Predicate<BaseElement> contextExcludeAny(Context... contexts) {
 		return new ContextExcludeAnyFilter(contexts);
 	}
 	
-	private static class NullFilter implements Predicate<InlineXBRL>  {
+	private static class NullFilter implements Predicate<BaseElement>  {
 		private final boolean acceptNull;
 		private NullFilter(boolean acceptNull) {
 			this.acceptNull = acceptNull;
 		}
 		
 		@Override
-		public boolean test(InlineXBRL ix) {
+		public boolean test(BaseElement ix) {
 			if (ix.isNull) {
 				return acceptNull;
 			} else {
@@ -235,7 +235,7 @@ public abstract class InlineXBRL {
 			}
 		}
 	}
-	public static Predicate<InlineXBRL> nullFilter(boolean acceptNull) {
+	public static Predicate<BaseElement> nullFilter(boolean acceptNull) {
 		return new NullFilter(acceptNull);
 	}
 }

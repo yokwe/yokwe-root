@@ -15,20 +15,20 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import yokwe.stock.jp.xbrl.tdnet.inline.BooleanValue;
+import yokwe.stock.jp.xbrl.tdnet.inline.BooleanElement;
 import yokwe.stock.jp.xbrl.tdnet.inline.Context;
-import yokwe.stock.jp.xbrl.tdnet.inline.DateValue;
+import yokwe.stock.jp.xbrl.tdnet.inline.DateElement;
 import yokwe.stock.jp.xbrl.tdnet.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.inline.InlineXBRL;
-import yokwe.stock.jp.xbrl.tdnet.inline.NumberValue;
-import yokwe.stock.jp.xbrl.tdnet.inline.StringValue;
+import yokwe.stock.jp.xbrl.tdnet.inline.BaseElement;
+import yokwe.stock.jp.xbrl.tdnet.inline.NumberElement;
+import yokwe.stock.jp.xbrl.tdnet.inline.StringElement;
 import yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_ED_T_LABEL;
 import yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL;
 import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 
-public abstract class AbstractReport {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractReport.class);
+public abstract class BaseReport {
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BaseReport.class);
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
@@ -57,7 +57,7 @@ public abstract class AbstractReport {
 		// FIXME Is filename really necessary?
 		final Field           filename;  
 		
-		static ClassInfo get(Class<? extends AbstractReport> clazz) {
+		static ClassInfo get(Class<? extends BaseReport> clazz) {
 			String className = clazz.getName();
 			if (cache.containsKey(className)) {
 				return cache.get(className);
@@ -68,7 +68,7 @@ public abstract class AbstractReport {
 			}
 		}
 		
-		ClassInfo(Class<? extends AbstractReport> clazz) {
+		ClassInfo(Class<? extends BaseReport> clazz) {
 			this.className     = clazz.getName();
 			this.fieldInfoList = new ArrayList<>();
 			
@@ -199,14 +199,14 @@ public abstract class AbstractReport {
 		}
 	}
 	
-	private void assignField(FieldInfo fieldInfo, StringValue value) throws IllegalArgumentException, IllegalAccessException {
+	private void assignField(FieldInfo fieldInfo, StringElement value) throws IllegalArgumentException, IllegalAccessException {
 		final Field  field         = fieldInfo.field;
 		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
 		
 		switch(fieldTypeName) {
 		case "yokwe.security.japan.xbrl.InlineXBRL":
-			field.set(this, (InlineXBRL)value);
+			field.set(this, (BaseElement)value);
 			break;
 		case "java.lang.String":
 			field.set(this, value.stringValue);
@@ -218,14 +218,14 @@ public abstract class AbstractReport {
 			throw new UnexpectedException("Unexpected field type");
 		}
 	}
-	private void assignField(FieldInfo fieldInfo, BooleanValue value) throws IllegalArgumentException, IllegalAccessException {
+	private void assignField(FieldInfo fieldInfo, BooleanElement value) throws IllegalArgumentException, IllegalAccessException {
 		final Field  field         = fieldInfo.field;
 		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
 		
 		switch(fieldTypeName) {
 		case "yokwe.security.japan.xbrl.InlineXBRL":
-			field.set(this, (InlineXBRL)value);
+			field.set(this, (BaseElement)value);
 			break;
 		case "boolean":
 		case "java.lang.Boolean":
@@ -238,14 +238,14 @@ public abstract class AbstractReport {
 			throw new UnexpectedException("Unexpected field type");
 		}
 	}
-	private void assignField(FieldInfo fieldInfo, NumberValue value) throws IllegalArgumentException, IllegalAccessException {
+	private void assignField(FieldInfo fieldInfo, NumberElement value) throws IllegalArgumentException, IllegalAccessException {
 		final Field  field         = fieldInfo.field;
 		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
 
 		switch(fieldTypeName) {
 		case "yokwe.security.japan.xbrl.InlineXBRL":
-			field.set(this, (InlineXBRL)value);
+			field.set(this, (BaseElement)value);
 			break;
 		case "java.math.BigDecimal":
 			field.set(this, value.numberValue);
@@ -316,14 +316,14 @@ public abstract class AbstractReport {
 			throw new UnexpectedException("Unexpected field type");
 		}
 	}
-	private void assignField(FieldInfo fieldInfo, DateValue value) throws IllegalArgumentException, IllegalAccessException {
+	private void assignField(FieldInfo fieldInfo, DateElement value) throws IllegalArgumentException, IllegalAccessException {
 		final Field  field         = fieldInfo.field;
 		final String fieldName     = fieldInfo.fieldName;
 		final String fieldTypeName = fieldInfo.fieldTypeName;
 
 		switch(fieldTypeName) {
 		case "yokwe.security.japan.xbrl.InlineXBRL":
-			field.set(this, (InlineXBRL)value);
+			field.set(this, (BaseElement)value);
 			break;
 		case "java.lang.String":
 			field.set(this, value.dateValue.toString());
@@ -412,7 +412,7 @@ public abstract class AbstractReport {
 			final Context[] contextExcludeAny = fieldInfo.contextExcludeAny;
 			final boolean   acceptNullOrEmpty = fieldInfo.acceptNullOrEmpty;
 			
-			List<InlineXBRL> list = ixDoc.getStream(qName).filter(InlineXBRL.contextIncludeAll(contextIncludeAll)).filter(InlineXBRL.contextExcludeAny(contextExcludeAny)).collect(Collectors.toList());
+			List<BaseElement> list = ixDoc.getStream(qName).filter(BaseElement.contextIncludeAll(contextIncludeAll)).filter(BaseElement.contextExcludeAny(contextExcludeAny)).collect(Collectors.toList());
 			int size = list.size();
 			
 			try {
@@ -428,13 +428,13 @@ public abstract class AbstractReport {
 						logger.error("   name              {}", qName.value);
 						logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 						logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-						for(InlineXBRL e: ixDoc.getList(qName)) {
+						for(BaseElement e: ixDoc.getList(qName)) {
 							logger.error("   ixDoc {}", e);
 						}
 						throw new UnexpectedException("No matching entry");
 					}
 				} else if (list.size() == 1) {
-					InlineXBRL ix = list.get(0);
+					BaseElement ix = list.get(0);
 					if (ix.isNull) {
 						if (acceptNullOrEmpty) {
 							assignFieldZeroOrEmptyString(fieldInfo);
@@ -446,7 +446,7 @@ public abstract class AbstractReport {
 							logger.error("   name              {}", qName.value);
 							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 							logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-							for(InlineXBRL e: ixDoc.getList(qName)) {
+							for(BaseElement e: ixDoc.getList(qName)) {
 								logger.error("   ixDoc {}", e);
 							}
 							throw new UnexpectedException("Entry is null");
@@ -455,16 +455,16 @@ public abstract class AbstractReport {
 						// not null
 						switch(ix.kind) {
 						case STRING:
-							assignField(fieldInfo, (StringValue)ix);
+							assignField(fieldInfo, (StringElement)ix);
 							break;
 						case BOOLEAN:
-							assignField(fieldInfo, (BooleanValue)ix);
+							assignField(fieldInfo, (BooleanElement)ix);
 							break;
 						case NUMBER:
-							assignField(fieldInfo, (NumberValue)ix);
+							assignField(fieldInfo, (NumberElement)ix);
 							break;
 						case DATE:
-							assignField(fieldInfo, (DateValue)ix);
+							assignField(fieldInfo, (DateElement)ix);
 							break;
 						default:
 							logger.error("Unexpected kind");
@@ -476,8 +476,8 @@ public abstract class AbstractReport {
 					// multiple hit
 					{
 						int countNotNull = 0;
-						InlineXBRL ix = null;
-						for(InlineXBRL e: list) {
+						BaseElement ix = null;
+						for(BaseElement e: list) {
 							if (!e.isNull) {
 								ix = e;
 								countNotNull++;
@@ -495,10 +495,10 @@ public abstract class AbstractReport {
 								logger.error("   name              {}", qName.value);
 								logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 								logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-								for(InlineXBRL e: list) {
+								for(BaseElement e: list) {
 									logger.error("   list  {}", e);
 								}
-								for(InlineXBRL e: ixDoc.getList(qName)) {
+								for(BaseElement e: ixDoc.getList(qName)) {
 									logger.error("   ixDoc {}", e);
 								}
 								throw new UnexpectedException("Entry is null");
@@ -507,16 +507,16 @@ public abstract class AbstractReport {
 						case 1:
 							switch(ix.kind) {
 							case STRING:
-								assignField(fieldInfo, (StringValue)ix);
+								assignField(fieldInfo, (StringElement)ix);
 								break;
 							case BOOLEAN:
-								assignField(fieldInfo, (BooleanValue)ix);
+								assignField(fieldInfo, (BooleanElement)ix);
 								break;
 							case NUMBER:
-								assignField(fieldInfo, (NumberValue)ix);
+								assignField(fieldInfo, (NumberElement)ix);
 								break;
 							case DATE:
-								assignField(fieldInfo, (DateValue)ix);
+								assignField(fieldInfo, (DateElement)ix);
 								break;
 							default:
 								logger.error("Unexpected kind");
@@ -532,10 +532,10 @@ public abstract class AbstractReport {
 							logger.error("   name              {}", qName.value);
 							logger.error("   contextIncludeAll {}", Arrays.asList(contextIncludeAll));
 							logger.error("   contextExcludeAny {}", Arrays.asList(contextExcludeAny));
-							for(InlineXBRL e: list) {
+							for(BaseElement e: list) {
 								logger.error("   list  {}", e);
 							}
-							for(InlineXBRL e: ixDoc.getList(qName)) {
+							for(BaseElement e: ixDoc.getList(qName)) {
 								logger.error("   ixDoc {}", e);
 							}
 							throw new UnexpectedException("More than one matching entry");
@@ -550,7 +550,7 @@ public abstract class AbstractReport {
 		}
 	}
 
-	public static <E extends AbstractReport> E getInstance(Class<E> clazz, Document ixDoc) {
+	public static <E extends BaseReport> E getInstance(Class<E> clazz, Document ixDoc) {
 		try {
 			E ret = clazz.getDeclaredConstructor().newInstance();
 			ret.init(ixDoc);

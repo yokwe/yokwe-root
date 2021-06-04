@@ -13,7 +13,7 @@ import yokwe.util.xml.Attribute;
 import yokwe.util.xml.Element;
 import yokwe.util.xml.QValue;
 
-public class DateValue extends InlineXBRL {
+public class DateElement extends BaseElement {
 	public static Set<QValue> validAttributeSet = new TreeSet<>();
 	static {
 		validAttributeSet.add(new QValue("", "contextRef"));
@@ -76,7 +76,7 @@ public class DateValue extends InlineXBRL {
 	public final String    escape;
 	public final LocalDate dateValue;
 	
-	public DateValue(Element element) {
+	public DateElement(Element element) {
 		super(Kind.DATE, element);
 		
 		this.escape = element.getAttributeOrNull("escape");

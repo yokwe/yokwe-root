@@ -26,12 +26,12 @@ import java.util.TreeMap;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.xbrl.tdnet.TDNET;
 import yokwe.stock.jp.xbrl.tdnet.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.inline.InlineXBRL;
+import yokwe.stock.jp.xbrl.tdnet.inline.BaseElement;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 import yokwe.util.UnexpectedException;
 
-public class REITReport extends AbstractReport implements Comparable<REITReport> {
+public class REITReport extends BaseReport implements Comparable<REITReport> {
 	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(REITReport.class);
 	
 	public static final String PATH_FILE = TDNET.getPath("reit-report.csv");
@@ -126,9 +126,9 @@ public class REITReport extends AbstractReport implements Comparable<REITReport>
 
 	
 	public static REITReport getInstance(Document document) {
-		REITReport ret = AbstractReport.getInstance(REITReport.class, document);
+		REITReport ret = BaseReport.getInstance(REITReport.class, document);
 		
-		ret.stockCode = InlineXBRL.normalizeNumberCharacter(ret.stockCode);
+		ret.stockCode = BaseElement.normalizeNumberCharacter(ret.stockCode);
 
 		return ret;
 	}

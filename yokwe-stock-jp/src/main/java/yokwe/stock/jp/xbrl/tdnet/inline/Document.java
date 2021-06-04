@@ -15,24 +15,24 @@ import yokwe.util.xml.QValue;
 import yokwe.util.xml.XMLStream;
 
 public class Document {
-	private static final List<InlineXBRL> EMPTY_LIST = List.of();
+	private static final List<BaseElement> EMPTY_LIST = List.of();
 
-	public  final SummaryFilename               filename;
-	private final List<InlineXBRL>              all;
-	private final Map<QValue, List<InlineXBRL>> map;
+	public  final SummaryFilename                filename;
+	private final List<BaseElement>              all;
+	private final Map<QValue, List<BaseElement>> map;
 	
-	private Document(File file, List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map) {
+	private Document(File file, List<BaseElement> all, Map<QValue, List<BaseElement>> map) {
 		this.filename = SummaryFilename.getInstance(file.getName());
 		this.all      = all;
 		this.map      = map;
 	}
 
-	private static void buildMap(List<InlineXBRL> all, Map<QValue, List<InlineXBRL>> map, InlineXBRL ix) {
+	private static void buildMap(List<BaseElement> all, Map<QValue, List<BaseElement>> map, BaseElement ix) {
 		all.add(ix);
 		
 		QValue qName = ix.qName;
 		
-		List<InlineXBRL> list;
+		List<BaseElement> list;
 		if (map.containsKey(qName)) {
 			list = map.get(qName);
 		} else {
@@ -43,30 +43,30 @@ public class Document {
 	}
 	
 	public static Document getInstance(File file) {
-		List<InlineXBRL>              all = new ArrayList<>();
-		Map<QValue, List<InlineXBRL>> map = new TreeMap<>();
+		List<BaseElement>              all = new ArrayList<>();
+		Map<QValue, List<BaseElement>> map = new TreeMap<>();
 		
-		XMLStream.buildStream(file).filter(InlineXBRL::canGetInstance).forEach(o -> buildMap(all, map, InlineXBRL.getInstance(o)));
+		XMLStream.buildStream(file).filter(BaseElement::canGetInstance).forEach(o -> buildMap(all, map, BaseElement.getInstance(o)));
 		
 		return new Document(file, all, map);
 	}
 
-	public List<InlineXBRL> getList() {
+	public List<BaseElement> getList() {
 		return all;
 	}
-	public Stream<InlineXBRL> getStream() {
+	public Stream<BaseElement> getStream() {
 		return getList().stream();
 	}
 	
-	public List<InlineXBRL> getList(QValue qName) {
+	public List<BaseElement> getList(QValue qName) {
 		if (map.containsKey(qName)) {
 			return map.get(qName);
 		} else {
 			return EMPTY_LIST;
 		}
 	}
-	public Stream<InlineXBRL> getStream(QValue qName) {
-		List<InlineXBRL> list = getList(qName);
+	public Stream<BaseElement> getStream(QValue qName) {
+		List<BaseElement> list = getList(qName);
 		return list.stream();
 	}
 	

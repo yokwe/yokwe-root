@@ -42,12 +42,12 @@ import java.util.TreeMap;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.xbrl.tdnet.TDNET;
 import yokwe.stock.jp.xbrl.tdnet.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.inline.InlineXBRL;
+import yokwe.stock.jp.xbrl.tdnet.inline.BaseElement;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 import yokwe.util.UnexpectedException;
 
-public class StockReport extends AbstractReport implements Comparable<StockReport> {
+public class StockReport extends BaseReport implements Comparable<StockReport> {
 	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StockReport.class);
 
 	public static final String PATH_FILE = TDNET.getPath("stock-report.csv");
@@ -208,7 +208,7 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 	public SummaryFilename filename;
 
 	public static StockReport getInstance(Document document) {
-		StockReport ret = AbstractReport.getInstance(StockReport.class, document);
+		StockReport ret = BaseReport.getInstance(StockReport.class, document);
 
 		switch(ret.quarterlyPeriod) {
 		case 0:
@@ -238,7 +238,7 @@ public class StockReport extends AbstractReport implements Comparable<StockRepor
 			ret.annualDividendPerShare = ret.dividendPerShareQ1.add(ret.dividendPerShareQ2).add(ret.dividendPerShareQ3).add(ret.dividendPerShareQ4);
 		}
 		
-		ret.stockCode = InlineXBRL.normalizeNumberCharacter(ret.stockCode);
+		ret.stockCode = BaseElement.normalizeNumberCharacter(ret.stockCode);
 
 		// Sanity check
 		if (ret.filingDate.isEmpty()) {
