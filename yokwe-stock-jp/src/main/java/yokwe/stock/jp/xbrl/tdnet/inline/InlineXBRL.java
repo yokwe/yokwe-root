@@ -1,12 +1,11 @@
 package yokwe.stock.jp.xbrl.tdnet.inline;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.XML;
@@ -25,28 +24,12 @@ public abstract class InlineXBRL {
 		public InlineXBRL getInstance(Element element);
 	}
 	
-	private static class BooleanBuilder implements Builder {
-		public InlineXBRL getInstance(Element element) {
-			return new BooleanValue(element);
-		}
-	}
-	private static class DateBuilder implements Builder {
-		public InlineXBRL getInstance(Element element) {
-			return new DateValue(element);
-		}
-	}
-	private static class NumberBuilder implements Builder {
-		public InlineXBRL getInstance(Element element) {
-			return new NumberValue(element);
-		}
-	}
-	
 	private static Map<QValue, Builder> nonNumericBuilderMap = new TreeMap<>();
 	static {
-		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,               new BooleanBuilder());
-		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,              new BooleanBuilder());
-		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK,    new DateBuilder());
-		nonNumericBuilderMap.put(XBRL.IXT_DATE_ERA_YEAR_MONTH_DAY_JP, new DateBuilder());
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_TRUE,               o -> new BooleanValue(o));
+		nonNumericBuilderMap.put(XBRL.IXT_BOOLEAN_FALSE,              o -> new BooleanValue(o));
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_YEAR_MONTH_DAY_CJK,    o -> new DateValue(o));
+		nonNumericBuilderMap.put(XBRL.IXT_DATE_ERA_YEAR_MONTH_DAY_JP, o -> new DateValue(o));
 	}
 	private static class NonNumericBuilder implements Builder {
 		public InlineXBRL getInstance(Element element) {
@@ -68,8 +51,8 @@ public abstract class InlineXBRL {
 	
 	private static Map<QValue, Builder> nonFractionalBuilderMap = new TreeMap<>();
 	static {
-		nonFractionalBuilderMap.put(XBRL.IXT_NUM_DOT_DECIMAL,  new NumberBuilder());
-		nonFractionalBuilderMap.put(XBRL.IXT_NUM_UNIT_DECIMAL, new NumberBuilder());
+		nonFractionalBuilderMap.put(XBRL.IXT_NUM_DOT_DECIMAL,  o -> new NumberValue(o));
+		nonFractionalBuilderMap.put(XBRL.IXT_NUM_UNIT_DECIMAL, o -> new NumberValue(o));
 	}
 	private static class NonFractionBuilder implements Builder {
 		public InlineXBRL getInstance(Element element) {
@@ -172,36 +155,32 @@ public abstract class InlineXBRL {
 		return value;
 	}
 
-	public final Kind       kind;
-	public final Element element;
+	public final Kind        kind;
+	public final Element     element;
 	
 	public final Set<String> contextSet;
 	
-	public final String  name;
-	public final String  format;
-	public final String  value;
+	public final String      name;
+	public final String      format;
+	public final String      value;
 	
-	public final QValue  qName;
-	public final QValue  qFormat;
-	public final boolean isNull;
+	public final QValue      qName;
+	public final QValue      qFormat;
+	public final boolean     isNull;
 
 	protected InlineXBRL(Kind kind, Element element) {
-		this.kind         = kind;
-		this.element   = element;
+		this.kind       = kind;
+		this.element    = element;
 		
-		{
-			String contextRef = element.getAttribute("contextRef");
-			TreeSet<String> set = new TreeSet<>(Arrays.asList(contextRef.split("_")));
-			this.contextSet = Collections.unmodifiableSet(set);
-		}
+		this.contextSet = Arrays.asList(element.getAttribute("contextRef").split("_")).stream().collect(Collectors.toUnmodifiableSet());
 		
-		this.name   = element.getAttribute("name");
-		this.format = element.getAttributeOrNull("format");
-		this.value  = element.content;
+		this.name       = element.getAttribute("name");
+		this.format     = element.getAttributeOrNull("format");
+		this.value      = element.content;
 		
-		this.qName   = getQName(element);
-		this.qFormat = getQFormat(element);
-		this.isNull  = isNull(element);
+		this.qName      = getQName(element);
+		this.qFormat    = getQFormat(element);
+		this.isNull     = isNull(element);
 	}
 	
 	
