@@ -15,7 +15,7 @@ import yokwe.util.xml.QValue;
 import yokwe.util.xml.XMLStream;
 
 public class Document {
-	private static final List<InlineXBRL> EMPTY_LIST = Collections.unmodifiableList(new ArrayList<>());
+	private static final List<InlineXBRL> EMPTY_LIST = List.of();
 
 	public  final SummaryFilename               filename;
 	private final List<InlineXBRL>              all;
