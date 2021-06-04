@@ -2,13 +2,11 @@ package yokwe.stock.jp.xbrl.tdnet.inline;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.XML;
@@ -208,14 +206,17 @@ public abstract class InlineXBRL {
 	
 	
 	private static class ContextIncludeAllFilter implements Predicate<InlineXBRL>  {
-		private final List<String> contextList;
+		private final String[] contextArray;
 		private ContextIncludeAllFilter(Context... contexts) {
-			contextList = Arrays.stream(contexts).map(o -> o.toString()).collect(Collectors.toList());
+			contextArray = Arrays.stream(contexts).map(o -> o.toString()).toArray(String[]::new);
 		}
 		
 		@Override
 		public boolean test(InlineXBRL ix) {
-			return ix.contextSet.containsAll(contextList);
+			for(var context: contextArray) {
+				if (!ix.contextSet.contains(context)) return false;
+			}
+			return true;
 		}
 	}
 	public static Predicate<InlineXBRL> contextIncludeAll(Context... contexts) {
@@ -223,14 +224,14 @@ public abstract class InlineXBRL {
 	}
 	
 	private static class ContextExcludeAnyFilter implements Predicate<InlineXBRL>  {
-		private final List<String> contextList;
+		private final String[] contextArray;
 		private ContextExcludeAnyFilter(Context... contexts) {
-			contextList = Arrays.stream(contexts).map(o -> o.toString()).collect(Collectors.toList());
+			contextArray = Arrays.stream(contexts).map(o -> o.toString()).toArray(String[]::new);
 		}
 		
 		@Override
 		public boolean test(InlineXBRL ix) {
-			for(String context: contextList) {
+			for(var context: contextArray) {
 				if (ix.contextSet.contains(context)) return false;
 			}
 			return true;
