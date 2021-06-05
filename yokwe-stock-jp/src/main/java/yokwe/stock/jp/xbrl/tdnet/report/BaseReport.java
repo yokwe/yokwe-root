@@ -15,13 +15,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import yokwe.stock.jp.xbrl.tdnet.inline.BooleanElement;
+import yokwe.stock.jp.xbrl.inline.BaseElement;
+import yokwe.stock.jp.xbrl.inline.BooleanElement;
+import yokwe.stock.jp.xbrl.inline.DateElement;
+import yokwe.stock.jp.xbrl.inline.Document;
+import yokwe.stock.jp.xbrl.inline.NumberElement;
+import yokwe.stock.jp.xbrl.inline.StringElement;
 import yokwe.stock.jp.xbrl.tdnet.inline.Context;
-import yokwe.stock.jp.xbrl.tdnet.inline.DateElement;
-import yokwe.stock.jp.xbrl.tdnet.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.inline.BaseElement;
-import yokwe.stock.jp.xbrl.tdnet.inline.NumberElement;
-import yokwe.stock.jp.xbrl.tdnet.inline.StringElement;
 import yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_ED_T_LABEL;
 import yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL;
 import yokwe.util.UnexpectedException;
@@ -408,8 +408,8 @@ public abstract class BaseReport {
 		
 		for(FieldInfo fieldInfo: classInfo.fieldInfoList) {
 			final QValue    qName             = fieldInfo.qName;
-			final Context[] contextIncludeAll = fieldInfo.contextIncludeAll;
-			final Context[] contextExcludeAny = fieldInfo.contextExcludeAny;
+			final String[] contextIncludeAll = Arrays.stream(fieldInfo.contextIncludeAll).map(o -> o.toString()).toArray(String[]::new);
+			final String[] contextExcludeAny = Arrays.stream(fieldInfo.contextExcludeAny).map(o -> o.toString()).toArray(String[]::new);
 			final boolean   acceptNullOrEmpty = fieldInfo.acceptNullOrEmpty;
 			
 			List<BaseElement> list = ixDoc.getStream(qName).filter(BaseElement.contextIncludeAll(contextIncludeAll)).filter(BaseElement.contextExcludeAny(contextExcludeAny)).collect(Collectors.toList());

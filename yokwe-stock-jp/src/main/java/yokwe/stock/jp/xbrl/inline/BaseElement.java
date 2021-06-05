@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.tdnet.inline;
+package yokwe.stock.jp.xbrl.inline;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -186,8 +186,8 @@ public abstract class BaseElement {
 	
 	private static class ContextIncludeAllFilter implements Predicate<BaseElement>  {
 		private final String[] contextArray;
-		private ContextIncludeAllFilter(Context... contexts) {
-			contextArray = Arrays.stream(contexts).map(o -> o.toString()).toArray(String[]::new);
+		private ContextIncludeAllFilter(String... contexts) {
+			contextArray = Arrays.stream(contexts).toArray(String[]::new);
 		}
 		
 		@Override
@@ -198,14 +198,14 @@ public abstract class BaseElement {
 			return true;
 		}
 	}
-	public static Predicate<BaseElement> contextIncludeAll(Context... contexts) {
+	public static Predicate<BaseElement> contextIncludeAll(String... contexts) {
 		return new ContextIncludeAllFilter(contexts);
 	}
-	
+
 	private static class ContextExcludeAnyFilter implements Predicate<BaseElement>  {
 		private final String[] contextArray;
-		private ContextExcludeAnyFilter(Context... contexts) {
-			contextArray = Arrays.stream(contexts).map(o -> o.toString()).toArray(String[]::new);
+		private ContextExcludeAnyFilter(String... contexts) {
+			contextArray = Arrays.stream(contexts).toArray(String[]::new);
 		}
 		
 		@Override
@@ -216,7 +216,7 @@ public abstract class BaseElement {
 			return true;
 		}
 	}
-	public static Predicate<BaseElement> contextExcludeAny(Context... contexts) {
+	public static Predicate<BaseElement> contextExcludeAny(String... contexts) {
 		return new ContextExcludeAnyFilter(contexts);
 	}
 	

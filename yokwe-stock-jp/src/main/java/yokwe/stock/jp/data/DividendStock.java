@@ -5,10 +5,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.util.CSVUtil;
-import yokwe.util.DoubleUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;
+import yokwe.util.DoubleUtil;
 
 public class DividendStock implements Comparable<DividendStock> {
 	public static final String PATH_FILE = "tmp/data/dividend-stock.csv"; // FIXME
@@ -34,9 +33,9 @@ public class DividendStock implements Comparable<DividendStock> {
 	@DecimalPlaces(2)
 	public double dividend;
 	
-	public SummaryFilename filename; // file name of data source
+	public String filename; // file name of data source
 
-	public DividendStock(String stockCode, String yearEnd, int quarter, String date, double dividend, SummaryFilename filename) {
+	public DividendStock(String stockCode, String yearEnd, int quarter, String date, double dividend, String filename) {
 		this.stockCode = stockCode;
 		this.yearEnd   = yearEnd;
 		this.quarter   = quarter;

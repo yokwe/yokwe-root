@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.tdnet.inline;
+package yokwe.stock.jp.xbrl.inline;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,19 +10,18 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
-import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.util.xml.QValue;
 import yokwe.util.xml.XMLStream;
 
 public class Document {
 	private static final List<BaseElement> EMPTY_LIST = List.of();
 
-	public  final SummaryFilename                filename;
+	public  final String                         filename;
 	private final List<BaseElement>              all;
 	private final Map<QValue, List<BaseElement>> map;
 	
 	private Document(File file, List<BaseElement> all, Map<QValue, List<BaseElement>> map) {
-		this.filename = SummaryFilename.getInstance(file.getName());
+		this.filename = file.getName();
 		this.all      = all;
 		this.map      = map;
 	}

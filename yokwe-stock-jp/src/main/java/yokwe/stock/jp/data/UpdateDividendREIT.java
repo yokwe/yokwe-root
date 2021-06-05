@@ -11,7 +11,7 @@ import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.Period;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.report.REITReport;
 
 public class UpdateDividendREIT {
@@ -23,7 +23,7 @@ public class UpdateDividendREIT {
 		Map<String, DividendREIT> map = new TreeMap<>();
 		
 		{
-			Map<SummaryFilename, REITReport> reportMap = REITReport.getMap();
+			Map<String, REITReport> reportMap = REITReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 			
 			Map<SummaryFilename, File> fileMap = TDNET.getSummaryFileMap().entrySet().stream().
@@ -35,8 +35,8 @@ public class UpdateDividendREIT {
 			
 			int count = 0;
 			for(Map.Entry<SummaryFilename, File> entry: fileMap.entrySet()) {
-				SummaryFilename key  = entry.getKey();
-				File            file = entry.getValue();
+				String key  = entry.getKey().toString();
+				File   file = entry.getValue();
 				if ((count % 1000) == 0) {
 					logger.info("{} {}", String.format("%5d / %5d", count, fileMap.size()), key);
 				}
@@ -49,7 +49,7 @@ public class UpdateDividendREIT {
 				final String  yearEnd;
 				final Integer quarter;
 				
-				final SummaryFilename filename;
+				final String  filename;
 
 				{
 					final REITReport value;
@@ -70,7 +70,7 @@ public class UpdateDividendREIT {
 					filename = value.filename;
 				}
 								
-				String        mapKey   = String.format("%s %s %s", stockCode, yearEnd, quarter);
+				String       mapKey   = String.format("%s %s %s", stockCode, yearEnd, quarter);
 				DividendREIT mapValue = new DividendREIT(stockCode, yearEnd, quarter, date, dividend, filename);
 
 				// Sanity check

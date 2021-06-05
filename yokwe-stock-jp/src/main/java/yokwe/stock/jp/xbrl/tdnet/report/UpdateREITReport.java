@@ -11,7 +11,7 @@ import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.Period;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.util.UnexpectedException;
 
 //
@@ -25,7 +25,7 @@ public class UpdateREITReport {
 		logger.info("START");
 		
 		{
-			Map<SummaryFilename, REITReport> reportMap = REITReport.getMap();
+			Map<String, REITReport> reportMap = REITReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 
 			List<File> fileList = new ArrayList<>();
@@ -57,7 +57,7 @@ public class UpdateREITReport {
 					}
 					count++;
 					
-					final SummaryFilename filename = SummaryFilename.getInstance(file.getName());
+					final String filename = file.getName();
 					final REITReport report;
 
 					if (reportMap.containsKey(filename)) {

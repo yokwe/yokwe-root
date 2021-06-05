@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.report.StockReport;
 
 public class UpdateDividendStock {
@@ -23,7 +23,7 @@ public class UpdateDividendStock {
 		// key is "stockCode yearEnd quarter"
 		
 		{
-			Map<SummaryFilename, StockReport> reportMap = StockReport.getMap();
+			Map<String, StockReport> reportMap = StockReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 			
 			Map<SummaryFilename, File> fileMap = TDNET.getSummaryFileMap().entrySet().stream().
@@ -34,8 +34,8 @@ public class UpdateDividendStock {
 			
 			int count = 0;
 			for(Map.Entry<SummaryFilename, File> entry: fileMap.entrySet()) {
-				SummaryFilename key  = entry.getKey();
-				File            file = entry.getValue();
+				String key  = entry.getKey().toString();
+				File   file = entry.getValue();
 				if ((count % 1000) == 0) {
 					logger.info("{} {}", String.format("%5d / %5d", count, fileMap.size()), key);
 				}
@@ -48,7 +48,7 @@ public class UpdateDividendStock {
 				final String  yearEnd;
 				final Integer quarter;
 				
-				final SummaryFilename filename;
+				final String  filename;
 
 				{
 					final StockReport value;

@@ -40,9 +40,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import yokwe.stock.jp.tdnet.SummaryFilename;
+import yokwe.stock.jp.xbrl.inline.BaseElement;
+import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.tdnet.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.inline.BaseElement;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 import yokwe.util.UnexpectedException;
@@ -56,10 +56,10 @@ public class StockReport extends BaseReport implements Comparable<StockReport> {
 		List<StockReport> ret = CSVUtil.read(StockReport.class).file(PATH_FILE);
 		return (ret == null) ? new ArrayList<>() : ret;
 	}
-	public static Map<SummaryFilename, StockReport> getMap() {
-		Map<SummaryFilename, StockReport> ret = new TreeMap<>();
+	public static Map<String, StockReport> getMap() {
+		Map<String, StockReport> ret = new TreeMap<>();
 		for(StockReport e: getList()) {
-			SummaryFilename key = e.filename;
+			String key = e.filename;
 			if (ret.containsKey(key)) {
 				logger.error("Duplicate key {}", key);
 				logger.error("  new {}", e);
@@ -205,7 +205,7 @@ public class StockReport extends BaseReport implements Comparable<StockReport> {
 	public BigDecimal numberOfShares;
 
 
-	public SummaryFilename filename;
+	public String filename;
 
 	public static StockReport getInstance(Document document) {
 		StockReport ret = BaseReport.getInstance(StockReport.class, document);
@@ -242,9 +242,10 @@ public class StockReport extends BaseReport implements Comparable<StockReport> {
 
 		// Sanity check
 		if (ret.filingDate.isEmpty()) {
-			String yyyy = document.filename.id.substring(0, 4);
-			String mm   = document.filename.id.substring(4, 6);
-			String dd   = document.filename.id.substring(6, 8);
+			SummaryFilename filename = SummaryFilename.getInstance(document.filename);
+			String yyyy = filename.id.substring(0, 4);
+			String mm   = filename.id.substring(4, 6);
+			String dd   = filename.id.substring(6, 8);
 			ret.filingDate = String.format("%s-%s-%s", yyyy, mm, dd);
 			logger.warn("filingDate is empty. Create filingDate from filename  {}", document.filename);
 		}

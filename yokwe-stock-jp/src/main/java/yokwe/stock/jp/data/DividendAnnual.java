@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;
 import yokwe.util.DoubleUtil;
@@ -71,9 +70,9 @@ public class DividendAnnual implements Comparable<DividendAnnual> {
 	public String yearEnd;   // YYYY-MM-DD
 	public int    quarter;   // 1-4
 
-	public SummaryFilename filename; // file name of data source
+	public String filename; // file name of data source
 
-	public DividendAnnual(String stockCode, double dividend, int count, String yearEnd, int quarter, SummaryFilename filename) {
+	public DividendAnnual(String stockCode, double dividend, int count, String yearEnd, int quarter, String filename) {
 		this.stockCode = stockCode;
 		this.dividend  = dividend;
 		this.count     = count;

@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.tdnet.inline;
+package yokwe.stock.jp.xbrl.inline;
 
 import java.math.BigDecimal;
 import java.util.Set;

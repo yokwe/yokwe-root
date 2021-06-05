@@ -37,14 +37,14 @@ public class UpdateDividendAnnual {
 			// key is stockCode
 			// build map
 			{
-				Map<SummaryFilename, StockReport> reportMap = StockReport.getMap();
+				Map<String, StockReport> reportMap = StockReport.getMap();
 				logger.info("StockReport reportMap {}", reportMap.size());
 				
 				int size  = reportMap.size();
 				int count = 0;
-				for(Map.Entry<SummaryFilename, StockReport> entry: reportMap.entrySet()) {
-					SummaryFilename key   = entry.getKey();
-					StockReport     value = entry.getValue();
+				for(Map.Entry<String, StockReport> entry: reportMap.entrySet()) {
+					String      key   = entry.getKey();
+					StockReport value = entry.getValue();
 					if ((count % 1000) == 0) {
 						logger.info("{} {}", String.format("%5d / %5d", count, size), key);
 					}
@@ -85,11 +85,11 @@ public class UpdateDividendAnnual {
 					LocalDate lastDate  = LocalDate.parse(last.dividendPayableDateAsPlanned).plusDays(1);
 					LocalDate firstDate = getFirstDate(lastDate).minusDays(1);
 					
-					double          dividend = last.annualDividendPerShare.doubleValue();
-					int             divCount = 0;
-					String          yearEnd  = last.yearEnd;
-					int             quarter  = last.quarterlyPeriod;
-					SummaryFilename filename = last.filename;
+					double dividend = last.annualDividendPerShare.doubleValue();
+					int    divCount = 0;
+					String yearEnd  = last.yearEnd;
+					int    quarter  = last.quarterlyPeriod;
+					String filename = last.filename;
 					
 					for(StockReport e: list) {
 						LocalDate date = LocalDate.parse(e.dividendPayableDateAsPlanned);
@@ -118,14 +118,14 @@ public class UpdateDividendAnnual {
 			// key is stockCode
 			// build map
 			{
-				Map<SummaryFilename, REITReport> reportMap = REITReport.getMap();
+				Map<String, REITReport> reportMap = REITReport.getMap();
 				logger.info("REITReport  reportMap {}", reportMap.size());
 				
 				int size  = reportMap.size();
 				int count = 0;
-				for(Map.Entry<SummaryFilename, REITReport> entry: reportMap.entrySet()) {
-					SummaryFilename key   = entry.getKey();
-					REITReport      value = entry.getValue();
+				for(Map.Entry<String, REITReport> entry: reportMap.entrySet()) {
+					String     key   = entry.getKey();
+					REITReport value = entry.getValue();
 					if ((count % 1000) == 0) {
 						logger.info("{} {}", String.format("%5d / %5d", count, size), key);
 					}
@@ -155,11 +155,11 @@ public class UpdateDividendAnnual {
 					LocalDate lastDate  = LocalDate.parse(last.distributionsDate).plusDays(1);
 					LocalDate firstDate = getFirstDate(lastDate).minusDays(1);
 					
-					double          dividend = 0;
-					int             divCount = 0;
-					String          yearEnd  = last.yearEnd;
-					int             quarter  = 4;
-					SummaryFilename filename = last.filename;
+					double dividend = 0;
+					int    divCount = 0;
+					String yearEnd  = last.yearEnd;
+					int    quarter  = 4;
+					String filename = last.filename;
 					
 					for(REITReport e: list) {
 						LocalDate date = LocalDate.parse(e.distributionsDate);
@@ -205,7 +205,7 @@ public class UpdateDividendAnnual {
 
 					String tdnetCode = String.format("%s0", stockCode);
 					String id = String.format("%s399999", last.record);
-					final SummaryFilename filename = new SummaryFilename(Period.ANNUAL.value, Consolidate.NOT_CONSOLIDATE.value, Category.EFJP.value, Detail.SUMMARY.value, tdnetCode, id);
+					final String filename = new SummaryFilename(Period.ANNUAL.value, Consolidate.NOT_CONSOLIDATE.value, Category.EFJP.value, Detail.SUMMARY.value, tdnetCode, id).toString();
 					
 					for(DividendETF e: list) {
 						LocalDate date = LocalDate.parse(e.date);

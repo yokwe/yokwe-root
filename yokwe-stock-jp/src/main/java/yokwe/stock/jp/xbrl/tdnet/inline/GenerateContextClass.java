@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import jakarta.xml.bind.JAXBException;
 import yokwe.stock.jp.tdnet.TDNET;
+import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
 

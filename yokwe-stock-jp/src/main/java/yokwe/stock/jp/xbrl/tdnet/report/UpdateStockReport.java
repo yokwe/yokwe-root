@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import yokwe.stock.jp.tdnet.Category;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.tdnet.inline.Document;
+import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.util.UnexpectedException;
 
 //
@@ -24,7 +24,7 @@ public class UpdateStockReport {
 		logger.info("START");
 		
 		{
-			Map<SummaryFilename, StockReport> reportMap = StockReport.getMap();
+			Map<String, StockReport> reportMap = StockReport.getMap();
 			logger.info("reportMap {}", reportMap.size());
 
 			List<File> fileList = new ArrayList<>();
@@ -55,7 +55,7 @@ public class UpdateStockReport {
 					}
 					count++;
 					
-					final SummaryFilename filename = SummaryFilename.getInstance(file.getName());
+					final String filename = file.getName();
 					final StockReport report;
 					
 					if (reportMap.containsKey(filename)) {

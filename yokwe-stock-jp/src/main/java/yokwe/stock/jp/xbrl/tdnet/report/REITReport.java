@@ -23,10 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import yokwe.stock.jp.tdnet.SummaryFilename;
+import yokwe.stock.jp.xbrl.inline.BaseElement;
+import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.TDNET;
-import yokwe.stock.jp.xbrl.tdnet.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.inline.BaseElement;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 import yokwe.util.UnexpectedException;
@@ -40,10 +39,10 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 		List<REITReport> ret = CSVUtil.read(REITReport.class).file(PATH_FILE);
 		return (ret == null) ? new ArrayList<>() : ret;
 	}
-	public static Map<SummaryFilename, REITReport> getMap() {
-		Map<SummaryFilename, REITReport> ret = new TreeMap<>();
+	public static Map<String, REITReport> getMap() {
+		Map<String, REITReport> ret = new TreeMap<>();
 		for(REITReport e: getList()) {
-			SummaryFilename key = e.filename;
+			String key = e.filename;
 			if (ret.containsKey(key)) {
 				logger.error("Duplicate key {}", key);
 				logger.error("  new {}", e);
@@ -122,7 +121,7 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 	public BigDecimal numberOfShares;
 
 	
-	public SummaryFilename filename;
+	public String filename;
 
 	
 	public static REITReport getInstance(Document document) {
