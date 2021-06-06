@@ -15,14 +15,17 @@ public class XBRL {
 	public static final String NS_XBRLI    = "http://www.xbrl.org/2003/instance";
 	public static final String NS_ISO_4217 = "http://www.xbrl.org/2003/iso4217";
 
+	// TDNET
 	public static final String NS_TSE_AT_T = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/at/t/2014-01-12";
 	public static final String NS_TSE_ED_T = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/ed/t/2014-01-12";
 	public static final String NS_TSE_RE_T = "http://www.xbrl.tdnet.info/taxonomy/jp/tse/tdnet/re/t/2014-01-12";
 	
 	public static final String NS_TSE_T_CG = "http://www.xbrl.tdnet.info/jp/br/tdnet/t/cg/2007-06-30";
 
-
 	public static final String NS_TSE_SCEDJPSM_87250 = "http://www.xbrl.tdnet.info/jp/tse/tdnet/sc/edjp/sm/87250/20191010407057";
+	
+	// EDINET
+	public static final String NS_EDINET_MANIFEST = "http://disclosure.edinet-fsa.go.jp/2013/manifest";
 	
 	// Value	
 	public static final QValue IX_NON_NUMERIC  = new QValue(NS_IX, "nonNumeric");
