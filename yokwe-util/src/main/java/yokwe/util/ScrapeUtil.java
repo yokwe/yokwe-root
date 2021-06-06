@@ -9,6 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -141,6 +143,11 @@ public class ScrapeUtil {
 			String value = toStringValue(string, fieldInfo.asNubmer);
 			return value.isEmpty() ? Optional.empty() : Optional.of(value);
 		}
+		case CLASS_LOCALDATE:
+		{
+			LocalDate value = toLocalDate(string);
+			return value == null ? Optional.empty() : Optional.of(value);
+		}
 		default:
 			if (type.isEnum()) {
 				Map<String, Enum<?>> enumMap = getEnumMap(type);
@@ -161,6 +168,18 @@ public class ScrapeUtil {
 			logger.error("  type  {}", typeName);
 			logger.error("  value {}", string);
 			throw new UnexpectedException("Unexpected type");
+		}
+	}
+	
+	private static LocalDate toLocalDate(String string) {
+		if (string == null) return null;
+		
+		try {
+			return LocalDate.parse(string);
+		} catch (DateTimeParseException e) {
+			logger.error("Unexpected datetime format");
+			logger.error("  string {}!", string);
+			throw new UnexpectedException("Unexpected datetime format", e);
 		}
 	}
 	
@@ -352,7 +371,9 @@ public class ScrapeUtil {
 	private static final String OPTIONAL_LONG   = "java.util.OptionalLong";
 	private static final String OPTIONAL_INT    = "java.util.OptionalInt";
 	
-	private static final String CLASS_OPTIONAL = "java.util.Optional";
+	private static final String CLASS_OPTIONAL  = "java.util.Optional";
+	
+	private static final String CLASS_LOCALDATE = "java.time.LocalDate";
 
 	
 	private static Object getArg(ClassInfo classInfo, FieldInfo fieldInfo, String stringValue) {
@@ -396,6 +417,9 @@ public class ScrapeUtil {
 			break;
 		case CLASS_OPTIONAL:
 			arg = toOptional(fieldInfo, stringValue);
+			break;
+		case CLASS_LOCALDATE:
+			arg = toLocalDate(stringValue);
 			break;
 		default:
 			if (fieldInfo.type.isEnum()) {
