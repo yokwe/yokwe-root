@@ -103,8 +103,8 @@ public class Document implements Comparable<Document> {
 	}
 	
 	public static final String PATH_XBRL_DIR = EDINET.getPath("xbrl");
-	public static File getXBRLFile(InstanceFilename filename) {
-		String path = String.format("%s/%s/%s", PATH_XBRL_DIR, filename.code, filename.toString());
+	public static File getXBRLFile(Filename.Instance instance) {
+		String path = String.format("%s/%s/%s", PATH_XBRL_DIR, instance.code, instance.toString());
 		return new File(path);
 	}
 
