@@ -294,23 +294,13 @@ public class ScrapeUtil {
 					Constructor<?>[] constructors = clazz.getDeclaredConstructors();
 					
 					// Sanity check
-					{
-						if (constructors.length == 0) {
-							logger.error("no constructor");
-							logger.error("  clazz       {}", clazz.getName());
-							throw new UnexpectedException("no constructor");
-						}
-						if (1 < constructors.length) {
-							logger.error("more than one constructor");
-							logger.error("  clazz       {}", clazz.getName());
-							for(Constructor<?> e: constructors) {
-								logger.error("  constructor {}", e.toString());
-							}
-							throw new UnexpectedException("more than one constructor");
-						}
+					if (constructors.length == 0) {
+						logger.error("no constructor");
+						logger.error("  clazz       {}", clazz.getName());
+						throw new UnexpectedException("no constructor");
 					}
 					
-					// Find constructor by param type
+					// Find constructor by parameter type
 					for(Constructor<?> myConstructor: constructors) {						
 						Parameter[] myParameters = myConstructor.getParameters();
 						if (myParameters.length == fieldInfos.length) {
@@ -322,6 +312,12 @@ public class ScrapeUtil {
 								hasSameType = false;
 							}
 							if (hasSameType) {
+								if (constructor != null) {
+									logger.error("duplicate constuctor with same parameter type");
+									logger.error("  clazz       {}", clazz.getName());
+									logger.error("    expect    {}", Arrays.stream(fieldInfos).map(o -> o.typeName).collect(Collectors.toList()));
+									throw new UnexpectedException("duplicate constuctor with same parameter type");
+								}
 								constructor = myConstructor;
 							}
 						}
@@ -329,7 +325,7 @@ public class ScrapeUtil {
 					if (constructor == null) {
 						logger.error("no suitable constructor");
 						logger.error("  clazz       {}", clazz.getName());
-						logger.error("    expect {}", Arrays.stream(fieldInfos).map(o -> o.typeName).collect(Collectors.toList()));
+						logger.error("    expect    {}", Arrays.stream(fieldInfos).map(o -> o.typeName).collect(Collectors.toList()));
 						throw new UnexpectedException("no suitable constructor");
 					}
 					
