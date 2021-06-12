@@ -155,8 +155,8 @@
 	</target>
 	
 	<!-- XBRL/EDINET -->
-	<target name="edinet-update-manifest">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.edinet.manifest.UpdateManifest" fork="true">
+	<target name="xbrl-edinet-update-manifest-info">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.edinet.manifest.UpdateManifestInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
@@ -164,7 +164,4 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	
-
-
 </project>
