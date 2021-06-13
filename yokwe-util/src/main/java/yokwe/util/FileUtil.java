@@ -30,6 +30,8 @@ public class FileUtil {
 	private static final int BUFFER_SIZE = 65536;
 	
 	private static final String  DEFAULT_CHARSET = "UTF-8";
+	
+	private static final char BOM_UTF_8 = '\uFEFF';
 
 	private static class Context {
 		private String charset = DEFAULT_CHARSET;
@@ -60,7 +62,8 @@ public class FileUtil {
 					
 					ret.append(buffer, 0, len);
 				}
-				return ret.toString();
+				// remove BOM_UTF_8 
+				return ret.substring(ret.charAt(0) == BOM_UTF_8 ? 1 : 0);
 			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
@@ -123,8 +126,10 @@ public class FileUtil {
 					parent.mkdirs();
 				}
 			}
+						
 			try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), context.charset), BUFFER_SIZE)) {
-				bw.append(content);
+				// remove BOM_UTF_8 
+				bw.append(content.substring(content.charAt(0) == BOM_UTF_8 ? 1 : 0));
 			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
