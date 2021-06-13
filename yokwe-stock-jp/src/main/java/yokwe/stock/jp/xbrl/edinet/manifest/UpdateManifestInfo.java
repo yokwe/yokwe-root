@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -32,8 +33,10 @@ public class UpdateManifestInfo {
 		List<File> fileList = Document.getDocumentFileList();
 		logger.info("fileList {}", fileList.size());
 		
-		List<ManifestInfo> list = ManifestInfo.load();
-		Set<String> set = list.stream().map(o -> o.docID).collect(Collectors.toSet());
+		// Remove duplicate using TreeSet and ManifestInfo.compareTo
+		Set<ManifestInfo> result = new TreeSet<>(ManifestInfo.load());
+		
+		Set<String> docIDSet = result.stream().map(o -> o.docID).collect(Collectors.toSet());
 		
 		int count = 1;
 		int countChange = 0;
@@ -47,7 +50,7 @@ public class UpdateManifestInfo {
 			String docID = file.getName();
 			
 			// Skip if already processed
-			if (set.contains(docID)) continue;
+			if (docIDSet.contains(docID)) continue;
 			
 			Manifest manifest = null;
 			try (ZipFile zipFile = new ZipFile(file)) {
@@ -96,7 +99,7 @@ public class UpdateManifestInfo {
 		    		
 		    		if (Filename.equals(instance, honbun)) {
 			    		ManifestInfo manifestInfo = new ManifestInfo(docID, honbun);
-			    		list.add(manifestInfo);
+			    		result.add(manifestInfo);
 			    		countChange++;
 		    		} else {
 		    			logger.error("not equals");
@@ -104,14 +107,13 @@ public class UpdateManifestInfo {
 		    			logger.error(" honbun   {} {} {} {} {} {} {} {}", honbun.form, honbun.report, honbun.reportNo, honbun.code, honbun.codeNo, honbun.date, honbun.submitNo, honbun.submitDate);
 		    			throw new UnexpectedException("not equals");
 		    		}
-
 		    	}
 		    }
 		}
 		
 		logger.info("countChange {}", countChange);
-		logger.info("save {} {}", list.size(), ManifestInfo.getPath());
-		ManifestInfo.save(list);
+		logger.info("save {} {}", result.size(), ManifestInfo.getPath());
+		ManifestInfo.save(result);
 		
 		logger.info("STOP");
 	}
