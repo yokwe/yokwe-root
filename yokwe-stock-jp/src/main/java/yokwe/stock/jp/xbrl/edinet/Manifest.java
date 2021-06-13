@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.edinet.manifest;
+package yokwe.stock.jp.xbrl.edinet;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -10,30 +10,29 @@ import java.util.TreeMap;
 
 import yokwe.stock.jp.edinet.Filename;
 import yokwe.stock.jp.edinet.Report;
-import yokwe.stock.jp.xbrl.edinet.EDINET;
 import yokwe.util.CSVUtil;
 
-public class ManifestInfo implements Comparable<ManifestInfo> {
+public class Manifest implements Comparable<Manifest> {
 	private static final String PATH_DATA = EDINET.getPath("manifest-info.csv");
 	public static String getPath() {
 		return PATH_DATA;
 	}
 	
-	public static final void save(Collection<ManifestInfo> list) {
+	public static final void save(Collection<Manifest> list) {
 		save(new ArrayList<>(list));
 	}
-	public static final void save(List<ManifestInfo> list) {
+	public static final void save(List<Manifest> list) {
 		// Sort before write
 		Collections.sort(list);
-		CSVUtil.write(ManifestInfo.class).file(PATH_DATA, list);
+		CSVUtil.write(Manifest.class).file(PATH_DATA, list);
 	}
 	
-	public static List<ManifestInfo> load() {
-		return CSVUtil.read(ManifestInfo.class).file(PATH_DATA);
+	public static List<Manifest> load() {
+		return CSVUtil.read(Manifest.class).file(PATH_DATA);
 	}
 	
-	private static List<ManifestInfo> list = null;
-	public static List<ManifestInfo> getList() {
+	private static List<Manifest> list = null;
+	public static List<Manifest> getList() {
 		if (list == null) {
 			list = load();
 			if (list == null) {
@@ -43,13 +42,13 @@ public class ManifestInfo implements Comparable<ManifestInfo> {
 		return list;
 	}
 	
-	private static Map<String, List<ManifestInfo>> map = null;
+	private static Map<String, List<Manifest>> map = null;
 	//                 docID
-	public static Map<String, List<ManifestInfo>> getMap() {
+	public static Map<String, List<Manifest>> getMap() {
 		if (map == null) {
 			map = new TreeMap<>();
 			for(var e: getList()) {
-				List<ManifestInfo> list;
+				List<Manifest> list;
 				if (map.containsKey(e.docID)) {
 					list = map.get(e.docID);
 				} else {
@@ -74,7 +73,7 @@ public class ManifestInfo implements Comparable<ManifestInfo> {
 	public String    submitNo;
 	public LocalDate submitDate;
 	
-	public ManifestInfo(String docID, Filename.Honbun honbun) {
+	public Manifest(String docID, Filename.Honbun honbun) {
 		this.docID      = docID;
 		this.no         = honbun.no;
 		this.title      = honbun.title;
@@ -87,7 +86,7 @@ public class ManifestInfo implements Comparable<ManifestInfo> {
 		this.submitNo   = honbun.submitNo;
 		this.submitDate = honbun.submitDate;
 	}
-	public ManifestInfo() {
+	public Manifest() {
 		this.docID      = null;
 		this.no         = null;
 		this.title      = null;
@@ -102,7 +101,7 @@ public class ManifestInfo implements Comparable<ManifestInfo> {
 	}
 	
 	@Override
-	public int compareTo(ManifestInfo that) {
+	public int compareTo(Manifest that) {
 		int ret = 0;
 		if (ret == 0) ret = this.docID.compareTo(that.docID);
 		if (ret == 0) ret = this.no.compareTo(that.no);
@@ -123,8 +122,8 @@ public class ManifestInfo implements Comparable<ManifestInfo> {
 		if (o == null) {
 			return false;
 		} else {
-			if (o instanceof ManifestInfo) {
-				ManifestInfo that = (ManifestInfo)o;
+			if (o instanceof Manifest) {
+				Manifest that = (Manifest)o;
 				return this.compareTo(that) == 0;
 			} else {
 				return false;
