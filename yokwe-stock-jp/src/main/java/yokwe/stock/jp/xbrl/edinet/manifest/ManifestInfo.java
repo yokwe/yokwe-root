@@ -2,6 +2,7 @@ package yokwe.stock.jp.xbrl.edinet.manifest;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,9 @@ public class ManifestInfo implements Comparable<ManifestInfo> {
 		return PATH_DATA;
 	}
 	
+	public static final void save(Collection<ManifestInfo> list) {
+		save(new ArrayList<>(list));
+	}
 	public static final void save(List<ManifestInfo> list) {
 		// Sort before write
 		Collections.sort(list);
@@ -102,7 +106,30 @@ public class ManifestInfo implements Comparable<ManifestInfo> {
 		int ret = 0;
 		if (ret == 0) ret = this.docID.compareTo(that.docID);
 		if (ret == 0) ret = this.no.compareTo(that.no);
+		if (ret == 0) ret = this.title.compareTo(that.title);
+		if (ret == 0) ret = this.form.compareTo(that.form);
+		if (ret == 0) ret = this.report.compareTo(that.report);
+		if (ret == 0) ret = this.reportNo.compareTo(that.reportNo);
+		if (ret == 0) ret = this.code.compareTo(that.code);
+		if (ret == 0) ret = this.codeNo.compareTo(that.codeNo);
+		if (ret == 0) ret = this.date.compareTo(that.date);
+		if (ret == 0) ret = this.submitNo.compareTo(that.submitNo);
+		if (ret == 0) ret = this.submitDate.compareTo(that.submitDate);
 		return ret;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		} else {
+			if (o instanceof ManifestInfo) {
+				ManifestInfo that = (ManifestInfo)o;
+				return this.compareTo(that) == 0;
+			} else {
+				return false;
+			}
+		}
 	}
 
 }
