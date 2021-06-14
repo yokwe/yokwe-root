@@ -121,20 +121,30 @@ public class UpdateManifest {
 		
 		// Remove duplicate using TreeSet and ManifestInfo.compareTo
 		Set<Manifest> result = new TreeSet<>(Manifest.getList());
-		logger.info("result {}", result.size());
+		logger.info("manifest               {}", result.size());
+		
+		{
+			Set<String> set = result.stream().map(o -> o.toInstance().toString()).collect(Collectors.toSet());
+			logger.info("instance               {}", set.size());
+		}
+
+		{
+			Set<String> set = result.stream().map(o -> o.toHonbun().toString()).collect(Collectors.toSet());
+			logger.info("honbun                 {}", set.size());
+		}
 
 		List<File> fileList;
 		{
 			Set<String> docIDSet = result.stream().map(o -> o.docID).collect(Collectors.toSet());
 
 			List<File> list = Document.getFileList();
-			logger.info("fileList whole         {}", list.size());
+			logger.info("document               {}", list.size());
 			
 			List<File> list2 = list.stream().filter(o -> o.exists()).collect(Collectors.toList());
-			logger.info("fileList exists        {}", list2.size());
+			logger.info("document exists        {}", list2.size());
 			
 			List<File> list3 = list2.stream().filter(o -> !docIDSet.contains(o.getName())).collect(Collectors.toList());
-			logger.info("fileList not processed {}", list3.size());
+			logger.info("document not processed {}", list3.size());
 			
 			fileList = list3;
 		}
