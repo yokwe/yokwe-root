@@ -3,8 +3,11 @@ package yokwe.stock.jp.xbrl.edinet;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -19,6 +22,8 @@ import jakarta.xml.bind.annotation.XmlElementWrapper;
 import yokwe.stock.jp.edinet.Document;
 import yokwe.stock.jp.edinet.Filename;
 import yokwe.stock.jp.xbrl.XBRL;
+import yokwe.util.FileUtil;
+import yokwe.util.StreamUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
@@ -83,92 +88,141 @@ public class UpdateManifest {
 		}
 	}
 
+	private static String getName(ZipEntry zipEntry) {
+		Path path = Path.of(zipEntry.getName());
+		return path.getFileName().toString();
+	}
+	private static void save(File file, ZipFile zipFile, Map<String, ZipEntry> map, String name) {
+		// return if file already exists
+		if (file.exists()) return;
+		
+		if (map.containsKey(name)) {
+			ZipEntry zipEntry = map.get(name);
+			
+			try (InputStream is = zipFile.getInputStream(zipEntry)) {
+				byte[] bytes = is.readAllBytes();
+				String content = new String(bytes, StandardCharsets.UTF_8);
+				FileUtil.write().file(file, content);
+			} catch (IOException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e);
+				throw new UnexpectedException(exceptionName, e);
+			}
+		} else {
+			logger.error("no map key");
+			logger.error("  name {}", name);
+			logger.error("  map  {}", map.keySet());
+			throw new UnexpectedException("no map key");
+		}
+	}
 	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<File> fileList = Document.getFileList().stream().filter(o -> o.exists()).collect(Collectors.toList());
-		logger.info("fileList {}", fileList.size());
-		
 		// Remove duplicate using TreeSet and ManifestInfo.compareTo
 		Set<Manifest> result = new TreeSet<>(Manifest.getList());
+		logger.info("result {}", result.size());
+
+		List<File> fileList;
+		{
+			Set<String> docIDSet = result.stream().map(o -> o.docID).collect(Collectors.toSet());
+
+			List<File> list = Document.getFileList();
+			logger.info("fileList whole         {}", list.size());
+			
+			List<File> list2 = list.stream().filter(o -> o.exists()).collect(Collectors.toList());
+			logger.info("fileList exists        {}", list2.size());
+			
+			List<File> list3 = list2.stream().filter(o -> !docIDSet.contains(o.getName())).collect(Collectors.toList());
+			logger.info("fileList not processed {}", list3.size());
+			
+			fileList = list3;
+		}
 		
-		Set<String> docIDSet = result.stream().map(o -> o.docID).collect(Collectors.toSet());
-		
-		int count = 0;
+		int count       = 0;
 		int countChange = 0;
+		int countFile   = 0;
 		for(var file: fileList) {
 //			logger.info("file {}", file.getName());
 			
 			if ((count++ % 1000) == 0) {
 				logger.info("{}", String.format("%5d / %5d", count - 1, fileList.size()));
+				Manifest.save(result);
 			}
 			
 			String docID = file.getName();
 			
-			// Skip if already processed
-			if (docIDSet.contains(docID)) continue;
-			
-			XML.Manifest xmlManifest = null;
 			try (ZipFile zipFile = new ZipFile(file)) {
 				Enumeration<? extends ZipEntry> entries = zipFile.entries();
+				
+				Map<String, ZipEntry> map = StreamUtil.asStream(entries).
+					filter(o -> o.getName().startsWith("XBRL/PublicDoc/")).
+					filter(o -> !o.getName().endsWith("gif")).
+					filter(o -> !o.getName().endsWith("jpg")).
+					filter(o -> !o.getName().endsWith("png")).
+					collect(Collectors.toMap(UpdateManifest::getName, o -> (ZipEntry)o));
+				
+				if (map.isEmpty()) {
+//					logger.warn("empty map  {}", file.getPath());
+					continue;
+				}
+				
+				XML.Manifest xmlManifest;
+				if (map.containsKey(Filename.Manifest.NAME)) {
+					ZipEntry zipEntry = map.get(Filename.Manifest.NAME);
+					
+					try (InputStream is = zipFile.getInputStream(zipEntry)) {
+						xmlManifest = JAXB.unmarshal(is, XML.Manifest.class);
+					}
+				} else {
+					logger.error("No manifest");
+					logger.error("  file {}", file.getPath());
+	    			throw new UnexpectedException("No manifest");
+				}
+				
+			    // sanity check
+				if (xmlManifest.list.isEmpty()) {
+					logger.warn("empty list");
+					logger.warn("file     {}", file.getPath());
+					throw new UnexpectedException("empty list");
+				}
+			    for(var e: xmlManifest.list) {
+			    	Filename.Instance instance = Filename.Instance.getInstance(e.preferredFilename);
+			    	for(var honbunString: e.ixbr) {
+			    		Filename.Honbun honbun = Filename.Honbun.getInstance(honbunString);
+			    		if (!Filename.equals(instance, honbun)) {
+			    			logger.error("not equals");
+			    			logger.error(" instance {} {} {} {} {} {} {} {}", instance.form, instance.report, instance.reportNo, instance.code, instance.codeNo, instance.date, instance.submitNo, instance.submitDate);
+			    			logger.error(" honbun   {} {} {} {} {} {} {} {}", honbun.form, honbun.report, honbun.reportNo, honbun.code, honbun.codeNo, honbun.date, honbun.submitNo, honbun.submitDate);
+			    			throw new UnexpectedException("not equals");
+			    		}
+			    	}
+			    }
 
-			    while(entries.hasMoreElements()) {
-			        ZipEntry entry = entries.nextElement();
-			        
-			        String entryName = entry.getName();
-			        int lastIndex = entryName.lastIndexOf("/");
-			        String dir  = entryName.substring(0, lastIndex);
-			        String name = entryName.substring(lastIndex + 1);
-			        
-			        if (dir.contains("XBRL") && dir.contains("PublicDoc")) {
-						if (name.equals(Filename.Manifest.NAME)) {
-//							logger.info("manifest {}", name);
-							try (InputStream is = zipFile.getInputStream(entry)) {
-								xmlManifest = JAXB.unmarshal(is, XML.Manifest.class);
-							}
-							break;
-						}
-			        }
+			    for(var e: xmlManifest.list) {
+			    	Filename.Instance instance = Filename.Instance.getInstance(e.preferredFilename);
+			    	save(instance.toFile(docID), zipFile, map, instance.toString());
+			    	countFile++;
+			    	
+			    	for(var honbunString: e.ixbr) {
+			    		Filename.Honbun honbun = Filename.Honbun.getInstance(honbunString);
+				    	save(honbun.toFile(docID), zipFile, map, honbun.toString());
+				    	countFile++;
+				    	
+			    		Manifest manifest = new Manifest(docID, honbun);
+			    		result.add(manifest);
+			    		countChange++;
+			    	}
 			    }
 			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
 				throw new UnexpectedException(exceptionName, e);
 			}
-			
-			// Skip if no manifest
-			if (xmlManifest == null) continue;
-
-		    // sanity check
-			if (xmlManifest.list.size() == 0) {
-				logger.warn("no list       {}", file.getPath());
-//					logger.warn("size     {}", manifest.list.size());
-//					logger.warn("manifest {}", manifest);
-//					logger.warn("file     {}", file.getPath());
-				throw new UnexpectedException("manifest.list.size() != 1");
-			}
-
-		    for(var e: xmlManifest.list) {
-		    	Filename.Instance instance = Filename.Instance.getInstance(e.preferredFilename);
-		    	for(var honbunString: e.ixbr) {
-		    		Filename.Honbun honbun = Filename.Honbun.getInstance(honbunString);
-		    		
-		    		if (Filename.equals(instance, honbun)) {
-			    		Manifest manifestInfo = new Manifest(docID, honbun);
-			    		result.add(manifestInfo);
-			    		countChange++;
-		    		} else {
-		    			logger.error("not equals");
-		    			logger.error(" instance {} {} {} {} {} {} {} {}", instance.form, instance.report, instance.reportNo, instance.code, instance.codeNo, instance.date, instance.submitNo, instance.submitDate);
-		    			logger.error(" honbun   {} {} {} {} {} {} {} {}", honbun.form, honbun.report, honbun.reportNo, honbun.code, honbun.codeNo, honbun.date, honbun.submitNo, honbun.submitDate);
-		    			throw new UnexpectedException("not equals");
-		    		}
-		    	}
-		    }
 		}
 		
 		logger.info("countChange {}", countChange);
+		logger.info("countFile   {}", countFile);
 		logger.info("save {} {}", result.size(), Manifest.getPath());
 		Manifest.save(result);
 		
