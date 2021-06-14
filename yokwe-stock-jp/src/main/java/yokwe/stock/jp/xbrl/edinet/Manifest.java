@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import yokwe.stock.jp.edinet.Filename;
 import yokwe.stock.jp.edinet.Report;
 import yokwe.util.CSVUtil;
 
 public class Manifest implements Comparable<Manifest> {
-	private static final String PATH_DATA = EDINET.getPath("manifest-info.csv");
+//	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Manifest.class);
+
+	private static final String PATH_DATA = EDINET.getPath("manifest.csv");
 	public static String getPath() {
 		return PATH_DATA;
 	}
@@ -31,36 +31,14 @@ public class Manifest implements Comparable<Manifest> {
 		return CSVUtil.read(Manifest.class).file(PATH_DATA);
 	}
 	
-	private static List<Manifest> list = null;
 	public static List<Manifest> getList() {
-		if (list == null) {
-			list = load();
-			if (list == null) {
-				list = new ArrayList<>();
-			}
+		List<Manifest> ret = load();
+		if (ret == null) {
+			ret = new ArrayList<>();
 		}
-		return list;
+		return ret;
 	}
 	
-	private static Map<String, List<Manifest>> map = null;
-	//                 docID
-	public static Map<String, List<Manifest>> getMap() {
-		if (map == null) {
-			map = new TreeMap<>();
-			for(var e: getList()) {
-				List<Manifest> list;
-				if (map.containsKey(e.docID)) {
-					list = map.get(e.docID);
-				} else {
-					list = new ArrayList<>();
-					map.put(e.docID, list);
-				}
-				list.add(e);
-			}
-		}
-		return map;
-	}
-
 	public String    docID; // S1007V9A
 	public String    no;
 	public String    title;
@@ -98,6 +76,13 @@ public class Manifest implements Comparable<Manifest> {
 		this.date       = null;
 		this.submitNo   = null;
 		this.submitDate = null;
+	}
+	
+	public Filename.Instance toInstance() {
+		return new Filename.Instance(form, report, reportNo, code, codeNo, date, submitNo, submitDate);
+	}
+	public Filename.Honbun toHonbun() {
+		return new Filename.Honbun(no, title, form, report, reportNo, code, codeNo, date, submitNo, submitDate);
 	}
 	
 	@Override

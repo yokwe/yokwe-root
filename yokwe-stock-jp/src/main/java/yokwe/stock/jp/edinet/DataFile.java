@@ -17,7 +17,7 @@ public class DataFile {
 		LocalDate date  = LocalDate.now();
 		int       count = 0;
 		
-		Map<String, Document> map = Document.getMap();
+		Map<String, Document> map = Document.getDocumentMap();
 		
 		for(;;) {
 			API.ListDocument.Response response = API.ListDocument.getInstance(date, API.ListDocument.Type.DATA);
@@ -71,13 +71,11 @@ public class DataFile {
 	}
 	
 	private static void download(LocalDate lastDate) {
-		// Existing file map.  key is docID
-		Map<String, File> documentFileMap = Document.getDocumentFileMap();
-		logger.info("documentFileMap  {}", documentFileMap.size());
-		
 		List<Document> list = new ArrayList<>();
-		for(var e: Document.load()) {
-			if (documentFileMap.containsKey(e.docID)) continue;
+		for(var e: Document.getList()) {
+			// skip if already exists
+			if (e.toFile().exists()) continue;
+			
 			if (e.fundCode.isEmpty() && e.stockCode.isEmpty()) continue;
 			if (e.submitDateTime.toLocalDate().isBefore(lastDate)) continue;
 			
@@ -106,7 +104,7 @@ public class DataFile {
 			if (data == null) {
 				logger.info("download failed {}", e.docID);
 			} else {
-				File file = Document.getDocumentFile(e.submitDateTime.toLocalDate(), e.docID);
+				File file = e.toFile();
 				FileUtil.rawWrite().file(file, data);
 			}
 		}

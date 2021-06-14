@@ -1,5 +1,6 @@
 package yokwe.stock.jp.edinet;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.regex.Pattern;
 
@@ -8,6 +9,14 @@ import yokwe.util.UnexpectedException;
 
 public class Filename {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Filename.class);
+
+	public static final String PATH_FILE_DIR = EDINET.getPath("file");
+	private static final File toFile(String docID, String string) {
+		Document document = Document.getDocument(docID);
+		String path = String.format("%s/%04d/%02d/%02d/%s/%s",
+				PATH_FILE_DIR, document.submitDateTime.getYear(), document.submitDateTime.getMonthValue(), document.submitDateTime.getDayOfMonth(), docID, string);
+		return new File(path);
+	}
 
 	public static class Manifest {
 		public static final String NAME = "manifest_PublicDoc.xml";
@@ -90,6 +99,10 @@ public class Filename {
 			}
 			return ret;
 		}
+		
+		public File toFile(String docID) {
+			return Filename.toFile(docID, string);
+		}
 
 		@Override
 		public String toString() {
@@ -164,6 +177,10 @@ public class Filename {
 			return ret;
 		}
 		
+		public File toFile(String docID) {
+			return Filename.toFile(docID, string);
+		}
+
 		@Override
 		public String toString() {
 			return string;

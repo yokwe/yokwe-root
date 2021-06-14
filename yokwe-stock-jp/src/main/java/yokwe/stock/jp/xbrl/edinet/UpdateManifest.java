@@ -87,7 +87,7 @@ public class UpdateManifest {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<File> fileList = Document.getDocumentFileList();
+		List<File> fileList = Document.getFileList().stream().filter(o -> o.exists()).collect(Collectors.toList());
 		logger.info("fileList {}", fileList.size());
 		
 		// Remove duplicate using TreeSet and ManifestInfo.compareTo
