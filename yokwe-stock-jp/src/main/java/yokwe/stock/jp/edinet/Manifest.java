@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.edinet;
+package yokwe.stock.jp.edinet;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import yokwe.stock.jp.edinet.Filename;
-import yokwe.stock.jp.edinet.Report;
 import yokwe.util.CSVUtil;
 
 public class Manifest implements Comparable<Manifest> {

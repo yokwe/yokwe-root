@@ -1,4 +1,4 @@
-package yokwe.stock.jp.xbrl.edinet;
+package yokwe.stock.jp.edinet;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +19,6 @@ import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
-import yokwe.stock.jp.edinet.Document;
-import yokwe.stock.jp.edinet.Filename;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.util.FileUtil;
 import yokwe.util.StreamUtil;
