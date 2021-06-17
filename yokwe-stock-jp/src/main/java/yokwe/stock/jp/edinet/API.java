@@ -277,7 +277,8 @@ public class API {
 		public static final String HEADER_CONTENT_TYPE       = "Content-Type";
 		public static final String CONTENT_TYPE_OCTET_STREAM = "application/octet-stream";
 		public static final String CONTENT_TYPE_PDF          = "application/pdf";
-		public static final String CONTENT_TYPE_JSON         = "application/json; charset=utf-8";
+		public static final String CONTENT_TYPE_JSON_A       = "application/json; charset=utf-8";
+		public static final String CONTENT_TYPE_JSON_B       = "application/json;charset=utf-8";
 		
 		public enum Type {
 			WHOLE  ("1"), // 提出本文書及び監査報告書
@@ -311,7 +312,8 @@ public class API {
 			case CONTENT_TYPE_OCTET_STREAM:
 			case CONTENT_TYPE_PDF:
 				return result.rawData;
-			case CONTENT_TYPE_JSON:
+			case CONTENT_TYPE_JSON_A:
+			case CONTENT_TYPE_JSON_B:
 				String message = new String(result.rawData, Charset.forName("UTF-8"));
 				logger.warn("Unexpected result {}", message);
 				return null;
