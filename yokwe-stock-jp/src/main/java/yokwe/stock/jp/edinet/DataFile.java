@@ -38,6 +38,9 @@ public class DataFile {
 						Document document = new Document(
 								e.docID,
 								e.edinetCode,
+								
+								e.xbrlFlag.toBoolean(),
+								
 								e.stockCode,
 								e.fundCode,
 								e.ordinanceCode,
@@ -72,24 +75,32 @@ public class DataFile {
 	
 	private static void download(LocalDate lastDate) {
 		List<Document> list = new ArrayList<>();
-		for(var e: Document.getList()) {
+		for(var e: Document.load()) {
 			// skip if already exists
 			if (e.toFile().exists()) continue;
 			
-			if (e.fundCode.isEmpty() && e.stockCode.isEmpty()) continue;
-			if (e.submitDateTime.toLocalDate().isBefore(lastDate)) continue;
+			// skip if submitDateTime is before lastDate
+//			if (e.submitDateTime.toLocalDate().isBefore(lastDate)) continue;
 			
-			switch(e.docTypeCode) {
-			case ANNUAL_REPORT:
-			case QUARTERLY_REPORT:
-			case SEMI_ANNUAL_REPORT:
-				list.add(e);
-				break;
-			default:
-				break;
-			}
+			// skip if contains no xbrl
+			if (!e.xbrlFlag) continue;
+			
+			list.add(e);
+			
+//			switch(e.docTypeCode) {
+//			case ANNUAL_REPORT:
+//			case ANNUAL_REPORT_AMENDMENT:
+//			case QUARTERLY_REPORT:
+//			case QUARTERLY_REPORT_AMENDMENT:
+//			case SEMI_ANNUAL_REPORT:
+//			case SEMI_ANNUAL_REPORT_AMENDMENT:
+//				list.add(e);
+//				break;
+//			default:
+//				break;
+//			}
 		}
-				
+		
 		logger.info("list   {}", list.size());
 		Collections.shuffle(list);
 		
