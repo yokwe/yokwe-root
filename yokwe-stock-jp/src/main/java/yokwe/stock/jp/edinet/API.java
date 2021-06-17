@@ -44,15 +44,18 @@ public class API {
 		DOC_110("110", "発行登録取下届出書"),
 		ANNUAL_REPORT
 		       ("120", "有価証券報告書"),
-		DOC_130("130", "訂正有価証券報告書"),
+		ANNUAL_REPORT_AMENDMENT
+			   ("130", "訂正有価証券報告書"),
 		DOC_135("135", "確認書"),
 		DOC_136("136", "訂正確認書"),
 		QUARTERLY_REPORT
 		       ("140", "四半期報告書"),
-		DOC_150("150", "訂正四半期報告書"),
+		QUARTERLY_REPORT_AMENDMENT
+			   ("150", "訂正四半期報告書"),
 		SEMI_ANNUAL_REPORT
-		       ("160", "半期報告書"),
-		DOC_170("170", "訂正半期報告書"),
+	    	   ("160", "半期報告書"),
+		SEMI_ANNUAL_REPORT_AMENDMENT
+			   ("170", "訂正半期報告書"),
 		DOC_180("180", "臨時報告書"),
 		DOC_190("190", "訂正臨時報告書"),
 		DOC_200("200", "親会社等状況報告書"),
@@ -122,6 +125,10 @@ public class API {
 		@Override
 		public String toString() {
 			return value;
+		}
+		
+		public boolean toBoolean() {
+			return this.equals(YES);
 		}
 	}
 
