@@ -113,6 +113,9 @@ public class Document implements Comparable<Document> {
 	public LocalDateTime submitDateTime;	
 	public String        docID;
 	public String        edinetCode;
+	
+	public Boolean       xbrlFlag;
+	
 	public DocType       docTypeCode;
 	public String        ordinanceCode;
 	public String        formCode;
@@ -123,6 +126,9 @@ public class Document implements Comparable<Document> {
 	public Document(		
 		String        docID,
 		String        edinetCode,
+		
+		Boolean       xbrlFlag,
+		
 		String        stockCode,
 		String        fundCode,
 		String        ordinanceCode,
@@ -134,6 +140,9 @@ public class Document implements Comparable<Document> {
 		) {
 		this.docID          = docID;
 		this.edinetCode     = edinetCode;
+		
+		this.xbrlFlag       = xbrlFlag;
+		
 		this.stockCode      = stockCode;
 		this.fundCode       = fundCode;
 		this.ordinanceCode  = ordinanceCode;
@@ -144,7 +153,7 @@ public class Document implements Comparable<Document> {
 		this.submitDateTime = submitDateTime;
 	}
 	public Document() {
-		this(null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null);
 	}
 	
 	public static final String PATH_DOCUMENT_DIR = EDINET.getPath("document");
