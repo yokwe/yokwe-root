@@ -6,11 +6,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import yokwe.stock.jp.edinet.Filename.Report;
 import yokwe.util.CSVUtil;
 
 public class Manifest implements Comparable<Manifest> {
-//	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Manifest.class);
-
 	private static final String PATH_DATA = EDINET.getPath("manifest.csv");
 	public static String getPath() {
 		return PATH_DATA;
