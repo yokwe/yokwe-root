@@ -45,7 +45,10 @@ public class DataFile {
 			logger.info("count   {}", dateSet.size());
 		}
 		
-		int count = 0;
+		int countUpdate   = 0;
+		int countExpire   = 0;
+		int countWithdraw = 0;
+		int countDisclose = 0;
 		for(LocalDate date: dateSet) {
 			API.ListDocument.Response response = API.ListDocument.getInstance(date, API.ListDocument.Type.DATA);
 			if (response.results.length != 0) {
@@ -56,18 +59,21 @@ public class DataFile {
 				// skip if edinetCode is empty and withdrawStatsu is normal (expired document)
 				if (e.edinetCode.isEmpty() && e.withdrawalStatus == Withdraw.NORMAL) {
 					logger.warn("skip expire  {} {} {}", date, e.seqNumber, e.docID);
+					countExpire++;
 					continue;
 				}
 
 				// skip if withdrawalStatus is not NORMAL
 				if (!(e.withdrawalStatus == Withdraw.NORMAL)) {
 					logger.warn("skip withdraw {} {} {}", date, e.seqNumber, e.docID);
+					countWithdraw++;
 					continue;
 				}
 				
 				// skip if discloseStatus is not NORMAL or not DISCLOSE
 				if (!(e.disclosureStatus == Disclose.NORMAL || e.disclosureStatus == Disclose.DISCLOSE)) {
 					logger.warn("skip disclose {} {} {}", date, e.seqNumber, e.docID);
+					countDisclose++;
 					continue;
 				}
 				
@@ -95,11 +101,14 @@ public class DataFile {
 
 						e.docTypeCode,
 
-						e.submitDateTime);
+						e.submitDateTime,
+						
+						e.docDescription
+						);
 					map.put(docID, document);
 
-					count++;
-					if ((count % 10000) == 0) {
+					countUpdate++;
+					if ((countUpdate % 10000) == 0) {
 						List<Document> list = new ArrayList<>(map.values());
 						logger.info("save {} {}", list.size(), Document.PATH_DOCUMENT_FILE);
 						Document.save(list);
@@ -108,8 +117,11 @@ public class DataFile {
 			}
 		}
 		
-		logger.info("update {}", count);
-		if (0 < count) {
+		logger.info("expire   {}", countExpire);
+		logger.info("withdraw {}", countWithdraw);
+		logger.info("disclose {}", countDisclose);
+		logger.info("update   {}", countUpdate);
+		if (0 < countUpdate) {
 			List<Document> list = new ArrayList<>(map.values());
 			logger.info("save {} {}", list.size(), Document.PATH_DOCUMENT_FILE);
 			Document.save(map.values());
@@ -171,31 +183,45 @@ public class DataFile {
 			}
 		}
 
-		logger.info("update {}", count);
+		logger.info("update  {}", count);
 		if (0 < count) {
 			Document.touch();
 		}
 	}
 	
 	private static void check() {
+		List<Document> documentList = Document.load();
+		if (documentList == null) {
+			documentList = new ArrayList<>();
+		}
+		
 		Set<File> fileSet = new HashSet<>(FileUtil.listFile(Document.PATH_DOCUMENT_DIR));
-		Set<File> docList = Document.load().stream().map(o -> o.toFile()).collect(Collectors.toSet());
+		Set<File> docList = documentList.stream().map(o -> o.toFile()).collect(Collectors.toSet());
 		
 		logger.info("files        {}", fileSet.size());
 		logger.info("document     {}", docList.size());
 		
-		fileSet.removeAll(docList);
-		if (fileSet.isEmpty()) {
-			logger.info("no unknown file");
-		} else {
-			logger.warn("Unknown file {}", fileSet.size());
-			for(var e: fileSet) {
-				logger.warn("  {}", e.getPath());
+		if (!docList.isEmpty()) {
+			fileSet.removeAll(docList);
+			List<File> fileList = new ArrayList<>(fileSet);
+			Collections.sort(fileList);
+
+			logger.warn("Unknown file {}", fileList.size());
+			
+			if (100 < fileList.size()) {
+				logger.error("Unexpected");
+				logger.error("  {}", fileList.size());
+				throw new UnexpectedException("Unexpected");
+			} else {
+				for(var e: fileList) {
+//					logger.warn("  {}", e);
+					e.delete();
+				}
 			}
 		}
 	}
 
-	private static final int DEFAULT_MONTHS_NUMBER = 36;
+	private static final int DEFAULT_MONTHS_NUMBER = 1;
 	
 	public static void main(String[] args) {
 		logger.info("START");
