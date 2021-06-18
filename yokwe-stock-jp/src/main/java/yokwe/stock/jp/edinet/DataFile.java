@@ -22,10 +22,14 @@ public class DataFile {
 		Set<LocalDate> dateSet = map.values().stream().map(o -> o.submitDateTime.toLocalDate()).collect(Collectors.toSet());
 		
 		int count = 0;
+		LocalDate today = LocalDate.now();
 		
-		for(LocalDate date  = LocalDate.now(); date.isAfter(lastDate); date = date.minusDays(1)) {
+		for(LocalDate date  = today; date.isAfter(lastDate); date = date.minusDays(1)) {
 			// Skip if date is appeared in dateSet
-			if (dateSet.contains(date)) continue;
+			if (dateSet.contains(date)) {
+				// special handling of today. Because there will be update for today.
+				if (date.isBefore(today)) continue;
+			}
 			
 			API.ListDocument.Response response = API.ListDocument.getInstance(date, API.ListDocument.Type.DATA);
 			if (response.results.length != 0) {
