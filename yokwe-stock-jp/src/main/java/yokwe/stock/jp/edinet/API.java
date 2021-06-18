@@ -132,6 +132,41 @@ public class API {
 		}
 	}
 
+	public static enum Disclose {
+		NORMAL   ("0"),
+		CLOSE_1  ("1"), // 財務局職員によって書類の不開示を開始
+		CLOSE_2  ("2"), // 不開示とされている書類
+		DISCLOSE ("3"); // 財務局職員によって書類の不開示を解除
+		
+		public final String value;
+		
+		Disclose(String value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return value;
+		}
+	}
+	
+	public static enum Withdraw {
+		NORMAL     ("0"),
+		WITHDRAW_1 ("1"), // 取下書
+		WITHDRAW_2 ("2"); // 取り下げられた書類
+		
+		public final String value;
+		
+		Withdraw(String value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return value;
+		}
+	}
+	
 	public static class ListDocument {
 		public enum Type {
 			METADATA("1"),
@@ -191,35 +226,35 @@ public class API {
 		}
 
 		public static class Result {
-			public int    seqNumber;
-			public String docID;
-			public String edinetCode;
+			public int           seqNumber;
+			public String        docID;
+			public String        edinetCode;
 			@Name("secCode")
-			public String stockCode;
-			public String JCN;
-			public String filerName;
-			public String fundCode;
-			public String ordinanceCode;
-			public String formCode;
-			public DocType docTypeCode;
-			public String periodStart;
-			public String periodEnd;
+			public String        stockCode;
+			public String        JCN;
+			public String        filerName;
+			public String        fundCode;
+			public String        ordinanceCode;
+			public String        formCode;
+			public DocType       docTypeCode;
+			public String        periodStart;
+			public String        periodEnd;
 			@DateTimeFormat("yyyy-MM-dd HH:mm")
 			public LocalDateTime submitDateTime;
-			public String docDescription;
-			public String issuerEdinetCode;
-			public String subjectEdinetCode;
-			public String subsidiaryEdinetCode;
-			public String currentReportReason;
-			public String parentDocID;
-			public String opeDateTime;
-			public String withdrawalStatus;
-			public String docInfoEditStatus;
-			public String disclosureStatus;
-			public Flag   xbrlFlag;
-			public Flag   pdfFlag;
-			public Flag   attachDocFlag;
-			public Flag   englishDocFlag;
+			public String        docDescription;
+			public String        issuerEdinetCode;
+			public String        subjectEdinetCode;
+			public String        subsidiaryEdinetCode;
+			public String        currentReportReason;
+			public String        parentDocID;
+			public String        opeDateTime;
+			public Withdraw      withdrawalStatus;
+			public String        docInfoEditStatus;
+			public Disclose      disclosureStatus;
+			public Flag          xbrlFlag;
+			public Flag          pdfFlag;
+			public Flag          attachDocFlag;
+			public Flag          englishDocFlag;
 			
 			public Result() {
 		    	this.seqNumber            = 0;
@@ -307,6 +342,9 @@ public class API {
 			String url = getURL(version, docId, type);
 			HttpUtil.Result result = HttpUtil.getInstance().withRawData(true).download(url);
 			
+			// if download failed, return null
+			if (result == null) return null;
+			
 			String contentType = result.headerMap.get(HEADER_CONTENT_TYPE);
 			switch(contentType) {
 			case CONTENT_TYPE_OCTET_STREAM:
@@ -319,7 +357,7 @@ public class API {
 				return null;
 			default:
 				logger.error("Unexpected contentType {}!", contentType);
-				throw new UnexpectedException("Unknown valueType");
+				throw new UnexpectedException("Unknown contentType");
 			}
 		}
 		public static byte[] getInstance(String docId, Type type) {
