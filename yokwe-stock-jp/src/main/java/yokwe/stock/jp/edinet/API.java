@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -284,6 +285,11 @@ public class API {
 				this.pdfFlag              = null;
 				this.attachDocFlag        = null;
 				this.englishDocFlag       = null;
+			}
+			
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
 			}
 		}
 
