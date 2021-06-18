@@ -4,6 +4,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,16 +24,24 @@ public class DataFile {
 		
 		Set<LocalDate> dateSet = new TreeSet<>();
 		{
-			Set<LocalDate> existingDateSet = map.values().stream().map(o -> o.submitDateTime.toLocalDate()).collect(Collectors.toSet());
+			Set<LocalDate> downloadDateSet = map.values().stream().map(o -> o.downloadDate).collect(Collectors.toSet());
+			List<LocalDate> downloadDateList = new ArrayList<>(downloadDateSet);
+			Collections.sort(downloadDateList);
+			
+			if (!downloadDateList.isEmpty()) {
+				LocalDate downloadFirstDate = downloadDateList.get(0);
+				LocalDate downloadLastDate  = downloadDateList.get(downloadDateList.size() - 1);
+				logger.info("date {} - {}", downloadFirstDate, downloadLastDate);
+			}
 
 			dateSet.add(today); // add today
 			
 			for(LocalDate date  = today; date.isAfter(lastDate); date = date.minusDays(1)) {
-				if (existingDateSet.contains(date)) continue;
+				if (downloadDateSet.contains(date)) continue;
 				dateSet.add(date);
 			}
 			
-			logger.info("exist   {}", existingDateSet.size());
+			logger.info("exist   {}", downloadDateSet.size());
 			logger.info("count   {}", dateSet.size());
 		}
 		
@@ -45,13 +54,22 @@ public class DataFile {
 			
 			for(var e: response.results) {
 				// skip if edinetCode is empty and withdrawStatsu is normal (expired document)
-				if (e.edinetCode.isEmpty() && e.withdrawalStatus == Withdraw.NORMAL) continue;
+				if (e.edinetCode.isEmpty() && e.withdrawalStatus == Withdraw.NORMAL) {
+					logger.warn("skip expire  {} {} {}", date, e.seqNumber, e.docID);
+					continue;
+				}
 
 				// skip if withdrawalStatus is not NORMAL
-				if (!(e.withdrawalStatus == Withdraw.NORMAL)) continue;
+				if (!(e.withdrawalStatus == Withdraw.NORMAL)) {
+					logger.warn("skip withdraw {} {} {}", date, e.seqNumber, e.docID);
+					continue;
+				}
 				
 				// skip if discloseStatus is not NORMAL or not DISCLOSE
-				if (!(e.disclosureStatus == Disclose.NORMAL || e.disclosureStatus == Disclose.DISCLOSE)) continue;
+				if (!(e.disclosureStatus == Disclose.NORMAL || e.disclosureStatus == Disclose.DISCLOSE)) {
+					logger.warn("skip disclose {} {} {}", date, e.seqNumber, e.docID);
+					continue;
+				}
 				
 				if (e.edinetCode.isEmpty()) {
 					logger.error("edinetCode is empty");
@@ -62,6 +80,9 @@ public class DataFile {
 				String docID = e.docID;
 				if (!map.containsKey(docID)) {
 					Document document = new Document(
+						date,
+						e.seqNumber,
+						
 						e.docID,
 						e.edinetCode,
 						
@@ -98,46 +119,40 @@ public class DataFile {
 	private static void download() {
 		List<Document> list = new ArrayList<>();
 		
-		List<Document> existingList = Document.load();
-		
-		int countExist = 0;
-		int countSkip  = 0;
-		for(var e: existingList) {
-			// skip if already exists
-			if (e.toFile().exists()) {
-				countExist++;
-				continue;
+		{
+			List<Document> existingList = Document.load();
+			Collections.sort(existingList);
+			
+			if (!existingList.isEmpty()) {
+				LocalDate firstDate = existingList.get(0).submitDateTime.toLocalDate();
+				LocalDate lastDate  = existingList.get(existingList.size() - 1).submitDateTime.toLocalDate();
+				logger.info("date {} - {}", firstDate, lastDate);
 			}
 			
-			// skip if submitDateTime is before lastDate
-//			if (e.submitDateTime.toLocalDate().isBefore(lastDate)) continue;
-			
-			// skip if contains no xbrl
-			if (!e.xbrlFlag) {
-				countSkip++;
-				continue;
+			int countExist = 0;
+			int countSkip  = 0;
+			for(var e: existingList) {
+				// skip if already exists
+				if (e.toFile().exists()) {
+					countExist++;
+					continue;
+				}
+							
+				// skip if contains no xbrl
+				if (!e.xbrlFlag) {
+					countSkip++;
+					continue;
+				}
+				
+				list.add(e);
 			}
 			
-			list.add(e);
-			
-//			switch(e.docTypeCode) {
-//			case ANNUAL_REPORT:
-//			case ANNUAL_REPORT_AMENDMENT:
-//			case QUARTERLY_REPORT:
-//			case QUARTERLY_REPORT_AMENDMENT:
-//			case SEMI_ANNUAL_REPORT:
-//			case SEMI_ANNUAL_REPORT_AMENDMENT:
-//				list.add(e);
-//				break;
-//			default:
-//				break;
-//			}
+			logger.info("total   {}", existingList.size());
+			logger.info("exist   {}", countExist);
+			logger.info("skip    {}", countSkip);
+			logger.info("count   {}", list.size());
 		}
 		
-		logger.info("total   {}", existingList.size());
-		logger.info("exist   {}", countExist);
-		logger.info("skip    {}", countSkip);
-		logger.info("count   {}", list.size());
 		Collections.shuffle(list);
 		
 		int count = 0;
@@ -160,10 +175,27 @@ public class DataFile {
 		if (0 < count) {
 			Document.touch();
 		}
-
+	}
+	
+	private static void check() {
+		Set<File> fileSet = new HashSet<>(FileUtil.listFile(Document.PATH_DOCUMENT_DIR));
+		Set<File> docList = Document.load().stream().map(o -> o.toFile()).collect(Collectors.toSet());
+		
+		logger.info("files        {}", fileSet.size());
+		logger.info("document     {}", docList.size());
+		
+		fileSet.removeAll(docList);
+		if (fileSet.isEmpty()) {
+			logger.info("no unknown file");
+		} else {
+			logger.warn("Unknown file {}", fileSet.size());
+			for(var e: fileSet) {
+				logger.warn("  {}", e.getPath());
+			}
+		}
 	}
 
-	private static final int DEFAULT_MONTHS_NUMBER = 1;
+	private static final int DEFAULT_MONTHS_NUMBER = 36;
 	
 	public static void main(String[] args) {
 		logger.info("START");
@@ -174,9 +206,13 @@ public class DataFile {
 		LocalDate date  = LocalDate.now();
 		LocalDate lastDate = date.minusMonths(months);
 		logger.info("date {} - {}", lastDate, date);
+		
+		logger.info("check");
+		check();
 
 		logger.info("update");
 		update(lastDate, date);
+				
 		logger.info("download");
 		download();
 
