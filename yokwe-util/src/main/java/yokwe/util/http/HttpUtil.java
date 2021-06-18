@@ -18,6 +18,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
@@ -307,6 +308,14 @@ public class HttpUtil {
 				}
 				if (code == HttpStatus.SC_BAD_REQUEST) { // 400
 					logger.warn("{} {}  {}", code, reasonPhrase, url);
+					return null;
+				}
+				if (code == HttpStatus.SC_MOVED_TEMPORARILY) { // 302
+					logger.warn("{} {}  {}", code, reasonPhrase, url);
+					Header location = response.getHeader("Location");
+					if (location != null) {
+						logger.warn("  {} {}!", location.getName(), location.getValue());
+					}
 					return null;
 				}
 		        if (code == HttpStatus.SC_OK) {
