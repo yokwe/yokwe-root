@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import yokwe.stock.jp.edinet.API.Disclose;
+import yokwe.stock.jp.edinet.API.Withdraw;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -23,40 +25,44 @@ public class DataFile {
 			API.ListDocument.Response response = API.ListDocument.getInstance(date, API.ListDocument.Type.DATA);
 			logger.info("{}  {}", date, String.format("%4d", response.results.length));
 			for(var e: response.results) {
+				// skip if edinetCode is empty and withdrawStatsu is normal (expired document)
+				if (e.edinetCode.isEmpty() && e.withdrawalStatus == Withdraw.NORMAL) continue;
+
+				// skip if withdrawalStatus is not NORMAL
+				if (!(e.withdrawalStatus == Withdraw.NORMAL)) continue;
+				
+				// skip if discloseStatus is not NORMAL or not DISCLOSE
+				if (!(e.disclosureStatus == Disclose.NORMAL || e.disclosureStatus == Disclose.DISCLOSE)) continue;
+				
 				if (e.edinetCode.isEmpty()) {
-					//
-				} else {
-					if (e.docTypeCode == null) {
-						logger.error("docTypeCode is null");
-						logger.error("  {}", e.toString());
-						logger.error("e.edinetCode {}", e.edinetCode);
-						throw new UnexpectedException("docTypeCode is null");
-					}
-					
-					String docID = e.docID;
-					if (!map.containsKey(docID)) {
-						Document document = new Document(
-								e.docID,
-								e.edinetCode,
-								
-								e.xbrlFlag.toBoolean(),
-								
-								e.stockCode,
-								e.fundCode,
-								e.ordinanceCode,
-								e.formCode,
+					logger.error("edinetCode is empty");
+					logger.error("  e {}", e.toString());
+					throw new UnexpectedException("edinetCode is empty");
+				}
+				
+				String docID = e.docID;
+				if (!map.containsKey(docID)) {
+					Document document = new Document(
+						e.docID,
+						e.edinetCode,
+						
+						e.xbrlFlag.toBoolean(),
+						
+						e.stockCode,
+						e.fundCode,
+						e.ordinanceCode,
+						e.formCode,
 
-								e.docTypeCode,
+						e.docTypeCode,
 
-								e.submitDateTime);
-						map.put(docID, document);
+						e.submitDateTime);
+					map.put(docID, document);
 
-						count++;
-						if ((count % 10000) == 0) {
-							List<Document> list = new ArrayList<>(map.values());
-							logger.info("save {} {}", list.size(), Document.PATH_DOCUMENT_FILE);
-							Document.save(list);
-						}
+					count++;
+					if ((count % 10000) == 0) {
+						List<Document> list = new ArrayList<>(map.values());
+						logger.info("save {} {}", list.size(), Document.PATH_DOCUMENT_FILE);
+						Document.save(list);
 					}
 				}
 			}
@@ -127,14 +133,17 @@ public class DataFile {
 
 	}
 
+	private static final int DEFAULT_MONTHS_NUMBER = 1;
+	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		int days = Integer.getInteger("days", 10);
-		logger.info("days {}", days);
-		
+
+		int months = Integer.getInteger("months", DEFAULT_MONTHS_NUMBER);
+		logger.info("months {}", months);
+
 		LocalDate date  = LocalDate.now();
-		LocalDate lastDate = date.minusDays(days);
+		LocalDate lastDate = date.minusMonths(months);
 		logger.info("date {} - {}", lastDate, date);
 
 		logger.info("update");
