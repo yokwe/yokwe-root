@@ -41,8 +41,8 @@ public class DataFile {
 				dateSet.add(date);
 			}
 			
-			logger.info("exist   {}", downloadDateSet.size());
-			logger.info("count   {}", dateSet.size());
+			logger.info("exist    {}", downloadDateSet.size());
+			logger.info("count    {}", dateSet.size());
 		}
 		
 		int countUpdate   = 0;
