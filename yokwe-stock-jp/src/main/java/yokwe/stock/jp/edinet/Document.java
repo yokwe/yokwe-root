@@ -125,6 +125,8 @@ public class Document implements Comparable<Document> {
 	
 	public String        fundCode;
 	public String        stockCode;
+	
+	public String        docDescription;
 
 	public Document(
 		LocalDate     downloadDate,
@@ -142,7 +144,9 @@ public class Document implements Comparable<Document> {
 
 		DocType       docTypeCode,
 
-		LocalDateTime submitDateTime
+		LocalDateTime submitDateTime,
+		
+		String        docDescription
 		) {
 		this.downloadDate   = downloadDate;
 		this.seqNumber      = seqNumber;
@@ -160,9 +164,11 @@ public class Document implements Comparable<Document> {
 		this.docTypeCode    = docTypeCode;
 
 		this.submitDateTime = submitDateTime;
+		
+		this.docDescription = docDescription;
 	}
 	public Document() {
-		this(null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 	
 	public String docID() {
