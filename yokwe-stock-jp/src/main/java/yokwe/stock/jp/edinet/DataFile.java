@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import yokwe.stock.jp.edinet.API.Disclose;
 import yokwe.stock.jp.edinet.API.Withdraw;
@@ -16,14 +18,20 @@ public class DataFile {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
 	
 	private static void update(LocalDate lastDate) {
-		LocalDate date  = LocalDate.now();
-		int       count = 0;
-		
 		Map<String, Document> map = Document.getDocumentMap();
+		Set<LocalDate> dateSet = map.values().stream().map(o -> o.submitDateTime.toLocalDate()).collect(Collectors.toSet());
 		
-		for(;;) {
+		int count = 0;
+		
+		for(LocalDate date  = LocalDate.now(); date.isAfter(lastDate); date = date.minusDays(1)) {
+			// Skip if date is appeared in dateSet
+			if (dateSet.contains(date)) continue;
+			
 			API.ListDocument.Response response = API.ListDocument.getInstance(date, API.ListDocument.Type.DATA);
-			logger.info("{}  {}", date, String.format("%4d", response.results.length));
+			if (response.results.length != 0) {
+				logger.info("{}  {}", date, String.format("%4d", response.results.length));
+			}
+			
 			for(var e: response.results) {
 				// skip if edinetCode is empty and withdrawStatsu is normal (expired document)
 				if (e.edinetCode.isEmpty() && e.withdrawalStatus == Withdraw.NORMAL) continue;
@@ -66,9 +74,6 @@ public class DataFile {
 					}
 				}
 			}
-			
-			date = date.minusDays(1);
-			if (date.equals(lastDate)) break;
 		}
 		
 		logger.info("update {}", count);
@@ -138,7 +143,6 @@ public class DataFile {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-
 		int months = Integer.getInteger("months", DEFAULT_MONTHS_NUMBER);
 		logger.info("months {}", months);
 
