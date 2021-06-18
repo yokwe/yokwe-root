@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import yokwe.stock.jp.edinet.API.Disclose;
@@ -17,20 +18,26 @@ import yokwe.util.UnexpectedException;
 public class DataFile {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
 	
-	private static void update(LocalDate lastDate) {
+	private static void update(LocalDate lastDate, LocalDate today) {
 		Map<String, Document> map = Document.getDocumentMap();
-		Set<LocalDate> dateSet = map.values().stream().map(o -> o.submitDateTime.toLocalDate()).collect(Collectors.toSet());
 		
-		int count = 0;
-		LocalDate today = LocalDate.now();
-		
-		for(LocalDate date  = today; date.isAfter(lastDate); date = date.minusDays(1)) {
-			// Skip if date is appeared in dateSet
-			if (dateSet.contains(date)) {
-				// special handling of today. Because there will be update for today.
-				if (date.isBefore(today)) continue;
+		Set<LocalDate> dateSet = new TreeSet<>();
+		{
+			Set<LocalDate> existingDateSet = map.values().stream().map(o -> o.submitDateTime.toLocalDate()).collect(Collectors.toSet());
+
+			dateSet.add(today); // add today
+			
+			for(LocalDate date  = today; date.isAfter(lastDate); date = date.minusDays(1)) {
+				if (existingDateSet.contains(date)) continue;
+				dateSet.add(date);
 			}
 			
+			logger.info("exist   {}", existingDateSet.size());
+			logger.info("count   {}", dateSet.size());
+		}
+		
+		int count = 0;
+		for(LocalDate date: dateSet) {
 			API.ListDocument.Response response = API.ListDocument.getInstance(date, API.ListDocument.Type.DATA);
 			if (response.results.length != 0) {
 				logger.info("{}  {}", date, String.format("%4d", response.results.length));
@@ -88,17 +95,28 @@ public class DataFile {
 		}
 	}
 	
-	private static void download(LocalDate lastDate) {
+	private static void download() {
 		List<Document> list = new ArrayList<>();
-		for(var e: Document.load()) {
+		
+		List<Document> existingList = Document.load();
+		
+		int countExist = 0;
+		int countSkip  = 0;
+		for(var e: existingList) {
 			// skip if already exists
-			if (e.toFile().exists()) continue;
+			if (e.toFile().exists()) {
+				countExist++;
+				continue;
+			}
 			
 			// skip if submitDateTime is before lastDate
 //			if (e.submitDateTime.toLocalDate().isBefore(lastDate)) continue;
 			
 			// skip if contains no xbrl
-			if (!e.xbrlFlag) continue;
+			if (!e.xbrlFlag) {
+				countSkip++;
+				continue;
+			}
 			
 			list.add(e);
 			
@@ -116,7 +134,10 @@ public class DataFile {
 //			}
 		}
 		
-		logger.info("list   {}", list.size());
+		logger.info("total   {}", existingList.size());
+		logger.info("exist   {}", countExist);
+		logger.info("skip    {}", countSkip);
+		logger.info("count   {}", list.size());
 		Collections.shuffle(list);
 		
 		int count = 0;
@@ -155,11 +176,10 @@ public class DataFile {
 		logger.info("date {} - {}", lastDate, date);
 
 		logger.info("update");
-		update(lastDate);
+		update(lastDate, date);
 		logger.info("download");
-		download(lastDate);
+		download();
 
 		logger.info("STOP");
 	}
-
 }
