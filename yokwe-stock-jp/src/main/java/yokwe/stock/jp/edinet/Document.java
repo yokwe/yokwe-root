@@ -1,6 +1,7 @@
 package yokwe.stock.jp.edinet;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -109,7 +110,9 @@ public class Document implements Comparable<Document> {
 		CSVUtil.write(Document.class).file(PATH_DOCUMENT_FILE, list);
 	}
 	
-
+	public LocalDate	 downloadDate;
+	public Integer  	 seqNumber;
+	
 	public LocalDateTime submitDateTime;	
 	public String        docID;
 	public String        edinetCode;
@@ -123,7 +126,10 @@ public class Document implements Comparable<Document> {
 	public String        fundCode;
 	public String        stockCode;
 
-	public Document(		
+	public Document(
+		LocalDate     downloadDate,
+		Integer       seqNumber,
+			
 		String        docID,
 		String        edinetCode,
 		
@@ -138,6 +144,9 @@ public class Document implements Comparable<Document> {
 
 		LocalDateTime submitDateTime
 		) {
+		this.downloadDate   = downloadDate;
+		this.seqNumber      = seqNumber;
+		
 		this.docID          = docID;
 		this.edinetCode     = edinetCode;
 		
@@ -153,19 +162,26 @@ public class Document implements Comparable<Document> {
 		this.submitDateTime = submitDateTime;
 	}
 	public Document() {
-		this(null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null);
+	}
+	
+	public String docID() {
+		return this.docID;
 	}
 	
 	public static final String PATH_DOCUMENT_DIR = EDINET.getPath("document");
 	
 	public File toFile() {
 		String path = String.format("%s/%04d/%02d/%02d/%s",
-			PATH_DOCUMENT_DIR, submitDateTime.getYear(), submitDateTime.getMonthValue(), submitDateTime.getDayOfMonth(), docID);
+			PATH_DOCUMENT_DIR, downloadDate.getYear(), downloadDate.getMonthValue(), downloadDate.getDayOfMonth(), docID);
 		return new File(path);
 	}
 	
 	@Override
 	public int compareTo(Document that) {
-		return this.submitDateTime.compareTo(that.submitDateTime);
+		int ret = 0;
+		if (ret == 0) ret = this.downloadDate.compareTo(that.downloadDate);
+		if (ret == 0) ret = this.seqNumber.compareTo(that.seqNumber);
+		return ret;
 	}
 }
