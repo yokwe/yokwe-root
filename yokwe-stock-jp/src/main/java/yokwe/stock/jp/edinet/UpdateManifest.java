@@ -130,35 +130,35 @@ public class UpdateManifest {
 			Set<String> set = result.stream().map(o -> o.toHonbun().toString()).collect(Collectors.toSet());
 			logger.info("honbun                 {}", set.size());
 		}
-
-		List<File> fileList;
+		
+		List<Document> documentList;
 		{
 			Set<String> docIDSet = result.stream().map(o -> o.docID).collect(Collectors.toSet());
 
-			List<File> list = Document.getFileList();
+			List<Document> list = Document.getList();
 			logger.info("document               {}", list.size());
 			
-			List<File> list2 = list.stream().filter(o -> o.exists()).collect(Collectors.toList());
+			List<Document> list2 = list.stream().filter(o -> o.toFile().exists()).collect(Collectors.toList());
 			logger.info("document exists        {}", list2.size());
 			
-			List<File> list3 = list2.stream().filter(o -> !docIDSet.contains(o.getName())).collect(Collectors.toList());
+			List<Document> list3 = list2.stream().filter(o -> !docIDSet.contains(o.docID)).collect(Collectors.toList());
 			logger.info("document not processed {}", list3.size());
 			
-			fileList = list3;
+			documentList = list3;
 		}
 		
 		int count       = 0;
 		int countChange = 0;
 		int countFile   = 0;
-		for(var file: fileList) {
+		for(var document: documentList) {
 //			logger.info("file {}", file.getName());
 			
 			if ((count++ % 1000) == 0) {
-				logger.info("{}", String.format("%5d / %5d", count - 1, fileList.size()));
+				logger.info("{}", String.format("%5d / %5d", count - 1, documentList.size()));
 				Manifest.save(result);
 			}
 			
-			String docID = file.getName();
+			File file  = document.toFile();
 			
 			try (ZipFile zipFile = new ZipFile(file)) {
 				Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -194,30 +194,41 @@ public class UpdateManifest {
 					logger.warn("file     {}", file.getPath());
 					throw new UnexpectedException("empty list");
 				}
+				boolean hasWarning = false;
 			    for(var e: xmlManifest.list) {
 			    	Filename.Instance instance = Filename.Instance.getInstance(e.preferredFilename);
 			    	for(var honbunString: e.ixbr) {
 			    		Filename.Honbun honbun = Filename.Honbun.getInstance(honbunString);
-			    		if (!Filename.equals(instance, honbun)) {
-			    			logger.error("not equals");
-			    			logger.error(" instance {} {} {} {} {} {} {} {}", instance.form, instance.report, instance.reportNo, instance.code, instance.codeNo, instance.date, instance.submitNo, instance.submitDate);
-			    			logger.error(" honbun   {} {} {} {} {} {} {} {}", honbun.form, honbun.report, honbun.reportNo, honbun.code, honbun.codeNo, honbun.date, honbun.submitNo, honbun.submitDate);
-			    			throw new UnexpectedException("not equals");
+			    		if (honbun == null) {
+			    			logger.error("honbun is null");
+			    			logger.error("  {}", file.getPath());
+			    			logger.error("  {}", honbunString);
+			    			throw new UnexpectedException("honbun is null");
+			    		} else {
+				    		if (!Filename.equals(instance, honbun)) {
+				    			hasWarning = true;
+				    			logger.warn("not equals");
+				    			logger.warn("  {}", file.getPath());
+				    			logger.warn("  instance {} {} {} {} {} {} {} {}", instance.form, instance.report, instance.reportNo, instance.code, instance.codeNo, instance.date, instance.submitNo, instance.submitDate);
+				    			logger.warn("  honbun   {} {} {} {} {} {} {} {}", honbun.form, honbun.report, honbun.reportNo, honbun.code, honbun.codeNo, honbun.date, honbun.submitNo, honbun.submitDate);
+//				    			throw new UnexpectedException("not equals");
+				    		}
 			    		}
 			    	}
 			    }
+			    if (hasWarning) continue;
 
 			    for(var e: xmlManifest.list) {
 			    	Filename.Instance instance = Filename.Instance.getInstance(e.preferredFilename);
-			    	save(instance.toFile(docID), zipFile, map, instance.toString());
+			    	save(instance.toFile(document), zipFile, map, instance.toString());
 			    	countFile++;
 			    	
 			    	for(var honbunString: e.ixbr) {
 			    		Filename.Honbun honbun = Filename.Honbun.getInstance(honbunString);
-				    	save(honbun.toFile(docID), zipFile, map, honbun.toString());
+				    	save(honbun.toFile(document), zipFile, map, honbun.toString());
 				    	countFile++;
 				    	
-			    		Manifest manifest = new Manifest(docID, honbun);
+			    		Manifest manifest = new Manifest(document, honbun);
 			    		result.add(manifest);
 			    		countChange++;
 			    	}
