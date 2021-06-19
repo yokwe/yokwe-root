@@ -69,35 +69,11 @@ public class Document implements Comparable<Document> {
 			throw new UnexpectedException("Unknown docID");
 		}
 	}
-	
-	private static Map<String, File> fileMap = null;
-	//                 docID
-	public static Map<String, File> getFileMap() {
-		if (fileMap == null) {
-			Map<String, Document> documentMap = getDocumentMap();
-			fileMap = new TreeMap<>();
-			for(var e: documentMap.entrySet()) {
-				var docID    = e.getKey();
-				var document = e.getValue();
-				var file     = document.toFile();
-				fileMap.put(docID, file);
-			}			
-		}
-		return fileMap;
-	}
 	public static File getFile(String docID) {
-		Map<String, File> map = getFileMap();
-		if (map.containsKey(docID)) {
-			return map.get(docID);
-		} else {
-			logger.error("Unknown docID");
-			logger.error("  docID {}", docID);
-			throw new UnexpectedException("Unknown docID");
-		}
+		return getDocument(docID).toFile();
 	}
-	public static List<File> getFileList() {
-		Map<String, File> map = getFileMap();
-		return new ArrayList<>(map.values());
+	public static LocalDate getDownloadDate(String docID) {
+		return getDocument(docID).downloadDate;
 	}
 	
 	public static void save(Collection<Document> collection) {
