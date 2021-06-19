@@ -93,11 +93,11 @@ public class Filename {
 			"_" +
 			"(?<code>[EG][0-9]{5})-(?<codeNo>[0-9]{3})" +
 			"_" +
-			"(?<date>20[0-9]{2}-[01][0-9]-[0-3][0-9])" +
+			"(?<date>[12][90][0-9]{2}-[01][0-9]-[0-3][0-9])" +
 			"_" +
 			"(?<submitNo>[0-9]{2})" +
 			"_" +
-			"(?<submitDate>20[0-9]{2}-[01][0-9]-[0-3][0-9])";
+			"(?<submitDate>[12][90][0-9]{2}-[01][0-9]-[0-3][0-9])";
 	
 	public static boolean equals(Instance instance, Honbun honbun) {
 		if (honbun == null) return false;
@@ -226,6 +226,7 @@ public class Filename {
 			this.submitDate = submitDate;
 			
 			// 0101010_honbun_jpcrp040300-q3r-001_E01442-000_2020-01-31_01_2020-03-06_ixbrl.htm
+			// 0000000_header_jplvh010000-lvh-001_E01353-000_1990-12-01_01_2018-06-26_ixbrl.htm
 			this.string     = String.format("%s_%s_%s-%s-%s_%s-%s_%s_%s_%s_ixbrl.htm", no, title, form, report, reportNo, code, codeNo, date, submitNo, submitDate);
 		}
 		
