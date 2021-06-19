@@ -90,9 +90,11 @@ public class UpdateManifest {
 		Path path = Path.of(zipEntry.getName());
 		return path.getFileName().toString();
 	}
-	private static void save(File file, ZipFile zipFile, Map<String, ZipEntry> map, String name) {
+	private static void save(File file, ZipFile zipFile, Map<String, ZipEntry> map) {
 		// return if file already exists
 		if (file.exists()) return;
+		
+		String name = file.getName();
 		
 		if (map.containsKey(name)) {
 			ZipEntry zipEntry = map.get(name);
@@ -133,16 +135,14 @@ public class UpdateManifest {
 		
 		List<Document> documentList;
 		{
-			Set<String> docIDSet = result.stream().map(o -> o.docID).collect(Collectors.toSet());
-
 			List<Document> list = Document.getList();
 			logger.info("document               {}", list.size());
 			
 			List<Document> list2 = list.stream().filter(o -> o.toFile().exists()).collect(Collectors.toList());
 			logger.info("document exists        {}", list2.size());
 			
-			List<Document> list3 = list2.stream().filter(o -> !docIDSet.contains(o.docID)).collect(Collectors.toList());
-			logger.info("document not processed {}", list3.size());
+			List<Document> list3 = list2.stream().filter(o -> o.xbrlFlag).collect(Collectors.toList());
+			logger.info("document xbrl          {}", list3.size());
 			
 			documentList = list3;
 		}
@@ -171,7 +171,7 @@ public class UpdateManifest {
 					collect(Collectors.toMap(UpdateManifest::getName, o -> (ZipEntry)o));
 				
 				if (map.isEmpty()) {
-//					logger.warn("empty map  {}", file.getPath());
+					logger.warn("empty map  {}", file.getPath());
 					continue;
 				}
 				
@@ -220,12 +220,12 @@ public class UpdateManifest {
 
 			    for(var e: xmlManifest.list) {
 			    	Filename.Instance instance = Filename.Instance.getInstance(e.preferredFilename);
-			    	save(instance.toFile(document), zipFile, map, instance.toString());
+			    	save(instance.toFile(document), zipFile, map);
 			    	countFile++;
 			    	
 			    	for(var honbunString: e.ixbr) {
 			    		Filename.Honbun honbun = Filename.Honbun.getInstance(honbunString);
-				    	save(honbun.toFile(document), zipFile, map, honbun.toString());
+				    	save(honbun.toFile(document), zipFile, map);
 				    	countFile++;
 				    	
 			    		Manifest manifest = new Manifest(document, honbun);
