@@ -36,6 +36,7 @@ public class Manifest implements Comparable<Manifest> {
 		return ret;
 	}
 	
+	public LocalDate downloadDate;
 	public String    docID; // S1007V9A
 	public String    no;
 	public String    title;
@@ -48,31 +49,36 @@ public class Manifest implements Comparable<Manifest> {
 	public String    submitNo;
 	public LocalDate submitDate;
 	
-	public Manifest(String docID, Filename.Honbun honbun) {
-		this.docID      = docID;
-		this.no         = honbun.no;
-		this.title      = honbun.title;
-		this.form       = honbun.form;
-		this.report     = honbun.report;
-		this.reportNo   = honbun.reportNo;
-		this.code       = honbun.code;
-		this.codeNo     = honbun.codeNo;
-		this.date       = honbun.date;
-		this.submitNo   = honbun.submitNo;
-		this.submitDate = honbun.submitDate;
+	public Manifest(LocalDate downloadDate, String docID, Filename.Honbun honbun) {
+		this.downloadDate = downloadDate;
+		this.docID        = docID;
+		this.no           = honbun.no;
+		this.title        = honbun.title;
+		this.form         = honbun.form;
+		this.report       = honbun.report;
+		this.reportNo     = honbun.reportNo;
+		this.code         = honbun.code;
+		this.codeNo       = honbun.codeNo;
+		this.date         = honbun.date;
+		this.submitNo     = honbun.submitNo;
+		this.submitDate   = honbun.submitDate;
+	}
+	public Manifest(Document document, Filename.Honbun honbun) {
+		this(document.downloadDate, document.docID, honbun);
 	}
 	public Manifest() {
-		this.docID      = null;
-		this.no         = null;
-		this.title      = null;
-		this.form       = null;
-		this.report     = null;
-		this.reportNo   = null;
-		this.code       = null;
-		this.codeNo     = null;
-		this.date       = null;
-		this.submitNo   = null;
-		this.submitDate = null;
+		this.downloadDate = null;
+		this.docID        = null;
+		this.no           = null;
+		this.title        = null;
+		this.form         = null;
+		this.report       = null;
+		this.reportNo     = null;
+		this.code         = null;
+		this.codeNo       = null;
+		this.date         = null;
+		this.submitNo     = null;
+		this.submitDate   = null;
 	}
 	
 	public Filename.Instance toInstance() {
@@ -85,6 +91,7 @@ public class Manifest implements Comparable<Manifest> {
 	@Override
 	public int compareTo(Manifest that) {
 		int ret = 0;
+		if (ret == 0) ret = this.downloadDate.compareTo(that.downloadDate);
 		if (ret == 0) ret = this.docID.compareTo(that.docID);
 		if (ret == 0) ret = this.no.compareTo(that.no);
 		if (ret == 0) ret = this.title.compareTo(that.title);
