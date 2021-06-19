@@ -147,10 +147,6 @@ public class Document implements Comparable<Document> {
 		this(null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 	
-	public String docID() {
-		return this.docID;
-	}
-	
 	public static final String PATH_DOCUMENT_DIR = EDINET.getPath("document");
 	
 	public File toFile() {
