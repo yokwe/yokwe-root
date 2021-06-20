@@ -13,12 +13,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -245,5 +249,22 @@ public class FileUtil {
 	public static void touch(String path) {
 		File file = new File(path);
 		touch(file);
+	}
+	
+	// delete
+	public static void delete(File file) {
+		if (file.isFile()) {
+			file.delete();
+		} else if (file.isDirectory()) {
+			try (Stream<Path> walk = Files.walk(file.toPath())) {
+			    walk.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+			} catch (IOException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e);
+				throw new UnexpectedException(exceptionName, e);
+			}
+		} else {
+			throw new UnexpectedException("Unexpected");
+		}
 	}
 }
