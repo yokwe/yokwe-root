@@ -11,9 +11,9 @@ public class Filename {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Filename.class);
 
 	public static final String PATH_FILE_DIR = EDINET.getPath("file");
-	private static final File toFile(Document document, String string) {
+	private static final File toFile(LocalDate downloadDate, String docID, String string) {
 		String path = String.format("%s/%04d/%02d/%02d/%s/%s",
-			PATH_FILE_DIR, document.downloadDate.getYear(), document.downloadDate.getMonthValue(), document.downloadDate.getDayOfMonth(), document.docID, string);
+			PATH_FILE_DIR, downloadDate.getYear(), downloadDate.getMonthValue(), downloadDate.getDayOfMonth(),docID, string);
 		return new File(path);
 	}
 
@@ -164,7 +164,10 @@ public class Filename {
 		}
 		
 		public File toFile(Document document) {
-			return Filename.toFile(document, string);
+			return Filename.toFile(document.downloadDate, document.docID, string);
+		}
+		public File toFile(yokwe.stock.jp.edinet.Manifest manifest) {
+			return Filename.toFile(manifest.downloadDate, manifest.docID, string);
 		}
 
 		@Override
@@ -242,7 +245,10 @@ public class Filename {
 		}
 		
 		public File toFile(Document document) {
-			return Filename.toFile(document, string);
+			return Filename.toFile(document.downloadDate, document.docID, string);
+		}
+		public File toFile(yokwe.stock.jp.edinet.Manifest manifest) {
+			return Filename.toFile(manifest.downloadDate, manifest.docID, string);
 		}
 
 		@Override
