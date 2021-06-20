@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -119,32 +122,66 @@ public class UpdateManifest {
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		List<Document> documentList = Document.getList();
+		Collections.sort(documentList);
+		logger.info("document               {}", documentList.size());
+		
+		for (Iterator<Document> iterator = documentList.iterator(); iterator.hasNext();) {
+		    var e = iterator.next();
+		    if (e.toFile().exists()) continue;
+	        iterator.remove();
+		}
+		logger.info("document exists        {}", documentList.size());
+
+		for (Iterator<Document> iterator = documentList.iterator(); iterator.hasNext();) {
+		    var e = iterator.next();
+		    if (e.xbrlFlag) continue;
+	        iterator.remove();
+		}
+		logger.info("document xbrl          {}", documentList.size());
+						
 		// Remove duplicate using TreeSet and ManifestInfo.compareTo
 		Set<Manifest> result = new TreeSet<>(Manifest.getList());
 		logger.info("manifest               {}", result.size());
 		
+		// Remove entry that did not appeared in documentSet
 		{
-			Set<String> set = result.stream().map(o -> o.toInstance().toString()).collect(Collectors.toSet());
-			logger.info("instance               {}", set.size());
-		}
-
-		{
-			Set<String> set = result.stream().map(o -> o.toHonbun().toString()).collect(Collectors.toSet());
-			logger.info("honbun                 {}", set.size());
+			List<File> deleteList = new ArrayList<>();
+			Set<String> documentSet = documentList.stream().map(o ->o.docID).collect(Collectors.toSet());
+			for (Iterator<Manifest> iterator = result.iterator(); iterator.hasNext();) {
+			    var e = iterator.next();
+				if (documentSet.contains(e.docID)) continue;
+				
+				// remove from result
+		        iterator.remove();
+		        
+		        // delete file
+		        File dir = e.toInstance().toFile(e).getParentFile();
+		        deleteList.add(dir);
+			}
+			logger.info("manifest unknown       {}", deleteList.size());
+			for(File file: deleteList) {
+		        logger.warn("  delete {}", file.getPath());
+//		        FileUtil.delete(file); // FIXME
+			}
+			logger.info("manifest known         {}", result.size());
 		}
 		
-		List<Document> documentList;
+		logger.info("manifest document      {}", result.size());
+		logger.info("manifest instance      {}", result.stream().map(o -> o.toInstance().toString()).distinct().count());
+		logger.info("manifest honbun        {}", result.stream().map(o -> o.toHonbun().toString()).distinct().count());
+		
+		// Remove entry if document docID appeared in result
 		{
-			List<Document> list = Document.getList();
-			logger.info("document               {}", list.size());
-			
-			List<Document> list2 = list.stream().filter(o -> o.toFile().exists()).collect(Collectors.toList());
-			logger.info("document exists        {}", list2.size());
-			
-			List<Document> list3 = list2.stream().filter(o -> o.xbrlFlag).collect(Collectors.toList());
-			logger.info("document xbrl          {}", list3.size());
-			
-			documentList = list3;
+			Set<String> resultSet = result.stream().map(o -> o.docID).collect(Collectors.toSet());
+
+			for (Iterator<Document> iterator = documentList.iterator(); iterator.hasNext();) {
+			    var e = iterator.next();
+			    if (resultSet.contains(e.docID)) {
+			        iterator.remove();
+			    }
+			}
+			logger.info("document manifest      {}", documentList.size());
 		}
 		
 		int count       = 0;
@@ -153,12 +190,12 @@ public class UpdateManifest {
 		for(var document: documentList) {
 //			logger.info("file {}", file.getName());
 			
+			File file  = document.toFile();
+
 			if ((count++ % 1000) == 0) {
-				logger.info("{}", String.format("%5d / %5d", count - 1, documentList.size()));
+				logger.info("{}", String.format("%5d / %5d  %s", count - 1, documentList.size(), file.getPath()));
 				Manifest.save(result);
 			}
-			
-			File file  = document.toFile();
 			
 			try (ZipFile zipFile = new ZipFile(file)) {
 				Enumeration<? extends ZipEntry> entries = zipFile.entries();
