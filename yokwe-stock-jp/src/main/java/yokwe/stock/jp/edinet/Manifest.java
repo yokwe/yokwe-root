@@ -37,6 +37,7 @@ public class Manifest implements Comparable<Manifest> {
 	}
 	
 	public LocalDate downloadDate;
+	public Integer	 seqNumber;
 	public String    docID; // S1007V9A
 	public String    no;
 	public String    title;
@@ -49,8 +50,9 @@ public class Manifest implements Comparable<Manifest> {
 	public String    submitNo;
 	public LocalDate submitDate;
 	
-	public Manifest(LocalDate downloadDate, String docID, Filename.Honbun honbun) {
+	public Manifest(LocalDate downloadDate, Integer seqNumber, String docID, Filename.Honbun honbun) {
 		this.downloadDate = downloadDate;
+		this.seqNumber    = seqNumber;
 		this.docID        = docID;
 		this.no           = honbun.no;
 		this.title        = honbun.title;
@@ -64,10 +66,11 @@ public class Manifest implements Comparable<Manifest> {
 		this.submitDate   = honbun.submitDate;
 	}
 	public Manifest(Document document, Filename.Honbun honbun) {
-		this(document.downloadDate, document.docID, honbun);
+		this(document.downloadDate, document.seqNumber, document.docID, honbun);
 	}
 	public Manifest() {
 		this.downloadDate = null;
+		this.seqNumber    = null;
 		this.docID        = null;
 		this.no           = null;
 		this.title        = null;
@@ -92,6 +95,7 @@ public class Manifest implements Comparable<Manifest> {
 	public int compareTo(Manifest that) {
 		int ret = 0;
 		if (ret == 0) ret = this.downloadDate.compareTo(that.downloadDate);
+		if (ret == 0) ret = this.seqNumber.compareTo(that.seqNumber);
 		if (ret == 0) ret = this.docID.compareTo(that.docID);
 		if (ret == 0) ret = this.no.compareTo(that.no);
 		if (ret == 0) ret = this.title.compareTo(that.title);
