@@ -52,6 +52,7 @@ update-edinet-info:
 
 update-edinet:
 	ant edinet-data-file
+	ant edinet-update-manifest
 	cd /mnt/stock/jp; tar cfz /mnt/stock/jp/save/edinet_$$(date +%Y%m%d).taz edinet/*.csv
 
 # TDNET
