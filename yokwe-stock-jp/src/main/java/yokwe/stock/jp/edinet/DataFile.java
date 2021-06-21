@@ -206,7 +206,7 @@ public class DataFile {
 			List<File> fileList = new ArrayList<>(fileSet);
 			Collections.sort(fileList);
 
-			logger.warn("Unknown file {}", fileList.size());
+			logger.info("unknown      {}", fileList.size());
 			
 			if (100 < fileList.size()) {
 				logger.error("Unexpected");
