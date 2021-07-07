@@ -1,5 +1,5 @@
 @XmlSchema(
-    namespace = XBRL.NS_LINK,
+    namespace = XBRL.NS_LINKBASE,
     elementFormDefault = XmlNsForm.QUALIFIED
 )
 package yokwe.stock.jp.xbrl.tdnet.label;
