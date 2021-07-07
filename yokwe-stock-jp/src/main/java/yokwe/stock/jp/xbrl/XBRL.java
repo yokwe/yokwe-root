@@ -5,13 +5,14 @@ import yokwe.util.xml.QValue;
 
 public class XBRL {
 	// Namespace
-	public static final String NS_IX      = "http://www.xbrl.org/2008/inlineXBRL";
-	public static final String NS_IXT     = "http://www.xbrl.org/inlineXBRL/transformation/2011-07-31";
-	public static final String NS_LINK    = "http://www.xbrl.org/2003/linkbase";
-	public static final String NS_NUM     = "http://www.xbrl.org/dtr/type/numeric";
-	public static final String NS_NON_NUM = "http://www.xbrl.org/dtr/type/non-numeric";
+	public static final String NS_IX       = "http://www.xbrl.org/2008/inlineXBRL";
+	public static final String NS_IXT      = "http://www.xbrl.org/inlineXBRL/transformation/2011-07-31";
+	public static final String NS_LINKBASE = "http://www.xbrl.org/2003/linkbase";
+	public static final String NS_NUM      = "http://www.xbrl.org/dtr/type/numeric";
+	public static final String NS_NON_NUM  = "http://www.xbrl.org/dtr/type/non-numeric";
 	
 	public static final String NS_XBRLDI   = "http://xbrl.org/2006/xbrldi";
+	public static final String NS_XBRLDT   = "http://xbrl.org/2006/xbrldt";
 	public static final String NS_XBRLI    = "http://www.xbrl.org/2003/instance";
 	public static final String NS_ISO_4217 = "http://www.xbrl.org/2003/iso4217";
 
@@ -25,7 +26,8 @@ public class XBRL {
 	public static final String NS_TSE_SCEDJPSM_87250 = "http://www.xbrl.tdnet.info/jp/tse/tdnet/sc/edjp/sm/87250/20191010407057";
 	
 	// EDINET
-	public static final String NS_EDINET_MANIFEST = "http://disclosure.edinet-fsa.go.jp/2013/manifest";
+	public static final String NS_EDINET_MANIFEST  = "http://disclosure.edinet-fsa.go.jp/2013/manifest";
+	public static final String NS_JPCRP_COR        = "http://disclosure.edinet-fsa.go.jp/taxonomy/jpcrp/2020-11-01/jpcrp_cor";	
 	
 	// Value	
 	public static final QValue IX_NON_NUMERIC  = new QValue(NS_IX, "nonNumeric");
