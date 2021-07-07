@@ -164,4 +164,34 @@
 	</target>
 	
 	<!-- XBRL/EDINET -->
+	<target name="xbrl-edinet-update-label">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.edinet.UpdateLabel" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
+	<target name="xbrl-edinet-xsdfile">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.edinet.XSDFile" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
+	<target name="xbrl-edinet-labelfile">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.edinet.LabelFile" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
 </project>
