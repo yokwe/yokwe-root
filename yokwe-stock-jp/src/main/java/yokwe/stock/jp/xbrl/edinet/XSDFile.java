@@ -14,9 +14,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.EnumUtil;
 import yokwe.util.FileUtil;
+import yokwe.util.JAXBUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.xml.JAXB;
 
 public class XSDFile {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(XSDFile.class);
@@ -169,7 +169,7 @@ public class XSDFile {
 	
 	public static XSDFile.Schema getInstance(String path) {
 		String data = FileUtil.read().file(path);
-		Schema schema = JAXB.unmarshal(new StringReader(data), Schema.class);
+		Schema schema = JAXBUtil.unmarshal(new StringReader(data), Schema.class);
 		return schema;
 	}
 	
@@ -181,7 +181,7 @@ public class XSDFile {
 		String data = FileUtil.read().file(path);
 		logger.info("data {}", data.length());
 		
-		Schema schema = JAXB.unmarshal(new StringReader(data), Schema.class);
+		Schema schema = JAXBUtil.unmarshal(new StringReader(data), Schema.class);
 		logger.info("schema {}", schema);
 		
 		logger.info("element {}", schema.elementList.get(0));

@@ -1,4 +1,4 @@
-package yokwe.util.xml;
+package yokwe.util;
 
 import java.io.Reader;
 
@@ -8,10 +8,9 @@ import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.ValidationEvent;
 import jakarta.xml.bind.ValidationEventHandler;
 import jakarta.xml.bind.ValidationEventLocator;
-import yokwe.util.UnexpectedException;
 
-public class JAXB {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JAXB.class);
+public class JAXBUtil {
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JAXBUtil.class);
 
 	private static class MyValidationEventHandler implements ValidationEventHandler {
 		@Override
@@ -23,15 +22,15 @@ public class JAXB {
 			
 			switch(severity) {
 			case ValidationEvent.WARNING:
-				logger.warn("message {}", message);
+				logger.warn("warning {}", message);
 				logger.warn("location line {} column {}", locator.getLineNumber(), locator.getColumnNumber());
 				return true; // continue process
 			case ValidationEvent.ERROR:
-				logger.error("message error {}", message);
+				logger.error("error {}", message);
 				logger.error("location line {} column {}", locator.getLineNumber(), locator.getColumnNumber());
 				return false; // stop process
 			case ValidationEvent.FATAL_ERROR:
-				logger.error("message fatal {}", message);
+				logger.error("fatal {}", message);
 				logger.error("location line {} column {}", locator.getLineNumber(), locator.getColumnNumber());
 				return false; // stop process
 			default:
@@ -40,7 +39,6 @@ public class JAXB {
 			}
 		}
 	}
-	
 	
 	public static <T> T unmarshal(Reader reader, Class<T> clazz) {
 		try {

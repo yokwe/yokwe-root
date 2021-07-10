@@ -13,8 +13,8 @@ import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.EnumUtil;
 import yokwe.util.FileUtil;
+import yokwe.util.JAXBUtil;
 import yokwe.util.StringUtil;
-import yokwe.util.xml.JAXB;
 
 public class LabelFile {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LabelFile.class);
@@ -163,7 +163,7 @@ public class LabelFile {
 		String data = FileUtil.read().file(path);
 		logger.info("data {}", data.length());
 		
-		LinkBase linkBase = JAXB.unmarshal(new StringReader(data), LinkBase.class);
+		LinkBase linkBase = JAXBUtil.unmarshal(new StringReader(data), LinkBase.class);
 		logger.info("linkBase {}", linkBase);
 		
 		logger.info("roleRef  {}", linkBase.roleRefList.get(0));
