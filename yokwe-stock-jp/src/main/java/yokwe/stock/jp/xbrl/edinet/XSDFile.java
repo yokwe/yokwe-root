@@ -182,10 +182,14 @@ public class XSDFile {
 		logger.info("data {}", data.length());
 		
 		Schema schema = JAXBUtil.unmarshal(new StringReader(data), Schema.class);
-		logger.info("schema {}", schema);
+		logger.info("schema  {}", schema);
 		
+		
+		logger.info("element {}", schema.elementList.size());
+		logger.info("import  {}", schema.importList.size());
+
 		logger.info("element {}", schema.elementList.get(0));
-		logger.info("import {}", schema.importList.get(0));
+		logger.info("import  {}", schema.importList.get(0));
 				
 		logger.info("END");
 	}

@@ -165,6 +165,10 @@ public class LabelFile {
 		
 		LinkBase linkBase = JAXBUtil.unmarshal(new StringReader(data), LinkBase.class);
 		logger.info("linkBase {}", linkBase);
+		logger.info("roleRef  {}", linkBase.roleRefList.size());
+		logger.info("label    {}", linkBase.labelLink.labelList.size());
+		logger.info("labelArc {}", linkBase.labelLink.labelArcList.size());
+		logger.info("loc      {}", linkBase.labelLink.locList.size());
 		
 		logger.info("roleRef  {}", linkBase.roleRefList.get(0));
 		logger.info("label    {}", linkBase.labelLink.labelList.get(0));
