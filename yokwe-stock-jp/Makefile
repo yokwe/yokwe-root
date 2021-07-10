@@ -6,7 +6,7 @@ all:
 	echo "all"
 
 build:
-	( cd ..; mvn ant:ant clean install )
+	( cd ..; mvn clean ant:ant install )
 
 # maintenance of save, log and crontab
 clear-save-file:
