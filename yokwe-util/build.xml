@@ -5,19 +5,33 @@
 <!-- ====================================================================== -->
 
 <project name="yokwe-util" default="package" basedir=".">
+	<import file="maven-build.xml" />
 
-  <!-- ====================================================================== -->
-  <!-- Import maven-build.xml into the current project                        -->
-  <!-- ====================================================================== -->
+	<property name="logback.conf" value="data/logback.xml" />
 
-  <import file="maven-build.xml"/>
-  
-  <!-- ====================================================================== -->
-  <!-- Help target                                                            -->
-  <!-- ====================================================================== -->
+	<path id="target.jar">
+		<pathelement location="${maven.build.dir}/${maven.build.finalName}.jar" />
+	</path>
 
-  <target name="help">
-    <echo message="Please run: $ant -projecthelp"/>
-  </target>
-
+	<path id="libreoffice.jar">
+		<fileset dir="${libreoffice.install.dir}/classes">
+			<include name="unoloader.jar" />
+			<include name="libreoffice.jar" />
+			<include name="unoil.jar" />
+			<include name="juh.jar" />
+			<include name="jurt.jar" />
+			<include name="ridl.jar" />
+		</fileset>
+	</path>
+	
+	<!-- APPLICATION -->
+	<target name="util-japan-holiday">
+		<java module="yokwe.util/yokwe.util.JapanHoliday" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 </project>
