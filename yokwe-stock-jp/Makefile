@@ -59,3 +59,6 @@ update-edinet:
 update-tdnet:
 	ant tdnet-update-release
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/tdnet_$$(date +%Y%m%d).taz tdnet/*.csv
+	ant xbrl-tdent-report-update-reit-report
+	ant xbrl-tdent-report-update-stock-report
+	cd /mnt/stock/jp; tar cfz /mnt/stock/jp/save/xbrl-tdnet_$$(date +%Y%m%d).taz xbrl/tdnet/*.csv	
