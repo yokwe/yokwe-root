@@ -238,6 +238,12 @@ public class StockReport extends BaseReport implements Comparable<StockReport> {
 			ret.annualDividendPerShare = ret.dividendPerShareQ1.add(ret.dividendPerShareQ2).add(ret.dividendPerShareQ3).add(ret.dividendPerShareQ4);
 		}
 		
+		SummaryFilename summaryFileName = SummaryFilename.getInstance(ret.filename);
+		if (!ret.stockCode.equals(summaryFileName.tdnetCode)) {
+			logger.warn("fix wrong stockCode  stockCode {}  tdnetCode {}  file ", ret.stockCode, summaryFileName.tdnetCode, ret.filename);
+			ret.stockCode = summaryFileName.tdnetCode;
+		}
+
 		ret.stockCode = BaseElement.normalizeNumberCharacter(ret.stockCode);
 
 		// Sanity check

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.xbrl.inline.BaseElement;
 import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.TDNET;
@@ -129,6 +130,12 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 		REITReport ret = BaseReport.getInstance(REITReport.class, document);
 		
 		ret.stockCode = BaseElement.normalizeNumberCharacter(ret.stockCode);
+		
+		SummaryFilename summaryFileName = SummaryFilename.getInstance(ret.filename);
+		if (!ret.stockCode.equals(summaryFileName.tdnetCode)) {
+			logger.warn("fix wrong stockCode  stockCode {}  tdnetCode {}  file ", ret.stockCode, summaryFileName.tdnetCode, ret.filename);
+			ret.stockCode = summaryFileName.tdnetCode;
+		}
 
 		return ret;
 	}
