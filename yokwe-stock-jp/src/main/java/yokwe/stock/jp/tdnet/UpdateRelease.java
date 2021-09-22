@@ -153,7 +153,7 @@ public class UpdateRelease {
 		logger.info("date {} - {}", lastDate, date);
 
 		{
-			// fill map with existing release info from tmp/data/releas.csv
+			// fill map with existing release info from existing releas.csv
 			Map<String, Release> map = Release.getMap();
 			logger.info("release map {}", map.size());
 
