@@ -99,7 +99,8 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 	public BigDecimal distributionsInExcessOfProfitPerUnit;
 
 	@TSE_RE(label = PAYOUT_RATIO,
-			contextIncludeAll = {CURRENT_YEAR_DURATION, RESULT_MEMBER})
+			contextIncludeAll = {CURRENT_YEAR_DURATION, RESULT_MEMBER},
+			acceptNullOrEmpty = true)
 	@ColumnName("配当性向")
 	public BigDecimal payoutRatio;
 	
