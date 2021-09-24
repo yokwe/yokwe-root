@@ -162,8 +162,8 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="xbrl-tdent-update-dividend-stock">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.tdnet.report.UpdateDividendStock" fork="true">
+	<target name="xbrl-tdent-update-dividend-reit">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.tdnet.report.UpdateDividendREIT" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
@@ -171,8 +171,8 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="xbrl-tdent-update-dividend-reit">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.tdnet.report.UpdateDividendREIT" fork="true">
+	<target name="xbrl-tdent-update-dividend-stock">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.tdnet.report.UpdateDividendStock" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
