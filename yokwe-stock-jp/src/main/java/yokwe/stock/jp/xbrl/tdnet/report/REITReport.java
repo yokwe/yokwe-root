@@ -2,6 +2,9 @@ package yokwe.stock.jp.xbrl.tdnet.report;
 
 import static yokwe.stock.jp.xbrl.tdnet.inline.Context.CURRENT_YEAR_DURATION;
 import static yokwe.stock.jp.xbrl.tdnet.inline.Context.CURRENT_YEAR_INSTANT;
+import static yokwe.stock.jp.xbrl.tdnet.inline.Context.FORECAST_MEMBER;
+import static yokwe.stock.jp.xbrl.tdnet.inline.Context.NEXT_2_YEAR_DURATION;
+import static yokwe.stock.jp.xbrl.tdnet.inline.Context.NEXT_YEAR_DURATION;
 import static yokwe.stock.jp.xbrl.tdnet.inline.Context.RESULT_MEMBER;
 import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_PER_UNIT_REIT;
 import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.DISTRIBUTIONS_PAYABLE_DATE_AS_PLANNED_REIT;
@@ -20,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.xbrl.inline.BaseElement;
@@ -29,7 +30,6 @@ import yokwe.stock.jp.xbrl.inline.Document;
 import yokwe.stock.jp.xbrl.tdnet.TDNET;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
-import yokwe.util.UnexpectedException;
 
 public class REITReport extends BaseReport implements Comparable<REITReport> {
 	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(REITReport.class);
@@ -39,21 +39,6 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 	public static List<REITReport> getList() {
 		List<REITReport> ret = CSVUtil.read(REITReport.class).file(PATH_FILE);
 		return (ret == null) ? new ArrayList<>() : ret;
-	}
-	public static Map<String, REITReport> getMap() {
-		Map<String, REITReport> ret = new TreeMap<>();
-		for(REITReport e: getList()) {
-			String key = e.filename;
-			if (ret.containsKey(key)) {
-				logger.error("Duplicate key {}", key);
-				logger.error("  new {}", e);
-				logger.error("  old {}", ret.get(key));
-				throw new UnexpectedException("Duplicate key");
-			} else {
-				ret.put(key, e);
-			}
-		}
-		return ret;
 	}
 	
 	public static void save(Collection<REITReport> collection) {
@@ -88,6 +73,7 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 	@ColumnName("分配金支日")
 	public String distributionsDate;
 	
+	// CURRENT YEAR
 	@TSE_RE(label = DISTRIBUTIONS_PER_UNIT_EXCLUDING_DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_REIT,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, RESULT_MEMBER})
 	@ColumnName("分配金")
@@ -98,6 +84,33 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 			acceptNullOrEmpty = true)
 	@ColumnName("利益超過分配金")
 	public BigDecimal distributionsInExcessOfProfitPerUnit;
+
+	
+	// NEXT_YEAR
+	@TSE_RE(label = DISTRIBUTIONS_PER_UNIT_EXCLUDING_DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_REIT,
+			contextIncludeAll = {NEXT_YEAR_DURATION, FORECAST_MEMBER},
+			acceptNullOrEmpty = true)
+	@ColumnName("分配金次期")
+	public BigDecimal distributionsPerUnitNextYear;
+
+	@TSE_RE(label = DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_PER_UNIT_REIT,
+			contextIncludeAll = {NEXT_YEAR_DURATION, FORECAST_MEMBER},
+			acceptNullOrEmpty = true)
+	@ColumnName("利益超過分配金次期")
+	public BigDecimal distributionsInExcessOfProfitPerUnitNextYear;
+
+	// NEXT_2YEAR
+	@TSE_RE(label = DISTRIBUTIONS_PER_UNIT_EXCLUDING_DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_REIT,
+			contextIncludeAll = {NEXT_2_YEAR_DURATION, FORECAST_MEMBER},
+			acceptNullOrEmpty = true)
+	@ColumnName("分配金次次期")
+	public BigDecimal distributionsPerUnitNext2Year;
+
+	@TSE_RE(label = DISTRIBUTIONS_IN_EXCESS_OF_PROFIT_PER_UNIT_REIT,
+			contextIncludeAll = {NEXT_2_YEAR_DURATION, FORECAST_MEMBER},
+			acceptNullOrEmpty = true)
+	@ColumnName("利益超過分配金次次期")
+	public BigDecimal distributionsInExcessOfProfitPerUnitNext2Year;
 
 	@TSE_RE(label = PAYOUT_RATIO,
 			contextIncludeAll = {CURRENT_YEAR_DURATION, RESULT_MEMBER},
@@ -131,18 +144,18 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 		
 		ret.stockCode = BaseElement.normalizeNumberCharacter(ret.stockCode);
 		
+		// There are too many error of stockCode, overwrite with tdnetCode.
 		SummaryFilename summaryFileName = SummaryFilename.getInstance(ret.filename);
-		if (!ret.stockCode.equals(summaryFileName.tdnetCode)) {
-			logger.warn("fix wrong stockCode  stockCode {}  tdnetCode {}  file ", ret.stockCode, summaryFileName.tdnetCode, ret.filename);
-			ret.stockCode = summaryFileName.tdnetCode;
-		}
+		ret.stockCode = summaryFileName.tdnetCode;
 
 		return ret;
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("{%s %s %s %s %s %s}",  stockCode, yearEnd, filingDate, distributionsDate, distributionsPerUnit, distributionsInExcessOfProfitPerUnit);
+		return String.format("{%s %s %s %s %s %s %s %s}",  stockCode, yearEnd, filingDate, distributionsDate,
+			distributionsPerUnit, distributionsInExcessOfProfitPerUnit,
+			distributionsPerUnitNextYear, distributionsInExcessOfProfitPerUnitNextYear);
 	}
 
 	// Define natural ordering of DividendBriefReport
@@ -151,6 +164,7 @@ public class REITReport extends BaseReport implements Comparable<REITReport> {
 		int ret = this.stockCode.compareTo(that.stockCode);
 		if (ret == 0) ret = this.yearEnd.compareTo(that.yearEnd);
 		if (ret == 0) ret = this.filingDate.compareTo(that.filingDate);
+		if (ret == 0) ret = this.filename.compareTo(that.filename);
 		return ret;
 	}
 }
