@@ -36,8 +36,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.xbrl.inline.BaseElement;
@@ -55,21 +53,6 @@ public class StockReport extends BaseReport implements Comparable<StockReport> {
 	public static List<StockReport> getList() {
 		List<StockReport> ret = CSVUtil.read(StockReport.class).file(PATH_FILE);
 		return (ret == null) ? new ArrayList<>() : ret;
-	}
-	public static Map<String, StockReport> getMap() {
-		Map<String, StockReport> ret = new TreeMap<>();
-		for(StockReport e: getList()) {
-			String key = e.filename;
-			if (ret.containsKey(key)) {
-				logger.error("Duplicate key {}", key);
-				logger.error("  new {}", e);
-				logger.error("  old {}", ret.get(key));
-				throw new UnexpectedException("Duplicate key");
-			} else {
-				ret.put(key, e);
-			}
-		}
-		return ret;
 	}
 	
 	public static void save(Collection<StockReport> collection) {
@@ -238,13 +221,9 @@ public class StockReport extends BaseReport implements Comparable<StockReport> {
 			ret.annualDividendPerShare = ret.dividendPerShareQ1.add(ret.dividendPerShareQ2).add(ret.dividendPerShareQ3).add(ret.dividendPerShareQ4);
 		}
 		
+		// There are too many error of stockCode, overwrite with tdnetCode.
 		SummaryFilename summaryFileName = SummaryFilename.getInstance(ret.filename);
-		if (!ret.stockCode.equals(summaryFileName.tdnetCode)) {
-			logger.warn("fix wrong stockCode  stockCode {}  tdnetCode {}  file ", ret.stockCode, summaryFileName.tdnetCode, ret.filename);
-			ret.stockCode = summaryFileName.tdnetCode;
-		}
-
-		ret.stockCode = BaseElement.normalizeNumberCharacter(ret.stockCode);
+		ret.stockCode = summaryFileName.tdnetCode;
 
 		// Sanity check
 		if (ret.filingDate.isEmpty()) {
@@ -263,7 +242,7 @@ public class StockReport extends BaseReport implements Comparable<StockReport> {
 	public String toString() {
 		return String.format("%s %s %s %d %s %s %s %s",
 			stockCode, filingDate, yearEnd, quarterlyPeriod, annualSecuritiesReportFilingDateAsPlanned,
-			annualDividendPerShareForeast, annualDividendPerShareResult, companyName);
+			dividendPerShare, annualDividendPerShare, companyName);
 	}
 
 	// Define natural ordering of DividendBriefReport
@@ -273,6 +252,7 @@ public class StockReport extends BaseReport implements Comparable<StockReport> {
 		if (ret == 0) ret = this.yearEnd.compareTo(that.yearEnd);
 		if (ret == 0) ret = this.quarterlyPeriod - that.quarterlyPeriod;
 		if (ret == 0) ret = this.filingDate.compareTo(that.filingDate);
+		if (ret == 0) ret = this.filename.compareTo(that.filename);
 		return ret;
 	}
 }
