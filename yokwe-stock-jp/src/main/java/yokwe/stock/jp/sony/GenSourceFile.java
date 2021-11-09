@@ -3,7 +3,6 @@ package yokwe.stock.jp.sony;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import yokwe.stock.jp.smbctb.GenearateJSONStub;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
@@ -22,7 +21,6 @@ public class GenSourceFile {
     		String url = "https://moneykit.net/data/fund/SFBA1700F471.js";
     		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(url);
 			logger.info("result {} {} {} {}", result.code, result.reasonPhrase, result.version, result.rawData.length);
-//			FileUtil.write().file("tmp/a", result.result); // FIXME
 			
     		String jsonString;
     		{
@@ -34,18 +32,9 @@ public class GenSourceFile {
     				throw new UnexpectedException("no match PAT_FUNDDATA");
     			}
     		}
-//			FileUtil.write().file("tmp/b", jsonString); // FIXME
 
-        	GenearateJSONStub.generate("yokwe.security.japan.sony.json", "FundData", jsonString);
+        	GenearateJSONStub.generate("yokwe.stock.jp.sony.json", "FundData", jsonString);
     	}
- //   	{
-//    		String url = "https://apl.morningstar.co.jp/xml/chart/funddata/JP90C000FZP8.xml";
-//    		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(url);
-//			logger.info("result {} {} {} {}", result.code, result.reasonPhrase, result.version, result.rawData.length);
-//			FileUtil.write().file("tmp/a", result.result); // FIXME
-//
-//    		
-//    	}
         
     	logger.info("STOP");
     }

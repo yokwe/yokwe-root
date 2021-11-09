@@ -527,7 +527,8 @@ public class UpdateFundInfo {
 		return String.format(FORMAT_URL, isinCode);
 	}
 	
-	public static final String PATH_DIR_DATA = "tmp/download/sony/page"; // FIXME
+	public static final String PATH_DIR_DATA = Sony.getPath("page");
+
 	public static final String FORMAT_PATH   = String.format("%s/%%s.html", PATH_DIR_DATA);
 	public static String getPath(String isinCode) {
 		return String.format(FORMAT_PATH, isinCode);

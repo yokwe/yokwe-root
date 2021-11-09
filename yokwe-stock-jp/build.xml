@@ -222,4 +222,51 @@
 		</java>
 	</target>
 
+	<!-- SONY -->
+	<target name="sony-update-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdateFund" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="sony-update-fund-info">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdateFundInfo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="sony-update-price">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdatePrice" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="sony-update-fund-stats">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdateFundStats" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="sony-gen-source-file">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.GenSourceFile" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
 </project>

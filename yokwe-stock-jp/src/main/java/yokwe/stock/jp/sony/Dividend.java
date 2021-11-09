@@ -12,7 +12,7 @@ import yokwe.util.CSVUtil;
 public class Dividend implements Comparable<Dividend> {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Dividend.class);
 
-	public static final String PATH_DIR_DATA = "tmp/data/sony/dividend"; // FIXME
+	public static final String PATH_DIR_DATA = Sony.getPath("dividend");
 	public static String getPath(String stockCode) {
 		return String.format("%s/%s.csv", PATH_DIR_DATA, stockCode);
 	}

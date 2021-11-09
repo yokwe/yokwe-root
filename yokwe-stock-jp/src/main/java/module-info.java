@@ -1,11 +1,8 @@
 open module yokwe.stock.jp {
 	exports yokwe.stock.jp;
-	exports yokwe.stock.jp.data;
 	exports yokwe.stock.jp.edinet;
 	exports yokwe.stock.jp.jasdec;
 	exports yokwe.stock.jp.jpx;
-	exports yokwe.stock.jp.smbctb;
-	exports yokwe.stock.jp.smbctb.json;
 	exports yokwe.stock.jp.sony;
 	exports yokwe.stock.jp.sony.json;
 	exports yokwe.stock.jp.sony.xml;
