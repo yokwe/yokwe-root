@@ -60,4 +60,15 @@
 		</java>
 	</target>
 
+	<!-- FX -->
+	<target name="update-fx">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.data.UpdateFX" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
 </project>
