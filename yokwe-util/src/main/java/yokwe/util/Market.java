@@ -1,6 +1,5 @@
 package yokwe.util;
 
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -35,13 +34,7 @@ public class Market {
 	}
 	private static final Map<LocalDate, Holiday> holidayMap = new TreeMap<>();
 	static {
-		InputStream is = JapanHoliday.class.getClassLoader().getResourceAsStream(PATH_MARKET_HOLIDAY_CSV);
-		if (is == null) {
-			logger.error("no resource");
-			logger.error("  name {}", PATH_MARKET_HOLIDAY_CSV);
-			throw new UnexpectedException("no resource");
-		}
-		List<MarketHoliday> marketHolidayList = CSVUtil.read(MarketHoliday.class).file(JapanHoliday.class, PATH_MARKET_HOLIDAY_CSV, StandardCharsets.UTF_8);
+		List<MarketHoliday> marketHolidayList = CSVUtil.read(MarketHoliday.class).file(Market.class, PATH_MARKET_HOLIDAY_CSV, StandardCharsets.UTF_8);
 		for(MarketHoliday marketHoliday: marketHolidayList) {
 			if (marketHoliday.date.startsWith("#")) continue;
 			
