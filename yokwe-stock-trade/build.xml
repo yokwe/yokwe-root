@@ -30,9 +30,28 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	
 	<target name="gmo-update-yahoo-portfolio">
 		<java module="yokwe.stock.trade/yokwe.stock.trade.gmo.UpdateYahooPortfolio" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
+	<!-- MONEX -->
+	<target name="monex-update-stock-history">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateStockHistory" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="monex-update-yahoo-portfolio">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateYahooPortfolio" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
