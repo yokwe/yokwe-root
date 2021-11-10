@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -627,11 +628,30 @@ public class CSVUtil {
 		public List<E> file(InputStream is, Charset charset) {
 			return file(new InputStreamReader(is, charset));
 		}
-		public List<E> file (Class<?> clazz, String name, Charset charset) {
-			InputStream is = clazz.getResourceAsStream(name);
+		// read csv file in resource using class loader of clazz
+		public List<E> file(Class<?> clazz, String resourceName, Charset charset) {
+			// NOTE: Use gerResource() instead of getResourceAsStream()
+			URL url = clazz.getResource(resourceName);
+			if (url == null) {
+				logger.error("no resource");
+				logger.error("  url == null");
+				logger.error("  resourceName {}", resourceName);
+				throw new UnexpectedException("no resource");
+			}
+
+			InputStream is = null;
+			try {
+				is = url.openStream();
+			} catch (IOException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e);
+				throw new UnexpectedException(exceptionName, e);
+			}
 			if (is == null) {
 				logger.error("no resource");
-				logger.error("  name {}", name);
+				logger.error("  is == null");
+				logger.error("  resourceName {}", resourceName);
+				logger.error("  url          {}", url);
 				throw new UnexpectedException("no resource");
 			}
 			return file(is, charset);
