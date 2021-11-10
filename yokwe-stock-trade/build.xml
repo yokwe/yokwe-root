@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="yokwe-stock-trade" default="package" basedir=".">
+	<import file="maven-build.xml" />
+
+	<property name="logback.conf" value="data/logback.xml" />
+
+	<path id="target.jar">
+		<pathelement location="${maven.build.dir}/${maven.build.finalName}.jar" />
+	</path>
+
+	<path id="libreoffice.jar">
+		<fileset dir="${libreoffice.install.dir}/classes">
+			<include name="unoloader.jar" />
+			<include name="libreoffice.jar" />
+			<include name="unoil.jar" />
+			<include name="juh.jar" />
+			<include name="jurt.jar" />
+			<include name="ridl.jar" />
+		</fileset>
+	</path>
+
+	<!-- GMO -->
+	<target name="gmo-update-stock-history">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.gmo.UpdateStockHistory" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<target name="gmo-update-yahoo-portfolio">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.gmo.UpdateYahooPortfolio" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
+</project>
