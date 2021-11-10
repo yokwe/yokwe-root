@@ -1,5 +1,6 @@
 package yokwe.util;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,6 +10,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -416,6 +418,19 @@ public class StringUtil {
 			logger.error("{} {}", exceptionName, e);
 			throw new UnexpectedException(exceptionName, e);
 		}
+	}
+
+	public static String toURLString(File file) {
+		try {
+			return file.toURI().toURL().toString();
+		} catch (MalformedURLException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		}
+	}
+	public static String toURLString(String filePath) {
+		return toURLString(new File(filePath));
 	}
 
 }
