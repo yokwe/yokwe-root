@@ -1,11 +1,11 @@
 package yokwe.stock.trade.data;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
 import yokwe.stock.trade.Storage;
 import yokwe.util.CSVUtil;
+import yokwe.util.CSVUtil.DecimalPlaces;
 
 public class FX implements Comparable<FX> {
 	public static final String PATH_FILE = Storage.getPath("data", "fx.csv");
@@ -20,25 +20,26 @@ public class FX implements Comparable<FX> {
 	}
 
 
-	public String     date;
-	public BigDecimal usd;
+	public String date;
+	@DecimalPlaces(2)
+	public double usd;
 	
-	public FX(String date, BigDecimal usd) {
+	public FX(String date, double usd) {
 		this.date = date;
 		this.usd  = usd;
 	}
 	public FX(String date, String usdString) {
 		this.date = date;
-		this.usd  = new BigDecimal(usdString);
+		this.usd  = Double.parseDouble(usdString);
 	}
 	
 	public FX() {
-		this("", BigDecimal.ZERO);
+		this("", 0);
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s", date, usd.toPlainString());
+		return String.format("%s %.2f", date, usd);
 	}
 
 	@Override

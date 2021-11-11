@@ -4,6 +4,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +16,11 @@ import yokwe.util.http.HttpUtil;
 public class UpdateFX {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFX.class);
 
-	private static final String URL_CSV       = "https://www.mizuhobank.co.jp/market/quote.csv";
-	public static final String ENCODING_CSV   = "SHIFT_JIS";
-	
+	public static final String URL_CSV      = "https://www.mizuhobank.co.jp/market/quote.csv";
+	public static final String ENCODING_CSV = "SHIFT_JIS";
+
+	private static final Pattern PAT_YYYYMMDD = Pattern.compile("^(20[0-9]{2})/([01]?[0-9])/([0-3]?[0-9])$");
+
 	public static class MarketQuote {
 		public String DATE;
 		public String USD;
@@ -124,31 +128,23 @@ public class UpdateFX {
 		for(int i = 3; i < list.size(); i++) {
 			MarketQuote value = list.get(i);
 			
-			String yyyymmdd[] = value.DATE.split("\\/");
-			if (yyyymmdd.length != 3) {
-				logger.error("Unexpected");
-				logger.error("yyyymmdd {}", yyyymmdd.length);
-				throw new UnexpectedException("Unexpected");
-			}
-			if (yyyymmdd[1].length() == 1) yyyymmdd[1] = "0" + yyyymmdd[1];
-			if (yyyymmdd[2].length() == 1) yyyymmdd[2] = "0" + yyyymmdd[2];
-			String date = String.format("%s-%s-%s", yyyymmdd[0], yyyymmdd[1], yyyymmdd[2]);
-			
-			String usd;
-			String nnmm[] = value.USD.split("\\.");
-			if (nnmm.length == 1) {
-				usd = nnmm[0] + ".00";
-			} else if (nnmm.length == 2) {
-				if (nnmm[1].length() == 1) {
-					usd = nnmm[0] + "." + nnmm[1] + "0";
+			String date;
+			{
+				Matcher m = PAT_YYYYMMDD.matcher(value.DATE);
+				if (m.matches() && m.groupCount() == 3) {
+					int yyyy = Integer.parseInt(m.group(1));
+					int mm   = Integer.parseInt(m.group(2));
+					int dd   = Integer.parseInt(m.group(3));
+					
+					date = String.format("%d-%02d-%02d", yyyy, mm, dd);
 				} else {
-					usd = nnmm[0] + "." + nnmm[1];
+					logger.error("Unexpected");
+					logger.error("  date {}", value.DATE);
+					throw new UnexpectedException("Unexpected");
 				}
-			} else {
-				logger.error("Unexpected");
-				logger.error("nnmm {}", nnmm.length);
-				throw new UnexpectedException("Unexpected");
 			}
+						
+			double usd = Double.parseDouble(value.USD);
 			
 			FX fx = new FX(date, usd);
 			result.add(fx);
