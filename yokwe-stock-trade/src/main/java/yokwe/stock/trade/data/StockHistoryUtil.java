@@ -14,9 +14,9 @@ import yokwe.util.CSVUtil;
 public class StockHistoryUtil {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockHistory.class);
 
-	public static final String PATH_STOCK_HISTORY_GMO       = Storage.getPath("data", "stock-history-gmo.csv");
-	public static final String PATH_STOCK_HISTORY_MONEX     = Storage.getPath("data", "stock-history-monex.csv");
-	public static final String PATH_STOCK_HISTORY_FIRSTRADE = Storage.getPath("data", "stock-history-monex.csv");
+	public static final String PATH_STOCK_HISTORY_GMO       = Storage.Data.getPath("stock-history-gmo.csv");
+	public static final String PATH_STOCK_HISTORY_MONEX     = Storage.Data.getPath("stock-history-monex.csv");
+	public static final String PATH_STOCK_HISTORY_FIRSTRADE = Storage.Data.getPath("stock-history-monex.csv");
 	
 	//                group
 	public static Map<String, List<StockHistory>> getStockHistoryMap(String path) {

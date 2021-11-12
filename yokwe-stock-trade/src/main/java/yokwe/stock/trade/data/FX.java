@@ -8,7 +8,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.DecimalPlaces;
 
 public class FX implements Comparable<FX> {
-	public static final String PATH_FILE = Storage.getPath("data", "fx.csv");
+	public static final String PATH_FILE = Storage.Data.getPath("fx.csv");
 	
 	public static List<FX> load() {
 		return CSVUtil.read(FX.class).file(PATH_FILE);

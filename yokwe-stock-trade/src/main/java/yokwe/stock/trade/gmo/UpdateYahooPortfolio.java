@@ -15,7 +15,7 @@ import yokwe.util.CSVUtil;
 public class UpdateYahooPortfolio {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateYahooPortfolio.class);
 	
-	public static final String PATH_YAHOO_PORTFOLIO = Storage.getPath("data", "yahoo-portfolio-gmo.csv");
+	public static final String PATH_YAHOO_PORTFOLIO = Storage.Data.getPath("yahoo-portfolio-gmo.csv");
 
 	public static void main(String[] args) {
 		logger.info("START");

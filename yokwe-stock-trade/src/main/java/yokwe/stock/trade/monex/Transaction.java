@@ -19,7 +19,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class Transaction implements Comparable<Transaction> {
 	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Transaction.class);
 	
-	public static final String PATH_ACTIVITY = Storage.getPath("activity", "投資活動_monex.ods");
+	public static final String PATH_ACTIVITY = Storage.Activity.getPath("投資活動_monex.ods");
 	public static final String URL_ACTIVITY  = StringUtil.toURLString(PATH_ACTIVITY);
 
 	public enum Type {
