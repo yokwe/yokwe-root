@@ -63,4 +63,5 @@ update-tdnet:
 	ant xbrl-tdent-report-update-stock-report
 	ant xbrl-tdent-update-dividend-reit
 	ant xbrl-tdent-update-dividend-stock
+	ant xbrl-tdent-update-dividend
 	cd /mnt/stock/jp; tar cfz /mnt/stock/jp/save/xbrl-tdnet_$$(date +%Y%m%d).taz xbrl/tdnet/*.csv	
