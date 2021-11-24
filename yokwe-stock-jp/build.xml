@@ -199,6 +199,15 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="xbrl-tdent-update-dividend-annual">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.xbrl.tdnet.report.UpdateDividendAnnual" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 	<!-- XBRL/EDINET -->
 	<target name="xbrl-edinet-update-label">
