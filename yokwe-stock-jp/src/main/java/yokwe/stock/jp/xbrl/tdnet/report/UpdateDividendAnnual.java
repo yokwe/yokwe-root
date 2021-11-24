@@ -39,28 +39,46 @@ public class UpdateDividendAnnual {
 			int    quarter     = array[0].quarter;
 			String lastPayDate = array[0].payDate;
 			
-			String thisYear = array[0].yearEnd.substring(0, 4);
-			String lastYear = String.format("%04d", Integer.valueOf(thisYear) - 1);
+			int thisYear = Integer.valueOf(array[0].yearEnd.substring(0, 4));
+			int lastYear = thisYear - 1;
+			
+			// 2021-02-27
+			// 01234567
+			int thisMonth = Integer.valueOf(array[0].yearEnd.substring(5, 7));
 			
 			int    divc = 0;
 			double div  = 0;
 			for(var ee: array) {
-				String yearString = ee.yearEnd.substring(0, 4);
+				int year  = Integer.valueOf(ee.yearEnd.substring(0, 4));
+				int month = Integer.valueOf(ee.yearEnd.substring(5, 7));
 				
-				if (yearString.equals(thisYear)) {
-					//
-				} else if (yearString.equals(lastYear)) {
-					if (ee.quarter <= quarter) break;
-					//
+				if (quarter == 0) {
+					// for REIT
+					if (year == thisYear) {
+						// accept all
+					} else if (year == lastYear) {
+						// accept greater than thisMonth
+						if (month <= thisMonth) break;
+					} else {
+						break;
+					}
 				} else {
-					break;
+					// for stock
+					if (year == thisYear) {
+						// accept all
+					} else if (year == lastYear) {
+						// accept greater than quarter
+						if (ee.quarter <= quarter) break;
+					} else {
+						break;
+					}
 				}
 				
 				divc++;
 				div += ee.dividend;
 			}
 			if (divc == 1 || divc == 2 || divc == 4) {
-				// OK
+				// Looks normal
 			} else {
 				logger.warn("Unexpected divc");
 				logger.warn("  stockCode {}", stockCode);
