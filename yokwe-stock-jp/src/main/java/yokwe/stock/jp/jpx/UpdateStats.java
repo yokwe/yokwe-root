@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.edinet.EDINETInfo;
 import yokwe.stock.jp.edinet.FundInfo;
+import yokwe.stock.jp.xbrl.tdnet.report.DividendAnnual;
 import yokwe.util.DoubleUtil;
 import yokwe.util.JapanHoliday;
 import yokwe.util.UnexpectedException;
@@ -107,18 +108,18 @@ public class UpdateStats {
 		
 		// dividend
 		// FIXME uncomment after DividendAnnual is created
-//		{
-//			DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
-//			if (divAnn == null) {
-//				ret.div   = 0;
-//				ret.divc  = 0;
-//				ret.yield = 0;
-//			} else {
-//				ret.div   = divAnn.dividend;
-//				ret.divc  = divAnn.count;
-//				ret.yield = DoubleUtil.round(divAnn.dividend / ret.price, 3);
-//			}
-//		}
+		{
+			DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
+			if (divAnn == null) {
+				ret.div   = 0;
+				ret.divc  = 0;
+				ret.yield = 0;
+			} else {
+				ret.div   = divAnn.dividend;
+				ret.divc  = divAnn.count;
+				ret.yield = DoubleUtil.round(divAnn.dividend / ret.price, 3);
+			}
+		}
 		
 		// volume
 		{
