@@ -11,6 +11,7 @@
     <modules>
         <module>yokwe-util</module>
         <module>yokwe-stock-jp</module>
+        <module>yokwe-stock-us</module>
         <module>yokwe-stock-trade</module>
     </modules>
     
