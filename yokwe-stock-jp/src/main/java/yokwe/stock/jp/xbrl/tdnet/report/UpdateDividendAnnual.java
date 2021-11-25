@@ -1,6 +1,5 @@
 package yokwe.stock.jp.xbrl.tdnet.report;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
