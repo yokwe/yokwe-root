@@ -43,6 +43,7 @@ update-jpx-stock:
 
 update-jpx-stock-price:
 	ant jpx-update-stock-price
+	ant jpx-update-stats
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz jpx
 
 # EDINET
