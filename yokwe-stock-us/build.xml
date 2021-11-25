@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ====================================================================== -->
+<!-- Ant build file (http://ant.apache.org/) for Ant 1.6.2 or above.        -->
+<!-- ====================================================================== -->
+
+<project name="yokwe-stock-us" default="package" basedir=".">
+
+	<import file="maven-build.xml" />
+
+	<property name="logback.conf" value="data/logback.xml" />
+
+	<path id="target.jar">
+		<pathelement location="${maven.build.dir}/${maven.build.finalName}.jar" />
+	</path>
+
+	<path id="libreoffice.jar">
+		<fileset dir="${libreoffice.install.dir}/classes">
+			<include name="unoloader.jar" />
+			<include name="libreoffice.jar" />
+			<include name="unoil.jar" />
+			<include name="juh.jar" />
+			<include name="jurt.jar" />
+			<include name="ridl.jar" />
+		</fileset>
+	</path>
+	
+
+</project>
