@@ -217,10 +217,17 @@ public class HttpUtil {
 			this.response = response;
 			
 			HttpEntity entity = response.getEntity();
-//			logger.info("entity {}", entity);
+//			logger.debug("entity {}", entity);
 			if (entity == null) {
 				charset = null;
 				content = null;
+			} else if (entity.isChunked() == false && entity.getContentLength() == 0 && entity.getContentType() == null) {
+				charset = null;
+				content = null;
+//				logger.debug("response {} {}", response.getCode(), response.getReasonPhrase());
+//				for(var e: response.getHeaders()) {
+//					logger.debug("header {} {}!", e.getName(), e.getValue());
+//				}
 			} else {
 				String contentTypeString = entity.getContentType();
 				ContentType conentType = ContentType.parse(contentTypeString);
