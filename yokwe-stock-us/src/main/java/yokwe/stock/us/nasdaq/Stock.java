@@ -51,7 +51,6 @@ public class Stock implements Comparable<Stock> {
 	
 	public String symbol;
 	public String assetClass;
-	public String stockType;
 	public String complianceStatus;
 	
 	public String country;
@@ -62,13 +61,12 @@ public class Stock implements Comparable<Stock> {
 
 	
 	public Stock(
-		String symbol, String assetClass, String stockType, String complianceStatus, 
+		String symbol, String assetClass, String complianceStatus, 
 		String country, String industry, String sector,
 		String name
 		) {
 		this.symbol           = symbol.trim();
 		this.assetClass       = assetClass.trim();
-		this.stockType        = stockType.trim();
 		this.complianceStatus = complianceStatus.trim();
 				
 		this.country  = country.trim();
@@ -79,7 +77,7 @@ public class Stock implements Comparable<Stock> {
 	}
 	public Stock() {
 		this(
-			"", "", "", "",
+			"", "", "",
 			"", "", "",
 			""
 			);
@@ -94,5 +92,4 @@ public class Stock implements Comparable<Stock> {
 	public String toString() {
 		return StringUtil.toString(this);
 	}
-
 }
