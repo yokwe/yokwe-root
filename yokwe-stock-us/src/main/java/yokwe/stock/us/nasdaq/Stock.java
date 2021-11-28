@@ -49,7 +49,7 @@ public class Stock implements Comparable<Stock> {
 		return map;
 	}
 	
-	public String symbol;
+	public String symbol; // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
 	public String assetClass;
 	public String complianceStatus;
 	
