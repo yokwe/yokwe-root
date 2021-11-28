@@ -8,10 +8,15 @@ import java.util.Map;
 import yokwe.stock.us.nasdaq.api.Screener;
 import yokwe.stock.us.nasdaq.api.Quote.Info;
 import yokwe.util.StringUtil;
-import yokwe.util.UnexpectedException;
 
 public class UpdateStock {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateStock.class);
+	
+	public static String normalizeSymbol(String symbol) {
+		// TRTN^A => TRTN-A
+		// BRK/A  => BRK.A
+		return symbol.replace('^', '-').replace('/', '.');
+	}
 	
 	public static class Request {
 		static Request getStock(String symbol, String name, String country, String industrial, String sector) {
@@ -62,7 +67,7 @@ public class UpdateStock {
 				Screener.ETF instance = Screener.ETF.getInstance();
 				logger.info("etf     {}", instance.data.data.rows.length);
 				for(var e: instance.data.data.rows) {
-					String symbol = e.symbol.trim();
+					String symbol = normalizeSymbol(e.symbol.trim());
 					
 					if (map.containsKey(symbol)) continue;				
 					
@@ -75,7 +80,7 @@ public class UpdateStock {
 				Screener.Stock instance = Screener.Stock.getInstance();
 				logger.info("stock   {}", instance.data.rows.length);
 				for(var e: instance.data.rows) {
-					String symbol = e.symbol.trim();
+					String symbol = normalizeSymbol(e.symbol.trim());
 					
 					if (map.containsKey(symbol)) continue;				
 					
@@ -92,6 +97,7 @@ public class UpdateStock {
 		for(var e: requestList) {
 			if ((count % 100) == 0) {
 				logger.info("{}", String.format("%5d / %5d %s", count, toatlCount, e.symbol));
+				Stock.save(list);
 			}
 			count++;
 			
@@ -106,12 +112,10 @@ public class UpdateStock {
 				// 	not found?
 			} else {
 				Stock stock = new Stock(
-						e.symbol, info.data.assetClass, info.data.stockType, (info.data.complianceStatus == null) ? "" : info.data.complianceStatus.header,
+						e.symbol, info.data.assetClass, (info.data.complianceStatus == null) ? "" : info.data.complianceStatus.header,
 						e.country, e.industrial, e.sector,
 						info.data.companyName);
 				list.add(stock);
-				
-				Stock.save(list);
 			}
 			
 		}
