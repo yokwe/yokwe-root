@@ -2,15 +2,13 @@ package yokwe.stock.us.nasdaq.api;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 
 import yokwe.util.StringUtil;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
-public class Quote {
-	// https://api.nasdaq.com/api/quote/LMT/historical?assetclass=stocks&fromdate=2020-11-25&limit=9999&todate=2021-11-25
-	// https://api.nasdaq.com/api/quote/YYY/historical?assetclass=etf&fromdate=2020-11-25&limit=18&todate=2021-11-25
-	
+public class Quote {	
 	// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
 	// https://api.nasdaq.com/api/quote/LMT/dividends?assetclass=stocks
 	
@@ -23,45 +21,50 @@ public class Quote {
 	// https://api.nasdaq.com/api/quote/FR10UK/chart?assetclass=index
 	// https://api.nasdaq.com/api/quote/FR10UK/info?assetclass=index
 
-	public static class Status {
-		public String bCodeMessage;
-		public String developerMessage;
-		public int    rCode;
+	public static enum AssetClass {
+		STOCK("stocks"),
+		ETF  ("etf");
+		
+		public final String value;
+		
+		AssetClass(String value) {
+			this.value = value;
+		}
+		@Override
+		public String toString() {
+			return value;
+		}
+	}
+	
+	public static class Historical {
+		// https://api.nasdaq.com/api/quote/LMT/historical?assetclass=stocks&fromdate=2020-11-25&limit=9999&todate=2021-11-25
+		// https://api.nasdaq.com/api/quote/YYY/historical?assetclass=etf&fromdate=2020-11-25&limit=18&todate=2021-11-25
+
+		public static String getURL(Quote.AssetClass assetClass, String symbol, LocalDate fromDate, LocalDate toDate, int limit) {
+			return String.format("api.nasdaq.com/api/quote/YYY/historical?assetclass=%s&fromdate=%s&todate=%s&limit=%d",
+					URLEncoder.encode(symbol, StandardCharsets.UTF_8), assetClass.toString(), fromDate.toString(), toDate.toString(), limit);
+		}
+
 	}
 
 	public static class Info {
 		// https://api.nasdaq.com/api/quote/LMT/info?assetclass=stocks
 		// https://api.nasdaq.com/api/quote/YYY/info?assetclass=etf
 		
-		public static enum AssetClass {
-			STOCK("stocks"),
-			ETF  ("etf");
-			
-			public final String value;
-			
-			AssetClass(String value) {
-				this.value = value;
-			}
-			@Override
-			public String toString() {
-				return value;
-			}
-		}
-		
-		public static String getURL(AssetClass assetClass, String symbol) {
+		public static String getURL(Quote.AssetClass assetClass, String symbol) {
 			return String.format("https://api.nasdaq.com/api/quote/%s/info?assetclass=%s", URLEncoder.encode(symbol, StandardCharsets.UTF_8), assetClass.toString());
 		}
 		
-		public static Info getInstance(AssetClass assetClass, String symbol) {
+		public static Info getInstance(Quote.AssetClass assetClass, String symbol) {
 			String url = getURL(assetClass, symbol);
 			HttpUtil.Result result = HttpUtil.getInstance().download(url);
 			return result == null ? null : JSON.unmarshal(Info.class, result.result);
 		}
 		public static Info getETF(String symbol) {
-			return getInstance(AssetClass.ETF, symbol);
+			return getInstance(Quote.AssetClass.ETF, symbol);
 		}
 		public static Info getStock(String symbol) {
-			return getInstance(AssetClass.STOCK, symbol);
+			return getInstance(Quote.AssetClass.STOCK, symbol);
 		}
 		
 		public static class PrimaryData {
@@ -127,7 +130,6 @@ public class Quote {
 			}
 		}
 		
-		
 		public static class Data {
 			public String           assetClass;
 			public String           companyName;
@@ -165,7 +167,7 @@ public class Quote {
 			}
 		}
 
-		public Data data;
+		public Data   data;
 		public String message;
 		public Status status;
 
@@ -179,6 +181,6 @@ public class Quote {
 		public String toString() {
 			return StringUtil.toString(this);
 		}
-		
 	}
+
 }

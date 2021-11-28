@@ -4,12 +4,6 @@ import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
 public class Screener {
-	public static class Status {
-		public String bCodeMessage;
-		public String developerMessage;
-		public int    rCode;
-	}
-
 	public static class Stock {
 		public static final String URL = "https://api.nasdaq.com/api/screener/stocks?download=true";
 
