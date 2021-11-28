@@ -1,8 +1,7 @@
 package yokwe.stock.us.nasdaq.api;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import yokwe.util.StringUtil;
 import yokwe.util.http.HttpUtil;
@@ -21,6 +20,11 @@ public class Quote {
 	// https://api.nasdaq.com/api/quote/FR10UK/chart?assetclass=index
 	// https://api.nasdaq.com/api/quote/FR10UK/info?assetclass=index
 
+	public static String encodeSymbolForURL(String symbol) {
+		// TRTN-A => TRTN%5EA
+		return symbol.replace("-", "%5E");
+	}
+	
 	public static enum AssetClass {
 		STOCK("stocks"),
 		ETF  ("etf");
@@ -40,19 +44,113 @@ public class Quote {
 		// https://api.nasdaq.com/api/quote/LMT/historical?assetclass=stocks&fromdate=2020-11-25&limit=9999&todate=2021-11-25
 		// https://api.nasdaq.com/api/quote/YYY/historical?assetclass=etf&fromdate=2020-11-25&limit=18&todate=2021-11-25
 
-		public static String getURL(Quote.AssetClass assetClass, String symbol, LocalDate fromDate, LocalDate toDate, int limit) {
+		public static String getURL(Quote.AssetClass assetClass, String symbol, LocalDate fromDate, LocalDate toDate, long limit) {
 			return String.format("api.nasdaq.com/api/quote/YYY/historical?assetclass=%s&fromdate=%s&todate=%s&limit=%d",
-					URLEncoder.encode(symbol, StandardCharsets.UTF_8), assetClass.toString(), fromDate.toString(), toDate.toString(), limit);
+					encodeSymbolForURL(symbol), assetClass.toString(), fromDate.toString(), toDate.toString(), limit);
+		}
+		public static String getURL(Quote.AssetClass assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
+			long days = ChronoUnit.DAYS.between(fromDate, toDate);
+			return getURL(assetClass, symbol, fromDate, toDate, days + 1);
 		}
 
+		public static Historical getInstance(Quote.AssetClass assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
+			String url = getURL(assetClass, symbol, fromDate, toDate);
+			HttpUtil.Result result = HttpUtil.getInstance().download(url);
+			return result == null ? null : JSON.unmarshal(Historical.class, result.result);
+		}
+		public static Historical getETF(String symbol, LocalDate fromDate, LocalDate toDate) {
+			return getInstance(AssetClass.ETF, symbol, fromDate, toDate);
+		}
+		public static Historical getStock(String symbol, LocalDate fromDate, LocalDate toDate) {
+			return getInstance(AssetClass.STOCK, symbol, fromDate, toDate);
+		}
+		
+		public static class Values {
+//          "close" : "16.81",
+//          "date" : "11/24/2021",
+//          "high" : "16.82",
+//          "low" : "16.7",
+//          "open" : "16.71",
+//          "volume" : "136,621"
+
+			public String close;
+			public String date;
+			public String high;
+			public String low;
+			public String open;
+			public String volume;
+			
+			public Values() {
+				close  = null;
+				date   = null;
+				high   = null;
+				low    = null;
+				open   = null;
+				volume = null;
+			}
+            
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+		
+		public static class Data {
+			public static class TradeTable {
+				Values   headers;
+				Values[] rows;
+				
+				public TradeTable() {
+					headers = null;
+					rows    = null;
+				}
+				
+				@Override
+				public String toString() {
+					return StringUtil.toString(this);
+				}
+			}
+			
+			public String     symbol;
+			public int        totalRecords;
+			public TradeTable tradeTable;
+			
+			public Data() {
+				symbol       = null;
+				totalRecords = 0;
+				tradeTable   = null;
+			}
+			
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+		
+		public Data   data;
+		public String message;
+		public Status status;
+		
+		public Historical() {
+			data    = null;
+			message = null;
+			status  = null;
+		}
+		
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
 	}
 
+	
 	public static class Info {
 		// https://api.nasdaq.com/api/quote/LMT/info?assetclass=stocks
 		// https://api.nasdaq.com/api/quote/YYY/info?assetclass=etf
 		
 		public static String getURL(Quote.AssetClass assetClass, String symbol) {
-			return String.format("https://api.nasdaq.com/api/quote/%s/info?assetclass=%s", URLEncoder.encode(symbol, StandardCharsets.UTF_8), assetClass.toString());
+			return String.format("https://api.nasdaq.com/api/quote/%s/info?assetclass=%s",
+					encodeSymbolForURL(symbol), assetClass.toString());
 		}
 		
 		public static Info getInstance(Quote.AssetClass assetClass, String symbol) {
