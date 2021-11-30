@@ -1,5 +1,7 @@
 open module yokwe.stock.us {
 	exports yokwe.stock.us;
+	exports yokwe.stock.us.nasdaq;
+	exports yokwe.stock.us.nasdaq.api;
 
 	// http
 	requires httpcore5;
