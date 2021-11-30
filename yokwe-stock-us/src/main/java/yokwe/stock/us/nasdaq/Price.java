@@ -91,7 +91,9 @@ public class Price implements Comparable<Price> {
 
 	@Override
 	public int compareTo(Price that) {
-		return this.symbol.compareTo(that.symbol);
+		int ret = this.symbol.compareTo(that.symbol);
+		if (ret == 0) ret = this.date.compareTo(that.date);
+		return ret;
 	}
 	
 	@Override
