@@ -2,7 +2,6 @@ package yokwe.stock.us.nasdaq;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,13 +102,7 @@ public class UpdatePrice {
 		for(var e: historical.data.tradesTable.rows) {
 			// close: "194.39", date: "11/26/2021", high: "196.82", low: "194.19", open: "196.82", volume: "11,113"
 			// close: "$17.86", date: "11/26/2021", high: "$18.155", low: "$17.765", open: "$18.03", volume: "1,645,865
-			String[] ymd = e.date.split("\\/");
-			if (ymd.length != 3) {
-				logger.error("Unpexpected");
-				logger.error("  date {}", e.date);
-				throw new UnexpectedException("Unpexpected");
-			}
-			String date  = ymd[2] + "-" + ymd[0] + "-" + ymd[1];
+			String date  = Quote.convertDate(e.date);
 			String open  = e.open.replace("$", "");
 			String high  = e.high.replace("$", "");
 			String low   = e.low.replace("$", "");
