@@ -4,10 +4,13 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
 public class Quote {	
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Quote.class);
+
 	// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
 	// https://api.nasdaq.com/api/quote/LMT/dividends?assetclass=stocks
 	
@@ -25,6 +28,20 @@ public class Quote {
 		return symbol.replace("-", "%5E");
 	}
 	
+	public static String convertDate(String string) {
+		string = string.trim().replace("N/A", "");
+		if (string.isEmpty()) return ""; // FIXME
+		
+		// 12/27/2021 => 2021-12-07
+		String[] mdy = string.split("\\/");
+		if (mdy.length != 3) {
+			logger.error("Unpexpected");
+			logger.error("  date {}", string);
+			throw new UnexpectedException("Unpexpected");
+		}
+		return mdy[2] + "-" + mdy[0] + "-" + mdy[1];
+	}
+	
 	public static enum AssetClass {
 		STOCK("stocks"),
 		ETF  ("etf");
@@ -37,6 +54,110 @@ public class Quote {
 		@Override
 		public String toString() {
 			return value;
+		}
+	}
+	
+	public static class Dividends {
+		// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
+		// https://api.nasdaq.com/api/quote/LMT/dividends?assetclass=stocks
+
+		public static String getURL(String assetClass, String symbol, int limit) {
+			return String.format("https://api.nasdaq.com/api/quote/%s/dividends?assetclass=%s&limit=%d",
+					encodeSymbolForURL(symbol), assetClass.toString(), limit);
+		}
+
+		public static Dividends getInstance(String assetClass, String symbol, int limit) {
+			String url = getURL(assetClass, symbol, limit);
+			HttpUtil.Result result = HttpUtil.getInstance().download(url);
+//			logger.debug("result {}!", result.result);
+			return result == null ? null : JSON.unmarshal(Dividends.class, result.result);
+		}
+		public static Dividends getInstance(String assetClass, String symbol) {
+			return getInstance(assetClass, symbol, 9999);
+		}
+
+		
+		public static class Values {
+			// "exOrEffDate":"11/27/2013","type":"CASH","amount":"$1.33","declarationDate":"09/26/2013","recordDate":"12/02/2013","paymentDate":"12/27/2013
+			// "exOrEffDate":"10/27/2021","type":"CASH","amount":"$0.12","declarationDate":"01/18/2021","recordDate":"10/28/2021","paymentDate":"10/29/2021"
+			public String exOrEffDate;
+			public String type;
+			public String amount;
+			public String declarationDate;
+			public String recordDate;
+			public String paymentDate;
+			
+			public Values() {
+				exOrEffDate     = null;
+				type            = null;
+				amount          = null;
+				declarationDate = null;
+				recordDate      = null;
+				paymentDate     = null;
+			}
+            
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+
+		public static class Table {
+			public Values   headers;
+			public Values[] rows;
+			
+			public Table() {
+				headers = null;
+				rows   =  null;
+			}
+            
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+		public static class Data {
+//		      "annualizedDividend" : "11.2",
+//		      "dividendPaymentDate" : "12/27/2021",
+//		      "exDividendDate" : "11/30/2021",
+//		      "payoutRatio" : "15.75",
+//		      "yield" : "3.03%"
+
+			public String annualizedDividend;
+			public String dividendPaymentDate;
+			public String exDividendDate;
+			public String payoutRatio;
+			public String yield;
+			public Table  dividends;
+            
+			public Data() {
+				annualizedDividend  = null;
+				dividendPaymentDate = null;
+				exDividendDate      = null;
+				payoutRatio         = null;
+				yield               = null;
+				dividends           = null;				
+			}
+			
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+		
+		public Data   data;
+		public String message;
+		public Status status;
+		
+		public Dividends() {
+			data    = null;
+			message = null;
+			status  = null;
+		}
+		
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
 		}
 	}
 	
