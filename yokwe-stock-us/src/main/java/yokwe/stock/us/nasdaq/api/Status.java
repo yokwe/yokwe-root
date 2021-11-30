@@ -4,8 +4,8 @@ import yokwe.util.StringUtil;
 
 public class Status {
 	public static class CodeMessage {
-		int    code;
-		String errorMessage;
+		public int    code;
+		public String errorMessage;
 		
 		public CodeMessage() {
 			code         = 0;
