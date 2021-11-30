@@ -44,35 +44,24 @@ public class Quote {
 		// https://api.nasdaq.com/api/quote/LMT/historical?assetclass=stocks&fromdate=2020-11-25&limit=9999&todate=2021-11-25
 		// https://api.nasdaq.com/api/quote/YYY/historical?assetclass=etf&fromdate=2020-11-25&limit=18&todate=2021-11-25
 
-		public static String getURL(Quote.AssetClass assetClass, String symbol, LocalDate fromDate, LocalDate toDate, long limit) {
-			return String.format("api.nasdaq.com/api/quote/YYY/historical?assetclass=%s&fromdate=%s&todate=%s&limit=%d",
+		public static String getURL(String assetClass, String symbol, LocalDate fromDate, LocalDate toDate, long limit) {
+			return String.format("https://api.nasdaq.com/api/quote/%s/historical?assetclass=%s&fromdate=%s&todate=%s&limit=%d",
 					encodeSymbolForURL(symbol), assetClass.toString(), fromDate.toString(), toDate.toString(), limit);
 		}
-		public static String getURL(Quote.AssetClass assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
+		public static String getURL(String assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
 			long days = ChronoUnit.DAYS.between(fromDate, toDate);
 			return getURL(assetClass, symbol, fromDate, toDate, days + 1);
 		}
 
-		public static Historical getInstance(Quote.AssetClass assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
+		public static Historical getInstance(String assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
 			String url = getURL(assetClass, symbol, fromDate, toDate);
 			HttpUtil.Result result = HttpUtil.getInstance().download(url);
 			return result == null ? null : JSON.unmarshal(Historical.class, result.result);
 		}
-		public static Historical getETF(String symbol, LocalDate fromDate, LocalDate toDate) {
-			return getInstance(AssetClass.ETF, symbol, fromDate, toDate);
-		}
-		public static Historical getStock(String symbol, LocalDate fromDate, LocalDate toDate) {
-			return getInstance(AssetClass.STOCK, symbol, fromDate, toDate);
-		}
 		
 		public static class Values {
-//          "close" : "16.81",
-//          "date" : "11/24/2021",
-//          "high" : "16.82",
-//          "low" : "16.7",
-//          "open" : "16.71",
-//          "volume" : "136,621"
-
+			// close: "194.39", date: "11/26/2021", high: "196.82", low: "194.19", open: "196.82", volume: "11,113"
+			// close: "$17.86", date: "11/26/2021", high: "$18.155", low: "$17.765", open: "$18.03", volume: "1,645,865
 			public String close;
 			public String date;
 			public String high;
@@ -96,11 +85,11 @@ public class Quote {
 		}
 		
 		public static class Data {
-			public static class TradeTable {
-				Values   headers;
-				Values[] rows;
+			public static class TradesTable {
+				public Values   headers;
+				public Values[] rows;
 				
-				public TradeTable() {
+				public TradesTable() {
 					headers = null;
 					rows    = null;
 				}
@@ -111,14 +100,14 @@ public class Quote {
 				}
 			}
 			
-			public String     symbol;
-			public int        totalRecords;
-			public TradeTable tradeTable;
+			public String      symbol;
+			public int         totalRecords;
+			public TradesTable tradesTable;
 			
 			public Data() {
 				symbol       = null;
 				totalRecords = 0;
-				tradeTable   = null;
+				tradesTable  = null;
 			}
 			
 			@Override
