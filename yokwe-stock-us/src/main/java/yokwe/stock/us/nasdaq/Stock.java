@@ -49,15 +49,15 @@ public class Stock implements Comparable<Stock> {
 		return map;
 	}
 	
-	public String symbol; // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
-	public String assetClass;
-	public String complianceStatus;
+	public String symbol;           // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
+	public String assetClass;       // STOCKS or ETF
+	public String complianceStatus; // empty or "OUT OF COMPLIANCE"
 	
-	public String country;
-	public String industry;
-	public String sector;
+	public String country;          // only for STOCKS
+	public String industry;         // only for STOCKS
+	public String sector;           // only for STOCKS
 	
-	public String name;
+	public String name;             // copy from Quote.Info
 
 	
 	public Stock(
