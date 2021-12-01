@@ -148,27 +148,30 @@ public class UpdatePrice {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		Duration duration = Duration.Year(1);
-		logger.info("duration {}", duration);
-				
 		// build toDate and fromDate
 		LocalDate toDate   = Market.getLastTradingDate();
-		LocalDate fromDate = duration.apply(toDate);
-		if (Market.isClosed(fromDate)) {
-			fromDate = Market.getPreviousTradeDate(fromDate);
+		LocalDate fromDate;
+		{
+			Duration duration = Duration.Year(1);
+			logger.info("duration {}", duration);
+					
+			fromDate = duration.apply(toDate);
+			if (Market.isClosed(fromDate)) {
+				fromDate = Market.getPreviousTradeDate(fromDate);
+			}
+			logger.info("date range {} - {}", fromDate, toDate);
 		}
-		logger.info("date range {} - {}", fromDate, toDate);
-		String toDateString = toDate.toString();
-		
-		// build symbolList from symbol.csv
-		List<Symbol> symbolList = CSVUtil.read(Symbol.class).file(Storage.NASDAQ.getPath("symbol.csv"));
-		logger.info("symbol    {}", symbolList.size());
 		
 		// build requestList
 		List<Request> requestList = new ArrayList<>();
 		{
-			List<String> unknownList = new ArrayList<>();
-			Map<String, Stock> stockMap = Stock.getMap();
+			List<Symbol> symbolList = CSVUtil.read(Symbol.class).file(Storage.NASDAQ.getPath("symbol.csv"));
+			logger.info("symbol    {}", symbolList.size());
+
+			String             toDateString = toDate.toString();
+			List<String>       unknownList  = new ArrayList<>();
+			Map<String, Stock> stockMap     = Stock.getMap();
+			
 			int countProcessed = 0;
 			for(var e: symbolList) {
 				String symbol = e.symbol;
@@ -193,18 +196,19 @@ public class UpdatePrice {
 		}
 		
 
-		int count = 0;
-		int toatlCount = requestList.size();
-		for(var e: requestList) {
-			if ((count % 100) == 0) {
-				logger.info("{}", String.format("%5d / %5d %s", count, toatlCount, e.symbol));
+		{
+			int count = 0;
+			int toatlCount = requestList.size();
+			for(var e: requestList) {
+				if ((count % 100) == 0) {
+					logger.info("{}", String.format("%5d / %5d %s", count, toatlCount, e.symbol));
+				}
+				count++;
+				
+				update(e, fromDate, toDate);
 			}
-			count++;
-			
-			update(e, fromDate, toDate);
 		}
 		
 		logger.info("STOP");
 	}
-	
 }
