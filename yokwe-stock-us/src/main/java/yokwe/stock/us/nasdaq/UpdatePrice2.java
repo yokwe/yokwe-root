@@ -12,8 +12,8 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 
 import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.UpdatePrice.Symbol;
+import yokwe.stock.us.nasdaq.api.Historical;
 import yokwe.stock.us.nasdaq.api.Quote;
-import yokwe.stock.us.nasdaq.api.Quote.Historical;
 import yokwe.util.CSVUtil;
 import yokwe.util.Market;
 import yokwe.util.StringUtil;
@@ -173,7 +173,7 @@ public class UpdatePrice2 {
 		Collections.shuffle(requestList);
 		for(Request request: requestList) {
 			String symbol = request.symbol;
-			String uriString = Quote.Historical.getURL(request.assetClass, request.symbol, fromDate, toDate);
+			String uriString = Historical.getURL(request.assetClass, request.symbol, fromDate, toDate);
 			
 			Task   task      = StringTask.get(uriString, new MyConsumer(context, symbol));
 			download.addTask(task);

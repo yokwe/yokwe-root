@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import yokwe.stock.us.Storage;
+import yokwe.stock.us.nasdaq.api.Dividends;
 import yokwe.stock.us.nasdaq.api.Quote;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
@@ -35,7 +36,7 @@ public class UpdateDividend {
 		Map<String, Dividend> map = Dividend.getMap(request.symbol);
 		if (map.size() != 0) return; // FIXME
 		
-		Quote.Dividends dividends = Quote.Dividends.getInstance(request.assetClass, request.symbol, 16); // up to 1 years  16 = 12 + 4
+		Dividends dividends = Dividends.getInstance(request.assetClass, request.symbol, 16); // up to 1 years  16 = 12 + 4
 		// {"data":{"exDividendDate":"N/A","dividendPaymentDate":"N/A","yield":"N/A","annualizedDividend":"N/A","payoutRatio":"N/A","dividends":{"headers":null,"rows":null}},
 		
 		if (dividends.data == null) {

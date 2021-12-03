@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import yokwe.stock.us.nasdaq.api.Info;
 import yokwe.stock.us.nasdaq.api.Screener;
-import yokwe.stock.us.nasdaq.api.Quote.Info;
 import yokwe.util.StringUtil;
 
 public class UpdateStock {

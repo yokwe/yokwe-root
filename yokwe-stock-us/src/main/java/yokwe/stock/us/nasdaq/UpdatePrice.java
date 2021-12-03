@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import yokwe.stock.us.Storage;
+import yokwe.stock.us.nasdaq.api.Historical;
 import yokwe.stock.us.nasdaq.api.Quote;
 import yokwe.util.CSVUtil;
 import yokwe.util.Market;
@@ -82,7 +83,7 @@ public class UpdatePrice {
 	}
 	
 	public static void update(Request request, LocalDate fromDate, LocalDate toDate) {
-		Quote.Historical historical = Quote.Historical.getInstance(request.assetClass, request.symbol, fromDate, toDate);
+		Historical historical = Historical.getInstance(request.assetClass, request.symbol, fromDate, toDate);
 		
 		if (historical.data == null) {
 			logger.warn("no data {}", request.symbol);
