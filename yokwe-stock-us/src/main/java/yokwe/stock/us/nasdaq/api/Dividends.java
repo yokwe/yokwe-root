@@ -1,6 +1,5 @@
 package yokwe.stock.us.nasdaq.api;
 
-import yokwe.stock.us.nasdaq.api.Quote.Status;
 import yokwe.util.StringUtil;
 
 public class Dividends {
@@ -9,12 +8,12 @@ public class Dividends {
 
 		public static String getURL(String assetClass, String symbol, int limit) {
 			return String.format("https://api.nasdaq.com/api/quote/%s/dividends?assetclass=%s&limit=%d",
-				Quote.encodeSymbolForURL(symbol), assetClass, limit);
+				API.encodeSymbolForURL(symbol), assetClass, limit);
 		}
 
 		public static Dividends getInstance(String assetClass, String symbol, int limit) {
 			String url = getURL(assetClass, symbol, limit);
-			return Quote.getInstance(Dividends.class, url);
+			return API.getInstance(Dividends.class, url);
 		}
 		public static Dividends getInstance(String assetClass, String symbol) {
 			return getInstance(assetClass, symbol, 9999);

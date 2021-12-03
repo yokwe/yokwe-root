@@ -6,7 +6,7 @@ import java.util.Map;
 
 import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.api.Dividends;
-import yokwe.stock.us.nasdaq.api.Quote;
+import yokwe.stock.us.nasdaq.api.API;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
 import yokwe.util.StringUtil;
@@ -62,9 +62,9 @@ public class UpdateDividend {
 			// "exOrEffDate":"10/27/2021","type":"CASH","amount":"$0.12","declarationDate":"01/18/2021","recordDate":"10/28/2021","paymentDate":"10/29/2021"
 			String type       = e.type;
 			String amount     = e.amount.replace("$", "");
-			String declDate   = Quote.convertDate(e.declarationDate);
-			String recordDate = Quote.convertDate(e.recordDate);
-			String payDate    = Quote.convertDate(e.paymentDate);
+			String declDate   = API.convertDate(e.declarationDate);
+			String recordDate = API.convertDate(e.recordDate);
+			String payDate    = API.convertDate(e.paymentDate);
 			
 			if (amount.isEmpty()) {
 				logger.warn("amount is empty");

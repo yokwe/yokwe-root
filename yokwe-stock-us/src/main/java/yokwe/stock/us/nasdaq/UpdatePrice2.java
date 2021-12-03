@@ -13,7 +13,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.UpdatePrice.Symbol;
 import yokwe.stock.us.nasdaq.api.Historical;
-import yokwe.stock.us.nasdaq.api.Quote;
+import yokwe.stock.us.nasdaq.api.API;
 import yokwe.util.CSVUtil;
 import yokwe.util.Market;
 import yokwe.util.StringUtil;
@@ -110,7 +110,7 @@ public class UpdatePrice2 {
 		for(var e: historical.data.tradesTable.rows) {
 			// close: "194.39", date: "11/26/2021", high: "196.82", low: "194.19", open: "196.82", volume: "11,113"
 			// close: "$17.86", date: "11/26/2021", high: "$18.155", low: "$17.765", open: "$18.03", volume: "1,645,865
-			String date  = Quote.convertDate(e.date);
+			String date  = API.convertDate(e.date);
 			String open  = e.open.replace("$", "");
 			String high  = e.high.replace("$", "");
 			String low   = e.low.replace("$", "");

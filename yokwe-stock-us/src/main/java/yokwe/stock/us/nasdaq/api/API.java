@@ -5,8 +5,8 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
-public final class Quote {	
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Quote.class);
+public final class API {	
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(API.class);
 
 	// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
 	// https://api.nasdaq.com/api/quote/LMT/dividends?assetclass=stocks
@@ -20,32 +20,6 @@ public final class Quote {
 	// https://api.nasdaq.com/api/quote/FR10UK/chart?assetclass=index
 	// https://api.nasdaq.com/api/quote/FR10UK/info?assetclass=index
 	
-	public static class Status {
-		public static class CodeMessage {
-			public int    code;
-			public String errorMessage;
-			
-			public CodeMessage() {
-				code         = 0;
-				errorMessage = "";
-			}
-			
-			@Override
-			public String toString() {
-				return StringUtil.toString(this);
-			}
-		}
-		
-		public int           rCode;
-		public CodeMessage[] bCodeMessage;
-		public String        developerMessage;
-		
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-	}
-
 	public static String encodeSymbolForURL(String symbol) {
 		// TRTN-A => TRTN%5EA
 		return symbol.replace("-", "%5E");
@@ -69,8 +43,8 @@ public final class Quote {
 	public static final String ETF   = "etf";
 	public static void checkAssetClass(String assetClass) {
 		switch(assetClass) {
-		case Quote.ETF:
-		case Quote.STOCK:
+		case ETF:
+		case STOCK:
 			break;
 		default:
 			logger.error("Unexpected assetClass");

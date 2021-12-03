@@ -1,6 +1,5 @@
 package yokwe.stock.us.nasdaq.api;
 
-import yokwe.stock.us.nasdaq.api.Quote.Status;
 import yokwe.util.StringUtil;
 
 public final class Info {
@@ -9,18 +8,18 @@ public final class Info {
 	
 	public static String getURL(String symbol, String assetClass) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/info?assetclass=%s",
-			Quote.encodeSymbolForURL(symbol), assetClass);
+			API.encodeSymbolForURL(symbol), assetClass);
 	}
 	
 	public static Info getInstance(String symbol, String assetClass) {
-		return Quote.getInstance(Info.class, Info::getURL, assetClass, symbol);
+		return API.getInstance(Info.class, Info::getURL, assetClass, symbol);
 	}
 	
 	public static Info getETF(String symbol) {
-		return getInstance(symbol, Quote.ETF);
+		return getInstance(symbol, API.ETF);
 	}
 	public static Info getStock(String symbol) {
-		return getInstance(symbol, Quote.STOCK);
+		return getInstance(symbol, API.STOCK);
 	}
 	
 	public static class PrimaryData {

@@ -3,7 +3,6 @@ package yokwe.stock.us.nasdaq.api;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-import yokwe.stock.us.nasdaq.api.Quote.Status;
 import yokwe.util.StringUtil;
 
 public class Historical {
@@ -12,7 +11,7 @@ public class Historical {
 
 	public static String getURL(String assetClass, String symbol, LocalDate fromDate, LocalDate toDate, long limit) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/historical?assetclass=%s&fromdate=%s&todate=%s&limit=%d",
-				Quote.encodeSymbolForURL(symbol), assetClass.toString(), fromDate.toString(), toDate.toString(), limit);
+				API.encodeSymbolForURL(symbol), assetClass.toString(), fromDate.toString(), toDate.toString(), limit);
 	}
 	public static String getURL(String assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
 		long days = ChronoUnit.DAYS.between(fromDate, toDate);
@@ -21,7 +20,7 @@ public class Historical {
 
 	public static Historical getInstance(String assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
 		String url = getURL(assetClass, symbol, fromDate, toDate);
-		return Quote.getInstance(Historical.class, url);
+		return API.getInstance(Historical.class, url);
 	}
 	
 	public static class Values {

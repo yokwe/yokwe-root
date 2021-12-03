@@ -1,13 +1,11 @@
 package yokwe.stock.us.nasdaq.api;
 
-import yokwe.stock.us.nasdaq.api.Quote.Status;
-
 public class Screener {
 	public static class Stock {
 		public static final String URL = "https://api.nasdaq.com/api/screener/stocks?download=true";
 
 		public static Stock getInstance() {
-			return Quote.getInstance(Stock.class, URL);
+			return API.getInstance(Stock.class, URL);
 		}
 
 		public static class Values {
@@ -65,7 +63,7 @@ public class Screener {
 		public static final String URL = "https://api.nasdaq.com/api/screener/etf?download=true";
 		
 		public static ETF getInstance() {
-			return Quote.getInstance(ETF.class, URL);
+			return API.getInstance(ETF.class, URL);
 		}
 		
 		public static class Values {

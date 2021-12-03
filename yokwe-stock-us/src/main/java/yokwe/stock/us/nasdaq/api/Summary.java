@@ -1,6 +1,5 @@
 package yokwe.stock.us.nasdaq.api;
 
-import yokwe.stock.us.nasdaq.api.Quote.Status;
 import yokwe.util.StringUtil;
 import yokwe.util.json.JSON;
 
@@ -10,7 +9,7 @@ public final class Summary {
 	
 	public static String getURL(String symbol, String assetClass) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/summary?assetclass=%s",
-			Quote.encodeSymbolForURL(symbol), assetClass);
+			API.encodeSymbolForURL(symbol), assetClass);
 	}
 	
 	public static final class LabelValue {
@@ -30,7 +29,7 @@ public final class Summary {
 
 	public static final class Stock {
 		public static Stock getInstance(String symbol) {
-			return Quote.getInstance(Stock.class, Summary::getURL, Quote.STOCK, symbol);
+			return API.getInstance(Stock.class, Summary::getURL, API.STOCK, symbol);
 		}
 		
 		public static final class SummaryData {
@@ -103,7 +102,7 @@ public final class Summary {
 		    
 		}
 		
-		public Data  data;
+		public Data   data;
 		public String message;
 		public Status status;
 
@@ -120,7 +119,7 @@ public final class Summary {
 	}
 	public static final class ETF {
 		public static ETF getInstance(String symbol) {
-			return Quote.getInstance(ETF.class, Summary::getURL, Quote.ETF, symbol);
+			return API.getInstance(ETF.class, Summary::getURL, API.ETF, symbol);
 		}
 		
 		public static final class SummaryData {
@@ -193,7 +192,7 @@ public final class Summary {
 		    
 		}
 		
-		public Data  data;
+		public Data   data;
 		public String message;
 		public Status status;
 
