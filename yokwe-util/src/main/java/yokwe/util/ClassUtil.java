@@ -7,6 +7,8 @@ import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -167,4 +169,21 @@ public final class ClassUtil {
     public final static List<Class<?>> findClass(final String packageName) {
     	return FindClass.find(packageName);
     }
+    
+    // create instance of clazz using args
+	public static <E> E getInstance(Class<E> clazz, Object... args) {
+		try {
+			Class<?> argClass[] = new Class<?>[args.length];
+			for(int i = 0; i < args.length; i++) {
+				argClass[i] = args[i].getClass();
+			}
+			Constructor<E> constructor = clazz.getConstructor(argClass);
+			return constructor.newInstance(args);
+		} catch (UnexpectedException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		}
+	}
+
 }
