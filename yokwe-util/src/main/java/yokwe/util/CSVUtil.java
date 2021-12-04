@@ -31,6 +31,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -860,5 +861,54 @@ public class CSVUtil {
 //				throw new UnexpectedException(exceptionName, e);
 //			}
 //		}
+	}
+
+	
+	//
+	// Use Detail to get file path and key field value.
+	//
+	public interface Detail {
+		public String getPath();
+		public String getKey();
+	}
+	
+	public static <E extends Detail> void save(Class<E> clazz, Collection<E> collection) {
+		save(clazz, new ArrayList<>(collection));
+	}
+	public static <E extends Detail> void save(Class<E> clazz, List<E> list) {
+		E e = ClassUtil.getInstance(clazz);
+		String path = e.getPath();
+		
+		// Sort before save
+		Collections.sort(list, (a, b) -> ((Detail)a).getKey().compareTo(((Detail)b).getKey()));
+		CSVUtil.write(clazz).file(path, list);
+	}
+	
+	public static <E extends Detail> List<E> load(Class<E> clazz) {
+		E e = ClassUtil.getInstance(clazz);
+		String path = e.getPath();
+		
+		List<E> ret = CSVUtil.read(clazz).file(path);
+		return ret;
+	}
+	
+	public static <E extends Detail> List<E> getList(Class<E> clazz) {
+		List<E> ret = load(clazz);
+		return ret == null ? new ArrayList<>() : ret;
+	}
+	public static <E extends Detail> Map<String, E> getMap(Class<E> clazz) {
+		Map<String, E> map = new TreeMap<>();
+		for(var e: getList(clazz)) {
+			final String key = e.getKey();
+			if (map.containsKey(key)) {
+				logger.error("Unexpected duplicate");
+				logger.error("  old {}", map.get(key));
+				logger.error("  new {}", e);
+				throw new UnexpectedException("Unexpected duplicate");
+			} else {
+				map.put(key, e);
+			}
+		}
+		return map;
 	}
 }
