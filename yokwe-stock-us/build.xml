@@ -26,8 +26,8 @@
 	</path>
 	
 	<!-- NASDAQ -->
-	<target name="nasdaq-update-stock">
-		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateStock" fork="true">
+	<target name="nasdaq-update-stock-data">
+		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateStockData" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
@@ -37,15 +37,6 @@
 	</target>
 	<target name="nasdaq-update-price">
 		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdatePrice" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="nasdaq-update-price2">
-		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdatePrice2" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />

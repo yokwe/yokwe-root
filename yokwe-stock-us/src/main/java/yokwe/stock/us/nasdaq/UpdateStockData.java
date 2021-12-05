@@ -3,8 +3,8 @@ package yokwe.stock.us.nasdaq;
 import java.util.Collections;
 import java.util.List;
 
-public class UpdateStock {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateStock.class);
+public class UpdateStockData {
+	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateStockData.class);
 	
 	public static void main(String[] args) {
 		logger.info("START");		
