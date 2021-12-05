@@ -60,7 +60,7 @@ public class StockInfo implements CSVUtil.Detail {
 			}
 			
 			String symbol           = e.symbol; // use normalized symbol
-			String companyName      = info.data.companyName;
+			String companyName      = info.data.companyName.trim();
 			String complianceStatus = info.data.complianceStatus == null ? "" : info.data.complianceStatus.message;
 			String exchange         = info.data.exchange;
 
