@@ -22,6 +22,12 @@ public final class API {
 	// https://api.nasdaq.com/api/quote/FR10UK/chart?assetclass=index
 	// https://api.nasdaq.com/api/quote/FR10UK/info?assetclass=index
 	
+	public static String normalizeSymbol(String symbol) {
+		// TRTN^A => TRTN-A
+		// BRK/A  => BRK.A
+		return symbol.replace('^', '-').replace('/', '.');
+	}
+	
 	public static String encodeSymbolForURL(String symbol) {
 		// TRTN-A => TRTN%5EA
 		return symbol.replace("-", "%5E");
@@ -43,7 +49,7 @@ public final class API {
 	
 	public static final String STOCK = "stocks";
 	public static final String ETF   = "etf";
-	public static void checkAssetClass(String assetClass) {
+	public static String checkAssetClass(String assetClass) {
 		switch(assetClass) {
 		case ETF:
 		case STOCK:
@@ -53,6 +59,7 @@ public final class API {
 			logger.error("  assetClass {}!", assetClass);
 			throw new UnexpectedException("Unexpected assetClass");
 		}
+		return assetClass;
 	}
 	
 	public static String download(String url, File file) {

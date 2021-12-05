@@ -15,7 +15,7 @@ public final class Summary {
 	
 	public static String getURL(String symbol, String assetClass) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/summary?assetclass=%s",
-			API.encodeSymbolForURL(symbol), assetClass);
+			API.encodeSymbolForURL(symbol), API.checkAssetClass(assetClass));
 	}
 	
 	public static final class AdditionalData {

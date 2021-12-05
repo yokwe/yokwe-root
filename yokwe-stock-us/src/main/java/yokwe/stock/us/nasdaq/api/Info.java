@@ -14,7 +14,7 @@ public final class Info {
 	
 	public static String getURL(String symbol, String assetClass) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/info?assetclass=%s",
-			API.encodeSymbolForURL(symbol), assetClass);
+			API.encodeSymbolForURL(symbol), API.checkAssetClass(assetClass));
 	}
 	
 	public static Info getInstance(String symbol, String assetClass) {

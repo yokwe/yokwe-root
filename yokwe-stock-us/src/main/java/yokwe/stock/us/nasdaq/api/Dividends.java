@@ -12,17 +12,17 @@ public class Dividends {
 	// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
 	// https://api.nasdaq.com/api/quote/LMT/dividends?assetclass=stocks
 
-	public static String getURL(String assetClass, String symbol, int limit) {
+	public static String getURL(String symbol, String assetClass, int limit) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/dividends?assetclass=%s&limit=%d",
-			API.encodeSymbolForURL(symbol), assetClass, limit);
+			API.encodeSymbolForURL(symbol), API.checkAssetClass(assetClass), limit);
 	}
 
-	public static Dividends getInstance(String assetClass, String symbol, int limit) {
-		String url = getURL(assetClass, symbol, limit);
+	public static Dividends getInstance(String symbol, String assetClass, int limit) {
+		String url  = getURL(symbol, assetClass, limit);
 		String path = getPath(symbol);
 		return API.getInstance(Dividends.class, url, path);
 	}
-	public static Dividends getInstance(String assetClass, String symbol) {
+	public static Dividends getInstance(String symbol, String assetClass) {
 		return getInstance(assetClass, symbol, 9999);
 	}
 
@@ -53,8 +53,8 @@ public class Dividends {
 	}
 
 	public static class Table {
-		public Dividends.Values   headers;
-		public Dividends.Values[] rows;
+		public Values   headers;
+		public Values[] rows;
 		
 		public Table() {
 			headers = null;
@@ -78,7 +78,7 @@ public class Dividends {
 		public String exDividendDate;
 		public String payoutRatio;
 		public String yield;
-		public Dividends.Table  dividends;
+		public Table  dividends;
         
 		public Data() {
 			annualizedDividend  = null;
