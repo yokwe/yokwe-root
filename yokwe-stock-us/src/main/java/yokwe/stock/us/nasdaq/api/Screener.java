@@ -1,11 +1,15 @@
 package yokwe.stock.us.nasdaq.api;
 
+import yokwe.stock.us.Storage;
+
 public class Screener {
 	public static class Stock {
+		public static final String PATH_FILE = Storage.NASDAQ.getPath("api/screener-stock.csv");
+
 		public static final String URL = "https://api.nasdaq.com/api/screener/stocks?download=true";
 
 		public static Stock getInstance() {
-			return API.getInstance(Stock.class, URL);
+			return API.getInstance(Stock.class, URL, PATH_FILE);
 		}
 
 		public static class Values {
@@ -60,10 +64,12 @@ public class Screener {
 	}
 	
 	public static class ETF {
+		public static final String PATH_FILE = Storage.NASDAQ.getPath("api/screener-etf.csv");
+
 		public static final String URL = "https://api.nasdaq.com/api/screener/etf?download=true";
 		
 		public static ETF getInstance() {
-			return API.getInstance(ETF.class, URL);
+			return API.getInstance(ETF.class, URL, PATH_FILE);
 		}
 		
 		public static class Values {

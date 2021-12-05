@@ -1,9 +1,15 @@
 package yokwe.stock.us.nasdaq.api;
 
+import yokwe.stock.us.Storage;
 import yokwe.util.StringUtil;
 import yokwe.util.json.JSON;
 
 public final class Summary {
+	public static final String PATH_DIR = Storage.NASDAQ.getPath("api/summary");
+	public static String getPath(String symbol) {
+		return String.format("%s/%s.json", PATH_DIR, symbol);
+	}
+
 	// https://api.nasdaq.com/api/quote/LMT/summary?assetclass=stocks
 	// https://api.nasdaq.com/api/quote/YYY/summary?assetclass=etf
 	
@@ -12,24 +18,15 @@ public final class Summary {
 			API.encodeSymbolForURL(symbol), assetClass);
 	}
 	
-	public static final class LabelValue {
-		public String label;
-		public String value;
-		
-		public LabelValue() {
-			label = null;
-			value = null;
-		}
-		
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
+	public static final class AdditionalData {
+		@JSON.Name("ComplianceStatusLink")  public LabelValue  complianceStatusLink;
 	}
 
 	public static final class Stock {
 		public static Stock getInstance(String symbol) {
-			return API.getInstance(Stock.class, Summary::getURL, API.STOCK, symbol);
+			String url  = getURL(symbol, API.STOCK);
+			String path = getPath(symbol);
+			return API.getInstance(Stock.class, url, path);
 		}
 		
 		public static final class SummaryData {
@@ -43,6 +40,10 @@ public final class Summary {
 			@JSON.Name("ShareVolume")         public LabelValue shareVolume;
 			@JSON.Name("TodayHighLow")        public LabelValue todayHighLow;
 			@JSON.Name("Yield")               public LabelValue yield;
+			
+			@JSON.Ignore @JSON.Name("SpecialDividendDate")        public LabelValue specialDividendDate;
+			@JSON.Ignore @JSON.Name("SpecialDividendAmount")      public LabelValue specialDividendAmount;
+			@JSON.Ignore @JSON.Name("SpecialDividendPaymentDate") public LabelValue specialDividendPaymentDate;
 			
 			// Stock unique
 			@JSON.Name("AverageVolume")       public LabelValue averageVolume;
@@ -66,6 +67,10 @@ public final class Summary {
 				todayHighLow        = null;
 				yield               = null;
 
+				specialDividendDate        = null;
+				specialDividendAmount      = null;
+				specialDividendPaymentDate = null;
+
 				averageVolume       = null;
 				earningsPerShare    = null;
 				exchange            = null;
@@ -83,10 +88,10 @@ public final class Summary {
 		}
 		
 		public static final class Data {
-			public String      additionalData;
-			public String      assetClass;
-			public SummaryData summaryData;
-			public String      symbol;
+			public AdditionalData additionalData;
+			public String         assetClass;
+			public SummaryData    summaryData;
+			public String         symbol;
 			
 			public Data() {
 				additionalData = null;
@@ -119,7 +124,9 @@ public final class Summary {
 	}
 	public static final class ETF {
 		public static ETF getInstance(String symbol) {
-			return API.getInstance(ETF.class, Summary::getURL, API.ETF, symbol);
+			String url  = getURL(symbol, API.ETF);
+			String path = getPath(symbol);
+			return API.getInstance(ETF.class, url, path);
 		}
 		
 		public static final class SummaryData {
@@ -133,7 +140,11 @@ public final class Summary {
 			@JSON.Name("ShareVolume")         public LabelValue shareVolume;
 			@JSON.Name("TodayHighLow")        public LabelValue todayHighLow;
 			@JSON.Name("Yield")               public LabelValue yield;
-
+			
+			@JSON.Ignore @JSON.Name("SpecialDividendDate")        public LabelValue specialDividendDate;
+			@JSON.Ignore @JSON.Name("SpecialDividendAmount")      public LabelValue specialDividendAmount;
+			@JSON.Ignore @JSON.Name("SpecialDividendPaymentDate") public LabelValue specialDividendPaymentDate;
+			
 			// ETF unique
 			@JSON.Name("AUM")                 public LabelValue aum;
 			@JSON.Name("Alpha")               public LabelValue alpha;
@@ -155,6 +166,10 @@ public final class Summary {
 				shareVolume         = null;
 				todayHighLow        = null;
 				yield               = null;
+				
+				specialDividendDate        = null;
+				specialDividendAmount      = null;
+				specialDividendPaymentDate = null;
 
 				aum                 = null;
 				alpha               = null;
@@ -173,10 +188,10 @@ public final class Summary {
 		}
 		
 		public static final class Data {
-			public String      additionalData;
-			public String      assetClass;
-			public SummaryData summaryData;
-			public String      symbol;
+			public AdditionalData additionalData;
+			public String         assetClass;
+			public SummaryData    summaryData;
+			public String         symbol;
 			
 			public Data() {
 				additionalData = null;

@@ -3,9 +3,15 @@ package yokwe.stock.us.nasdaq.api;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+import yokwe.stock.us.Storage;
 import yokwe.util.StringUtil;
 
 public class Historical {
+	public static final String PATH_DIR = Storage.NASDAQ.getPath("api/historical");
+	public static String getPath(String symbol) {
+		return String.format("%s/%s.json", PATH_DIR, symbol);
+	}
+
 	// https://api.nasdaq.com/api/quote/LMT/historical?assetclass=stocks&fromdate=2020-11-25&limit=9999&todate=2021-11-25
 	// https://api.nasdaq.com/api/quote/YYY/historical?assetclass=etf&fromdate=2020-11-25&limit=18&todate=2021-11-25
 
@@ -20,7 +26,8 @@ public class Historical {
 
 	public static Historical getInstance(String assetClass, String symbol, LocalDate fromDate, LocalDate toDate) {
 		String url = getURL(assetClass, symbol, fromDate, toDate);
-		return API.getInstance(Historical.class, url);
+		String path = getPath(symbol);
+		return API.getInstance(Historical.class, url, path);
 	}
 	
 	public static class Values {

@@ -1,10 +1,16 @@
 package yokwe.stock.us.nasdaq.api;
 
+import yokwe.stock.us.Storage;
 import yokwe.util.StringUtil;
 
 public final class Info {
 	// https://api.nasdaq.com/api/quote/LMT/info?assetclass=stocks
 	// https://api.nasdaq.com/api/quote/YYY/info?assetclass=etf
+	
+	public static final String PATH_DIR = Storage.NASDAQ.getPath("api/info");
+	public static String getPath(String symbol) {
+		return String.format("%s/%s.json", PATH_DIR, symbol);
+	}
 	
 	public static String getURL(String symbol, String assetClass) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/info?assetclass=%s",
@@ -12,7 +18,9 @@ public final class Info {
 	}
 	
 	public static Info getInstance(String symbol, String assetClass) {
-		return API.getInstance(Info.class, Info::getURL, assetClass, symbol);
+		String url  = getURL(symbol, assetClass);
+		String path = getPath(symbol);
+		return API.getInstance(Info.class, url, path);
 	}
 	
 	public static Info getETF(String symbol) {
@@ -55,23 +63,9 @@ public final class Info {
 	}
 
 	public static class ComplianceStatus {
-		public static class URL {
-			public String label;
-			public String value;
-			
-			public URL() {
-				label = null;
-				value = null;
-			}
-			
-			@Override
-			public String toString() {
-				return StringUtil.toString(this);
-			}				
-		}
-		public String header;
-		public String message;
-		public ComplianceStatus.URL    url;
+		public String     header;
+		public String     message;
+		public LabelValue url;
 		
 		public ComplianceStatus() {
 			header  = null;
