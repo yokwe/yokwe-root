@@ -84,10 +84,9 @@ public class UpdateDividendAnnual {
 				logger.warn("  divc      {}", divc);
 				for(var ee: array) {
 					String yearString = ee.yearEnd.substring(0, 4);
-					if (yearString.equals(thisYear) || yearString.equals(lastYear)) {
+					int year = Integer.parseInt(yearString);
+					if (year == thisYear || year == lastYear) {
 						logger.warn("  {}", ee);						
-					} else {
-						break;
 					}
 				}
 			}
