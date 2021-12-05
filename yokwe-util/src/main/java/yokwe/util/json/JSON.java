@@ -247,16 +247,25 @@ public final class JSON {
 		ClassInfo classInfo = ClassInfo.get(object.getClass());
 		
 		// Sanity check
-		for(FieldInfo fieldInfo: classInfo.fieldInfos) {
-			if (fieldInfo.ignoreField)                      continue;
-			if (jsonObject.containsKey(fieldInfo.jsonName)) continue;
-			// jsonObject doesn't contains field named fieldInfo.jsonName
-			logger.warn("Missing json field  {}  {}  {}", classInfo.clazzName, fieldInfo.jsonName, jsonObject.keySet());
-		}
-		for(String jsonKey: jsonObject.keySet()) {
-			if (classInfo.fieldNameSet.contains(jsonKey)) continue;
-			// this class doesn't contains field named jsonKey
-			logger.warn("Unknown json field  {}  {}  {}", classInfo.clazzName, jsonKey, classInfo.fieldNameSet);
+		{
+			boolean hasWarning = false;
+			for(FieldInfo fieldInfo: classInfo.fieldInfos) {
+				if (fieldInfo.ignoreField)                      continue;
+				if (jsonObject.containsKey(fieldInfo.jsonName)) continue;
+				// jsonObject doesn't contains field named fieldInfo.jsonName
+				logger.warn("Missing json field  {}  {}  {}", classInfo.clazzName, fieldInfo.jsonName, jsonObject.keySet());
+				hasWarning = true;
+			}
+			for(String jsonKey: jsonObject.keySet()) {
+				if (classInfo.fieldNameSet.contains(jsonKey)) continue;
+				// this class doesn't contains field named jsonKey
+				logger.warn("Unknown json field  {}  {}  {}", classInfo.clazzName, jsonKey, classInfo.fieldNameSet);
+				hasWarning = true;
+			}
+			if (hasWarning) {
+				logger.warn("  object      {}", classInfo.clazzName);
+				logger.warn("  jsonObject  {}", jsonObject.toString());
+			}
 		}
 		
 		for(FieldInfo fieldInfo: classInfo.fieldInfos) {
