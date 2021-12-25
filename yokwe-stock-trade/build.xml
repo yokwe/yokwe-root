@@ -89,4 +89,15 @@
 		</java>
 	</target>
 
+	<!-- REPORT -->
+	<target name="report">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.report.Report" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
 </project>
