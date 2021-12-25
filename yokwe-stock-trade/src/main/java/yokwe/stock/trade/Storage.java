@@ -57,4 +57,16 @@ public final class Storage {
 			return getPath(String.format("%s/%s", prefix, path));
 		}
 	}
+
+	// report
+	public static final class Report {
+		public static final String PREFIX = "report";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
 }
