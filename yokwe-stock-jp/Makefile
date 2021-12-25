@@ -66,4 +66,14 @@ update-tdnet:
 	ant xbrl-tdent-update-dividend-stock
 	ant xbrl-tdent-update-dividend
 	ant xbrl-tdent-update-dividend-annual
-	cd /mnt/stock/jp; tar cfz /mnt/stock/jp/save/xbrl-tdnet_$$(date +%Y%m%d).taz xbrl/tdnet/*.csv	
+	cd /mnt/stock/jp; tar cfz /mnt/stock/jp/save/xbrl-tdnet_$$(date +%Y%m%d).taz xbrl/tdnet/*.csv
+
+# SONY
+clear-sony-page:
+	rm /mnt/stock/jp; rm sony/page/*
+
+update-sony-stats:
+	ant sony-update-fund
+	ant sony-update-fund-info
+	ant sony-update-fund-price
+	ant sony-update-fund-stats
