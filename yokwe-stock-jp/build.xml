@@ -259,7 +259,7 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="sony-update-price">
+	<target name="sony-update-fund-price">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdatePrice" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
