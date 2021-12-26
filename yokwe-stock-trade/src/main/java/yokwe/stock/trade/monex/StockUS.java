@@ -54,6 +54,9 @@ public class StockUS implements Comparable<StockUS> {
 		this.type   = type;
 		this.name   = name.trim();
 	}
+	public StockUS() {
+		this("", Type.Stock, "");
+	}
 	
 	@Override
 	public int compareTo(StockUS that) {
