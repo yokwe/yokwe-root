@@ -30,7 +30,8 @@ public final class API {
 	
 	public static String encodeSymbolForURL(String symbol) {
 		// TRTN-A => TRTN%5EA
-		return symbol.replace("-", "%5E");
+		// RDS.B  => RDS%25sl%25B
+		return symbol.replace("-", "%5E").replace(".", "%25sl%25");
 	}
 	
 	public static String convertDate(String string) {
@@ -47,51 +48,64 @@ public final class API {
 		return mdy[2] + "-" + mdy[0] + "-" + mdy[1];
 	}
 	
+	public static String download(String url) {
+		String ret;
+		
+		int retryCount = 0;
+		int retryLimit = 10;
+		for(;;) {
+			HttpUtil.Result result = HttpUtil.getInstance().download(url);
+			if (result.result == null) {
+				// failed to download
+				ret = null;
+			} else {
+				ret = result.result;
+			}
+			if (ret == null) {
+				retryCount++;
+				logger.warn("download failed");
+				logger.warn("  retry    {}", retryCount);
+				logger.warn("  url      {}", url);
+				logger.warn("  response {}", result.response);
+				if (retryCount == retryLimit) {
+					logger.error("Exceed retry limit");
+					throw new UnexpectedException("Exceed retry limit");
+				}
+				// sleep for a while
+				try {
+					Thread.sleep(1000 * retryCount);
+				} catch (InterruptedException e) {
+					String exceptionName = e.getClass().getSimpleName();
+					logger.error("{} {}", exceptionName, e);
+					throw new UnexpectedException(exceptionName, e);
+				}
+				continue;
+			}
+			break;
+		}
+		
+		return ret;
+	}
+	public static <E> E getInstance(Class<E> clazz, String url) {
+		String string = download(url);
+		return string == null ? null : JSON.unmarshal(clazz, string);
+	}
+	
 	public static String download(String url, File file) {
 		String ret;
 		if (file.exists()) {
 			ret = FileUtil.read().file(file);
 		} else {
-			int retryCount = 0;
-			int retryLimit = 10;
-			for(;;) {
-				HttpUtil.Result result = HttpUtil.getInstance().download(url);
-				if (result.result == null) {
-					// failed to download
-					ret = null;
-				} else {
-					FileUtil.write().file(file, result.result);
-					ret = result.result;
-				}
-				if (ret == null) {
-					retryCount++;
-					logger.warn("download failed");
-					logger.warn("  retry    {}", retryCount);
-					logger.warn("  url      {}", url);
-					logger.warn("  response {}", result.response);
-					if (retryCount == retryLimit) {
-						logger.error("Exceed retry limit");
-						throw new UnexpectedException("Exceed retry limit");
-					}
-					// sleep for a while
-					try {
-						Thread.sleep(1000 * retryCount);
-					} catch (InterruptedException e) {
-						String exceptionName = e.getClass().getSimpleName();
-						logger.error("{} {}", exceptionName, e);
-						throw new UnexpectedException(exceptionName, e);
-					}
-					continue;
-				}
-				break;
+			ret = download(url);
+			if (ret != null) {
+				FileUtil.write().file(file, ret);
 			}
 		}
 		return ret;
 	}
 	public static String download(String url, String path) {
-		return download(url, new File(path));
+		return download(url, path == null ? null : new File(path));
 	}
-	
 	public static <E> E getInstance(Class<E> clazz, String url, String path) {
 		String string = download(url, path);
 		return string == null ? null : JSON.unmarshal(clazz, string);
