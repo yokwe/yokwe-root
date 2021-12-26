@@ -9,7 +9,8 @@ public class Screener {
 		public static final String URL = "https://api.nasdaq.com/api/screener/stocks?download=true";
 
 		public static Stock getInstance() {
-			return API.getInstance(Stock.class, URL, PATH_FILE);
+			return API.getInstance(Stock.class, URL);
+//			return API.getInstance(Stock.class, URL, PATH_FILE);
 		}
 
 		public static class Values {
@@ -69,7 +70,8 @@ public class Screener {
 		public static final String URL = "https://api.nasdaq.com/api/screener/etf?download=true";
 		
 		public static ETF getInstance() {
-			return API.getInstance(ETF.class, URL, PATH_FILE);
+			return API.getInstance(ETF.class, URL);
+//			return API.getInstance(ETF.class, URL, PATH_FILE);
 		}
 		
 		public static class Values {

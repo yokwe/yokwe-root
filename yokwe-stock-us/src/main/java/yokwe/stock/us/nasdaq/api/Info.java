@@ -19,8 +19,8 @@ public final class Info {
 	
 	public static Info getInstance(String symbol, AssetClass assetClass) {
 		String url  = getURL(symbol, assetClass);
-		String path = getPath(symbol);
-		return API.getInstance(Info.class, url, path);
+		return API.getInstance(Info.class, url);
+//		return API.getInstance(Info.class, url, getPath(symbol));
 	}
 	
 	public static Info getETF(String symbol) {

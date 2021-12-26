@@ -26,8 +26,8 @@ public class Historical {
 
 	public static Historical getInstance(String symbol, AssetClass assetClass, LocalDate fromDate, LocalDate toDate) {
 		String url = getURL(symbol, assetClass, fromDate, toDate);
-		String path = getPath(symbol);
-		return API.getInstance(Historical.class, url, path);
+		return API.getInstance(Historical.class, url);
+//		return API.getInstance(Historical.class, url, getPath(symbol));
 	}
 	
 	public static class Values {

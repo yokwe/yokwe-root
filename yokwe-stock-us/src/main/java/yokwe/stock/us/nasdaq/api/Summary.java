@@ -25,8 +25,8 @@ public final class Summary {
 	public static final class Stock {
 		public static Stock getInstance(String symbol) {
 			String url  = getURL(symbol, AssetClass.STOCK);
-			String path = getPath(symbol);
-			return API.getInstance(Stock.class, url, path);
+			return API.getInstance(Stock.class, url);
+//			return API.getInstance(Stock.class, url, getPath(symbol));
 		}
 		
 		public static final class SummaryData {
@@ -125,8 +125,8 @@ public final class Summary {
 	public static final class ETF {
 		public static ETF getInstance(String symbol) {
 			String url  = getURL(symbol, AssetClass.ETF);
-			String path = getPath(symbol);
-			return API.getInstance(ETF.class, url, path);
+			return API.getInstance(ETF.class, url);
+//			return API.getInstance(ETF.class, url, getPath(symbol));
 		}
 		
 		public static final class SummaryData {

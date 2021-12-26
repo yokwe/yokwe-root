@@ -19,8 +19,8 @@ public class Dividends {
 
 	public static Dividends getInstance(String symbol, AssetClass assetClass, int limit) {
 		String url  = getURL(symbol, assetClass, limit);
-		String path = getPath(symbol);
-		return API.getInstance(Dividends.class, url, path);
+		return API.getInstance(Dividends.class, url);
+//		return API.getInstance(Dividends.class, url, getPath(symbol));
 	}
 	public static Dividends getInstance(String symbol, AssetClass assetClass) {
 		return getInstance(symbol, assetClass, 9999);
