@@ -7,6 +7,7 @@ import java.util.Map;
 
 import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.api.API;
+import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Screener;
 import yokwe.util.CSVUtil;
 
@@ -35,7 +36,7 @@ public class StockList implements CSVUtil.Detail {
 			logger.info("etf     {}", instance.data.data.rows.length);
 			for(var e: instance.data.data.rows) {
 				String symbol = API.normalizeSymbol(e.symbol.trim());
-				list.add(new StockList(symbol, API.ETF));
+				list.add(new StockList(symbol, AssetClass.ETF));
 			}
 		}
 		// Stock
@@ -44,7 +45,7 @@ public class StockList implements CSVUtil.Detail {
 			logger.info("stock   {}", instance.data.rows.length);
 			for(var e: instance.data.rows) {
 				String symbol = API.normalizeSymbol(e.symbol.trim());
-				list.add(new StockList(symbol, API.STOCK));
+				list.add(new StockList(symbol, AssetClass.STOCK));
 			}
 		}
 		
@@ -52,10 +53,10 @@ public class StockList implements CSVUtil.Detail {
 		logger.info("save {} {}", list.size(), StockList.PATH_FILE);
 	}
 	
-	public String symbol     = null;
-	public String assetClass = null;
+	public String symbol         = null;
+	public AssetClass assetClass = null;
 	
-	public StockList(String symbol, String assetClass) {
+	public StockList(String symbol, AssetClass assetClass) {
 		this.symbol     = symbol;
 		this.assetClass = assetClass;
 	}

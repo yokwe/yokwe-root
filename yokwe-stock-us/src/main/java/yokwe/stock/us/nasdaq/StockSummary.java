@@ -7,6 +7,7 @@ import java.util.Map;
 
 import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.api.API;
+import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Summary;
 import yokwe.util.CSVUtil;
 import yokwe.util.StringUtil;
@@ -44,9 +45,9 @@ public class StockSummary implements CSVUtil.Detail {
 			
 			String symbol = e.symbol;
 			
-			if (e.assetClass.equals(API.ETF)) {
+			if (e.assetClass.equals(AssetClass.ETF)) {
 				Summary.ETF.getInstance(symbol);
-			} else if (e.assetClass.equals(API.STOCK)) {
+			} else if (e.assetClass.equals(AssetClass.STOCK)) {
 				Summary.Stock.getInstance(symbol);
 			} else {
 				logger.error("Unexpected");
@@ -65,8 +66,8 @@ public class StockSummary implements CSVUtil.Detail {
 			if ((count % 1000) == 0) logger.info("{}", String.format("%5d / %5d  %s", count, countTotal, e.symbol));
 			count++;
 
-			String symbol     = e.symbol;
-			String assetClass = e.assetClass;
+			String     symbol     = e.symbol;
+			AssetClass assetClass = e.assetClass;
 			
 			String annualizedDividend;
 //				String beta;
@@ -79,7 +80,7 @@ public class StockSummary implements CSVUtil.Detail {
 			String todayHighLow;
 			String yield;
 
-			if (e.assetClass.equals(API.ETF)) {
+			if (e.assetClass.equals(AssetClass.ETF)) {
 				Summary.ETF summary = Summary.ETF.getInstance(symbol);
 				if (summary.data == null) {
 					logger.warn("data is null {}", e.symbol);
@@ -95,7 +96,7 @@ public class StockSummary implements CSVUtil.Detail {
 				shareVolume         = summary.data.summaryData.shareVolume.value.replace("N/A", "").replace(",", "").replace("$", "");
 				todayHighLow        = summary.data.summaryData.todayHighLow.value.replace("N/A", "").replace(",", "").replace("$", "");
 				yield               = summary.data.summaryData.yield.value.replace("N/A", "").replace(",", "").replace("$", "");
-			} else if (e.assetClass.equals(API.STOCK)) {
+			} else if (e.assetClass.equals(AssetClass.STOCK)) {
 				Summary.Stock summary = Summary.Stock.getInstance(symbol);
 				if (summary.data == null) {
 					logger.warn("data is null {}", e.symbol);
@@ -139,8 +140,9 @@ public class StockSummary implements CSVUtil.Detail {
 		logger.info("save {} {}", list.size(), StockSummary.PATH_FILE);				
 	}
 	
-	public String symbol              = null;
-	public String assetClass          = null;
+	public String     symbol          = null;
+	public AssetClass assetClass      = null;
+	
 	public String annualizedDividend  = null;
 //		public String beta                = null;
 	public String dividendPaymentDate = null;
@@ -153,8 +155,9 @@ public class StockSummary implements CSVUtil.Detail {
 	public String yield               = null;
 	
 	public StockSummary(
-			String symbol,
-			String assetClass,
+			String     symbol,
+			AssetClass assetClass,
+			
 			String annualizedDividend,
 //				String beta,
 			String dividendPaymentDate,

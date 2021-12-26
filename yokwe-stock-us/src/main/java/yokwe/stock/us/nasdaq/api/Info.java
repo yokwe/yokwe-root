@@ -12,22 +12,22 @@ public final class Info {
 		return String.format("%s/%s.json", PATH_DIR, symbol);
 	}
 	
-	public static String getURL(String symbol, String assetClass) {
+	public static String getURL(String symbol, AssetClass assetClass) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/info?assetclass=%s",
-			API.encodeSymbolForURL(symbol), API.checkAssetClass(assetClass));
+			API.encodeSymbolForURL(symbol), assetClass);
 	}
 	
-	public static Info getInstance(String symbol, String assetClass) {
+	public static Info getInstance(String symbol, AssetClass assetClass) {
 		String url  = getURL(symbol, assetClass);
 		String path = getPath(symbol);
 		return API.getInstance(Info.class, url, path);
 	}
 	
 	public static Info getETF(String symbol) {
-		return getInstance(symbol, API.ETF);
+		return getInstance(symbol, AssetClass.ETF);
 	}
 	public static Info getStock(String symbol) {
-		return getInstance(symbol, API.STOCK);
+		return getInstance(symbol, AssetClass.STOCK);
 	}
 	
 	public static class PrimaryData {

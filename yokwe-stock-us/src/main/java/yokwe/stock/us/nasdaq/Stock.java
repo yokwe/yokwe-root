@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import yokwe.stock.us.Storage;
+import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.util.CSVUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
@@ -49,9 +50,9 @@ public class Stock implements Comparable<Stock> {
 		return map;
 	}
 	
-	public String symbol;           // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
-	public String assetClass;       // STOCKS or ETF
-	public String complianceStatus; // empty or "OUT OF COMPLIANCE"
+	public String     symbol;           // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
+	public AssetClass assetClass;       // STOCKS or ETF
+	public String     complianceStatus; // empty or "OUT OF COMPLIANCE"
 	
 	public String country;          // only for STOCKS
 	public String industry;         // only for STOCKS
@@ -61,12 +62,12 @@ public class Stock implements Comparable<Stock> {
 
 	
 	public Stock(
-		String symbol, String assetClass, String complianceStatus, 
+		String symbol, AssetClass assetClass, String complianceStatus, 
 		String country, String industry, String sector,
 		String name
 		) {
 		this.symbol           = symbol.trim();
-		this.assetClass       = assetClass.trim();
+		this.assetClass       = assetClass;
 		this.complianceStatus = complianceStatus.trim();
 				
 		this.country  = country.trim();
@@ -77,7 +78,7 @@ public class Stock implements Comparable<Stock> {
 	}
 	public Stock() {
 		this(
-			"", "", "",
+			"", AssetClass.STOCK, "",
 			"", "", "",
 			""
 			);

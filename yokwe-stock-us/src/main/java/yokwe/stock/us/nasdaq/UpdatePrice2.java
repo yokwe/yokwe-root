@@ -14,6 +14,7 @@ import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.UpdatePrice.Symbol;
 import yokwe.stock.us.nasdaq.api.Historical;
 import yokwe.stock.us.nasdaq.api.API;
+import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.util.CSVUtil;
 import yokwe.util.Market;
 import yokwe.util.StringUtil;
@@ -29,10 +30,10 @@ public class UpdatePrice2 {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdatePrice2.class);
 
 	public static class Request {
-		public String symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
-		public String assetClass; // STOCKS or ETF
+		public String     symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
+		public AssetClass assetClass; // STOCKS or ETF
 		
-		public Request(String symbol, String assetClass) {
+		public Request(String symbol, AssetClass assetClass) {
 			this.symbol     = symbol;
 			this.assetClass = assetClass;
 		}
@@ -173,7 +174,7 @@ public class UpdatePrice2 {
 		Collections.shuffle(requestList);
 		for(Request request: requestList) {
 			String symbol = request.symbol;
-			String uriString = Historical.getURL(request.assetClass, request.symbol, fromDate, toDate);
+			String uriString = Historical.getURL(request.symbol, request.assetClass, fromDate, toDate);
 			
 			Task   task      = StringTask.get(uriString, new MyConsumer(context, symbol));
 			download.addTask(task);

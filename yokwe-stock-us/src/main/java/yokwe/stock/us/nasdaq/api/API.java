@@ -47,21 +47,6 @@ public final class API {
 		return mdy[2] + "-" + mdy[0] + "-" + mdy[1];
 	}
 	
-	public static final String STOCK = "stocks";
-	public static final String ETF   = "etf";
-	public static String checkAssetClass(String assetClass) {
-		switch(assetClass) {
-		case ETF:
-		case STOCK:
-			break;
-		default:
-			logger.error("Unexpected assetClass");
-			logger.error("  assetClass {}!", assetClass);
-			throw new UnexpectedException("Unexpected assetClass");
-		}
-		return assetClass;
-	}
-	
 	public static String download(String url, File file) {
 		String ret;
 		if (file.exists()) {

@@ -12,18 +12,18 @@ public class Dividends {
 	// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
 	// https://api.nasdaq.com/api/quote/LMT/dividends?assetclass=stocks
 
-	public static String getURL(String symbol, String assetClass, int limit) {
+	public static String getURL(String symbol, AssetClass assetClass, int limit) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/dividends?assetclass=%s&limit=%d",
-			API.encodeSymbolForURL(symbol), API.checkAssetClass(assetClass), limit);
+			API.encodeSymbolForURL(symbol), assetClass, limit);
 	}
 
-	public static Dividends getInstance(String symbol, String assetClass, int limit) {
+	public static Dividends getInstance(String symbol, AssetClass assetClass, int limit) {
 		String url  = getURL(symbol, assetClass, limit);
 		String path = getPath(symbol);
 		return API.getInstance(Dividends.class, url, path);
 	}
-	public static Dividends getInstance(String symbol, String assetClass) {
-		return getInstance(assetClass, symbol, 9999);
+	public static Dividends getInstance(String symbol, AssetClass assetClass) {
+		return getInstance(symbol, assetClass, 9999);
 	}
 
 	

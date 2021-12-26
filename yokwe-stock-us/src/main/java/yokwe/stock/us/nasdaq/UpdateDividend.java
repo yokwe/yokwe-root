@@ -7,6 +7,7 @@ import java.util.Map;
 import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.api.Dividends;
 import yokwe.stock.us.nasdaq.api.API;
+import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
 import yokwe.util.StringUtil;
@@ -16,10 +17,10 @@ public class UpdateDividend {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividend.class);
 	
 	public static class Request {
-		public String symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
-		public String assetClass; // STOCKS or ETF
+		public String     symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
+		public AssetClass assetClass; // STOCKS or ETF
 		
-		public Request(String symbol, String assetClass) {
+		public Request(String symbol, AssetClass assetClass) {
 			this.symbol     = symbol;
 			this.assetClass = assetClass;
 		}
@@ -36,7 +37,7 @@ public class UpdateDividend {
 		Map<String, Dividend> map = Dividend.getMap(request.symbol);
 		if (map.size() != 0) return; // FIXME
 		
-		Dividends dividends = Dividends.getInstance(request.assetClass, request.symbol, 16); // up to 1 years  16 = 12 + 4
+		Dividends dividends = Dividends.getInstance(request.symbol, request.assetClass, 16); // up to 1 years  16 = 12 + 4
 		// {"data":{"exDividendDate":"N/A","dividendPaymentDate":"N/A","yield":"N/A","annualizedDividend":"N/A","payoutRatio":"N/A","dividends":{"headers":null,"rows":null}},
 		
 		if (dividends.data == null) {

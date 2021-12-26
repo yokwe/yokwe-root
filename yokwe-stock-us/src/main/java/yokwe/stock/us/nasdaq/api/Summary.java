@@ -13,9 +13,9 @@ public final class Summary {
 	// https://api.nasdaq.com/api/quote/LMT/summary?assetclass=stocks
 	// https://api.nasdaq.com/api/quote/YYY/summary?assetclass=etf
 	
-	public static String getURL(String symbol, String assetClass) {
+	public static String getURL(String symbol, AssetClass assetClass) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/summary?assetclass=%s",
-			API.encodeSymbolForURL(symbol), API.checkAssetClass(assetClass));
+			API.encodeSymbolForURL(symbol), assetClass);
 	}
 	
 	public static final class AdditionalData {
@@ -24,7 +24,7 @@ public final class Summary {
 
 	public static final class Stock {
 		public static Stock getInstance(String symbol) {
-			String url  = getURL(symbol, API.STOCK);
+			String url  = getURL(symbol, AssetClass.STOCK);
 			String path = getPath(symbol);
 			return API.getInstance(Stock.class, url, path);
 		}
@@ -124,7 +124,7 @@ public final class Summary {
 	}
 	public static final class ETF {
 		public static ETF getInstance(String symbol) {
-			String url  = getURL(symbol, API.ETF);
+			String url  = getURL(symbol, AssetClass.ETF);
 			String path = getPath(symbol);
 			return API.getInstance(ETF.class, url, path);
 		}

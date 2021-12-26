@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.api.Historical;
 import yokwe.stock.us.nasdaq.api.API;
+import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.util.CSVUtil;
 import yokwe.util.Market;
 import yokwe.util.StringUtil;
@@ -19,10 +20,10 @@ public class UpdatePrice {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdatePrice.class);
 	
 	public static class Request {
-		public String symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
-		public String assetClass; // STOCKS or ETF
+		public String     symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
+		public AssetClass assetClass; // STOCKS or ETF
 		
-		public Request(String symbol, String assetClass) {
+		public Request(String symbol, AssetClass assetClass) {
 			this.symbol     = symbol;
 			this.assetClass = assetClass;
 		}
@@ -83,7 +84,7 @@ public class UpdatePrice {
 	}
 	
 	public static void update(Request request, LocalDate fromDate, LocalDate toDate) {
-		Historical historical = Historical.getInstance(request.assetClass, request.symbol, fromDate, toDate);
+		Historical historical = Historical.getInstance(request.symbol, request.assetClass, fromDate, toDate);
 		
 		if (historical.data == null) {
 			logger.warn("no data {}", request.symbol);
