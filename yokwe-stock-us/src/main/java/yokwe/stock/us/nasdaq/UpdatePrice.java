@@ -2,16 +2,14 @@ package yokwe.stock.us.nasdaq;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import yokwe.stock.us.Storage;
-import yokwe.stock.us.nasdaq.api.Historical;
 import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
-import yokwe.util.CSVUtil;
+import yokwe.stock.us.nasdaq.api.Historical;
 import yokwe.util.Market;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
@@ -22,10 +20,14 @@ public class UpdatePrice {
 	public static class Request {
 		public String     symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
 		public AssetClass assetClass; // STOCKS or ETF
+		public LocalDate  fromDate;
+		public LocalDate  toDate;
 		
-		public Request(String symbol, AssetClass assetClass) {
+		public Request(String symbol, AssetClass assetClass, LocalDate fromDate, LocalDate toDate) {
 			this.symbol     = symbol;
 			this.assetClass = assetClass;
+			this.fromDate   = fromDate;
+			this.toDate     = toDate;
 		}
 
 		@Override
@@ -34,57 +36,8 @@ public class UpdatePrice {
 		}
 	}
 	
-	public static class Duration {
-		public static enum Unit {
-			YEAR, MONTH, WEEK, DAY
-		}
-		
-		public static Duration Year(int value) {
-			return new Duration(Unit.YEAR, value);
-		}
-		public static Duration Month(int value) {
-			return new Duration(Unit.MONTH, value);
-		}
-		public static Duration Week(int value) {
-			return new Duration(Unit.WEEK, value);
-		}
-		public static Duration Day(int value) {
-			return new Duration(Unit.DAY, value);
-		}
-		
-		public Unit unit;
-		public int  value;
-		
-		public Duration(Unit unit, int value) {
-			this.unit  = unit;
-			this.value = value;
-		}
-		
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-		
-		public LocalDate apply(LocalDate date) {
-			switch(unit) {
-			case YEAR:
-				return date.minusYears(value);
-			case MONTH:
-				return date.minusMonths(value);
-			case WEEK:
-				return date.minusWeeks(value);
-			case DAY:
-				return date.minusDays(value);
-			default:
-				logger.error("Unexpected");
-				logger.error("  {}", this);
-				throw new UnexpectedException("Unexpected");
-			}
-		}
-	}
-	
-	public static void update(Request request, LocalDate fromDate, LocalDate toDate) {
-		Historical historical = Historical.getInstance(request.symbol, request.assetClass, fromDate, toDate);
+	public static void update(Request request) {
+		Historical historical = Historical.getInstance(request.symbol, request.assetClass, request.fromDate, request.toDate);
 		
 		if (historical.data == null) {
 			logger.warn("no data {}", request.symbol);
@@ -139,75 +92,87 @@ public class UpdatePrice {
 		Price.save(map.values());
 	}
 	
-	public static class Symbol {
-		public String symbol;
-		
-		public Symbol() {
-			symbol = null;
-		}
-	}
-	
 	public static void main(String[] args) {
 		logger.info("START");
 		
 		// build toDate and fromDate
-		LocalDate toDate   = Market.getLastTradingDate();
-		LocalDate fromDate;
+		final LocalDate toDate   = Market.getLastTradingDate();
+		final LocalDate fromDate;
 		{
-			Duration duration = Duration.Year(1);
-			logger.info("duration {}", duration);
-					
-			fromDate = duration.apply(toDate);
-			if (Market.isClosed(fromDate)) {
-				fromDate = Market.getPreviousTradeDate(fromDate);
-			}
-			logger.info("date range {} - {}", fromDate, toDate);
+			LocalDate date = toDate.minusYears(1);
+			fromDate = Market.isClosed(date) ? Market.getPreviousTradeDate(date) : date;
 		}
+		logger.info("date range {} - {}", fromDate, toDate);
 		
 		// build requestList
 		List<Request> requestList = new ArrayList<>();
 		{
-			List<Symbol> symbolList = CSVUtil.read(Symbol.class).file(Storage.NASDAQ.getPath("symbol.csv"));
+			List<Symbol> symbolList = Symbol.getList();
 			logger.info("symbol    {}", symbolList.size());
 
-			String             toDateString = toDate.toString();
-			List<String>       unknownList  = new ArrayList<>();
-			Map<String, Stock> stockMap     = Stock.getMap();
-			
-			int countProcessed = 0;
-			for(var e: symbolList) {
+			int countCaseA = 0;
+			int countCaseB = 0;
+			int countCaseC = 0;
+			int countCaseD = 0;
+			for(Symbol e: symbolList) {
 				String symbol = e.symbol;
-				if (stockMap.containsKey(symbol)) {
-					Stock stock = stockMap.get(symbol);
-					
-					Set<String> dateSet = Price.getList(symbol).stream().map(o -> o.date).collect(Collectors.toSet());
-					if (dateSet.contains(toDateString)) {
-						// already processed
-						countProcessed++;
-					} else {
-						requestList.add(new Request(stock.symbol, stock.assetClass));
-					}
+				
+				List<String> dateList = Price.getList(symbol).stream().map(o -> o.date).collect(Collectors.toList());
+				Collections.sort(dateList);
+				
+				final LocalDate myFromDate;
+				final LocalDate myToDate;
+
+				if (dateList.isEmpty()) {
+					// whole
+					myFromDate = fromDate;
+					myToDate   = toDate;
+					logger.info("A {} {} {}", myFromDate, myToDate, symbol);
+					countCaseA++;
 				} else {
-					unknownList.add(symbol);
-//					logger.warn("Unknown symbol {}", symbol);
+					// date of existing data
+					LocalDate dateFirst = LocalDate.parse(dateList.get(0));
+					LocalDate dateLast  = LocalDate.parse(dateList.get(dateList.size() - 1));
+					
+					if (dateLast.isEqual(toDate)) {
+						// already processed
+						countCaseB++;
+//						logger.info("B {}-{}  {}", dateFirst, dateLast, symbol);
+						continue;
+					} else if (dateFirst.isBefore(fromDate) || dateFirst.isEqual(fromDate)) {
+						myFromDate = Market.getNextTradeDate(dateLast);
+						myToDate   = toDate;
+						countCaseC++;
+						logger.info("C {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
+					} else {
+						myFromDate = fromDate;
+						myToDate   = toDate;
+						countCaseD++;
+						logger.info("D {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
+					}
 				}
+				requestList.add(new Request(e.symbol, e.assetClass, myFromDate, myToDate));
 			}
-			logger.info("unknown   {} {}", unknownList.size(), unknownList);
-			logger.info("processed {}", countProcessed);
+			
+			logger.info("caseA     {}", countCaseA);
+			logger.info("caseB     {}", countCaseB);
+			logger.info("caseC     {}", countCaseC);
+			logger.info("caseD     {}", countCaseD);
 			logger.info("request   {}", requestList.size());
 		}
-		
 
 		{
 			int count = 0;
 			int toatlCount = requestList.size();
+			
+			Collections.shuffle(requestList);
 			for(var e: requestList) {
-				if ((count % 100) == 0) {
+				if ((count % 50) == 0) {
 					logger.info("{}", String.format("%5d / %5d %s", count, toatlCount, e.symbol));
 				}
 				count++;
 				
-				update(e, fromDate, toDate);
+				update(e);
 			}
 		}
 		
