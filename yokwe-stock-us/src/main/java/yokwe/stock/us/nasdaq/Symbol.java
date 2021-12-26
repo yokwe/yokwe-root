@@ -4,13 +4,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import yokwe.stock.us.Storage;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.util.CSVUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 
 public class Symbol implements Comparable<Symbol> {
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Symbol.class);
+
 	private static final String PATH_FILE = Storage.NASDAQ.getPath("symbol.csv");
 	public static String getPath() {
 		return PATH_FILE;
@@ -25,9 +30,31 @@ public class Symbol implements Comparable<Symbol> {
 		CSVUtil.write(Symbol.class).file(getPath(), list);
 	}
 	
+	public static List<Symbol> load() {
+		return CSVUtil.read(Symbol.class).file(getPath());
+	}
 	public static List<Symbol> getList() {
-		List<Symbol> ret = CSVUtil.read(Symbol.class).file(getPath());
+		List<Symbol> ret = load();
 		return ret == null ? new ArrayList<>() : ret;
+	}
+	
+	public static Map<String, Symbol> getMap() {
+		//            symbol
+		Map<String, Symbol> ret = new TreeMap<>();
+		
+		for(var e: getList()) {
+			String symbol = e.symbol;
+			if (ret.containsKey(symbol)) {
+				logger.error("Duplicate symbol");
+				logger.error("  date {}", symbol);
+				logger.error("  old {}", ret.get(symbol));
+				logger.error("  new {}", e);
+				throw new UnexpectedException("Duplicate symbol");
+			} else {
+				ret.put(symbol, e);
+			}
+		}
+		return ret;
 	}
 	
 	public String     symbol; // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
