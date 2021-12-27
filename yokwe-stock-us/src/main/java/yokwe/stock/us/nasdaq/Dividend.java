@@ -38,19 +38,18 @@ public class Dividend implements Comparable<Dividend> {
 		return ret == null ? new ArrayList<>() : ret;
 	}
 	public static Map<String, Dividend> getMap(String symbol) {
-		//            recordDate
+		//            exDate
 		Map<String, Dividend> ret = new TreeMap<>();
 		
 		for(var e: getList(symbol)) {
-			String recordDate = e.recordDate;
-			if (ret.containsKey(recordDate)) {
-				logger.error("Duplicate payDate");
-				logger.error("  recordDate {}", recordDate);
-				logger.error("  old {}", ret.get(symbol));
+			String exDate = e.exDate;
+			if (ret.containsKey(exDate)) {
+				logger.error("Duplicate exDate");
+				logger.error("  old {}", ret.get(exDate));
 				logger.error("  new {}", e);
-				throw new UnexpectedException("Duplicate payDate");
+				throw new UnexpectedException("Duplicate exDate");
 			} else {
-				ret.put(recordDate, e);
+				ret.put(exDate, e);
 			}
 		}
 		
@@ -63,19 +62,21 @@ public class Dividend implements Comparable<Dividend> {
 	@CSVUtil.DecimalPlaces(6)
 	public double amount;
 	public String declDate;   // YYYY-MM-DD
+	public String exDate;     // YYYY-MM-DD
 	public String recordDate; // YYYY-MM-DD
 	public String payDate;    // YYYY-MM-DD
 	
-	public Dividend(String symbol, String type, double amount, String declDate, String recordDate, String payDate) {
+	public Dividend(String symbol, String type, double amount, String declDate, String exDate, String recordDate, String payDate) {
 		this.symbol     = symbol == null ? null : symbol.trim();
 		this.type       = type == null ? null : type.trim();
 		this.amount     = DoubleUtil.roundQuantity(amount);
 		this.declDate   = declDate;
+		this.exDate     = exDate;
 		this.recordDate = recordDate;
 		this.payDate    = payDate;
 	}
 	public Dividend() {
-		this(null, null, 0, null, null, null);
+		this(null, null, 0, null, null, null, null);
 	}
 	
 	@Override
@@ -86,7 +87,7 @@ public class Dividend implements Comparable<Dividend> {
 	@Override
 	public int compareTo(Dividend that) {
 		int ret = this.symbol.compareTo(that.symbol);
-		if (ret == 0) ret= this.recordDate.compareTo(that.recordDate);
+		if (ret == 0) ret= this.exDate.compareTo(that.exDate);
 		return ret;
 	}
 	
@@ -99,6 +100,7 @@ public class Dividend implements Comparable<Dividend> {
 				this.type.equals(that.type) &&
 				DoubleUtil.isAlmostEqual(this.amount,  that.amount) &&
 				this.declDate.equals(that.declDate) &&
+				this.exDate.equals(that.exDate) &&
 				this.recordDate.equals(that.recordDate) &&
 				this.payDate.equals(that.payDate);
 		} else {
