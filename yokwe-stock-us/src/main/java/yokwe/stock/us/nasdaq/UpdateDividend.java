@@ -1,15 +1,15 @@
 package yokwe.stock.us.nasdaq;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import yokwe.stock.us.Storage;
-import yokwe.stock.us.nasdaq.api.Dividends;
 import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
-import yokwe.util.CSVUtil;
-import yokwe.util.DoubleUtil;
+import yokwe.stock.us.nasdaq.api.Dividends;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
@@ -31,30 +31,45 @@ public class UpdateDividend {
 		}
 	}
 
-	public static void update(Request request) {
-		logger.info("update {}", request.symbol); // FIXME
+	public static void update(Map<String, StockDividend> stockDividendMap, Request request) {
+//		logger.info("update {}", request.symbol); // FIXME
 		
 		Map<String, Dividend> map = Dividend.getMap(request.symbol);
-		if (map.size() != 0) return; // FIXME
 		
 		Dividends dividends = Dividends.getInstance(request.symbol, request.assetClass, 16); // up to 1 years  16 = 12 + 4
 		// {"data":{"exDividendDate":"N/A","dividendPaymentDate":"N/A","yield":"N/A","annualizedDividend":"N/A","payoutRatio":"N/A","dividends":{"headers":null,"rows":null}},
 		
 		if (dividends.data == null) {
 			logger.warn("data is null {}", request.symbol);
+			// Add dummy entry
+			StockDividend stockDividend = new StockDividend(request.symbol);
+			stockDividendMap.put(request.symbol, stockDividend);
+			StockDividend.save(stockDividendMap.values());
 			return;
 		}
 		if (dividends.data.dividends == null) {
 			logger.warn("dividends is null {}", request.symbol);
+			// Add dummy entry
+			StockDividend stockDividend = new StockDividend(request.symbol);
+			stockDividendMap.put(request.symbol, stockDividend);
+			StockDividend.save(stockDividendMap.values());
 			return;
 		}
 		if (dividends.data.dividends.rows == null) {
 //			logger.warn("rows is null {}", request.symbol);
+			// Add dummy entry
+			StockDividend stockDividend = new StockDividend(request.symbol);
+			stockDividendMap.put(request.symbol, stockDividend);
+			StockDividend.save(stockDividendMap.values());
 			return;
 		}
 		// if no data, just return
 		if (dividends.data.dividends.rows.length == 0) {
 			logger.warn("rows.length == 0 {}", request.symbol);
+			// Add dummy entry
+			StockDividend stockDividend = new StockDividend(request.symbol);
+			stockDividendMap.put(request.symbol, stockDividend);
+			StockDividend.save(stockDividendMap.values());
 			return;
 		}
 		
@@ -64,6 +79,7 @@ public class UpdateDividend {
 			String type       = e.type;
 			String amount     = e.amount.replace("$", "");
 			String declDate   = API.convertDate(e.declarationDate);
+			String exDate     = API.convertDate(e.exOrEffDate);
 			String recordDate = API.convertDate(e.recordDate);
 			String payDate    = API.convertDate(e.paymentDate);
 			
@@ -72,8 +88,8 @@ public class UpdateDividend {
 				logger.warn("  {}", e);
 				continue;
 			}
-			if (recordDate.isEmpty()) {
-				logger.warn("recordDate is empty");
+			if (exDate.isEmpty()) {
+				logger.warn("exDate is empty");
 				logger.warn("  {}", e);
 				continue;
 			}
@@ -85,85 +101,145 @@ public class UpdateDividend {
 				type,
 				Double.parseDouble(amount),
 				declDate,
+				exDate,
 				recordDate,
 				payDate
 				);
 			
-			if (map.containsKey(recordDate)) {
-				Dividend old = map.get(recordDate);
+			if (map.containsKey(exDate)) {
+				Dividend old = map.get(exDate);
 				if (dividend.equals(old)) {
 					// OK
 				} else {
-					if (DoubleUtil.isAlmostEqual(old.amount, dividend.amount) || old.recordDate.equals(dividend.recordDate)) {
-						// overwrite
-						logger.warn("overwrite");
-						logger.warn("  old {}", old);
-						logger.warn("  new {}", dividend);
-						map.put(recordDate, dividend);
-					} else {
-						logger.error("Unpexpected");
-						logger.error("  old {}", old);
-						logger.error("  new {}", dividend);
-						throw new UnexpectedException("Unpexpected");
-					}
+					logger.error("Unpexpected");
+					logger.error("  old {}", old);
+					logger.error("  new {}", dividend);
+					throw new UnexpectedException("Unpexpected");
 				}
 			} else {
-				map.put(recordDate, dividend);
+				map.put(exDate, dividend);
 			}
 		}
 
 		// save
 		Dividend.save(map.values());
-	}
-
-	public static class Symbol {
-		public String symbol;
 		
-		public Symbol() {
-			symbol = null;
+		// update stockDividendMap
+		{
+			List<Dividend> divList = map.values().stream().collect(Collectors.toList());
+			Collections.sort(divList);
+			updateStockDividendMap(stockDividendMap, request.symbol, divList);
+			
+			// save stockPriceMap
+			StockDividend.save(stockDividendMap.values());
 		}
 	}
 	
+	private static void updateStockDividendMap(Map<String, StockDividend> stockDividendMap, String symbol, List<Dividend> dividendList) {
+		final StockDividend stockDividend;
+		
+		if (stockDividendMap.containsKey(symbol)) {
+			stockDividend = stockDividendMap.get(symbol);
+		} else {
+			stockDividend = new StockDividend(symbol);
+			stockDividendMap.put(symbol, stockDividend);
+		}
+
+		stockDividend.annual     = 0;
+		stockDividend.count      = 0;
+		if (dividendList.isEmpty()) {
+			stockDividend.lastExDate = StockDividend.DEFAULT_DATE;
+		} else {
+			// calculate annual
+			LocalDate dateLast  = LocalDate.now();
+			LocalDate dateFirst = dateLast.minusYears(1).minusDays(5);
+			
+			for(var e: dividendList) {
+				LocalDate exDate = LocalDate.parse(e.exDate);
+				if ((exDate.isAfter(dateFirst) && exDate.isBefore(dateLast)) || exDate.isEqual(dateFirst) || exDate.isEqual(dateLast)) {
+					stockDividend.lastExDate = e.exDate;
+					stockDividend.annual += e.amount;
+					stockDividend.count++;
+				}
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		// build symbolList from symbol.csv
-		List<Symbol> symbolList = CSVUtil.read(Symbol.class).file(Storage.NASDAQ.getPath("symbol.csv"));
-		logger.info("symbol    {}", symbolList.size());
+		// read existing StockDividend
+		Map<String, StockDividend> stockDividendMap = StockDividend.getMap();
+		//  symbol
+		logger.info("map       {}", stockDividendMap.size());
 		
 		// build requestList
 		List<Request> requestList = new ArrayList<>();
 		{
-			List<String> unknownList = new ArrayList<>();
-			Map<String, Stock> stockMap = Stock.getMap();
+			List<Symbol> symbolList = Symbol.getList();
+			logger.info("symbol    {}", symbolList.size());
+
+			int countCaseA = 0;
+			int countCaseB = 0;
+			int countCaseC = 0;
+			int countCaseD = 0;
 			for(var e: symbolList) {
 				String symbol = e.symbol;
 				
-				if (!Dividend.getList(symbol).isEmpty()) continue;
-				
-				if (stockMap.containsKey(symbol)) {
-					Stock stock = stockMap.get(symbol);
-					requestList.add(new Request(stock.symbol, stock.assetClass));
+				final StockDividend stockDividend;
+				if (stockDividendMap.containsKey(symbol)) {
+					// already execute once
+					stockDividend = stockDividendMap.get(symbol);
+					
+					if (stockDividend.isEmpty()) {
+						countCaseA++;
+						// no dividend stock
+						continue;
+					} else {
+						// read existing dividend
+						List<Dividend> dividendList = Dividend.getList(symbol);
+						if (dividendList.isEmpty()) {
+							countCaseB++;
+							// assume data
+							logger.warn("expect dividend data");
+							logger.warn("  symbol {}", symbol);
+						} else {
+							countCaseC++;
+							updateStockDividendMap(stockDividendMap, symbol, dividendList);
+						}
+						requestList.add(new Request(e.symbol, e.assetClass));
+					}
 				} else {
-					unknownList.add(symbol);
-//					logger.warn("Unknown symbol {}", symbol);
+					countCaseD++;
+					// new symbol
+					// want to process
+					requestList.add(new Request(e.symbol, e.assetClass));
 				}
 			}
-			logger.info("unknown   {} {}", unknownList.size(), unknownList);
+			logger.info("caseA     {}", countCaseA);
+			logger.info("caseB     {}", countCaseB);
+			logger.info("caseC     {}", countCaseC);
+			logger.info("caseD     {}", countCaseD);
 			logger.info("request   {}", requestList.size());
+			logger.info("map       {}", stockDividendMap.size());
+			
+			// save stockPriceMap
+			StockDividend.save(stockDividendMap.values());
 		}
 		
 
 		int count = 0;
 		int toatlCount = requestList.size();
+		Collections.shuffle(requestList);
 		for(var e: requestList) {
-			if ((count % 100) == 0) {
+			if ((count % 50) == 0) {
 				logger.info("{}", String.format("%5d / %5d %s", count, toatlCount, e.symbol));
 			}
 			count++;
 			
-			update(e);
+			update(stockDividendMap, e);
 		}
+		logger.info("save {} {}", stockDividendMap.size(), StockDividend.getPath());
 		
 		logger.info("STOP");
 	}

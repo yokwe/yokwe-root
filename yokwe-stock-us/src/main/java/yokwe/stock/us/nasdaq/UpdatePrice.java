@@ -36,7 +36,7 @@ public class UpdatePrice {
 		}
 	}
 	
-	public static void update(Request request) {
+	public static void update(Map<String, StockPrice> stockPriceMap, Request request) {
 		Historical historical = Historical.getInstance(request.symbol, request.assetClass, request.fromDate, request.toDate);
 		
 		if (historical.data == null) {
@@ -52,6 +52,7 @@ public class UpdatePrice {
 			return; // no data
 		}
 		
+		// read existing data
 		Map<String, Price> map = Price.getMap(request.symbol);
 		
 		for(var e: historical.data.tradesTable.rows) {
@@ -90,6 +91,40 @@ public class UpdatePrice {
 
 		// save
 		Price.save(map.values());
+		
+		// update stockPriceMap
+		{
+			List<Price> priceList = map.values().stream().collect(Collectors.toList());
+			Collections.sort(priceList);
+			updateStockPriceMap(stockPriceMap, request.symbol, priceList);
+			
+			// save stockPriceMap
+			StockPrice.save(stockPriceMap.values());
+		}
+	}
+	
+	private static void updateStockPriceMap(Map<String, StockPrice> stockPriceMap, String symbol, List<Price> priceList) {
+		final StockPrice stockPrice;
+		if (stockPriceMap.containsKey(symbol)) {
+			stockPrice = stockPriceMap.get(symbol);
+		} else {
+			stockPrice = new StockPrice();
+			stockPrice.symbol = symbol;
+			stockPriceMap.put(symbol, stockPrice);
+		}
+		
+		if (priceList.isEmpty()) {
+			stockPrice.dateFirst = StockPrice.DEFAULT_DATE;
+			stockPrice.dateLast  = StockPrice.DEFAULT_DATE;
+			stockPrice.close     = 0;
+		} else {
+			Price firstPrice = priceList.get(0);
+			Price lastPrice  = priceList.get(priceList.size() - 1);
+			
+			stockPrice.dateFirst = firstPrice.date.toString();
+			stockPrice.dateLast  = lastPrice.date.toString();
+			stockPrice.close     = lastPrice.close;
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -104,6 +139,10 @@ public class UpdatePrice {
 		}
 		logger.info("date range {} - {}", fromDate, toDate);
 		
+		// read existing StockPrice
+		Map<String, StockPrice> stockPriceMap = StockPrice.getMap();
+		//  symbol
+		
 		// build requestList
 		List<Request> requestList = new ArrayList<>();
 		{
@@ -117,13 +156,17 @@ public class UpdatePrice {
 			for(Symbol e: symbolList) {
 				String symbol = e.symbol;
 				
-				List<String> dateList = Price.getList(symbol).stream().map(o -> o.date).collect(Collectors.toList());
-				Collections.sort(dateList);
+				// read existing price
+				List<Price> priceList = Price.getList(symbol);
+				
+				// update stockPriceMap
+				updateStockPriceMap(stockPriceMap, symbol, priceList);
+				StockPrice stockPrice = stockPriceMap.get(symbol);
 				
 				final LocalDate myFromDate;
 				final LocalDate myToDate;
 
-				if (dateList.isEmpty()) {
+				if (stockPrice.isEmpty()) {
 					// whole
 					myFromDate = fromDate;
 					myToDate   = toDate;
@@ -131,8 +174,8 @@ public class UpdatePrice {
 					countCaseA++;
 				} else {
 					// date of existing data
-					LocalDate dateFirst = LocalDate.parse(dateList.get(0));
-					LocalDate dateLast  = LocalDate.parse(dateList.get(dateList.size() - 1));
+					LocalDate dateFirst = LocalDate.parse(stockPrice.dateFirst);
+					LocalDate dateLast  = LocalDate.parse(stockPrice.dateLast);
 					
 					if (dateLast.isEqual(toDate)) {
 						// already processed
@@ -159,6 +202,9 @@ public class UpdatePrice {
 			logger.info("caseC     {}", countCaseC);
 			logger.info("caseD     {}", countCaseD);
 			logger.info("request   {}", requestList.size());
+			
+			// save stockPriceMap
+			StockPrice.save(stockPriceMap.values());
 		}
 
 		{
@@ -172,9 +218,10 @@ public class UpdatePrice {
 				}
 				count++;
 				
-				update(e);
+				update(stockPriceMap, e);
 			}
 		}
+		logger.info("save {} {}", stockPriceMap.size(), StockPrice.getPath());
 		
 		logger.info("STOP");
 	}
