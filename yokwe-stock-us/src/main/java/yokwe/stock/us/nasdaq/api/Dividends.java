@@ -11,10 +11,16 @@ public class Dividends {
 
 	// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
 	// https://api.nasdaq.com/api/quote/LMT/dividends?assetclass=stocks
+	
+	public static String encodeSymbolForURL(String symbol) {
+		// TRTN-A => TRTN%5EA
+		// RDS.B  => RDS.B
+		return symbol.replace("-", "%5E");
+	}
 
 	public static String getURL(String symbol, AssetClass assetClass, int limit) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/dividends?assetclass=%s&limit=%d",
-			API.encodeSymbolForURL(symbol), assetClass, limit);
+				encodeSymbolForURL(symbol), assetClass, limit);
 	}
 
 	public static Dividends getInstance(String symbol, AssetClass assetClass, int limit) {
