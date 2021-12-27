@@ -61,7 +61,7 @@ public class StockDividend implements Comparable<StockDividend> {
 
 	public String symbol;
 	public String lastExDate;  // last date
-	@CSVUtil.DecimalPlaces(2)
+	@CSVUtil.DecimalPlaces(6)
 	public double annual;     // annualDividend -- last 1 year from today
 	public int    count;      // dividend per year -- last 1 year from today
 	
