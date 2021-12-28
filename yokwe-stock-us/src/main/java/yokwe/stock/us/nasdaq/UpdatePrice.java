@@ -131,10 +131,10 @@ public class UpdatePrice {
 		logger.info("START");
 		
 		// build toDate and fromDate
-		final LocalDate toDate   = Market.getLastTradingDate();
+		final LocalDate toDate   = Market.getLastTradingDate().plusDays(1);
 		final LocalDate fromDate;
 		{
-			LocalDate date = toDate.minusYears(1);
+			LocalDate date = Market.getLastTradingDate().minusYears(1);
 			fromDate = Market.isClosed(date) ? Market.getPreviousTradeDate(date) : date;
 		}
 		logger.info("date range {} - {}", fromDate, toDate);
