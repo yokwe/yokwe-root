@@ -186,12 +186,12 @@ public class UpdatePrice {
 						myFromDate = Market.getNextTradeDate(dateLast);
 						myToDate   = toDate;
 						countCaseC++;
-						logger.info("C {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
+//						logger.info("C {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
 					} else {
 						myFromDate = fromDate;
 						myToDate   = toDate;
 						countCaseD++;
-						logger.info("D {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
+//						logger.info("D {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
 					}
 				}
 				requestList.add(new Request(e.symbol, e.assetClass, myFromDate, myToDate));
