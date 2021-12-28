@@ -37,7 +37,8 @@ public class UpdatePrice {
 	}
 	
 	public static void update(Map<String, StockPrice> stockPriceMap, Request request) {
-		Historical historical = Historical.getInstance(request.symbol, request.assetClass, request.fromDate, request.toDate);
+		// add one day to todate
+		Historical historical = Historical.getInstance(request.symbol, request.assetClass, request.fromDate, request.toDate.plusDays(1));
 		
 		if (historical.data == null) {
 			logger.warn("no data {}", request.symbol);
@@ -131,10 +132,10 @@ public class UpdatePrice {
 		logger.info("START");
 		
 		// build toDate and fromDate
-		final LocalDate toDate   = Market.getLastTradingDate().plusDays(1);
+		final LocalDate toDate   = Market.getLastTradingDate();
 		final LocalDate fromDate;
 		{
-			LocalDate date = Market.getLastTradingDate().minusYears(1);
+			LocalDate date = toDate.minusYears(1);
 			fromDate = Market.isClosed(date) ? Market.getPreviousTradeDate(date) : date;
 		}
 		logger.info("date range {} - {}", fromDate, toDate);
