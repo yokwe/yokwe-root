@@ -37,8 +37,7 @@ public class UpdatePrice {
 	}
 	
 	public static void update(Map<String, StockPrice> stockPriceMap, Request request) {
-		// add one day to todate
-		Historical historical = Historical.getInstance(request.symbol, request.assetClass, request.fromDate, request.toDate.plusDays(1));
+		Historical historical = Historical.getInstance(request.symbol, request.assetClass, request.fromDate, request.toDate);
 		
 		if (historical.data == null) {
 			logger.warn("no data {}", request.symbol);
@@ -51,6 +50,22 @@ public class UpdatePrice {
 		if (historical.data.tradesTable.rows == null) {
 			logger.warn("no rows {}", request.symbol);
 			return; // no data
+		}
+		{
+			boolean containsToDate = false;
+			{
+				String  toDateStrng = request.toDate.toString();
+				for(var e: historical.data.tradesTable.rows) {
+					if (e.date.equals(toDateStrng)) {
+						containsToDate = true;
+						break;
+					}
+				}
+			}
+			if (!containsToDate) {
+				logger.warn("no toDate data {}", request.symbol);
+				return; // no data
+			}
 		}
 		
 		// read existing data
@@ -132,13 +147,14 @@ public class UpdatePrice {
 		logger.info("START");
 		
 		// build toDate and fromDate
-		final LocalDate toDate   = Market.getLastTradingDate();
-		final LocalDate fromDate;
+		final LocalDate lastTradingDate         = Market.getLastTradingDate();
+		final LocalDate lastTradingDatePrevious = Market.getPreviousTradeDate(lastTradingDate);
+		final LocalDate lastTradingDateMinus1Year;
 		{
-			LocalDate date = toDate.minusYears(1);
-			fromDate = Market.isClosed(date) ? Market.getPreviousTradeDate(date) : date;
+			LocalDate date = lastTradingDate.minusYears(1);
+			lastTradingDateMinus1Year = Market.isClosed(date) ? Market.getPreviousTradeDate(date) : date;
 		}
-		logger.info("date range {} - {}", fromDate, toDate);
+		logger.info("date range {} - {}", lastTradingDateMinus1Year, lastTradingDate);
 		
 		// read existing StockPrice
 		Map<String, StockPrice> stockPriceMap = StockPrice.getMap();
@@ -154,6 +170,7 @@ public class UpdatePrice {
 			int countCaseB = 0;
 			int countCaseC = 0;
 			int countCaseD = 0;
+			int countCaseE = 0;
 			for(Symbol e: symbolList) {
 				String symbol = e.symbol;
 				
@@ -169,8 +186,8 @@ public class UpdatePrice {
 
 				if (stockPrice.isEmpty()) {
 					// whole
-					myFromDate = fromDate;
-					myToDate   = toDate;
+					myFromDate = lastTradingDateMinus1Year;
+					myToDate   = lastTradingDate;
 					logger.info("A {} {} {}", myFromDate, myToDate, symbol);
 					countCaseA++;
 				} else {
@@ -178,21 +195,28 @@ public class UpdatePrice {
 					LocalDate dateFirst = LocalDate.parse(stockPrice.dateFirst);
 					LocalDate dateLast  = LocalDate.parse(stockPrice.dateLast);
 					
-					if (dateLast.isEqual(toDate)) {
-						// already processed
+					if (dateLast.isEqual(lastTradingDate)) {
+						// already processed at lastTradingDate
 						countCaseB++;
-//						logger.info("B {}-{}  {}", dateFirst, dateLast, symbol);
+//						logger.info("B {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
 						continue;
-					} else if (dateFirst.isBefore(fromDate) || dateFirst.isEqual(fromDate)) {
-						myFromDate = Market.getNextTradeDate(dateLast);
-						myToDate   = toDate;
+					} else if (dateLast.isEqual(lastTradingDatePrevious)) {
+						// already processed at lastTradingDatePrevious
+						myFromDate = lastTradingDatePrevious;
+						myToDate   = lastTradingDate;
 						countCaseC++;
-//						logger.info("C {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
-					} else {
-						myFromDate = fromDate;
-						myToDate   = toDate;
+//						logger.info("C {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);						
+					} else if (dateFirst.isBefore(lastTradingDateMinus1Year) || dateFirst.isEqual(lastTradingDateMinus1Year)) {
+						myFromDate = Market.getNextTradeDate(dateLast);
+						myToDate   = lastTradingDate;
 						countCaseD++;
 //						logger.info("D {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
+					} else {
+						// whole
+						myFromDate = lastTradingDateMinus1Year;
+						myToDate   = lastTradingDate;
+						countCaseE++;
+//						logger.info("E {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
 					}
 				}
 				requestList.add(new Request(e.symbol, e.assetClass, myFromDate, myToDate));
@@ -202,6 +226,7 @@ public class UpdatePrice {
 			logger.info("caseB     {}", countCaseB);
 			logger.info("caseC     {}", countCaseC);
 			logger.info("caseD     {}", countCaseD);
+			logger.info("caseE     {}", countCaseE);
 			logger.info("request   {}", requestList.size());
 			
 			// save stockPriceMap
