@@ -51,44 +51,46 @@ public class UpdatePrice {
 			logger.warn("no rows {}", request.symbol);
 			return; // no data
 		}
+		
+		List<Price> list = new ArrayList<>();
 		{
+			String  toDateStrng = request.toDate.toString();
 			boolean containsToDate = false;
-			{
-				String  toDateStrng = request.toDate.toString();
-				for(var e: historical.data.tradesTable.rows) {
-					if (API.convertDate(e.date).equals(toDateStrng)) {
-						containsToDate = true;
-						break;
-					}
-				}
+			
+			for(var e: historical.data.tradesTable.rows) {
+				// close: "194.39", date: "11/26/2021", high: "196.82", low: "194.19", open: "196.82", volume: "11,113"
+				// close: "$17.86", date: "11/26/2021", high: "$18.155", low: "$17.765", open: "$18.03", volume: "1,645,865
+				String date  = API.convertDate(e.date);
+				String open  = e.open.replace("$", "");
+				String high  = e.high.replace("$", "");
+				String low   = e.low.replace("$", "");
+				String close = e.close.replace("$", "");
+				String value = e.volume.replace(",", "").replace("N/A", "0");
+				
+				if (date.equals(toDateStrng)) containsToDate = true;
+				
+				Price price = new Price(
+					request.symbol,
+					date,
+					Double.parseDouble(open),
+					Double.parseDouble(high),
+					Double.parseDouble(low),
+					Double.parseDouble(close),
+					Long.parseLong(value));
+				
+				list.add(price);
 			}
 			if (!containsToDate) {
 				logger.warn("no toDate data {}", request.symbol);
-				return; // no data
+				return; // no toDate data
 			}
 		}
 		
 		// read existing data
 		Map<String, Price> map = Price.getMap(request.symbol);
 		
-		for(var e: historical.data.tradesTable.rows) {
-			// close: "194.39", date: "11/26/2021", high: "196.82", low: "194.19", open: "196.82", volume: "11,113"
-			// close: "$17.86", date: "11/26/2021", high: "$18.155", low: "$17.765", open: "$18.03", volume: "1,645,865
-			String date  = API.convertDate(e.date);
-			String open  = e.open.replace("$", "");
-			String high  = e.high.replace("$", "");
-			String low   = e.low.replace("$", "");
-			String close = e.close.replace("$", "");
-			String value = e.volume.replace(",", "").replace("N/A", "0");
-			
-			Price price = new Price(
-				request.symbol,
-				date,
-				Double.parseDouble(open),
-				Double.parseDouble(high),
-				Double.parseDouble(low),
-				Double.parseDouble(close),
-				Long.parseLong(value));
+		for(var price: list) {
+			String date = price.date;
 			
 			if (map.containsKey(date)) {
 				Price old = map.get(date);
