@@ -56,7 +56,7 @@ public class UpdatePrice {
 			{
 				String  toDateStrng = request.toDate.toString();
 				for(var e: historical.data.tradesTable.rows) {
-					if (e.date.equals(toDateStrng)) {
+					if (API.convertDate(e.date).equals(toDateStrng)) {
 						containsToDate = true;
 						break;
 					}
