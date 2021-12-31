@@ -2,6 +2,7 @@ package yokwe.util.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -362,6 +363,10 @@ public class HttpUtil {
 					}
 				}
 				throw new UnexpectedException("download");
+			} catch (SocketTimeoutException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.warn("{}", exceptionName);
+				return null;
 			} catch (IOException | HttpException | InterruptedException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
