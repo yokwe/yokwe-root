@@ -63,8 +63,8 @@ public class StockPrice implements Comparable<StockPrice> {
 	public String symbol;
 	public String dateFirst; // first date
 	public String dateLast;  // last date
-	@CSVUtil.DecimalPlaces(2)
-	public double close;     // 0.00 for no data
+	@CSVUtil.DecimalPlaces(4)
+	public double closeLast;     // 0.00 for no data
 	
 	public StockPrice(String symbol, String dateFirst, String dateLast, double close) {
 		this.symbol    = symbol;
