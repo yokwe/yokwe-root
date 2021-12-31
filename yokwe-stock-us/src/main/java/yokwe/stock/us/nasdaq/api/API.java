@@ -50,7 +50,7 @@ public final class API {
 	
 	public static <E> E getInstance(Class<E> clazz, String url) {
 		HttpUtil.Result result = HttpUtil.getInstance().download(url);
-		return result.result == null ? null : JSON.unmarshal(clazz, result.result);
+		return (result == null || result.result == null) ? null : JSON.unmarshal(clazz, result.result);
 	}
 	
 	public static String download(String url, File file) {
