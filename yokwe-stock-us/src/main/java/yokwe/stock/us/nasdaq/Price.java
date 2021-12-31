@@ -61,13 +61,13 @@ public class Price implements Comparable<Price> {
 	public String symbol; // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
 	public String date;   // YYYY-MM-DD
 	
-	@CSVUtil.DecimalPlaces(2)
+	@CSVUtil.DecimalPlaces(4)
 	public double open;
-	@CSVUtil.DecimalPlaces(2)
+	@CSVUtil.DecimalPlaces(4)
 	public double high;
-	@CSVUtil.DecimalPlaces(2)
+	@CSVUtil.DecimalPlaces(4)
 	public double low;
-	@CSVUtil.DecimalPlaces(2)
+	@CSVUtil.DecimalPlaces(4)
 	public double close;
 	public long   volume;
 	
