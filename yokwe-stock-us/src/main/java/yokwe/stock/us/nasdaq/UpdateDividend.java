@@ -111,10 +111,10 @@ public class UpdateDividend {
 				if (dividend.equals(old)) {
 					// OK
 				} else {
-					logger.error("Unpexpected");
-					logger.error("  old {}", old);
-					logger.error("  new {}", dividend);
-					throw new UnexpectedException("Unpexpected");
+					logger.warn("Unpexpected not equal");
+					logger.warn("  old {}", old);
+					logger.warn("  new {}", dividend);
+					map.put(exDate, dividend);
 				}
 			} else {
 				map.put(exDate, dividend);
@@ -190,6 +190,11 @@ public class UpdateDividend {
 				if (stockDividendMap.containsKey(symbol)) {
 					// already execute once
 					stockDividend = stockDividendMap.get(symbol);
+					
+					if (stockDividend == null) {
+						logger.warn("no stockDividend {}", symbol);
+						return;
+					}
 					
 					if (stockDividend.isEmpty()) {
 						countCaseA++;
