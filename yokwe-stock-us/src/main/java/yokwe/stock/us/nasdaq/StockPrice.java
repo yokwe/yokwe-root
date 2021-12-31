@@ -66,11 +66,11 @@ public class StockPrice implements Comparable<StockPrice> {
 	@CSVUtil.DecimalPlaces(4)
 	public double closeLast;     // 0.00 for no data
 	
-	public StockPrice(String symbol, String dateFirst, String dateLast, double close) {
+	public StockPrice(String symbol, String dateFirst, String dateLast, double closeLast) {
 		this.symbol    = symbol;
 		this.dateFirst = dateFirst;
 		this.dateLast  = dateLast;
-		this.close     = close;
+		this.closeLast = closeLast;
 	}
 	public StockPrice() {
 		this("", DEFAULT_DATE, DEFAULT_DATE, 0);

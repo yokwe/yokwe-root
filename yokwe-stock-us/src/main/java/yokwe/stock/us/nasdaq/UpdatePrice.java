@@ -137,14 +137,14 @@ public class UpdatePrice {
 		if (priceList.isEmpty()) {
 			stockPrice.dateFirst = StockPrice.DEFAULT_DATE;
 			stockPrice.dateLast  = StockPrice.DEFAULT_DATE;
-			stockPrice.close     = 0;
+			stockPrice.closeLast = 0;
 		} else {
 			Price firstPrice = priceList.get(0);
 			Price lastPrice  = priceList.get(priceList.size() - 1);
 			
 			stockPrice.dateFirst = firstPrice.date.toString();
 			stockPrice.dateLast  = lastPrice.date.toString();
-			stockPrice.close     = lastPrice.close;
+			stockPrice.closeLast = lastPrice.close;
 		}
 	}
 	
