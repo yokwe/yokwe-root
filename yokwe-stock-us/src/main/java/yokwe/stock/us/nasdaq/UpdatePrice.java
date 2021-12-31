@@ -12,7 +12,6 @@ import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Historical;
 import yokwe.util.Market;
 import yokwe.util.StringUtil;
-import yokwe.util.UnexpectedException;
 
 public class UpdatePrice {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdatePrice.class);
@@ -39,17 +38,21 @@ public class UpdatePrice {
 	public static void update(Map<String, StockPrice> stockPriceMap, Request request) {
 		Historical historical = Historical.getInstance(request.symbol, request.assetClass, request.fromDate, request.toDate);
 		
+		if (historical == null) {
+			logger.warn("no historical {}", request.symbol);
+			return;
+		}
 		if (historical.data == null) {
 			logger.warn("no data {}", request.symbol);
-			return; // no data
+			return;
 		}
 		if (historical.data.tradesTable == null) {
 			logger.warn("no tradesTable {}", request.symbol);
-			return; // no data
+			return;
 		}
 		if (historical.data.tradesTable.rows == null) {
 			logger.warn("no rows {}", request.symbol);
-			return; // no data
+			return;
 		}
 		
 		List<Price> list = new ArrayList<>();
@@ -82,7 +85,7 @@ public class UpdatePrice {
 			}
 			if (!containsToDate) {
 				logger.warn("no toDate data {}", request.symbol);
-				return; // no toDate data
+				return;
 			}
 		}
 		
@@ -97,10 +100,10 @@ public class UpdatePrice {
 				if (price.equals(old)) {
 					// OK
 				} else {
-					logger.error("Unpexpected");
-					logger.error("  old {}", old);
-					logger.error("  new {}", price);
-					throw new UnexpectedException("Unpexpected");
+					logger.warn("Overwrite");
+					logger.warn("  old {}", old);
+					logger.warn("  new {}", price);
+					map.put(date, price);
 				}
 			} else {
 				map.put(date, price);
