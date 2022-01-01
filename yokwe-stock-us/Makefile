@@ -20,3 +20,10 @@ clear-log-file:
 update-crontab:
 	crontab data/crontab
 
+
+# NASDAQ
+nasdaq-update-price:
+	ant nasdaq-update-price
+
+nasdaq-update-dividend:
+	ant nasdaq-update-dividend
