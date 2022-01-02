@@ -36,22 +36,23 @@ public class UpdatePrice {
 	}
 	
 	public static void update(Map<String, StockPrice> stockPriceMap, Request request) {
-		Historical historical = Historical.getInstance(request.symbol, request.assetClass, request.fromDate, request.toDate);
+		final String symbol = request.symbol;
+		Historical historical = Historical.getInstance(symbol, request.assetClass, request.fromDate, request.toDate);
 		
 		if (historical == null) {
-			logger.warn("no historical {}", request.symbol);
+			logger.warn("no historical {}", symbol);
 			return;
 		}
 		if (historical.data == null) {
-			logger.warn("no data {}", request.symbol);
+			logger.warn("no data {}", symbol);
 			return;
 		}
 		if (historical.data.tradesTable == null) {
-			logger.warn("no tradesTable {}", request.symbol);
+			logger.warn("no tradesTable {}", symbol);
 			return;
 		}
 		if (historical.data.tradesTable.rows == null) {
-			logger.warn("no rows {}", request.symbol);
+			logger.warn("no rows {}", symbol);
 			return;
 		}
 		
@@ -73,7 +74,7 @@ public class UpdatePrice {
 				if (date.equals(toDateStrng)) containsToDate = true;
 				
 				Price price = new Price(
-					request.symbol,
+					symbol,
 					date,
 					Double.parseDouble(open),
 					Double.parseDouble(high),
@@ -84,13 +85,13 @@ public class UpdatePrice {
 				list.add(price);
 			}
 			if (!containsToDate) {
-				logger.warn("no toDate data {}", request.symbol);
+				logger.warn("no toDate data {}", symbol);
 				return;
 			}
 		}
 		
 		// read existing data
-		Map<String, Price> map = Price.getMap(request.symbol);
+		Map<String, Price> map = Price.getMap(symbol);
 		
 		for(var price: list) {
 			String date = price.date;
@@ -117,7 +118,7 @@ public class UpdatePrice {
 		{
 			List<Price> priceList = map.values().stream().collect(Collectors.toList());
 			Collections.sort(priceList);
-			updateStockPriceMap(stockPriceMap, request.symbol, priceList);
+			updateStockPriceMap(stockPriceMap, symbol, priceList);
 			
 			// save stockPriceMap
 			StockPrice.save(stockPriceMap.values());
