@@ -25,7 +25,8 @@ public class UpdateSymbol {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<Symbol> list = new ArrayList<>();
+		List<Symbol> list = Symbol.getListExtra();
+		logger.info("extra {} {}", list.size(), Symbol.getPathExtra());
 		
 		for(var e: StockUS.getList()) {
 			AssetClass assetClass;
@@ -40,7 +41,7 @@ public class UpdateSymbol {
 			list.add(symbol);
 		}
 		
-		logger.info("save {} {}", list.size(), Symbol.getPath());
+		logger.info("save  {} {}", list.size(), Symbol.getPath());
 		Symbol.save(list);
 		
 		logger.info("STOP");
