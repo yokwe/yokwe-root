@@ -18,13 +18,9 @@ public class Historical {
 		return String.format("https://api.nasdaq.com/api/quote/%s/historical?assetclass=%s&fromdate=%s&todate=%s&limit=%d",
 				API.encodeSymbolForURL(symbol), assetClass, fromDate.toString(), toDate.toString(), limit);
 	}
-	public static String getURL(String symbol, AssetClass assetClass, LocalDate fromDate, LocalDate toDate) {
-		return String.format("https://api.nasdaq.com/api/quote/%s/historical?assetclass=%s&fromdate=%s&todate=%s",
-				API.encodeSymbolForURL(symbol), assetClass, fromDate.toString(), toDate.toString());
-	}
 
 	public static Historical getInstance(String symbol, AssetClass assetClass, LocalDate fromDate, LocalDate toDate) {
-		String url = getURL(symbol, assetClass, fromDate, toDate);
+		String url = getURL(symbol, assetClass, fromDate, toDate, 9999);
 		return API.getInstance(Historical.class, url);
 //		return API.getInstance(Historical.class, url, getPath(symbol));
 	}
