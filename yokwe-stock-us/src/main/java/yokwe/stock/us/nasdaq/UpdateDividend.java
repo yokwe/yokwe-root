@@ -11,7 +11,6 @@ import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Dividends;
 import yokwe.util.StringUtil;
-import yokwe.util.UnexpectedException;
 
 public class UpdateDividend {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividend.class);
