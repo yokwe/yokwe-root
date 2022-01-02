@@ -38,6 +38,20 @@ public class Symbol implements Comparable<Symbol> {
 		return ret == null ? new ArrayList<>() : ret;
 	}
 	
+	
+	private static final String PATH_EXTRA_FILE = Storage.NASDAQ.getPath("symbol-extra.csv");
+	public static String getPathExtra() {
+		return PATH_EXTRA_FILE;
+	}
+
+	public static List<Symbol> loadExtra() {
+		return CSVUtil.read(Symbol.class).file(getPathExtra());
+	}
+	public static List<Symbol> getListExtra() {
+		List<Symbol> ret = loadExtra();
+		return ret == null ? new ArrayList<>() : ret;
+	}
+	
 	public static Map<String, Symbol> getMap() {
 		//            symbol
 		Map<String, Symbol> ret = new TreeMap<>();
