@@ -84,13 +84,11 @@ public class UpdateDividend {
 			String payDate    = API.convertDate(e.paymentDate);
 			
 			if (amount.isEmpty()) {
-				logger.warn("amount is empty");
-				logger.warn("  {} {}", request.symbol, e);
+				logger.warn("amount is empty  {}  {}", request.symbol, e);
 				continue;
 			}
 			if (exDate.isEmpty()) {
-				logger.warn("exDate is empty");
-				logger.warn("  {}  {}", request.symbol, e);
+				logger.warn("exDate is empty  {}  {}", request.symbol, e);
 				continue;
 			}
 			
