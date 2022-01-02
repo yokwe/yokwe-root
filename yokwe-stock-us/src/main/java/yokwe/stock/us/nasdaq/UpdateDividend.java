@@ -85,12 +85,12 @@ public class UpdateDividend {
 			
 			if (amount.isEmpty()) {
 				logger.warn("amount is empty");
-				logger.warn("  {}", e);
+				logger.warn("  {} {}", request.symbol, e);
 				continue;
 			}
 			if (exDate.isEmpty()) {
 				logger.warn("exDate is empty");
-				logger.warn("  {}", e);
+				logger.warn("  {}  {}", request.symbol, e);
 				continue;
 			}
 			
