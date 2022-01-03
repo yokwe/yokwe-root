@@ -31,8 +31,6 @@ public class UpdateStats {
 			
 			List<Price> priceList = Price.getList(symbol).stream().filter(o -> dateSet.contains(o.date)).collect(Collectors.toList());
 			if (priceList.isEmpty()) continue;
-			logger.info("priceList {} {}  {}", symbol, priceList.size(), priceList);
-			System.exit(0);
 
 			int pricec = priceList.size();
 			double[] closeArray  = priceList.stream().mapToDouble(o -> o.close).toArray();
