@@ -11,6 +11,7 @@ import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Dividends;
 import yokwe.util.StringUtil;
+import yokwe.util.stats.DoubleStreamUtil;
 
 public class UpdateDividend {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividend.class);
@@ -151,13 +152,41 @@ public class UpdateDividend {
 			LocalDate dateLast  = LocalDate.now();
 			LocalDate dateFirst = dateLast.minusYears(1).minusDays(5);
 			
+			List<Dividend> list = new ArrayList<>();
 			for(var e: dividendList) {
-				LocalDate exDate = LocalDate.parse(e.exDate);
-				if ((exDate.isAfter(dateFirst) && exDate.isBefore(dateLast)) || exDate.isEqual(dateFirst) || exDate.isEqual(dateLast)) {
-					stockDividend.lastExDate = e.exDate;
-					stockDividend.annual += e.amount;
-					stockDividend.count++;
+				// Use only CASH dividend
+				if (e.type.equals("CASH")) {
+					LocalDate exDate = LocalDate.parse(e.exDate);
+					if ((exDate.isAfter(dateFirst) && exDate.isBefore(dateLast)) || exDate.isEqual(dateFirst) || exDate.isEqual(dateLast)) {
+						list.add(e);
+					}
 				}
+			}
+			
+			// FIXME remove odd data using standard deviation
+			{
+				// Use only CASH dividend
+				double[] values = dividendList.stream().filter(o -> o.type.equals("CASH")).mapToDouble(o -> o.amount).toArray();
+				DoubleStreamUtil.Stats stats = new DoubleStreamUtil.Stats(values);
+				
+				double mean  = stats.getMean();
+				double sigma = stats.getStandardDeviation();
+				double maxValue = mean + (3 * sigma);
+				
+				var i = list.iterator();
+				while(i.hasNext()) {
+					Dividend dividend = i.next();
+					if (maxValue < dividend.amount) {
+						i.remove();
+						logger.warn("remove odd data {}", String.format("%-5s  %2d  %.4f  %.4f  %s  %.4f", symbol, values.length, mean, sigma, dividend.exDate, dividend.amount));
+					}
+				}
+			}
+			
+			for(var e: list) {
+				stockDividend.lastExDate = e.exDate;
+				stockDividend.annual += e.amount;
+				stockDividend.count++;
 			}
 		}
 	}
