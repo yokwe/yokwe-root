@@ -26,6 +26,8 @@ public class UpdateStats {
 		List<Stats> statsList = new ArrayList<>();
 		Map<String, StockPrice> map = StockPrice.getMap();
 		
+		Map<String, StockDividend> stockDividendMap = StockDividend.getMap();
+		
 		for(var e: Symbol.getList()) {
 			final String symbol = e.symbol;
 			
@@ -91,6 +93,20 @@ public class UpdateStats {
 			statsUS.max       = priceList.stream().mapToDouble(o -> o.high).max().getAsDouble();
 			statsUS.minPCT    = DoubleUtil.round((statsUS.price - statsUS.min) / statsUS.price, 3);
 			statsUS.maxPCT    = DoubleUtil.round((statsUS.max - statsUS.price) / statsUS.price, 3);
+			
+			// dividend
+			{
+				StockDividend stockDividend = stockDividendMap.get(symbol);
+				if (stockDividend == null) {
+					statsUS.div   = 0;
+					statsUS.divc  = 0;
+					statsUS.yield = 0;
+				} else {
+					statsUS.div   = stockDividend.annual;
+					statsUS.divc  = stockDividend.count;
+					statsUS.yield = DoubleUtil.round(statsUS.div / statsUS.price, 3);
+				}
+			}
 			
 			// volume
 			statsUS.vol       = price.volume;

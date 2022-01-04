@@ -45,6 +45,11 @@ public final class Stats implements Comparable<Stats> {
 	public double minPCT;
 	public double maxPCT;
 	
+	// dividend
+	public double div;
+	public int    divc;
+	public double yield;
+
 	// volume
 	public long   vol;
 	// 5 <= pricec
@@ -73,6 +78,10 @@ public final class Stats implements Comparable<Stats> {
 		max       = -1;
 		minPCT    = -1;
 		maxPCT    = -1;
+		
+		div       = -1;
+		divc      = -1;
+		yield     = -1;
 		
 		vol       = -1;
 		vol5      = -1;
