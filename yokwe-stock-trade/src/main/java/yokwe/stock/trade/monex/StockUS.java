@@ -9,7 +9,7 @@ import yokwe.stock.trade.Storage;
 import yokwe.util.CSVUtil;
 
 public class StockUS implements Comparable<StockUS> {
-	private static final String PATH_FILE =  Storage.Monex.getPath("stock-us.csv");
+	private static final String PATH_FILE =  Storage.Monex.getPath("monex-stock-us.csv");
 	
 	public static String getPath() {
 		return PATH_FILE;
