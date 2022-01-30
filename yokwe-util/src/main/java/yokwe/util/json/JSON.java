@@ -155,6 +155,7 @@ public final class JSON {
 					for(Field field: clazz.getDeclaredFields()) {
 						// Skip static field
 						if (Modifier.isStatic(field.getModifiers())) continue;
+						field.setAccessible(true); // to access protected and private file, call setAccessble(true) of the field
 						fieldList.add(field);
 					}
 					this.fieldInfos = new FieldInfo[fieldList.size()];

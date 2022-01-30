@@ -80,7 +80,7 @@ public class CSVUtil {
 			for(Field field: clazz.getDeclaredFields()) {
 				// Skip static field
 				if (Modifier.isStatic(field.getModifiers())) continue;
-
+				field.setAccessible(true); // to access protected and private file, call setAccessble(true) of the field
 				list.add(new FieldInfo(field));
 			}
 			fieldInfos = list.toArray(new FieldInfo[0]);

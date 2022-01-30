@@ -277,13 +277,7 @@ public class ScrapeUtil {
 						// Skip if field has Ignore annotation
 						if (field.isAnnotationPresent(Ignore.class)) continue;
 
-						// Sanity check
-						if (!Modifier.isPublic(modifiers)) {
-							logger.error("field is not public");
-							logger.error("  clazz  {}", clazz.getName());
-							logger.error("  field  {}", field.toString());
-							throw new UnexpectedException("not public field");
-						}
+						field.setAccessible(true); // to access protected and private file, call setAccessble(true) of the field
 						list.add(new FieldInfo(field));
 					}
 					fieldInfos = list.toArray(new FieldInfo[0]);
