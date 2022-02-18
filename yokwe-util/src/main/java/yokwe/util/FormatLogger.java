@@ -36,19 +36,19 @@ public final class FormatLogger {
 	}
 	
 	public void trace(String format, Object... arguments) {
-		logger.trace(String.format(format, arguments));
+		if (logger.isTraceEnabled()) logger.trace(String.format(format, arguments));
 	}
 	public void debug(String format, Object... arguments) {
-		logger.debug(String.format(format, arguments));
+		if (logger.isDebugEnabled()) logger.debug(String.format(format, arguments));
 	}
 	public void info(String format, Object... arguments) {
-		logger.info(String.format(format, arguments));
+		if (logger.isInfoEnabled()) logger.info(String.format(format, arguments));
 	}
 	public void warn(String format, Object... arguments) {
-		logger.warn(String.format(format, arguments));
+		if (logger.isWarnEnabled()) logger.warn(String.format(format, arguments));
 	}
 	public void error(String format, Object... arguments) {
-		logger.error(String.format(format, arguments));
+		if (logger.isErrorEnabled()) logger.error(String.format(format, arguments));
 	}
 	
 }
