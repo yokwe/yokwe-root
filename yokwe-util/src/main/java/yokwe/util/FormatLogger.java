@@ -1,7 +1,5 @@
 package yokwe.util;
 
-import java.lang.invoke.MethodHandles;
-
 public final class FormatLogger {
 	public static FormatLogger getLogger(Class<?> clazz) {
 		var logger = org.slf4j.LoggerFactory.getLogger(clazz);
@@ -9,7 +7,8 @@ public final class FormatLogger {
 	}
 	// use caller class for logger name
 	public static FormatLogger getLogger() {
-		Class<?> caller = MethodHandles.lookup().lookupClass();
+//		Class<?> caller = java.lang.invoke.MethodHandles.lookup().lookupClass();
+		Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
 		return getLogger(caller);
 	}
 	
