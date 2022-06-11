@@ -20,6 +20,9 @@ clear-log-file:
 	echo -n >tmp/yokwe-stock-trade.log
 	echo -n >tmp/cron.log
 
+show-ant-process:
+	ps -auxww | grep java | grep ant
+
 backup:
 	cp /mnt/stock/trade/activity/投資活動_monex.ods      /mnt/stock/trade/activity/backup/投資活動_monex_$$(date +%Y%m%d).ods
 	cp /mnt/stock/trade/activity/投資活動_gmo.ods        /mnt/stock/trade/activity/backup/投資活動_gmo_$$(date +%Y%m%d).ods
