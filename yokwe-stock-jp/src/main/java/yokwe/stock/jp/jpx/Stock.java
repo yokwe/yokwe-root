@@ -122,8 +122,8 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	
 	@Sheet.ColumnName("市場・商品区分")
 	@CSVUtil.ColumnName("市場・商品区分")
-	public Market market;            // FIXME util.libreoffice.Sheet.extractSheet cannot handle enum. need to be String
-//	public String market;
+//	public Market market;            // FIXME util.libreoffice.Sheet.extractSheet cannot handle enum. need to be String
+	public String market;
 	
 	@Sheet.ColumnName("33業種コード")
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
