@@ -21,7 +21,7 @@ clear-log-file:
 	echo -n >tmp/cron.log
 
 show-ant-process:
-	ps -xwww -o pid,lstart,etime,time,user,command | egrep 'ant|PID' | grep -v egrep | grep -v show-ant-process
+	ps -xwww -o pid,lstart,etime,time,user,command | egrep 'ant|PID' | egrep -v 'egrep|show-ant-process'
 
 backup:
 	cp /mnt/stock/trade/activity/投資活動_monex.ods      /mnt/stock/trade/activity/backup/投資活動_monex_$$(date +%Y%m%d).ods
