@@ -377,19 +377,22 @@ public class Transaction implements Comparable<Transaction> {
 					break;
 				case Activity.Trade.TRANSACTION_CHANGE:
 				{
-					// activity    => new symbol
-					// newActivity => old symbol
+					// activity     => new symbol
+					// nextActivity => old symbol
 					Activity.Trade nextActivity = iterator.next();
 					
+					// settlement date of activity and nextActivity must be same
 					if (activity.settlementDate.compareTo(nextActivity.settlementDate) != 0) {
 						logger.error("Unexpected  {}", activity);
 						logger.error("Unexpected  {}", nextActivity);
 						throw new UnexpectedException("Unexpected");
 					}
+					// quantity of new symbol must be positive
 					if (activity.quantity < 0) {
 						logger.error("Unexpected  {}", activity);
 						throw new UnexpectedException("Unexpected");
 					}
+					// quantity of old symbol must be negative
 					if (0 < nextActivity.quantity) {
 						logger.error("Unexpected  {}", activity);
 						throw new UnexpectedException("Unexpected");
