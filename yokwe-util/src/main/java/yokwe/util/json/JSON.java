@@ -270,8 +270,10 @@ public final class JSON {
 		}
 		
 		for(FieldInfo fieldInfo: classInfo.fieldInfos) {
+			if (fieldInfo.ignoreField) continue;
+
 			// Skip field if name is not exist in jsonObject
-			if (!jsonObject.containsKey(fieldInfo.jsonName))continue;
+			if (!jsonObject.containsKey(fieldInfo.jsonName)) continue;
 			
 			ValueType valueType = jsonObject.get(fieldInfo.jsonName).getValueType();
 			
