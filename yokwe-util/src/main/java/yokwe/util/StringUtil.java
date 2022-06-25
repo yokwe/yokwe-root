@@ -310,7 +310,13 @@ public class StringUtil {
 			}
 		}
 	}
+	
 	public static String toString(Object o) {
+		// handle special case
+		if (o.getClass().equals(String.class)) {
+			return o.toString();
+		}
+		
 		try {
 			ClassInfo classInfo = ClassInfo.get(o);
 
