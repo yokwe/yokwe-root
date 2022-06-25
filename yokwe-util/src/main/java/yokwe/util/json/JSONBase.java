@@ -38,6 +38,8 @@ import yokwe.util.http.HttpUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
+//Use JSON instead
+@Deprecated
 public class JSONBase {
 	static final Logger logger = LoggerFactory.getLogger(JSONBase.class);
 	

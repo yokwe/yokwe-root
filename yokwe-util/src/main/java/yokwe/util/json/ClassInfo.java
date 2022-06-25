@@ -23,6 +23,8 @@ import yokwe.util.json.JSONBase.IgnoreField;
 import yokwe.util.json.JSONBase.JSONName;
 
 
+// Use JSON instead
+@Deprecated
 public class ClassInfo {
 	static final Logger logger = LoggerFactory.getLogger(ClassInfo.class);
 
