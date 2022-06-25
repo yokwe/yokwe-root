@@ -81,19 +81,16 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	}
 	
 	public static enum Market {
-		ETF_ETN        ("ETF・ETN"), 
-		JASDAQ_GROWTH  ("JASDAQ(グロース・内国株）"), 
-		JASDAQ_STANDARD("JASDAQ(スタンダード・内国株）"),
-		JASDAQ_FOREIGN ("JASDAQ(スタンダード・外国株）"),
-		PRO_MARKET     ("PRO Market"),
-		REIT_FUND      ("REIT・ベンチャーファンド・カントリーファンド・インフラファンド"),
-		MOTHERS        ("マザーズ（内国株）"),
-		MOTHERS_FOREIGN("マザーズ（外国株）"),
-		CERTIFICATE    ("出資証券"),
-		FIRST          ("市場第一部（内国株）"),
-		FIRST_FOREIGN  ("市場第一部（外国株）"),
-		SECOND         ("市場第二部（内国株）"),
-		SECOND_FOREIGN ("市場第二部（外国株）");
+		CERTIFICATE     ("出資証券"),
+		ETF_ETN         ("ETF・ETN"),
+		GROWTH          ("グロース（内国株式）"),
+		GROWTH_FOREIGN  ("グロース（外国株式）"),
+		PRIME           ("プライム（内国株式）"),
+		PRIME_FOREIGN   ("プライム（外国株式）"),
+		PRO_MARKET      ("PRO Market"),
+		REIT_FUND       ("REIT・ベンチャーファンド・カントリーファンド・インフラファンド"),
+		STANDARD        ("スタンダード（内国株式）"),
+		STANDARD_FOREIGN("スタンダード（外国株式）");
 		
 		public final String value;
 		Market(String value) {
@@ -122,8 +119,7 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	
 	@Sheet.ColumnName("市場・商品区分")
 	@CSVUtil.ColumnName("市場・商品区分")
-//	public Market market;            // FIXME util.libreoffice.Sheet.extractSheet cannot handle enum. need to be String
-	public String market;
+	public Market market;
 	
 	@Sheet.ColumnName("33業種コード")
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
