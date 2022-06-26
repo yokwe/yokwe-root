@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class UpdateStats {
 	
 	private static final LocalDate DATE_LAST  = JapanHoliday.getLastTradingDate();
 
-	private static Stats getInstance(Stock stock, List<Price> priceList) {
+	private static Stats getInstance(Stock stock, List<Price> priceList, ETF etf) {
 		Stats ret = new Stats();
 		
 		StockInfo  stockInfo = StockInfo.get(stock.stockCode);
@@ -43,7 +44,7 @@ public class UpdateStats {
 		if (stock.sector33.equals("-") && stock.sector17.equals("-")) {
 			if (stock.isETF()) {
 				ret.sector33 = "ETF";
-				ret.sector17 = "ETF";
+				ret.sector17 = (etf == null) ? "ETF" : etf.categoryName;
 			} else if (stock.isREIT()) {
 				ret.sector33 = "REIT";
 				ret.sector17 = "REIT";
@@ -107,17 +108,22 @@ public class UpdateStats {
 		}
 		
 		// dividend
-		// FIXME uncomment after DividendAnnual is created
 		{
 			DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
 			if (divAnn == null) {
-				ret.div   = 0;
-				ret.divc  = 0;
-				ret.yield = 0;
+				if (etf == null) {
+					ret.div   = 0;
+					ret.divc  = 0;
+					ret.yield = 0;
+				} else {
+					ret.div   = etf.divAnnual.doubleValue();
+					ret.divc  = etf.divFreq;
+					ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
+				}
 			} else {
 				ret.div   = divAnn.dividend;
 				ret.divc  = divAnn.count;
-				ret.yield = DoubleUtil.round(divAnn.dividend / ret.price, 3);
+				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
 			}
 		}
 		
@@ -215,6 +221,8 @@ public class UpdateStats {
 		
 		Collection<Stock> stockList = Stock.getList();
 		
+		Map<String, ETF> etfMap = ETF.getMap();
+		
 		int total = stockList.size();
 		int count = 0;
 		
@@ -306,7 +314,7 @@ public class UpdateStats {
 
 			}
 						
-			Stats stats = getInstance(stock, priceList);
+			Stats stats = getInstance(stock, priceList, etfMap.get(stockCode));
 			if (stats != null) statsList.add(stats);
 		}
 		return statsList;
