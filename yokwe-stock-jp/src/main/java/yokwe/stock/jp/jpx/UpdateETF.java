@@ -1,17 +1,12 @@
 package yokwe.stock.jp.jpx;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -217,31 +212,18 @@ public class UpdateETF {
 		return etf;
 	}
 	
-	private static final String URL = "https://jpx.cloud.qri.jp/tosyo-moneybu/api/detail/info";
-
-	public static ETF getInstance(String stockCode, List<ETF.Dividend> dividendList) {
-		logger.info("stockCode {}", stockCode);
+	private static final String URL          = "https://jpx.cloud.qri.jp/tosyo-moneybu/api/detail/info";
+	private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
+	
+	public static ETF getInstance(String stockCode) {
+		String body   = String.format("{\"stockCode\":\"%s\"}", Stock.toStockCode4(stockCode));
+		String string = HttpUtil.getInstance().withPost(body, CONTENT_TYPE).download(URL).result;
 		
-		String string;
-		
-		String path = String.format("tmp/etf/%s.json", stockCode);
-		File file = new File(path);
-		if (file.exists()) {
-			string = FileUtil.read().file(file);
-		} else {
-			String body        = String.format("{\"stockCode\":\"%s\"}", stockCode);
-			String contentType = "application/json;charset=UTF-8";
-			
-			string = HttpUtil.getInstance().withPost(body, contentType).download(URL).result;
-			
-			if (string == null) {
-				logger.warn("failed to download {}", stockCode);
-				return null;
-			} else {
-				FileUtil.write().file(file, string);
-			}
+		if (string == null) {
+			logger.warn("failed to download {}", stockCode);
+			return null;
 		}
-				
+
 		RAW raw = JSON.unmarshal(RAW.class, string);
 		if (raw == null) {
 			logger.warn("failed to parse {}", stockCode);
@@ -249,9 +231,30 @@ public class UpdateETF {
 		} else {
 			if (raw.status.equals("0")) {
 				if (raw.data.dividendHist != null) {
+					var map = ETFDiv.getMap(stockCode);
+					int count = 0;
 					for(var e: raw.data.dividendHist) {
-						var div = new ETF.Dividend(Stock.toStockCode5(stockCode), convertDate(e.date), e.dividend);
-						dividendList.add(div);
+						var div = new ETFDiv(stockCode, e.dividend, convertDate(e.date));
+						if (map.containsKey(div.payDate)) {
+							// sanity check
+							var old = map.get(div.payDate);
+							if (div.equals(old)) {
+								// same value
+							} else {
+								logger.error("Unexpected value");
+								logger.error("  div {}", div);
+								logger.error("  old {}", old);
+								throw new UnexpectedException("Unexpected value");
+							}
+						} else {
+							map.put(div.payDate, div);
+							count++;
+						}
+					}
+					
+					if (0 < count) {
+						logger.info("save {} {}", stockCode, map.size());
+						ETFDiv.save(map.values());
 					}
 				}
 				
@@ -266,29 +269,24 @@ public class UpdateETF {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		{
-			List<Stock> stockList = Stock.getList().stream().filter(o -> o.isETF()).collect(Collectors.toList());
-			logger.info("stockList {}", stockList.size());
-			
-			List<ETF.Dividend>  divList = new ArrayList<>();
-			
-			int count = 0;
-			for(var e: stockList) {
-//				logger.info(String.format("%4d / %4d  %s", count, stockList.size(), e.stockCode));
+		List<Stock> stockList = Stock.getList().stream().filter(o -> o.isETF()).collect(Collectors.toList());
+		logger.info("stockList {}", stockList.size());
+		Collections.shuffle(stockList);
+		
+		List<ETF> etfList = new ArrayList<>();
+		
+		int count = 0;
+		for(var e: stockList) {
+			if ((count % 10) == 0) logger.info(String.format("%4d / %4d  %s", count, stockList.size(), e.stockCode));
+			count++;
 
-				count++;
-
-				String stockCode4 = Stock.toStockCode4(e.stockCode);
-				ETF etf = getInstance(stockCode4, divList);
-//				logger.info("etf {}", etf.toString());
-			}
-			
-			logger.info("divList        {}", divList.size());
-			Collections.sort(divList);
-			for(var e: divList) {
-				logger.info("div {}", e);
-			}
+			ETF etf = getInstance(e.stockCode);
+//			logger.info("etf {}", etf.toString());
+			etfList.add(etf);
 		}
+		
+		logger.info("save {} {}", etfList.size(), ETF.getPath());
+		ETF.save(etfList);
 		
 		logger.info("STOP");
 	}
