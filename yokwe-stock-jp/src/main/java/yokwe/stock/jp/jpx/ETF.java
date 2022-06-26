@@ -1,51 +1,53 @@
 package yokwe.stock.jp.jpx;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import yokwe.util.CSVUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class ETF implements Comparable<ETF> {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ETF.class);
 
-	public static class Dividend implements Comparable<Dividend> {
-		public String     stockCode;
-	    public String     payDate;
-	    public BigDecimal dividend;
-	    
-	    public Dividend(String stockCode, String payDate, BigDecimal dividend) {
-	    	this.stockCode = stockCode;
-	    	this.payDate   = payDate;
-	    	this.dividend  = dividend;
-	    }
-	    
-	    @Override
-	    public String toString() {
-	        return StringUtil.toString(this);
-	    }
+	private static final String PATH_FILE = getPath();
+	public static String getPath() {
+		return JPX.getPath("etf.csv");
+	}
 
-		@Override
-		public int compareTo(Dividend that) {
-			int ret = this.stockCode.compareTo(that.stockCode);
-			if (ret == 0) ret = this.payDate.compareTo(that.payDate);
-			return ret;
-		}
+	public static void save(List<ETF> list) {
+		Collections.sort(list);
+		CSVUtil.write(ETF.class).file(PATH_FILE, list);
 	}
 	
-	public static class TargetIndex implements Comparable<TargetIndex> {
-		public String name;
-		public String descirtion;
-		
-	    @Override
-	    public String toString() {
-	        return StringUtil.toString(this);
-	    }
-
-		@Override
-		public int compareTo(TargetIndex that) {
-			return this.name.compareTo(that.name);
-		}
+	public static List<ETF> load() {
+		return CSVUtil.read(ETF.class).file(PATH_FILE);
 	}
+	public static List<ETF> getList() {
+		var list = load();
+		return (list == null) ? new ArrayList<>() : list;
+	}
+	public static Map<String, ETF> getMap() {
+		Map<String, ETF> map = new TreeMap<>();
+		//  stockCode
+		
+		for(var e: getList()) {
+			if (map.containsKey(e.stockCode)) {
+				logger.error("Unpexpected value");
+				logger.error("  stockCode {}", e.stockCode);
+				throw new UnexpectedException("Unpexpected value");
+			} else {
+				map.put(e.stockCode, e);
+			}
+		}
+		
+		return map;
+	}
+
 	
 	public String     date;      // update date? YYYY-MM-DD
 	public String     stockCode; // NNNNN
@@ -131,6 +133,12 @@ public class ETF implements Comparable<ETF> {
 			this.productType       = productType;
 			this.targetName        = targetName;
 			this.targetDescription = targetDescription;
+	}
+	public ETF() {
+		this(
+			null, null, null, null, null,
+			0,
+			null, null, null, null, null);
 	}
 	
 	@Override
