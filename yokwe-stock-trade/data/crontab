@@ -44,12 +44,9 @@ YOKWE_ROOT=/mnt/home/hasegawa/git/yokwe-root
 #m   h     dom mon dow   command
 01   2     1-7   * 1-5   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-jpx-stock       ) 1>>tmp/cron.log 2>&1
 
-# JPX - every Sunday
-#m   h     dom mon dow   command
-01   3     *     *   0   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-jpx-etf         ) 1>>tmp/cron.log 2>&1
-
 # JPX - every week day
 #m   h     dom mon dow   command
+05   8     *     * 1-5   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-jpx-etf         ) 1>>tmp/cron.log 2>&1
 50   9     *     * 1-5   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-jpx-stock-price ) 1>>tmp/cron.log 2>&1
 10   12    *     * 1-5   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-jpx-stock-price ) 1>>tmp/cron.log 2>&1
 40   15    *     * 1-5   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-jpx-stock-price ) 1>>tmp/cron.log 2>&1
