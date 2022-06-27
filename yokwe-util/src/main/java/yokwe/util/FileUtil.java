@@ -66,8 +66,12 @@ public class FileUtil {
 					
 					ret.append(buffer, 0, len);
 				}
-				// remove BOM_UTF_8 
-				return ret.substring(ret.charAt(0) == BOM_UTF_8 ? 1 : 0);
+				// remove BOM_UTF_8
+				if (0 < ret.length() && ret.charAt(0) == BOM_UTF_8) {
+					return ret.substring(1);
+				} else {
+					return ret.toString();
+				}
 			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
