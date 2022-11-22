@@ -72,7 +72,7 @@ update-tdnet:
 
 # SONY
 clear-sony-page:
-	rm /mnt/stock/jp; rm sony/page/*
+	cd /mnt/stock/jp; rm sony/page/*
 
 update-sony-stats:
 	ant sony-update-fund
