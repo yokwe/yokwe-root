@@ -34,8 +34,32 @@ public class Dividends {
 
 	
 	public static class Values {
-		// "exOrEffDate":"11/27/2013","type":"CASH","amount":"$1.33","declarationDate":"09/26/2013","recordDate":"12/02/2013","paymentDate":"12/27/2013
-		// "exOrEffDate":"10/27/2021","type":"CASH","amount":"$0.12","declarationDate":"01/18/2021","recordDate":"10/28/2021","paymentDate":"10/29/2021"
+		// {"exOrEffDate":"05/26/2022","type":"CASH","amount":"$0.12","declarationDate":"05/25/2022","recordDate":"05/27/2022","paymentDate":"05/31/2022","currency":"USD"}
+		public String exOrEffDate;
+		public String type;
+		public String amount;
+		public String declarationDate;
+		public String recordDate;
+		public String paymentDate;
+		public String currency;
+		
+		public Values() {
+			exOrEffDate     = null;
+			type            = null;
+			amount          = null;
+			declarationDate = null;
+			recordDate      = null;
+			paymentDate     = null;
+			currency        = null;
+		}
+        
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+	}
+	
+	public static class Header {
 		public String exOrEffDate;
 		public String type;
 		public String amount;
@@ -43,7 +67,7 @@ public class Dividends {
 		public String recordDate;
 		public String paymentDate;
 		
-		public Values() {
+		public Header() {
 			exOrEffDate     = null;
 			type            = null;
 			amount          = null;
@@ -58,8 +82,9 @@ public class Dividends {
 		}
 	}
 
+
 	public static class Table {
-		public Values   headers;
+		public Header   headers;
 		public Values[] rows;
 		
 		public Table() {
@@ -79,20 +104,22 @@ public class Dividends {
 //		      "payoutRatio" : "15.75",
 //		      "yield" : "3.03%"
 
-		public String annualizedDividend;
-		public String dividendPaymentDate;
-		public String exDividendDate;
-		public String payoutRatio;
-		public String yield;
-		public Table  dividends;
+		public LabelValue[] dividendHeaderValues;
+		public String       annualizedDividend;
+		public String       dividendPaymentDate;
+		public String       exDividendDate;
+		public String       payoutRatio;
+		public String       yield;
+		public Table        dividends;
         
 		public Data() {
-			annualizedDividend  = null;
-			dividendPaymentDate = null;
-			exDividendDate      = null;
-			payoutRatio         = null;
-			yield               = null;
-			dividends           = null;
+			dividendHeaderValues = null;
+			annualizedDividend   = null;
+			dividendPaymentDate  = null;
+			exDividendDate       = null;
+			payoutRatio          = null;
+			yield                = null;
+			dividends            = null;
 		}
 		
 		@Override
