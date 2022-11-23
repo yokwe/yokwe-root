@@ -1,10 +1,10 @@
 package yokwe.stock.us.nasdaq;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import yokwe.stock.us.Symbol;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.symbolDirectory.DownloadUtil;
 import yokwe.stock.us.nasdaq.symbolDirectory.NASDAQListed;
@@ -74,7 +74,7 @@ public class UpdateNASDAQSymbol {
 						map.put(symbol, nasdaqListed);
 					}
 				} else {
-					logger.warn("not stock {}", symbol);
+					// logger.warn("not stock {}", symbol);
 				}
 			}
 			// save result
@@ -132,8 +132,7 @@ public class UpdateNASDAQSymbol {
 				String nasdaqSymbol = token[7].strip();
 				
 				if (NASDAQSymbolUtil.isStock(nasdaqSymbol)) {
-					String symbol = NASDAQSymbolUtil.normalizedSymbol(nasdaqSymbol);
-					
+					String      symbol      = NASDAQSymbolUtil.normalizedSymbol(nasdaqSymbol);
 					OtherListed otherListed = new OtherListed(symbol, name, exchange, etf, roundLotSize, testIssue);
 					
 					if (map.containsKey(symbol)) {
@@ -144,7 +143,7 @@ public class UpdateNASDAQSymbol {
 						map.put(symbol, otherListed);
 					}
 				} else {
-					logger.warn("not stock {}", nasdaqSymbol);
+					// logger.warn("not stock {}", nasdaqSymbol);
 				}
 			}
 			// save result
@@ -154,7 +153,7 @@ public class UpdateNASDAQSymbol {
 	}
 	
 	private static void updateNASDAQSymbol() {
-		List<NASDAQSymbol> symbolList = new ArrayList<>();
+		Map<String, NASDAQSymbol> map = new TreeMap<>();
 		
 		{
 			List<NASDAQListed> nasdaqList = NASDAQListed.getList();
@@ -162,10 +161,26 @@ public class UpdateNASDAQSymbol {
 			logger.info("NASDAQListed {}", nasdaqList.size());
 			for(var e: nasdaqList) {
 				if (e.testIssue.equals("N")) {
-					AssetClass assetClass = e.etf == "Y" ? AssetClass.ETF : AssetClass.STOCK;
-					symbolList.add(new NASDAQSymbol(e.symbol, assetClass, e.name));					
+					String       symbol       = e.symbol;
+					AssetClass   assetClass   = e.etf.equals("Y") ? AssetClass.ETF : AssetClass.STOCK;
+					NASDAQSymbol nasdaqSymbol = new NASDAQSymbol(symbol, assetClass, e.name);
+					
+					if (symbol.length() == 5) {
+						char c5 = symbol.charAt(4);
+						if (c5 == 'U') continue; // UNIT
+						if (c5 == 'R') continue; // RIGHTs
+						if (c5 == 'W') continue; // WARRANT
+					}
+					
+					if (map.containsKey(symbol)) {
+						logger.warn("Duplicate symbol");
+						logger.warn("  old {}", map.get(symbol));
+						logger.warn("  new {}", nasdaqSymbol);
+					} else {
+						map.put(symbol, nasdaqSymbol);
+					}
 				} else {
-					logger.info("ignore test issue {}", e);
+					// logger.info("ignore test issue {}", e);
 				}
 			}
 		}
@@ -175,20 +190,41 @@ public class UpdateNASDAQSymbol {
 			logger.info("OtherListed  {}", otherList.size());
 			for(var e: otherList) {
 				if (e.testIssue.equals("N")) {
-					AssetClass assetClass = e.etf == "Y" ? AssetClass.ETF : AssetClass.STOCK;
-					symbolList.add(new NASDAQSymbol(e.symbol, assetClass, e.name));					
+					String       symbol       = e.symbol;
+					AssetClass   assetClass   = e.etf.equals("Y") ? AssetClass.ETF : AssetClass.STOCK;
+					NASDAQSymbol nasdaqSymbol = new NASDAQSymbol(symbol, assetClass, e.name);
+
+					if (map.containsKey(symbol)) {
+						logger.warn("Duplicate symbol");
+						logger.warn("  old {}", map.get(symbol));
+						logger.warn("  new {}", nasdaqSymbol);
+					} else {
+						map.put(symbol, nasdaqSymbol);
+					}
 				} else {
-					logger.info("ignore test issue {}", e);
+					// logger.info("ignore test issue {}", e);
 				}
 			}
 		}
 		
 		// FIXME add missing entry to symbolList
 		// If symbol is not in symbolList, add it.
+		{
+			List<Symbol> list = Symbol.getList();
+			for(var e: list) {
+				String symbol = e.symbol;
+				
+				if (map.containsKey(symbol)) {
+					// OK
+				} else {
+					// MISSING
+					logger.info("MISSING {}", symbol);
+				}
+			}
+		}
 		
-		logger.info("NASDAQSymbol {}", symbolList.size());
-		NASDAQSymbol.save(symbolList);
-
+		logger.info("NASDAQSymbol {}", map.size());
+		NASDAQSymbol.save(map.values());
 	}
 	
 	public static void main(String[] args) {
