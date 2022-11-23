@@ -72,6 +72,7 @@ date,event,status
 2021-02-15,President's Day,Closed
 2021-04-02,Good Friday,Closed
 2021-05-31,Memorial Day,Closed
+2021-06-19,Juneteenth National Independence Day,Closed
 2021-07-05,Independence Day,Closed
 2021-09-06,Labor Day,Closed
 2021-11-25,Thanksgiving Day,Closed
@@ -81,6 +82,7 @@ date,event,status
 2022-02-21,President's Day,Closed
 2022-04-15,Good Friday,Closed
 2022-05-30,Memorial Day,Closed
+2022-06-20,Juneteenth National Independence Day,Closed
 2022-07-04,Independence Day,Closed
 2022-09-05,Labor Day,Closed
 2022-11-24,Thanksgiving Day,Closed
@@ -91,8 +93,36 @@ date,event,status
 2023-02-20,President's Day,Closed
 2023-04-07,Good Friday,Closed
 2023-05-29,Memorial Day,Closed
+2023-06-19,Juneteenth National Independence Day,Closed
+2023-07-03,Early Market Close,1:00 p.m. EST
 2023-07-04,Independence Day,1:00 p.m. EST
 2023-09-04,Labor Day,Closed
 2023-11-23,Thanksgiving Day,Closed
 2023-11-24,Early Market Close,1:00 p.m. EST
 2023-12-25,Christmas Day,1:00 p.m. EST
+2024-01-01,New Years Day,Closed
+2024-01-15,"Martin Luther King Jr. Day",Closed
+2024-02-19,President's Day,Closed
+2024-03-29,Good Friday,Closed
+2024-05-27,Memorial Day,Closed
+2024-06-19,Juneteenth National Independence Day,Closed
+2024-07-03,Early Market Close,1:00 p.m. EST
+2024-07-04,Independence Day,1:00 p.m. EST
+2024-09-02,Labor Day,Closed
+2024-11-28,Thanksgiving Day,Closed
+2024-11-29,Early Market Close,1:00 p.m. EST
+2024-12-24,Early Market Close,1:00 p.m. EST
+2024-12-25,Christmas Day,1:00 p.m. EST
+2025-01-01,New Years Day,Closed
+2025-01-20,"Martin Luther King Jr. Day",Closed
+2025-02-17,President's Day,Closed
+2025-04-18,Good Friday,Closed
+2025-05-26,Memorial Day,Closed
+2025-06-19,Juneteenth National Independence Day,Closed
+2025-07-03,Early Market Close,1:00 p.m. EST
+2025-07-04,Independence Day,1:00 p.m. EST
+2025-09-01,Labor Day,Closed
+2025-11-27,Thanksgiving Day,Closed
+2025-11-28,Early Market Close,1:00 p.m. EST
+2025-12-24,Early Market Close,1:00 p.m. EST
+2025-12-25,Christmas Day,1:00 p.m. EST
