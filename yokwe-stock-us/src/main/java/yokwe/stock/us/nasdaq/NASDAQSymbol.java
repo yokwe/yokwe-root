@@ -29,12 +29,17 @@ public class NASDAQSymbol implements Comparable<NASDAQSymbol> {
 	public static void save(List<NASDAQSymbol> list) {
 		// sanity check
 		{
-			Set<String> set = new HashSet<>();
+			Map<String, NASDAQSymbol> map = new TreeMap<>();
 			for(var e: list) {
-				if (set.add(e.symbol)) continue;
-				logger.error("duplicate symbol");
-				logger.error("  symbol {}", e.symbol);
-				throw new UnexpectedException("duplicate symbol");
+				String symbol = e.symbol;
+				if (map.containsKey(symbol)) {
+					logger.warn("Duplicate symbol");
+					logger.warn("  old {}", map.get(symbol));
+					logger.warn("  new {}", e);
+					throw new UnexpectedException("duplicate symbol");
+				} else {
+					//
+				}
 			}
 		}
 		// Sort before save
