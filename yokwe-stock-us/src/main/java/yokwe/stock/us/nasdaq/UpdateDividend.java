@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import yokwe.stock.us.Symbol;
 import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Dividends;
@@ -199,10 +200,14 @@ public class UpdateDividend {
 		//  symbol
 		logger.info("map       {}", stockDividendMap.size());
 		
+		// assetMap
+		Map<String, AssetClass> assetMap = NASDAQSymbol.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.assetClass));
+		//  symbol
+
 		// build requestList
 		List<Request> requestList = new ArrayList<>();
 		{
-			List<Symbol> symbolList = Symbol.getList();
+			var symbolList = Symbol.getList();
 			logger.info("symbol    {}", symbolList.size());
 
 			int countCaseA = 0;
@@ -210,7 +215,15 @@ public class UpdateDividend {
 			int countCaseC = 0;
 			int countCaseD = 0;
 			for(var e: symbolList) {
-				String symbol = e.symbol;
+				String     symbol     = e.symbol;
+				AssetClass assetClass = assetMap.get(symbol);
+				if (assetClass == null) {
+					logger.warn("Unknown symbol {}", symbol);
+					continue;
+//					logger.error("Unknown symbol");
+//					logger.error("   symbol {}", symbol);
+//					throw new UnexpectedException("Unknown symbol");
+				}
 				
 				final StockDividend stockDividend;
 				if (stockDividendMap.containsKey(symbol)) {
@@ -238,13 +251,13 @@ public class UpdateDividend {
 							countCaseC++;
 							updateStockDividendMap(stockDividendMap, symbol, dividendList);
 						}
-						requestList.add(new Request(e.symbol, e.assetClass));
+						requestList.add(new Request(symbol, assetClass));
 					}
 				} else {
 					countCaseD++;
 					// new symbol
 					// want to process
-					requestList.add(new Request(e.symbol, e.assetClass));
+					requestList.add(new Request(symbol, assetClass));
 				}
 			}
 			logger.info("caseA     {}", countCaseA);

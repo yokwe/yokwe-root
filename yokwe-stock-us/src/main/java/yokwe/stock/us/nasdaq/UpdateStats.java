@@ -11,8 +11,10 @@ import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
+import yokwe.stock.us.Symbol;
 import yokwe.util.DoubleUtil;
 import yokwe.util.Market;
+import yokwe.util.UnexpectedException;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
 import yokwe.util.stats.HV;
@@ -27,9 +29,26 @@ public class UpdateStats {
 		Map<String, StockPrice> map = StockPrice.getMap();
 		
 		Map<String, StockDividend> stockDividendMap = StockDividend.getMap();
+		Map<String, NASDAQSymbol>  nasdaqMap        = NASDAQSymbol.getMap();
 		
 		for(var e: Symbol.getList()) {
 			final String symbol = e.symbol;
+			final String assetClass;
+			final String name;
+			{
+				if (nasdaqMap.containsKey(symbol)) {
+					NASDAQSymbol nasdaqSymbol = nasdaqMap.get(symbol);
+					
+					assetClass = nasdaqSymbol.assetClass.toString();
+					name       = nasdaqSymbol.name;
+				} else {
+					logger.warn("Skip unknown symbol {}", symbol);
+					continue;
+//					logger.error("Unknown symbol");
+//					logger.error("  symbol {}!", symbol);
+//					throw new UnexpectedException("Unknown symbol");
+				}
+			}
 			
 			List<Price> priceList = Price.getList(symbol).stream().filter(o -> dateSet.contains(o.date)).collect(Collectors.toList());
 			if (priceList.isEmpty()) continue;
@@ -44,8 +63,8 @@ public class UpdateStats {
 			Stats statsUS = new Stats();
 			
 			statsUS.stockCode = symbol;
-			statsUS.type      = e.assetClass.toString();
-			statsUS.name      = e.name;
+			statsUS.type      = assetClass;
+			statsUS.name      = name;
 			statsUS.date      = stockPrice.dateLast;
 			
 			statsUS.pricec    = pricec;

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import yokwe.stock.us.Symbol;
 import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Historical;
@@ -166,6 +167,10 @@ public class UpdatePrice {
 		Map<String, StockPrice> stockPriceMap = StockPrice.getMap();
 		//  symbol
 		
+		// assetMap
+		Map<String, AssetClass> assetMap = NASDAQSymbol.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.assetClass));
+		//  symbol
+		
 		// build requestList
 		List<Request> requestList = new ArrayList<>();
 		{
@@ -177,8 +182,17 @@ public class UpdatePrice {
 			int countCaseC = 0;
 			int countCaseD = 0;
 			int countCaseE = 0;
-			for(Symbol e: symbolList) {
-				String symbol = e.symbol;
+			for(var e: symbolList) {
+				String     symbol     = e.symbol;
+				
+				AssetClass assetClass = assetMap.get(symbol);
+				if (assetClass == null) {
+					logger.warn("Unknown symbol {}", symbol);
+					continue;
+//					logger.error("Unknown symbol");
+//					logger.error("   symbol {}", symbol);
+//					throw new UnexpectedException("Unknown symbol");
+				}
 				
 				// read existing price
 				List<Price> priceList = Price.getList(symbol);
@@ -225,7 +239,7 @@ public class UpdatePrice {
 //						logger.info("E {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
 					}
 				}
-				requestList.add(new Request(e.symbol, e.assetClass, myFromDate, myToDate));
+				requestList.add(new Request(symbol, assetClass, myFromDate, myToDate));
 			}
 			
 			logger.info("caseA     {}", countCaseA);
