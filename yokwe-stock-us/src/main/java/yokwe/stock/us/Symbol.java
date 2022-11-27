@@ -102,7 +102,7 @@ public class Symbol implements Comparable<Symbol> {
 	public String symbol; // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
 	
 	public Symbol(String symbol) {
-		this.symbol     = symbol.trim();
+		this.symbol = symbol.trim();
 	}
 	public Symbol() {
 		this("");
@@ -111,6 +111,25 @@ public class Symbol implements Comparable<Symbol> {
 	@Override
 	public int compareTo(Symbol that) {
 		return this.symbol.compareTo(that.symbol);
+	}
+
+	@Override
+	public int hashCode() {
+		return symbol.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		} else {
+			if (o instanceof Symbol) {
+				Symbol that = (Symbol)o;
+				return this.compareTo(that) == 0;
+			} else {
+				return false;
+			}
+		}
 	}
 
 	@Override
