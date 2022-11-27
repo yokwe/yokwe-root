@@ -77,7 +77,29 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-
+	
+	<!-- SBI -->
+	<target name="sbi-update-symbol-name">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.sbi.UpdateSymbolName" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<!-- RAKUTEN -->
+	<target name="rakuten-update-symbol-name">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.rakuten.UpdateSymbolName" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
 	<!-- FX -->
 	<target name="update-fx">
 		<java module="yokwe.stock.trade/yokwe.stock.trade.data.UpdateFX" fork="true">
