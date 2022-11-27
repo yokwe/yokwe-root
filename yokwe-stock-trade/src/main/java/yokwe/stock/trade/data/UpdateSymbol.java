@@ -1,0 +1,43 @@
+package yokwe.stock.trade.data;
+
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import yokwe.stock.us.Symbol;
+
+public class UpdateSymbol {
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateSymbol.class);
+
+	public static void main(String[] args) {
+		logger.info("START");
+		
+		// update each SymbolName
+		logger.info("update monex");
+		yokwe.stock.trade.monex.UpdateSymbolName.main(null);
+		logger.info("update sbi");
+		yokwe.stock.trade.sbi.UpdateSymbolName.main(null);
+		logger.info("update rakuten");
+		yokwe.stock.trade.rakuten.UpdateSymbolName.main(null);
+		
+		var extraList   = Symbol.getListExtra();
+		var monexList   = yokwe.stock.trade.monex.UpdateSymbolName.getList().stream().map(o -> new Symbol(o.symbol)).collect(Collectors.toList());
+		var sbiList     = yokwe.stock.trade.sbi.UpdateSymbolName.getList().stream().map(o -> new Symbol(o.symbol)).collect(Collectors.toList());
+		var rakutenList = yokwe.stock.trade.rakuten.UpdateSymbolName.getList().stream().map(o -> new Symbol(o.symbol)).collect(Collectors.toList());
+		logger.info("extraList   {}", extraList.size());
+		logger.info("monexList   {}", monexList.size());
+		logger.info("sbiList     {}", sbiList.size());
+		logger.info("rakutenList {}", rakutenList.size());
+		
+		Set<Symbol> set = new TreeSet<>();
+		set.addAll(extraList);
+		set.addAll(monexList);
+		set.addAll(sbiList);
+		set.addAll(rakutenList);
+		
+		logger.info("save        {} {}", set.size(), Symbol.getPath());
+		Symbol.save(set);
+		
+		logger.info("STOP");
+	}
+}

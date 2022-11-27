@@ -121,5 +121,16 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	
+	<!-- SYMBOL -->
+	<target name="update-symbol">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.data.UpdateSymbol" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 </project>
