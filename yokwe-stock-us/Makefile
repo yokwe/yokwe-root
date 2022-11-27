@@ -17,9 +17,6 @@ clear-log-file:
 	echo -n >tmp/yokwe-stock-us.log
 	echo -n >tmp/cron.log
 
-update-crontab:
-	crontab data/crontab
-
 save:
 	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/nasdaq_$$(date +%Y%m%d).taz nasdaq
 
