@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import yokwe.stock.us.Symbol;
 import yokwe.util.DoubleUtil;
 import yokwe.util.Market;
-import yokwe.util.UnexpectedException;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
 import yokwe.util.stats.HV;
