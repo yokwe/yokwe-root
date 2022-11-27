@@ -68,17 +68,8 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="monex-update-stock-us">
-		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateStockUS" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="monex-update-symbol">
-		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateSymbol" fork="true">
+	<target name="monex-update-symbol-name">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateSymbolName" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />

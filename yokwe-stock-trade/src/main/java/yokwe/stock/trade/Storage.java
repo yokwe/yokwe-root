@@ -34,6 +34,18 @@ public final class Storage {
 		}
 	}
 	
+	// report
+	public static final class Report {
+		public static final String PREFIX = "report";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 	// gmo
 	public static final class GMO {
 		public static final String PREFIX = "gmo";
@@ -58,9 +70,9 @@ public final class Storage {
 		}
 	}
 
-	// report
-	public static final class Report {
-		public static final String PREFIX = "report";
+	// sbi
+	public static final class SBI {
+		public static final String PREFIX = "sbi";
 		
 		public static String getPath(String path) {
 			return Storage.getPath(PREFIX, path);
@@ -69,4 +81,17 @@ public final class Storage {
 			return getPath(String.format("%s/%s", prefix, path));
 		}
 	}
+
+	// rakuten
+	public static final class Rakuten {
+		public static final String PREFIX = "rakuten";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+
 }

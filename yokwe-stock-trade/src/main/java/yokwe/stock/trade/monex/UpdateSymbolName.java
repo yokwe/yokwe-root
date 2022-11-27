@@ -3,16 +3,32 @@ package yokwe.stock.trade.monex;
 import java.util.ArrayList;
 import java.util.List;
 
-import yokwe.util.FileUtil;
+import yokwe.stock.trade.Storage;
+import yokwe.stock.trade.SymbolName;
+import yokwe.stock.us.Symbol;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
-public class UpdateStockUS {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateStockUS.class);
+public class UpdateSymbolName {
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateSymbolName.class);
 
 	private static final String DATA_URL     = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsMeigaraJsonGST";
 	private static final String DATA_CHARSET = "SHIFT_JIS";
+	
+	private static final String PATH = Storage.Monex.getPath("symbol-name.csv");
+	public static final String getPath() {
+		return PATH;
+	}
+	public static void save(List<SymbolName> list) {
+		SymbolName.save(list, getPath());
+	}
+	public static List<SymbolName> load() {
+		return SymbolName.load(getPath());
+	}
+	public static List<SymbolName> getList() {
+		return SymbolName.getList(getPath());
+	}
 	
 	
 	public static class Data {
@@ -58,18 +74,30 @@ public class UpdateStockUS {
 		}
 	}
 	
-	public static void main(String[] args) {
-		logger.info("START");
+	private static void updateSymbol() {
+		logger.info("updateSymbol");
+		
+		List<Symbol> list = Symbol.getListExtra();
+		logger.info("extra {} {}", list.size(), Symbol.getPathExtra());
+		
+		for(var e: getList()) {
+			list.add(new Symbol(e.symbol));
+		}
+		
+		logger.info("save  {} {}", list.size(), Symbol.getPath());
+		Symbol.save(list);
+	}
+	
+	private static void updateSymbolName() {
+		logger.info("updateSymbolName");
 		
 		logger.info("url      {}", DATA_URL);
 		HttpUtil.Result result = HttpUtil.getInstance().withCharset(DATA_CHARSET).download(DATA_URL);
 		logger.info("response {}", result.response);
 		logger.info("result   {}", result.result.length());
-		FileUtil.write().file("tmp/monex-stock-us", result.result); // FIXME
+		// FileUtil.write().file(Storage.Monex.getPath("symbol-name"), result.result); // For debug
 		String string = result.result;
-		
-//		String string = FileUtil.read().file("tmp/monex-stock-us"); // FIXME
-		
+				
 		List<Data> dataList;
 		{
 			List<String> stringList = new ArrayList<>();
@@ -92,20 +120,28 @@ public class UpdateStockUS {
 			logger.info("stringList {}", stringList.size());
 
 			String jsonString = "[" + String.join(",\n", stringList) + "]";
-			FileUtil.write().file("tmp/monex-stock-us.json", jsonString); // FIXME
+			// FileUtil.write().file(Storage.Monex.getPath("symbol-name.json"), result.result); // For debug
+
 			dataList = JSON.getList(Data.class, jsonString);
 		}
 		logger.info("dataList {}", dataList.size());
 		
-		List<StockUS> list = new ArrayList<>();
+		List<SymbolName> list = new ArrayList<>();
 		for(var e: dataList) {
-			StockUS stockUS = new StockUS(e.ticker, e.name);
-			if (stockUS.name.isEmpty()) continue;
-			list.add(stockUS);
+			SymbolName symbolName = new SymbolName(e.ticker, e.name);
+			if (symbolName.name.isEmpty()) continue;
+			list.add(symbolName);
 		}
 		
-		logger.info("save {} {}", StockUS.getPath(), list.size());
-		StockUS.save(list);
+		logger.info("save  {} {}", list.size(), getPath());
+
+		save(list);
+	}
+	public static void main(String[] args) {
+		logger.info("START");
+		
+		updateSymbolName();
+		updateSymbol();
 		
 		logger.info("STOP");
 	}
