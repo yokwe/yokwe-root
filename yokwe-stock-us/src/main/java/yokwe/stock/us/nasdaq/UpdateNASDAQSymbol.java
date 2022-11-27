@@ -207,10 +207,10 @@ public class UpdateNASDAQSymbol {
 			}
 		}
 		
-		// FIXME add missing entry to symbolList
 		// If symbol is not in symbolList, add it.
 		{
 			List<Symbol> list = Symbol.getList();
+			int count = 0;
 			for(var e: list) {
 				String symbol = e.symbol;
 				
@@ -219,11 +219,13 @@ public class UpdateNASDAQSymbol {
 				} else {
 					// MISSING
 					logger.info("MISSING {}", symbol);
+					count++;
 				}
 			}
+			if (count != 0) logger.info("missing count {}", count);
 		}
 		
-		logger.info("NASDAQSymbol {}", map.size());
+		logger.info("NASDAQSymbol {}  {}", map.size(), NASDAQSymbol.getPath());
 		NASDAQSymbol.save(map.values());
 	}
 	
