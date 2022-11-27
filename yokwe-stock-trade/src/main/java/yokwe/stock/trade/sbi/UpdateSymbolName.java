@@ -211,8 +211,8 @@ public class UpdateSymbolName {
 		// stockInfoList
 		logger.info("stockInfoList");
 		for(var e: stockInfoList) {
-			String     symbol     = e.symbol;
-			SymbolName symbolName = new SymbolName(e.symbol, e.nameEN);
+			String     symbol     = e.symbol.toUpperCase();
+			SymbolName symbolName = new SymbolName(symbol, e.nameEN);
 			if (map.containsKey(symbol)) {
 				SymbolName old = map.get(symbol);
 				if (old.name.equals(symbolName.name)) {
@@ -232,8 +232,8 @@ public class UpdateSymbolName {
 		// adrInfoList
 		logger.info("adrInfoList");
 		for(var e: adrInfoList) {
-			String     symbol     = e.symbol;
-			SymbolName symbolName = new SymbolName(e.symbol, e.nameEN);
+			String     symbol     = e.symbol.toUpperCase();
+			SymbolName symbolName = new SymbolName(symbol, e.nameEN);
 			if (map.containsKey(symbol)) {
 				SymbolName old = map.get(symbol);
 				if (old.name.equals(symbolName.name)) {
@@ -253,8 +253,8 @@ public class UpdateSymbolName {
 		// etfInfoList
 		logger.info("etfInfoList");
 		for(var e: etfInfoList) {
-			String     symbol     = e.symbol;
-			SymbolName symbolName = new SymbolName(e.symbol, e.nameEN);
+			String     symbol     = e.symbol.toUpperCase();
+			SymbolName symbolName = new SymbolName(symbol, e.nameEN);
 			if (map.containsKey(symbol)) {
 				SymbolName old = map.get(symbol);
 				if (old.name.equals(symbolName.name)) {
