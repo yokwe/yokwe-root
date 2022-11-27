@@ -171,6 +171,8 @@ public class UpdatePrice {
 		Map<String, AssetClass> assetMap = NASDAQSymbol.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.assetClass));
 		//  symbol
 		
+		// FIXME handle delisting of symbol properly
+		
 		// build requestList
 		List<Request> requestList = new ArrayList<>();
 		{
