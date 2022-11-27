@@ -5,7 +5,6 @@ import java.util.List;
 
 import yokwe.stock.trade.Storage;
 import yokwe.stock.trade.SymbolName;
-import yokwe.stock.us.Symbol;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -74,20 +73,6 @@ public class UpdateSymbolName {
 		}
 	}
 	
-	private static void updateSymbol() {
-		logger.info("updateSymbol");
-		
-		List<Symbol> list = Symbol.getListExtra();
-		logger.info("extra {} {}", list.size(), Symbol.getPathExtra());
-		
-		for(var e: getList()) {
-			list.add(new Symbol(e.symbol));
-		}
-		
-		logger.info("save  {} {}", list.size(), Symbol.getPath());
-		Symbol.save(list);
-	}
-	
 	private static void updateSymbolName() {
 		logger.info("updateSymbolName");
 		
@@ -141,7 +126,6 @@ public class UpdateSymbolName {
 		logger.info("START");
 		
 		updateSymbolName();
-		updateSymbol();
 		
 		logger.info("STOP");
 	}
