@@ -3,7 +3,6 @@ package yokwe.stock.trade.monex;
 import java.util.ArrayList;
 import java.util.List;
 
-import yokwe.stock.trade.monex.StockUS.Type;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -100,7 +99,7 @@ public class UpdateStockUS {
 		
 		List<StockUS> list = new ArrayList<>();
 		for(var e: dataList) {
-			StockUS stockUS = new StockUS(e.ticker, e.isETF() ? Type.ETF : Type.Stock, e.name);
+			StockUS stockUS = new StockUS(e.ticker, e.name);
 			if (stockUS.name.isEmpty()) continue;
 			list.add(stockUS);
 		}

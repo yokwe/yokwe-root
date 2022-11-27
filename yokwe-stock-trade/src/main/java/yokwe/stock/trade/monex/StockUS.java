@@ -29,33 +29,15 @@ public class StockUS implements Comparable<StockUS> {
 		return ret == null ? new ArrayList<>() : ret;
 	}
 
-	public static enum Type {
-		Stock("S"),
-		ETF  ("E");
-		
-		public final String value;
-		Type(String value) {
-			this.value = value;
-		}
-		
-		@Override
-		public String toString() {
-			return value;
-		}
-	}
-
-	
 	public String symbol;
-	public Type   type;
 	public String name;
 
-	public StockUS(String symbol, Type type, String name) {
+	public StockUS(String symbol, String name) {
 		this.symbol = symbol.trim();
-		this.type   = type;
 		this.name   = name.trim();
 	}
 	public StockUS() {
-		this("", Type.Stock, "");
+		this("", "");
 	}
 	
 	@Override
