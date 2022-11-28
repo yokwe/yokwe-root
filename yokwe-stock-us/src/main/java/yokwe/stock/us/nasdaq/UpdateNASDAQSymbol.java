@@ -215,7 +215,7 @@ public class UpdateNASDAQSymbol {
 					// OK
 				} else {
 					// MISSING
-					logger.info("MISSING {}", symbol);
+					// logger.info("MISSING {}", symbol);
 					count++;
 				}
 			}
