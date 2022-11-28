@@ -160,27 +160,26 @@ public class UpdateNASDAQSymbol {
 			
 			logger.info("NASDAQListed {}", nasdaqList.size());
 			for(var e: nasdaqList) {
-				if (e.testIssue.equals("N")) {
-					String       symbol       = e.symbol;
-					AssetClass   assetClass   = e.etf.equals("Y") ? AssetClass.ETF : AssetClass.STOCK;
-					NASDAQSymbol nasdaqSymbol = new NASDAQSymbol(symbol, assetClass, e.name);
-					
-					if (symbol.length() == 5) {
-						char c5 = symbol.charAt(4);
-						if (c5 == 'U') continue; // UNIT
-						if (c5 == 'R') continue; // RIGHTs
-						if (c5 == 'W') continue; // WARRANT
-					}
-					
-					if (map.containsKey(symbol)) {
-						logger.warn("Duplicate symbol");
-						logger.warn("  old {}", map.get(symbol));
-						logger.warn("  new {}", nasdaqSymbol);
-					} else {
-						map.put(symbol, nasdaqSymbol);
-					}
+				if (!e.testIssue.equals("N"))       continue; // skip test issue
+				if (!e.financialStatus.equals("N")) continue; // skip not 
+				
+				String       symbol       = e.symbol;
+				AssetClass   assetClass   = e.etf.equals("Y") ? AssetClass.ETF : AssetClass.STOCK;
+				NASDAQSymbol nasdaqSymbol = new NASDAQSymbol(symbol, assetClass, e.name);
+				
+				if (symbol.length() == 5) {
+					char c5 = symbol.charAt(4);
+					if (c5 == 'U') continue; // UNIT
+					if (c5 == 'R') continue; // RIGHTs
+					if (c5 == 'W') continue; // WARRANT
+				}
+				
+				if (map.containsKey(symbol)) {
+					logger.warn("Duplicate symbol");
+					logger.warn("  old {}", map.get(symbol));
+					logger.warn("  new {}", nasdaqSymbol);
 				} else {
-					// logger.info("ignore test issue {}", e);
+					map.put(symbol, nasdaqSymbol);
 				}
 			}
 		}
@@ -189,20 +188,18 @@ public class UpdateNASDAQSymbol {
 			
 			logger.info("OtherListed  {}", otherList.size());
 			for(var e: otherList) {
-				if (e.testIssue.equals("N")) {
-					String       symbol       = e.symbol;
-					AssetClass   assetClass   = e.etf.equals("Y") ? AssetClass.ETF : AssetClass.STOCK;
-					NASDAQSymbol nasdaqSymbol = new NASDAQSymbol(symbol, assetClass, e.name);
+				if (!e.testIssue.equals("N")) continue;
+				
+				String       symbol       = e.symbol;
+				AssetClass   assetClass   = e.etf.equals("Y") ? AssetClass.ETF : AssetClass.STOCK;
+				NASDAQSymbol nasdaqSymbol = new NASDAQSymbol(symbol, assetClass, e.name);
 
-					if (map.containsKey(symbol)) {
-						logger.warn("Duplicate symbol");
-						logger.warn("  old {}", map.get(symbol));
-						logger.warn("  new {}", nasdaqSymbol);
-					} else {
-						map.put(symbol, nasdaqSymbol);
-					}
+				if (map.containsKey(symbol)) {
+					logger.warn("Duplicate symbol");
+					logger.warn("  old {}", map.get(symbol));
+					logger.warn("  new {}", nasdaqSymbol);
 				} else {
-					// logger.info("ignore test issue {}", e);
+					map.put(symbol, nasdaqSymbol);
 				}
 			}
 		}
