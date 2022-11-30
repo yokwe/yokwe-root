@@ -1,20 +1,13 @@
 package yokwe.stock.us.nasdaq.symbolDirectory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import yokwe.stock.us.Storage;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
-import yokwe.util.UnexpectedException;
 
 public class OtherListed implements Comparable<OtherListed> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OtherListed.class);
-	
 	// ACT Symbol|Security Name|Exchange|CQS Symbol|ETF|Round Lot Size|Test Issue|NASDAQ Symbol
 	// A|Agilent Technologies, Inc. Common Stock|N|A|N|100|N|A
 	// ZYME|Zymeworks Inc. Common Shares|N|ZYME|N|100|N|ZYME
@@ -74,64 +67,56 @@ public class OtherListed implements Comparable<OtherListed> {
 		return PATH_CSV_FILE;
 	}
 	
-	private static void checkDuplicate(List<OtherListed> list) {
-		Map<String, OtherListed> map = new HashMap<>();
-		for(var e: list) {
-			String symbol = e.symbol;
-			if (map.containsKey(symbol)) {
-				logger.error("Duplicate symbol");
-				logger.error("  old {}", map.get(symbol));
-				logger.error("  new {}", e);
-				throw new UnexpectedException("Duplicate symbol");
-			} else {
-				map.put(symbol, e);
-			}
-		}
-	}
-
 	public static void save(Collection<OtherListed> collection) {
-		save(new ArrayList<>(collection));
+		// sanity check
+		ListUtil.checkDuplicate(collection, o -> o.symbol);
+		ListUtil.save(OtherListed.class, getPath(), collection);
 	}
 	public static void save(List<OtherListed> list) {
 		// sanity check
-		checkDuplicate(list);
-		
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(OtherListed.class).file(getPath(), list);
+		ListUtil.checkDuplicate(list, o -> o.symbol);
+		ListUtil.save(OtherListed.class, getPath(), list);
 	}
 	
 	public static List<OtherListed> load() {
-		var list = CSVUtil.read(OtherListed.class).file(getPath());
+		var list = ListUtil.load(OtherListed.class, getPath());
 		// sanity check
-		if (list != null) checkDuplicate(list);
-		
+		ListUtil.checkDuplicate(list, o -> o.symbol);
 		return list;
 	}
 	public static List<OtherListed> getList() {
-		List<OtherListed> ret = load();
-		return ret == null ? new ArrayList<>() : ret;
+		var list = ListUtil.getList(OtherListed.class, getPath());
+		// sanity check
+		ListUtil.checkDuplicate(list, o -> o.symbol);
+		return list;
 	}
+	
+	
+	public static final String SUFFIX_WARRANT     = "+";
+	public static final String SUFFIX_RIGHTS      = "^";
+	public static final String SUFFIX_UNITS       = "=";
+	public static final String SUFFIX_WHEN_ISSUED = "#";
+	public static final String SUFFIX_CALLED      = "*";
 
 	
 	// ACT Symbol|Security Name|Exchange|CQS Symbol|ETF|Round Lot Size|Test Issue|NASDAQ Symbol
 	// public String actSymbol;
 	public String symbol;
-	public String name;
 	public String exchange;
 	// public String cqsSymbol;
 	public String etf;
 	public String roundLotSize;
 	public String testIssue;
 	// public String nasdaqSymbol;
+	public String name; // move to last
 	
 	public OtherListed(
-			String symbol,
-			String name,
-			String exchange,
-			String etf,
-			String roundLotSize,
-			String testIssue
+		String symbol,
+		String name,
+		String exchange,
+		String etf,
+		String roundLotSize,
+		String testIssue
 		) {
 		this.symbol       = symbol;
 		this.name         = name;
@@ -143,6 +128,39 @@ public class OtherListed implements Comparable<OtherListed> {
 	public OtherListed() {
 		this(null, null, null, null, null, null);
 	}
+	
+	public boolean isTestIssue() {
+		return !testIssue.equals("N");
+	}
+	
+	public boolean isWarrant() {
+		return symbol.contains(SUFFIX_WARRANT);
+	}
+	public boolean isRights() {
+		return symbol.contains(SUFFIX_RIGHTS);
+	}
+	public boolean isUnits() {
+		return symbol.contains(SUFFIX_UNITS);
+	}
+	public boolean isWhenIssed() {
+		return symbol.contains(SUFFIX_WHEN_ISSUED);
+	}
+	public boolean isCalled() {
+		return symbol.contains(SUFFIX_CALLED);
+	}
+	public boolean isStock() {
+		if (isWarrant()) return false;
+		if (isRights())  return false;
+		if (isUnits())   return false;
+		
+		return true;
+	}
+	
+	// Remove suffix of issued and called
+	public String normalizedSymbol() {
+		return symbol.replace(SUFFIX_WHEN_ISSUED, "").replace(SUFFIX_CALLED, "");
+	}
+
 	
 	@Override
 	public String toString() {

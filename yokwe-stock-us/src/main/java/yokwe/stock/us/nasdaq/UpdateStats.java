@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import yokwe.stock.us.Symbol;
+import yokwe.stock.us.SymbolInfo;
 import yokwe.util.DoubleUtil;
 import yokwe.util.Market;
 import yokwe.util.stats.DoubleArray;
@@ -28,7 +29,7 @@ public class UpdateStats {
 		Map<String, StockPrice> map = StockPrice.getMap();
 		
 		Map<String, StockDividend> stockDividendMap = StockDividend.getMap();
-		Map<String, NASDAQSymbol>  nasdaqMap        = NASDAQSymbol.getMap();
+		Map<String, SymbolInfo>    nasdaqMap        = NASDAQSymbol.getMap();
 		
 		for(var e: Symbol.getList()) {
 			final String symbol = e.symbol;
@@ -36,10 +37,10 @@ public class UpdateStats {
 			final String name;
 			{
 				if (nasdaqMap.containsKey(symbol)) {
-					NASDAQSymbol nasdaqSymbol = nasdaqMap.get(symbol);
+					SymbolInfo symbolInfo = nasdaqMap.get(symbol);
 					
-					assetClass = nasdaqSymbol.assetClass.toString();
-					name       = nasdaqSymbol.name;
+					assetClass = symbolInfo.type.toAssetClass().toString();
+					name       = symbolInfo.name;
 				} else {
 					logger.warn("Skip unknown symbol {}", symbol);
 					continue;

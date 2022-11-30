@@ -1,70 +1,46 @@
 package yokwe.stock.us;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
-import yokwe.util.UnexpectedException;
 
 public class Symbol implements Comparable<Symbol> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Symbol.class);
-
-	private static void checkDuplicate(List<Symbol> list) {
-		Map<String, Symbol> map = new HashMap<>();
-		for(var e: list) {
-			String symbol = e.symbol;
-			if (map.containsKey(symbol)) {
-				logger.error("Duplicate symbol");
-				logger.error("  old {}", map.get(symbol));
-				logger.error("  new {}", e);
-				throw new UnexpectedException("Duplicate symbol");
-			} else {
-				map.put(symbol, e);
-			}
-		}
-	}
-
 	public static void save(Collection<Symbol> collection, String path) {
-		save(new ArrayList<>(collection), path);
+		// sanity check
+		ListUtil.checkDuplicate(collection, o -> o.symbol);
+		ListUtil.save(Symbol.class, path, collection);
 	}
 	public static void save(List<Symbol> list, String path) {
 		// sanity check
-		checkDuplicate(list);
-		
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(Symbol.class).file(path, list);
+		ListUtil.checkDuplicate(list, o -> o.symbol);
+		ListUtil.save(Symbol.class, path, list);
 	}
 	
 	public static List<Symbol> load(String path) {
-		var list = CSVUtil.read(Symbol.class).file(path);
+		var list = ListUtil.load(Symbol.class, path);
 		// sanity check
-		if (list != null) checkDuplicate(list);
+		ListUtil.checkDuplicate(list);
 
 		return list;
 	}
 	public static List<Symbol> getList(String path) {
-		List<Symbol> ret = load(path);
-		return ret == null ? new ArrayList<>() : ret;
+		var list = ListUtil.getList(Symbol.class, path);
+		// sanity check
+		ListUtil.checkDuplicate(list);
+
+		return list;
 	}
 	public static Map<String, Symbol> getMap(String path) {
 		//            symbol
-		Map<String, Symbol> ret = new TreeMap<>();
-		
-		for(var e: getList(path)) {
-			ret.put(e.symbol, e);
-		}
-		return ret;
+		var list = ListUtil.getList(Symbol.class, path);
+		return ListUtil.checkDuplicate(list, o -> o.symbol);
 	}
 	
-	
 	private static final String PATH_FILE = Storage.getPath("symbol.csv");
+	
 	public static String getPath() {
 		return PATH_FILE;
 	}
@@ -92,11 +68,10 @@ public class Symbol implements Comparable<Symbol> {
 	}
 
 	public static List<Symbol> loadExtra() {
-		return CSVUtil.read(Symbol.class).file(getPathExtra());
+		return load(getPathExtra());
 	}
 	public static List<Symbol> getListExtra() {
-		List<Symbol> ret = loadExtra();
-		return ret == null ? new ArrayList<>() : ret;
+		return getList(getPathExtra());
 	}
 	
 	public String symbol; // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A

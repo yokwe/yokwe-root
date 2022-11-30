@@ -191,7 +191,7 @@ public class UpdateDividend {
 			}
 		}
 	}
-
+	
 	public static void main(String[] args) {
 		logger.info("START");
 		
@@ -201,7 +201,8 @@ public class UpdateDividend {
 		logger.info("map       {}", stockDividendMap.size());
 		
 		// assetMap
-		Map<String, AssetClass> assetMap = NASDAQSymbol.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.assetClass));
+		Map<String, AssetClass> assetMap = NASDAQSymbol.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.type.toAssetClass()));
+
 		//  symbol
 
 		// FIXME handle delisting of symbol properly

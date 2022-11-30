@@ -1,14 +1,15 @@
 package yokwe.stock.us.nasdaq;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import yokwe.stock.us.Symbol;
-import yokwe.stock.us.nasdaq.api.AssetClass;
+import yokwe.stock.us.SymbolInfo;
+import yokwe.stock.us.SymbolInfo.Type;
 import yokwe.stock.us.nasdaq.symbolDirectory.DownloadUtil;
 import yokwe.stock.us.nasdaq.symbolDirectory.NASDAQListed;
-import yokwe.stock.us.nasdaq.symbolDirectory.NASDAQSymbolUtil;
 import yokwe.stock.us.nasdaq.symbolDirectory.OtherListed;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -23,7 +24,7 @@ public class UpdateNASDAQSymbol {
 			logger.info("{} {}", data.length, NASDAQListed.PATH_TXT_FILE);
 		}
 		
-		Map<String, NASDAQListed> map = new TreeMap<>();
+		List<NASDAQListed> list = new ArrayList<>();
 		{
 			String string = FileUtil.read().file(NASDAQListed.PATH_TXT_FILE);
 			String[] lines = string.split("\r\n");
@@ -62,24 +63,12 @@ public class UpdateNASDAQSymbol {
 				String etf             = token[6].strip();
 				String nextShares      = token[7].strip();
 				
-				if (NASDAQSymbolUtil.isStock(symbol)) {
-					symbol = NASDAQSymbolUtil.normalizedSymbol(symbol);
-					
-					NASDAQListed nasdaqListed = new NASDAQListed(symbol, name, marketCategory, testIssue, financialStatus, roundLotSize, etf, nextShares);
-					if (map.containsKey(symbol)) {
-						logger.warn("Duplicate symbol");
-						logger.warn("  old {}", map.get(symbol));
-						logger.warn("  new {}", nasdaqListed);
-					} else {
-						map.put(symbol, nasdaqListed);
-					}
-				} else {
-					// logger.warn("not stock {}", symbol);
-				}
+				NASDAQListed nasdaqListed = new NASDAQListed(symbol, name, marketCategory, testIssue, financialStatus, roundLotSize, etf, nextShares);
+				list.add(nasdaqListed);
 			}
 			// save result
-			logger.info("{} {}", map.size(), NASDAQListed.getPath());
-			NASDAQListed.save(map.values());
+			logger.info("{} {}", list.size(), NASDAQListed.getPath());
+			NASDAQListed.save(list);
 			
 		}
 	}
@@ -91,7 +80,7 @@ public class UpdateNASDAQSymbol {
 			logger.info("{} {}", data.length, OtherListed.PATH_TXT_FILE);
 		}
 		
-		Map<String, OtherListed> map = new TreeMap<>();
+		List<OtherListed> list = new ArrayList<>();
 		
 		{
 			String string = FileUtil.read().file(OtherListed.PATH_TXT_FILE);
@@ -131,77 +120,98 @@ public class UpdateNASDAQSymbol {
 				String testIssue    = token[6].strip();
 				String nasdaqSymbol = token[7].strip();
 				
-				if (NASDAQSymbolUtil.isStock(nasdaqSymbol)) {
-					String      symbol      = NASDAQSymbolUtil.normalizedSymbol(nasdaqSymbol);
-					OtherListed otherListed = new OtherListed(symbol, name, exchange, etf, roundLotSize, testIssue);
-					
-					if (map.containsKey(symbol)) {
-						logger.warn("Duplicate symbol");
-						logger.warn("  old {}", map.get(symbol));
-						logger.warn("  new {}", otherListed);
-					} else {
-						map.put(symbol, otherListed);
-					}
-				} else {
-					// logger.warn("not stock {}", nasdaqSymbol);
-				}
+				String symbol       = nasdaqSymbol;
+				OtherListed otherListed = new OtherListed(symbol, name, exchange, etf, roundLotSize, testIssue);
+				
+				list.add(otherListed);
 			}
+			
 			// save result
-			logger.info("{} {}", map.size(), OtherListed.getPath());
-			OtherListed.save(map.values());
+			logger.info("{} {}", list.size(), OtherListed.getPath());
+			OtherListed.save(list);
 		}
 	}
 	
 	private static void updateNASDAQSymbol() {
-		Map<String, NASDAQSymbol> map = new TreeMap<>();
+		Map<String, SymbolInfo> map = new TreeMap<>();
 		
 		{
-			List<NASDAQListed> nasdaqList = NASDAQListed.getList();
+			List<NASDAQListed> list = NASDAQListed.getList();
 			
-			logger.info("NASDAQListed {}", nasdaqList.size());
-			for(var e: nasdaqList) {
-				if (!e.testIssue.equals("N"))       continue; // skip test issue
-				if (!e.financialStatus.equals("N")) continue; // skip not 
+			logger.info("NASDAQListed {}", list.size());
+			int countTest     = 0;
+			int countRight    = 0;
+			int countUnit     = 0;
+			int countWarrant  = 0;
+			int countNormal   = 0;
+			for(var e: list) {
+				if (e.isTestIssue()) countTest++;
+				if (e.isRights())    countRight++;
+				if (e.isUnits())     countUnit++;
+				if (e.isWarrant())   countWarrant++;
+
+				if (e.isTestIssue()) continue; // skip test issue
+				if (e.isRights())    continue; // skip right
+				if (e.isUnits())     continue; // skip unit
+				if (e.isWarrant())   continue; // skip warrant
 				
-				String       symbol       = e.symbol;
-				AssetClass   assetClass   = e.etf.equals("Y") ? AssetClass.ETF : AssetClass.STOCK;
-				NASDAQSymbol nasdaqSymbol = new NASDAQSymbol(symbol, assetClass, e.name);
-				
-				if (symbol.length() == 5) {
-					char c5 = symbol.charAt(4);
-					if (c5 == 'U') continue; // UNIT
-					if (c5 == 'R') continue; // RIGHTs
-					if (c5 == 'W') continue; // WARRANT
-				}
+				String     symbol     = e.symbol;
+				Type       type       = e.etf.equals("Y") ? Type.ETF : Type.STOCK;
+				SymbolInfo symbolInfo = new SymbolInfo(symbol, type, e.name);
 				
 				if (map.containsKey(symbol)) {
 					logger.warn("Duplicate symbol");
 					logger.warn("  old {}", map.get(symbol));
-					logger.warn("  new {}", nasdaqSymbol);
+					logger.warn("  new {}", symbolInfo);
 				} else {
-					map.put(symbol, nasdaqSymbol);
+					map.put(symbol, symbolInfo);
+					countNormal++;
 				}
 			}
+			logger.info("countTest    {}", countTest);
+			logger.info("countRight   {}", countRight);
+			logger.info("countUnit    {}", countUnit);
+			logger.info("countWarrant {}", countWarrant);
+			logger.info("countNormal  {}", countNormal);
 		}
 		{
-			List<OtherListed> otherList = OtherListed.getList();
+			List<OtherListed> list = OtherListed.getList();
 			
-			logger.info("OtherListed  {}", otherList.size());
-			for(var e: otherList) {
-				if (!e.testIssue.equals("N")) continue;
+			logger.info("OtherListed  {}", list.size());
+			int countTest     = 0;
+			int countRight    = 0;
+			int countUnit     = 0;
+			int countWarrant  = 0;
+			int countNormal   = 0;
+			for(var e: list) {
+				if (e.isTestIssue()) countTest++;
+				if (e.isRights())    countRight++;
+				if (e.isUnits())     countUnit++;
+				if (e.isWarrant())   countWarrant++;
+
+				if (e.isTestIssue()) continue; // skip test issue
+				if (e.isRights())    continue; // skip right
+				if (e.isUnits())     continue; // skip unit
+				if (e.isWarrant())   continue; // skip warrant
 				
-				String       symbol       = e.symbol;
-				AssetClass   assetClass   = e.etf.equals("Y") ? AssetClass.ETF : AssetClass.STOCK;
-				NASDAQSymbol nasdaqSymbol = new NASDAQSymbol(symbol, assetClass, e.name);
+				String     symbol     = e.normalizedSymbol();
+				Type       type       = e.etf.equals("Y") ? Type.ETF : Type.STOCK;
+				SymbolInfo symbolInfo = new SymbolInfo(symbol, type, e.name);
 
 				if (map.containsKey(symbol)) {
 					logger.warn("Duplicate symbol");
 					logger.warn("  old {}", map.get(symbol));
-					logger.warn("  new {}", nasdaqSymbol);
+					logger.warn("  new {}", symbolInfo);
 				} else {
-					map.put(symbol, nasdaqSymbol);
+					map.put(symbol, symbolInfo);
+					countNormal++;
 				}
 			}
+			logger.info("countTest    {}", countTest);
+			logger.info("countRight   {}", countRight);
+			logger.info("countUnit    {}", countUnit);
+			logger.info("countWarrant {}", countWarrant);
+			logger.info("countNormal  {}", countNormal);
 		}
 		
 		// If symbol is not in symbolList, add it.
@@ -215,7 +225,7 @@ public class UpdateNASDAQSymbol {
 					// OK
 				} else {
 					// MISSING
-					// logger.info("MISSING {}", symbol);
+					//logger.info("MISSING {}", symbol);
 					count++;
 				}
 			}

@@ -1,20 +1,13 @@
 package yokwe.stock.us.nasdaq.symbolDirectory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import yokwe.stock.us.Storage;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
-import yokwe.util.UnexpectedException;
 
 public class NASDAQListed implements Comparable<NASDAQListed> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NASDAQListed.class);
-
 	// Symbol|Security Name|Market Category|Test Issue|Financial Status|Round Lot Size|ETF|NextShares
 	// AACG|ATA Creativity Global - American Depositary Shares, each representing two common shares|G|N|N|100|N|N
 	// ZYXI|Zynex, Inc. - Common Stock|Q|N|N|100|N|N
@@ -60,54 +53,45 @@ public class NASDAQListed implements Comparable<NASDAQListed> {
 		return PATH_CSV_FILE;
 	}
 	
-	private static void checkDuplicate(List<NASDAQListed> list) {
-		Map<String, NASDAQListed> map = new HashMap<>();
-		for(var e: list) {
-			String symbol = e.symbol;
-			if (map.containsKey(symbol)) {
-				logger.error("Duplicate symbol");
-				logger.error("  old {}", map.get(symbol));
-				logger.error("  new {}", e);
-				throw new UnexpectedException("Duplicate symbol");
-			} else {
-				map.put(symbol, e);
-			}
-		}
-	}
-
 	public static void save(Collection<NASDAQListed> collection) {
-		save(new ArrayList<>(collection));
+		// sanity check
+		ListUtil.checkDuplicate(collection, o -> o.symbol);
+		ListUtil.save(NASDAQListed.class, getPath(), collection);
 	}
 	public static void save(List<NASDAQListed> list) {
-		// sanity check
-		checkDuplicate(list);
-		
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(NASDAQListed.class).file(getPath(), list);
+		// Sanity check
+		ListUtil.checkDuplicate(list, o -> o.symbol);
+		ListUtil.save(NASDAQListed.class, getPath(), list);
 	}
 	
 	public static List<NASDAQListed> load() {
-		var list = CSVUtil.read(NASDAQListed.class).file(getPath());
-		// sanity check
-		if (list != null) checkDuplicate(list);
-		
+		var list = ListUtil.load(NASDAQListed.class, getPath());
+		// Sanity check
+		ListUtil.checkDuplicate(list, o -> o.symbol);
 		return list;
 	}
 	public static List<NASDAQListed> getList() {
-		List<NASDAQListed> ret = load();
-		return ret == null ? new ArrayList<>() : ret;
+		var list = ListUtil.getList(NASDAQListed.class, getPath());
+		// Sanity check
+		ListUtil.checkDuplicate(list, o -> o.symbol);
+		return list;
 	}
+	
+	// NASDAQ Integrated Platform Suffix
+	// See page below
+	//   Ticker Symbol Convention
+	//   https://www.nasdaqtrader.com/trader.aspx?id=CQSsymbolconvention
+
 
 	
 	public String symbol;
-	public String name;
 	public String marketCategory;
 	public String testIssue;
 	public String financialStatus;
 	public String roundLotSize;
 	public String etf;
 	public String nextShare;
+	public String name; // move to last
 	
 	public NASDAQListed(
 		String symbol,
@@ -131,6 +115,29 @@ public class NASDAQListed implements Comparable<NASDAQListed> {
 	public NASDAQListed() {
 		this(null, null, null, null, null, null, null, null);
 	}
+	
+	public boolean isWarrant() {
+		return (symbol.length() == 5 && symbol.charAt(4) == 'W');
+	}
+	public boolean isRights() {
+		return (symbol.length() == 5 && symbol.charAt(4) == 'R');
+	}
+	public boolean isUnits() {
+		return (symbol.length() == 5 && symbol.charAt(4) == 'U');
+	}
+
+	public boolean isStock() {
+		if (isWarrant()) return false;
+		if (isRights())  return false;
+		if (isUnits())   return false;
+		
+		return true;
+	}
+
+	public boolean isTestIssue() {
+		return !testIssue.equals("N");
+	}
+
 	
 	@Override
 	public String toString() {
