@@ -20,22 +20,22 @@ public class UpdateSymbol {
 		var monexMap   = yokwe.stock.trade.monex.UpdateSymbolName.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
 		var sbiMap     = yokwe.stock.trade.sbi.UpdateSymbolName.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
 		var rakutenMap = yokwe.stock.trade.rakuten.UpdateSymbolName.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
-		logger.info("nasdaq        {}", nasdaqMap.size());
-		logger.info("extra         {}", extraSet.size());
-		logger.info("monex         {}", monexMap.size());
-		logger.info("sbi           {}", sbiMap.size());
-		logger.info("rakuten       {}", rakutenMap.size());
+		logger.info("nasdaq  {}", nasdaqMap.size());
+		logger.info("extra   {}", extraSet.size());
+		logger.info("monex   {}", monexMap.size());
+		logger.info("sbi     {}", sbiMap.size());
+		logger.info("rakuten {}", rakutenMap.size());
 		
 		Set<String> all = new TreeSet<>();
 		all.addAll(extraSet);
 		all.addAll(monexMap.keySet());
 		all.addAll(sbiMap.keySet());
 		all.addAll(rakutenMap.keySet());
-		logger.info("all           {}", all.size());
+		logger.info("all     {}", all.size());
 		
 		{
 			var list = all.stream().map(o -> new Symbol(o)).collect(Collectors.toList());
-			logger.info("save          {} {}", list.size(), Symbol.getPath());
+			logger.info("save    {} {}", list.size(), Symbol.getPath());
 			Symbol.save(list);
 		}
 		
@@ -76,7 +76,7 @@ public class UpdateSymbol {
 				var tradingSymbol = new SymbolTrading(symbol, nasdaq, extra, monex, sbi, rakuten, name);
 				list.add(tradingSymbol);
 			}
-			logger.info("symbol trading {} {}", list.size(), SymbolTrading.getPath());
+			logger.info("trading {} {}", list.size(), SymbolTrading.getPath());
 			SymbolTrading.save(list);
 		}
 		
@@ -96,7 +96,12 @@ public class UpdateSymbol {
 				}
 			}
 			if (count != 0) {
-				logger.warn("Remove count  {}", count);
+				logger.warn("remove  {}", count);
+				logger.info("all     {}", all.size());
+				
+				var list = all.stream().map(o -> new Symbol(o)).collect(Collectors.toList());
+				logger.info("save    {} {}", list.size(), Symbol.getPath());
+				Symbol.save(list);
 			}
 		}
 		
