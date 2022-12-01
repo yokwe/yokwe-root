@@ -10,13 +10,11 @@ import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
 public class DoubleStreamUtil {
-	static final Logger logger = LoggerFactory.getLogger(DoubleStreamUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final class Stats implements DoubleConsumer {
 		final DescriptiveStatistics stats = new DescriptiveStatistics();

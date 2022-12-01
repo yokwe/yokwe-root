@@ -1,13 +1,10 @@
 package yokwe.util.stats;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 
 
 public final class UniStats {
-	private static final Logger logger = LoggerFactory.getLogger(UniStats.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public final int    size;
 	public final double mean;

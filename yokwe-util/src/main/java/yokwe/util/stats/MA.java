@@ -4,13 +4,10 @@ import java.util.Arrays;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleUnaryOperator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 
 public abstract class MA implements DoubleUnaryOperator, DoubleConsumer {
-	private static final Logger logger = LoggerFactory.getLogger(MA.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final double DEFAULT_DECAY_FACTOR = 0.94;
 	public static final double DEFAULT_ALPHA        = getAlphaFromDecayFactor(DEFAULT_DECAY_FACTOR);

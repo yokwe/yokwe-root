@@ -9,11 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class Market {
-	private static final Logger logger = LoggerFactory.getLogger(Market.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String PATH_MARKET_HOLIDAY_CSV = "/yokwe/util/marketHoliday.csv";
 	public static final int    HOUR_CLOSE_MARKET       = 16; // market close at 1600

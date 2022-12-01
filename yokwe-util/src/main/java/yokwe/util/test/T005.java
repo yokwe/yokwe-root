@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.util.StringUtil;
 
 public class T005 {
-	private static final Logger logger = LoggerFactory.getLogger(T005.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static class MyFutureCallback implements FutureCallback<Message<HttpResponse, byte[]>> {
 		AsyncClientEndpoint clientEndpoint;

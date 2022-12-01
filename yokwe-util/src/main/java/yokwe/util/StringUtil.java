@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class StringUtil {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StringUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public interface MatcherFunction<T> {
 		public T apply(Matcher matcher);

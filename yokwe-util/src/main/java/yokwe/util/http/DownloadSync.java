@@ -24,13 +24,11 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
 public final class DownloadSync implements Download {
-	static final Logger logger = LoggerFactory.getLogger(DownloadSync.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private HttpRequester requester = null;
 	

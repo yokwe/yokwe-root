@@ -7,11 +7,8 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class HashCode {
-	private static final Logger logger = LoggerFactory.getLogger(HashCode.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String DEFAULT_ALGORITHM = "md5";
 	

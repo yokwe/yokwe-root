@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class T004 {
-	private static final Logger logger = LoggerFactory.getLogger(T003.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
 	private static class MyFutureCallback implements FutureCallback <Message<HttpResponse, byte[]>> {
 		private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;

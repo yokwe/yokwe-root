@@ -18,13 +18,11 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
 public class Result {
-	static final Logger logger = LoggerFactory.getLogger(Result.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static Map<String, Charset> charsetMap = new TreeMap<>();
 	static {

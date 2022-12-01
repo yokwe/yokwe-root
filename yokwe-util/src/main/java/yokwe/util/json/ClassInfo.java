@@ -13,10 +13,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import jakarta.json.JsonObject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 import yokwe.util.json.JSONBase.DateTimeFormat;
 import yokwe.util.json.JSONBase.IgnoreField;
@@ -26,7 +22,7 @@ import yokwe.util.json.JSONBase.JSONName;
 // Use JSON instead
 @Deprecated
 public class ClassInfo {
-	static final Logger logger = LoggerFactory.getLogger(ClassInfo.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static Map<String, ClassInfo> map = new TreeMap<>();
 	

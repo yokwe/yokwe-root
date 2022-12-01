@@ -37,15 +37,11 @@ import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
 import jakarta.json.stream.JsonGenerator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.GenericInfo;
 import yokwe.util.UnexpectedException;
 
 public final class JSON {
-	static final Logger logger = LoggerFactory.getLogger(JSON.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

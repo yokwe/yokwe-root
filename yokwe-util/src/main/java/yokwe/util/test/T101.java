@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 
 public class T101 {
-	private static final Logger logger = LoggerFactory.getLogger(T101.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class Result {
 		public static Map<String, Charset> charsetMap = new TreeMap<>();

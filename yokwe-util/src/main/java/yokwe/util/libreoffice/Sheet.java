@@ -22,7 +22,7 @@ import com.sun.star.util.XNumberFormats;
 import yokwe.util.UnexpectedException;
 
 public class Sheet {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Sheet.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)

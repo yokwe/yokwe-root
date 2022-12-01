@@ -18,7 +18,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class Stock extends Sheet implements Comparable<Stock> {	
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Stock.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String URL_DOWNLOAD  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	public static final String PATH_DOWNLOAD = "tmp/download/listed-issue.xls";

@@ -5,14 +5,12 @@ import java.util.Arrays;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
 
 public final class DoubleArray {
-	private static final Logger logger = LoggerFactory.getLogger(DoubleArray.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static double sum(double values[]) {
 		double ret = 0;

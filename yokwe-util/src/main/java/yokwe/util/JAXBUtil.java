@@ -10,7 +10,7 @@ import jakarta.xml.bind.ValidationEventHandler;
 import jakarta.xml.bind.ValidationEventLocator;
 
 public class JAXBUtil {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JAXBUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static class MyValidationEventHandler implements ValidationEventHandler {
 		@Override

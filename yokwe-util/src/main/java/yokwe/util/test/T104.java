@@ -16,7 +16,7 @@ import yokwe.util.http.Result;
 import yokwe.util.http.Task;
 
 public class T104 {
-	private static final Logger logger = LoggerFactory.getLogger(T104.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		logger.info("START");

@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.UnexpectedException;
 
 public class T008 {
-	private static final Logger logger = LoggerFactory.getLogger(T008.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static class MyAsyncClientExchangeHandler implements AsyncClientExchangeHandler {
 		private static Set<String> utf8Set = new TreeSet<>();

@@ -35,7 +35,7 @@ import com.sun.star.util.XNumberFormatsSupplier;
 import yokwe.util.UnexpectedException;
 
 public class SpreadSheet extends LibreOffice {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SpreadSheet.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final String FORMAT_STRING  = "@";
 	public static final String FORMAT_DATE    = "YYYY-MM-DD";

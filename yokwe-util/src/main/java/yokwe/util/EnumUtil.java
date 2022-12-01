@@ -6,7 +6,7 @@ import java.util.Map;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 public class EnumUtil {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnumUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static class EnumInfo {
 		private static Map<String, EnumInfo> map = new HashMap<>();

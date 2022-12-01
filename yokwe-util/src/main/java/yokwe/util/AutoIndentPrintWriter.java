@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AutoIndentPrintWriter implements AutoCloseable {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AutoIndentPrintWriter.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String INDENT = "    ";
 

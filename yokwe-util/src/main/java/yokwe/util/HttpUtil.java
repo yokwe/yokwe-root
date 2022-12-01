@@ -23,8 +23,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @deprecated Use yokwe.util.http.HttpUtil
@@ -32,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 @Deprecated
 public class HttpUtil {
-	private static final Logger logger = LoggerFactory.getLogger(HttpUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final int CONNECTION_POOLING_MAX_TOTAL = 5;
 	

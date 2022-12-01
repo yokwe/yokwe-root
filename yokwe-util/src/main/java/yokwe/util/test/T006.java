@@ -41,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class T006 {
-	private static final Logger logger = LoggerFactory.getLogger(T006.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static class MyBasicResponseConsumer<T> implements AsyncResponseConsumer<Message<HttpResponse, T>> {
 

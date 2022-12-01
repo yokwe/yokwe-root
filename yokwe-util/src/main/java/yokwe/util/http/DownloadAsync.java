@@ -40,8 +40,6 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
@@ -49,7 +47,7 @@ import yokwe.util.UnexpectedException;
 // FIXME DownloadSync is OK. But DownloadAsync is not OK.
 //
 public final class DownloadAsync implements Download {
-	static final Logger logger = LoggerFactory.getLogger(DownloadAsync.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private HttpAsyncRequester requester = null;
 	

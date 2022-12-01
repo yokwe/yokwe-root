@@ -6,13 +6,11 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.ContentType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
 public class StringTask {
-	static final Logger logger = LoggerFactory.getLogger(StringTask.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static class MyConsumer implements Consumer<Result> {		
 		private Consumer<String> consumer;

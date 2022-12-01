@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.util.ClassUtil;
 
 public class T121 {
-	private static final Logger logger = LoggerFactory.getLogger(T121.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class A {
 		public static void t001() {

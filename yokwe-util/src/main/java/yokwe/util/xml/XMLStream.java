@@ -24,7 +24,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import yokwe.util.UnexpectedException;
 
 public final class XMLStream {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(XMLStream.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static class SAXHandler extends DefaultHandler {
 		final Stream.Builder<Element> builder;

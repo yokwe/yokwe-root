@@ -15,11 +15,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class JapanHoliday {
-	private static final Logger logger = LoggerFactory.getLogger(JapanHoliday.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String PATH_JAPAN_HOLIDAY_CSV = "/yokwe/util/japanHoliday.csv";
 	

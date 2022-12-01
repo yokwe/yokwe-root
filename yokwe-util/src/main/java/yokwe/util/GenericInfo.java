@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 // Generic
 //
 public class GenericInfo {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericInfo.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public final Class<?>   rawClass;
 	public final Class<?>[] classArguments;

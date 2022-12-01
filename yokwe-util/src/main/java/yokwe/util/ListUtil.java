@@ -11,7 +11,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 
 public final class ListUtil {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ListUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	// To support List and Set, use Collection here.
 	public static <E, K> SortedMap<K, E> checkDuplicate(Collection<E> collection, Function<E, K> getKey) {

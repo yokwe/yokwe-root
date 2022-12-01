@@ -9,13 +9,11 @@ import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.ContentType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import yokwe.util.UnexpectedException;
 
 public class FileTask {
-	static final Logger logger = LoggerFactory.getLogger(FileTask.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static enum Mode {
 		BINARY,

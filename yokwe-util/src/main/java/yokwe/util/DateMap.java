@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class DateMap<E> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DateMap.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private List<String>   dateList = new ArrayList<>();
 	private Map<String, E> map      = new TreeMap<>();

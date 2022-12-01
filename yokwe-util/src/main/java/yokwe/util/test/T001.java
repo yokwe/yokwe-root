@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class T001 {
-	private static final Logger logger = LoggerFactory.getLogger(T001.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		logger.info("START");

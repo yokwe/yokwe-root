@@ -1,12 +1,9 @@
 package yokwe.util.stats;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.UnexpectedException;
 
 public final class BiStats {
-	private static final Logger logger = LoggerFactory.getLogger(BiStats.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public final UniStats stats1;
 	public final UniStats stats2;

@@ -13,7 +13,7 @@ import yokwe.util.json.JSON;
 import yokwe.util.json.JSON.Name;
 
 public class T132 {
-	private static final Logger logger = LoggerFactory.getLogger(T132.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class DividendFile {
 		public enum CurrencyID {

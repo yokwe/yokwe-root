@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ClassUtil {
-	private static final Logger logger = LoggerFactory.getLogger(ClassUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class MethodReference {
 	    private static final MethodHandles.Lookup lookup = MethodHandles.lookup();

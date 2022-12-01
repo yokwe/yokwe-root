@@ -24,12 +24,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class FileUtil {
-	private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final int BUFFER_SIZE = 65536;
 	

@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ScrapeUtil {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ScrapeUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

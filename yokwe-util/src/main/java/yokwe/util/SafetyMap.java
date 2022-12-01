@@ -4,11 +4,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class SafetyMap<K, V> {
-	private static final Logger logger = LoggerFactory.getLogger(SafetyMap.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private Map<K, V> map = new TreeMap<>();
 	
