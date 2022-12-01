@@ -68,8 +68,8 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="monex-update-symbol-name">
-		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateSymbolName" fork="true">
+	<target name="monex-update-symbol-info">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateSymbolInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
@@ -79,8 +79,8 @@
 	</target>
 	
 	<!-- SBI -->
-	<target name="sbi-update-symbol-name">
-		<java module="yokwe.stock.trade/yokwe.stock.trade.sbi.UpdateSymbolName" fork="true">
+	<target name="sbi-update-symbol-info">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.sbi.UpdateSymbolInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
@@ -90,8 +90,8 @@
 	</target>
 	
 	<!-- RAKUTEN -->
-	<target name="rakuten-update-symbol-name">
-		<java module="yokwe.stock.trade/yokwe.stock.trade.rakuten.UpdateSymbolName" fork="true">
+	<target name="rakuten-update-symbol-info">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.rakuten.UpdateSymbolInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />

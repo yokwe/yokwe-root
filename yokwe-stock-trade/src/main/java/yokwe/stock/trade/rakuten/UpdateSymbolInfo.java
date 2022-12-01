@@ -2,41 +2,41 @@ package yokwe.stock.trade.rakuten;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import yokwe.stock.trade.Storage;
-import yokwe.stock.trade.SymbolName;
+import yokwe.stock.us.SymbolInfo;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
+import yokwe.util.ClassUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public final class UpdateSymbolName {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateSymbolName.class);
+public final class UpdateSymbolInfo {
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClassUtil.getCallerClass());
 
-	private static final String PATH = Storage.Rakuten.getPath("symbol-name.csv");
+	private static final String PATH = Storage.Rakuten.getPath("symbol-info.csv");
 	public static final String getPath() {
 		return PATH;
 	}
-	private static final String PATH_ETF   = Storage.Rakuten.getPath("symbol-name-etf.csv");
-	private static final String PATH_STOCK = Storage.Rakuten.getPath("symbol-name-stock.csv");
+	private static final String PATH_ETF   = Storage.Rakuten.getPath("symbol-info-etf.csv");
+	private static final String PATH_STOCK = Storage.Rakuten.getPath("symbol-info-stock.csv");
 
-	public static void save(Collection<SymbolName> collection) {
-		SymbolName.save(new ArrayList<>(collection), getPath());
+	public static void save(Collection<SymbolInfo> collection) {
+		SymbolInfo.save(collection, getPath());
 	}
-	public static void save(List<SymbolName> list) {
-		SymbolName.save(list, getPath());
+	public static void save(List<SymbolInfo> list) {
+		SymbolInfo.save(list, getPath());
 	}
-	public static List<SymbolName> load() {
-		return SymbolName.load(getPath());
+	public static List<SymbolInfo> load() {
+		return SymbolInfo.load(getPath());
 	}
-	public static List<SymbolName> getList() {
-		return SymbolName.getList(getPath());
+	public static List<SymbolInfo> getList() {
+		return SymbolInfo.getList(getPath());
 	}
 
 	public static final class Stock {
@@ -60,7 +60,7 @@ public final class UpdateSymbolName {
 			public String tradeable;
 		}
 
-		private static void update(Map<String, SymbolName> map) {
+		private static void update(Map<String, SymbolInfo> map) {
 			logger.info("Stock");
 			List<Data> list;
 			{
@@ -76,7 +76,7 @@ public final class UpdateSymbolName {
 			//  symbol
 			for(var e: list) {
 				String     symbol      = e.ticker;
-				SymbolName symbolName = new SymbolName(symbol, e.name);
+				SymbolInfo symbolName = new SymbolInfo(symbol, SymbolInfo.Type.STOCK, e.name);
 				
 				if (map.containsKey(symbol)) {
 					var old = map.get(symbol);
@@ -151,7 +151,7 @@ public final class UpdateSymbolName {
 			public String aumDate;
 		}
 
-		private static void update(Map<String, SymbolName> map) {
+		private static void update(Map<String, SymbolInfo> map) {
 			logger.info("ETF");
 			List<Data> list;
 			{
@@ -190,7 +190,7 @@ public final class UpdateSymbolName {
 
 				String     symbol     = e.ticker;
 				String     name       = e.name.replaceAll("&amp;", "&");
-				SymbolName symbolName = new SymbolName(symbol, name);
+				SymbolInfo symbolName = new SymbolInfo(symbol, SymbolInfo.Type.ETF, name);
 				
 				if (map.containsKey(symbol)) {
 					var old = map.get(symbol);
@@ -209,21 +209,21 @@ public final class UpdateSymbolName {
 		logger.info("START");
 		
 		// Stock
-		Map<String, SymbolName> stockMap = new TreeMap<>();
+		Map<String, SymbolInfo> stockMap = new TreeMap<>();
 		Stock.update(stockMap);
 		logger.info("save {} {}", stockMap.size(), PATH_STOCK);
-		SymbolName.save(stockMap.values(), PATH_STOCK);
+		SymbolInfo.save(stockMap.values(), PATH_STOCK);
 		
 		// ETF
-		Map<String, SymbolName> etfMap = new TreeMap<>();
+		Map<String, SymbolInfo> etfMap = new TreeMap<>();
 		ETF.update(etfMap);
 		logger.info("save {} {}", etfMap.size(), PATH_ETF);
-		SymbolName.save(etfMap.values(), PATH_ETF);
+		SymbolInfo.save(etfMap.values(), PATH_ETF);
 
 		// merge stockMap and etfMap
 		int countA = 0;
 		int countB = 0;
-		Map<String, SymbolName> map = new TreeMap<>(stockMap);
+		Map<String, SymbolInfo> map = new TreeMap<>(stockMap);
 		for(var etf: etfMap.values()) {
 			String symbol = etf.symbol;
 			if (map.containsKey(symbol)) {
@@ -240,7 +240,7 @@ public final class UpdateSymbolName {
 		logger.info("countB {}", countB);
 		
 		logger.info("save  {} {}", map.size(), getPath());
-		SymbolName.save(map.values(), getPath());
+		SymbolInfo.save(map.values(), getPath());
 
 		logger.info("STOP");
 	}

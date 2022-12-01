@@ -4,29 +4,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import yokwe.stock.trade.Storage;
-import yokwe.stock.trade.SymbolName;
+import yokwe.stock.us.SymbolInfo;
+import yokwe.stock.us.SymbolInfo.Type;
+import yokwe.util.ClassUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
-public class UpdateSymbolName {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateSymbolName.class);
-
+public class UpdateSymbolInfo {
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClassUtil.getCallerClass());
+	
 	private static final String DATA_URL     = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsMeigaraJsonGST";
 	private static final String DATA_CHARSET = "SHIFT_JIS";
 	
-	private static final String PATH = Storage.Monex.getPath("symbol-name.csv");
+	private static final String PATH = Storage.Monex.getPath("symbol-info.csv");
 	public static final String getPath() {
 		return PATH;
 	}
-	public static void save(List<SymbolName> list) {
-		SymbolName.save(list, getPath());
+	public static void save(List<SymbolInfo> list) {
+		SymbolInfo.save(list, getPath());
 	}
-	public static List<SymbolName> load() {
-		return SymbolName.load(getPath());
+	public static List<SymbolInfo> load() {
+		return SymbolInfo.load(getPath());
 	}
-	public static List<SymbolName> getList() {
-		return SymbolName.getList(getPath());
+	public static List<SymbolInfo> getList() {
+		return SymbolInfo.getList(getPath());
 	}
 	
 	
@@ -73,8 +75,8 @@ public class UpdateSymbolName {
 		}
 	}
 	
-	private static void updateSymbolName() {
-		logger.info("updateSymbolName");
+	private static void updateSymbolInfo() {
+		logger.info("updateSymbolInfo");
 		
 		logger.info("url      {}", DATA_URL);
 		HttpUtil.Result result = HttpUtil.getInstance().withCharset(DATA_CHARSET).download(DATA_URL);
@@ -111,9 +113,9 @@ public class UpdateSymbolName {
 		}
 		logger.info("dataList {}", dataList.size());
 		
-		List<SymbolName> list = new ArrayList<>();
+		List<SymbolInfo> list = new ArrayList<>();
 		for(var e: dataList) {
-			SymbolName symbolName = new SymbolName(e.ticker, e.name);
+			SymbolInfo symbolName = new SymbolInfo(e.ticker, e.isETF() ? Type.ETF : Type.STOCK, e.name);
 			if (symbolName.name.isEmpty()) continue;
 			list.add(symbolName);
 		}
@@ -125,7 +127,7 @@ public class UpdateSymbolName {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		updateSymbolName();
+		updateSymbolInfo();
 		
 		logger.info("STOP");
 	}

@@ -1,6 +1,5 @@
 package yokwe.stock.trade.sbi;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -8,34 +7,34 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import yokwe.stock.trade.Storage;
-import yokwe.stock.trade.SymbolName;
+import yokwe.stock.us.SymbolInfo;
+import yokwe.util.ClassUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.StringUtil.MatcherFunction;
-import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateSymbolName {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateSymbolName.class);
+public class UpdateSymbolInfo {
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClassUtil.getCallerClass());
 
 	private static final String SOURCE_URL       = "https://search.sbisec.co.jp/v2/popwin/info/stock/pop6040_usequity_list.html";
 	private static final String SOURCE_ENCODING  = "SHIFT_JIS";
 	
-	private static final String PATH = Storage.SBI.getPath("symbol-name.csv");
+	private static final String PATH = Storage.SBI.getPath("symbol-info.csv");
 	public static final String getPath() {
 		return PATH;
 	}
-	public static void save(Collection<SymbolName> collection) {
-		SymbolName.save(new ArrayList<>(collection), getPath());
+	public static void save(Collection<SymbolInfo> collection) {
+		SymbolInfo.save(collection, getPath());
 	}
-	public static void save(List<SymbolName> list) {
-		SymbolName.save(list, getPath());
+	public static void save(List<SymbolInfo> list) {
+		SymbolInfo.save(list, getPath());
 	}
-	public static List<SymbolName> load() {
-		return SymbolName.load(getPath());
+	public static List<SymbolInfo> load() {
+		return SymbolInfo.load(getPath());
 	}
-	public static List<SymbolName> getList() {
-		return SymbolName.getList(getPath());
+	public static List<SymbolInfo> getList() {
+		return SymbolInfo.getList(getPath());
 	}
 	
 	// STOCK
@@ -183,8 +182,8 @@ public class UpdateSymbolName {
 			}
 		}
 	
-	private static void updateSymbolName() {
-		logger.info("updateSymbolName");
+	private static void updateSymbolInfo() {
+		logger.info("updateSymbolInfo");
 		
 		logger.info("URL    = {}", SOURCE_URL);
 		String string = HttpUtil.getInstance().withCharset(SOURCE_ENCODING).download(SOURCE_URL).result;
@@ -206,26 +205,21 @@ public class UpdateSymbolName {
 		logger.info("ETF    = {}", String.format("%5d", etfInfoList.size()));
 
 
-		Map<String, SymbolName> map = new TreeMap<>();
+		Map<String, SymbolInfo> map = new TreeMap<>();
 		
 		// stockInfoList
 		logger.info("stockInfoList");
 		for(var e: stockInfoList) {
 			String     symbol     = e.symbol.toUpperCase();
-			SymbolName symbolName = new SymbolName(symbol, e.nameEN);
+			SymbolInfo symbolInfo = new SymbolInfo(symbol, SymbolInfo.Type.STOCK, e.nameEN);
 			if (map.containsKey(symbol)) {
-				SymbolName old = map.get(symbol);
-				if (old.name.equals(symbolName.name)) {
-					// ignore identical duplicate
-					logger.warn("ignore identical duplicate {}", old.toString());
-				} else {
-					logger.error("Duplicate symbol");
-					logger.error("  old {}", map.get(symbol));
-					logger.error("  new {}", e);
-					throw new UnexpectedException("Duplicate symbol");
-				}
+				SymbolInfo old = map.get(symbol);
+				logger.warn("Duplicate symbol");
+				logger.warn("  symbol {}", symbol);
+				logger.warn("  old    {}", old);
+				logger.warn("  new    {}", symbolInfo);
 			} else {
-				map.put(symbol, symbolName);
+				map.put(symbol, symbolInfo);
 			}
 		}
 		
@@ -233,20 +227,15 @@ public class UpdateSymbolName {
 		logger.info("adrInfoList");
 		for(var e: adrInfoList) {
 			String     symbol     = e.symbol.toUpperCase();
-			SymbolName symbolName = new SymbolName(symbol, e.nameEN);
+			SymbolInfo symbolInfo = new SymbolInfo(symbol, SymbolInfo.Type.STOCK, e.nameEN);
 			if (map.containsKey(symbol)) {
-				SymbolName old = map.get(symbol);
-				if (old.name.equals(symbolName.name)) {
-					// ignore identical duplicate
-					logger.warn("ignore identical duplicate {}", old.toString());
-				} else {
-					logger.error("Duplicate symbol");
-					logger.error("  old {}", map.get(symbol));
-					logger.error("  new {}", e);
-					throw new UnexpectedException("Duplicate symbol");
-				}
+				SymbolInfo old = map.get(symbol);
+				logger.warn("Duplicate symbol");
+				logger.warn("  symbol {}", symbol);
+				logger.warn("  old    {}", old);
+				logger.warn("  new    {}", symbolInfo);
 			} else {
-				map.put(symbol, symbolName);
+				map.put(symbol, symbolInfo);
 			}
 		}
 		
@@ -254,20 +243,15 @@ public class UpdateSymbolName {
 		logger.info("etfInfoList");
 		for(var e: etfInfoList) {
 			String     symbol     = e.symbol.toUpperCase();
-			SymbolName symbolName = new SymbolName(symbol, e.nameEN);
+			SymbolInfo symbolInfo = new SymbolInfo(symbol, SymbolInfo.Type.ETF, e.nameEN);
 			if (map.containsKey(symbol)) {
-				SymbolName old = map.get(symbol);
-				if (old.name.equals(symbolName.name)) {
-					// ignore identical duplicate
-					logger.warn("ignore identical duplicate {}", old.toString());
-				} else {
-					logger.error("Duplicate symbol");
-					logger.error("  old {}", map.get(symbol));
-					logger.error("  new {}", e);
-					throw new UnexpectedException("Duplicate symbol");
-				}
+				SymbolInfo old = map.get(symbol);
+				logger.warn("Duplicate symbol");
+				logger.warn("  symbol {}", symbol);
+				logger.warn("  old    {}", old);
+				logger.warn("  new    {}", symbolInfo);
 			} else {
-				map.put(symbol, symbolName);
+				map.put(symbol, symbolInfo);
 			}
 		}
 		
@@ -279,7 +263,7 @@ public class UpdateSymbolName {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		updateSymbolName();
+		updateSymbolInfo();
 		
 		logger.info("STOP");
 	}

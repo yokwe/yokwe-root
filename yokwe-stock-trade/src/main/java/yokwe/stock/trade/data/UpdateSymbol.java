@@ -17,9 +17,9 @@ public class UpdateSymbol {
 		
 		var nasdaqMap  = NASDAQSymbol.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
 		var extraSet   = Symbol.getListExtra().stream().map(o -> o.symbol).collect(Collectors.toSet());
-		var monexMap   = yokwe.stock.trade.monex.UpdateSymbolName.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
-		var sbiMap     = yokwe.stock.trade.sbi.UpdateSymbolName.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
-		var rakutenMap = yokwe.stock.trade.rakuten.UpdateSymbolName.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
+		var monexMap   = yokwe.stock.trade.monex.UpdateSymbolInfo.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
+		var sbiMap     = yokwe.stock.trade.sbi.UpdateSymbolInfo.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
+		var rakutenMap = yokwe.stock.trade.rakuten.UpdateSymbolInfo.getList().stream().collect(Collectors.toMap(o -> o.symbol, o -> o.name));
 		logger.info("nasdaq  {}", nasdaqMap.size());
 		logger.info("extra   {}", extraSet.size());
 		logger.info("monex   {}", monexMap.size());
