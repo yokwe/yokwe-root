@@ -34,8 +34,8 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="util-holiday">
-		<java module="yokwe.util/yokwe.util.Holiday" fork="true">
+	<target name="util-market-holiday">
+		<java module="yokwe.util/yokwe.util.MarketHoliday" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />

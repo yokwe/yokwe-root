@@ -6,13 +6,14 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class Holiday {
+public abstract class MarketHoliday {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String PATH_MARKET_HOLIDAY_JP = "/yokwe/util/market-holiday-jp.csv";
@@ -95,7 +96,7 @@ public abstract class Holiday {
 	
 	protected abstract void processObserved();
 	
-	private Holiday(int yearStartDefault, int yearEndDefault, String path) {
+	private MarketHoliday(int yearStartDefault, int yearEndDefault, String path) {
 		this.yearStartDefault = yearStartDefault;
 		this.yearEndDefault   = yearEndDefault;
 		this.holidayMap       = new TreeMap<>();
@@ -307,7 +308,7 @@ public abstract class Holiday {
 	}
 
 
-	public static class JP extends Holiday {
+	public static class JP extends MarketHoliday {
 		public JP() {
 			super(YEAR_START_DEFAULT, YEAR_END_DEFAULT, PATH_MARKET_HOLIDAY_JP);
 			
@@ -338,7 +339,7 @@ public abstract class Holiday {
 						if (holidayMap.containsKey(observedDate)) continue;
 						break;
 					}
-					var observedData = new Data(data, String.format("Observed %s", data.event));
+					var observedData = new Data(data, String.format("%s - 振替休日", data.event));
 					
 //					logger.info("Observed  {}  {}  {}", date, observedDate, observedData);
 					observedMap.put(observedDate, observedData);
@@ -348,7 +349,7 @@ public abstract class Holiday {
 			holidayMap.putAll(observedMap);
 		}
 	}
-	public static class US extends Holiday {
+	public static class US extends MarketHoliday {
 		public US() {
 			super(YEAR_START_DEFAULT, YEAR_END_DEFAULT, PATH_MARKET_HOLIDAY_US);
 		}
@@ -374,7 +375,7 @@ public abstract class Holiday {
 				}
 				if (adjust != 0) {
 					var observedDate = date.plusDays(adjust);
-					var observedData = new Data(data, String.format("Observed %s", data.event));
+					var observedData = new Data(data, String.format("%s - Observed", data.event));
 					if (observedDate.getMonthValue() == 12 && observedDate.getDayOfMonth() == 31) {
 						// See Rule 7.2 Holidays
 						// https://nyseguide.srorules.com/rules/document?treeNodeId=csh-da-filter!WKUS-TAL-DOCS-PHC-%7B4A07B716-0F73-46CC-BAC2-43EB20902159%7D--WKUS_TAL_19401%23teid-15
@@ -399,22 +400,53 @@ public abstract class Holiday {
 		}
 	}
 
+	public static class HolidayDetail implements Comparable<HolidayDetail> {
+		public String date;
+		public String name;
+		
+		public HolidayDetail(String date, String name) {
+			this.date = date;
+			this.name = name;
+		}
+		public HolidayDetail() {
+			this("", "");
+		}
+		
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+		
+		@Override
+		public int compareTo(HolidayDetail that) {
+			return this.date.compareTo(that.date);
+		}
+	}
+	
 	public static void main(String[] args) {
 		logger.info("START");
 		
 		{
 			logger.info("MARKET HOLIDAY JP");
-			Holiday holiday = new JP();
+			MarketHoliday holiday = new JP();
+			var list = new ArrayList<HolidayDetail>();
+			
 			for(var entry: holiday.holidayMap.entrySet()) {
 				logger.info("{}  {}", entry.getKey(), entry.getValue().event);
+				list.add(new HolidayDetail(entry.getKey().toString(), entry.getValue().event));
 			}
+			CSVUtil.write(HolidayDetail.class).file("tmp/market-holiday-jp.csv", list);
 		}
 		{
 			logger.info("MARKET HOLIDAY US");
-			Holiday holiday = new US();
+			MarketHoliday holiday = new US();
+			var list = new ArrayList<HolidayDetail>();
+			
 			for(var entry: holiday.holidayMap.entrySet()) {
 				logger.info("{}  {}", entry.getKey(), entry.getValue().event);
+				list.add(new HolidayDetail(entry.getKey().toString(), entry.getValue().event));
 			}
+			CSVUtil.write(HolidayDetail.class).file("tmp/market-holiday-us.csv", list);
 		}
 		
 		logger.info("END");
