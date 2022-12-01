@@ -10,7 +10,7 @@ import yokwe.stock.us.Symbol;
 import yokwe.stock.us.nasdaq.NASDAQSymbol;
 
 public class UpdateSymbol {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateSymbol.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static void main(String[] args) {
 		logger.info("START");
