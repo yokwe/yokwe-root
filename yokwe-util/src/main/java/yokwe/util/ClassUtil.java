@@ -186,4 +186,10 @@ public final class ClassUtil {
 		}
 	}
 
+	public static Class<?> getCallerClass() {
+//		Class<?> callerClass = java.lang.invoke.MethodHandles.lookup().lookupClass();
+		Class<?> callerClass = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
+
+		return callerClass;
+	}
 }
