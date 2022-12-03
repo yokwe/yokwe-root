@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+//Use MarketHoliday.US
+@Deprecated
 public class Market {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 

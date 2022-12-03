@@ -15,6 +15,8 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// Use MarketHoliday.JP
+@Deprecated
 public class JapanHoliday {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
