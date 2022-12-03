@@ -105,6 +105,41 @@ public class UpdateStockPrice {
 			LastClosePrice   lastClosePrice   = LastClosePrice.getInstance(page);
 			List<PriceVolume> priceVolumeList = PriceVolume.getInstance(page);
 			
+			// sanity check
+			if (
+				companyInfo == null ||
+				tradeUnit == null ||
+				issued == null ||
+				currentPriceTime == null ||
+				buyPriceTime == null ||
+				sellPriceTime == null ||
+				openPrice == null ||
+				highPrice == null ||
+				lowPrice == null || 
+				tradeVolume == null ||
+				tradeValue == null ||
+				lastClosePrice == null ||
+				priceVolumeList.size() == 0) {
+				logger.error("Unexpected page");
+				logger.error("  stockCode {}", stockCode);
+
+				if (companyInfo == null)         logger.error("  companyInfo");
+				if (tradeUnit == null)           logger.error("  tradeUnit");
+				if (issued == null)              logger.error("  issued");
+				if (currentPriceTime == null)    logger.error("  currentPriceTime");
+				if (buyPriceTime == null)        logger.error("  buyPriceTime");
+				if (sellPriceTime == null)       logger.error("  sellPriceTime");
+				if (openPrice == null)           logger.error("  openPrice");
+				if (highPrice == null)           logger.error("  highPrice");
+				if (lowPrice == null)            logger.error("  lowPrice");
+				if (tradeVolume == null)         logger.error("  tradeVolume");
+				if (tradeValue == null)          logger.error("  tradeValue");
+				if (lastClosePrice == null)      logger.error("  lastClosePrice");
+				if (priceVolumeList.size() == 0) logger.error("  priceVolumeList");
+
+				return;
+			}
+			
 			// save for later use
 			context.put(stockCode, priceVolumeList);
 
