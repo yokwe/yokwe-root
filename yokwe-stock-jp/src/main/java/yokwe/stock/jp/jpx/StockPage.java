@@ -264,7 +264,7 @@ public class StockPage {
 	public static class Issued {
 		public static final Pattern PAT = Pattern.compile(
 			"<td .+?><font .+?>発行済株式数</font></td>\\s*" +
-			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
+			"<td .+?><font .+?>\\s*(?<value>.*?)\\s*<br></font></td>\\s*"
 		);
 		public static Issued getInstance(String page) {
 			return ScrapeUtil.get(Issued.class, PAT, page);
