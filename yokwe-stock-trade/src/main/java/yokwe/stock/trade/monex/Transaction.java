@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import yokwe.stock.trade.Storage;
 import yokwe.util.DoubleUtil;
-import yokwe.util.JapanHoliday;
-import yokwe.util.Market;
+import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.Sheet;
@@ -127,7 +126,7 @@ public class Transaction implements Comparable<Transaction> {
 					logger.error("Unexpected  {}", activity);
 					throw new UnexpectedException("Unexpected");
 				}
-				if (JapanHoliday.isClosed(activity.settlementDate)) {
+				if (MarketHoliday.JP.isClosed(activity.settlementDate)) {
 					logger.error("Unexpected  {}", activity);
 					throw new UnexpectedException("Unexpected");
 				}
@@ -236,7 +235,7 @@ public class Transaction implements Comparable<Transaction> {
 					logger.error("Unexpected  {}", activity);
 					throw new UnexpectedException("Unexpected");
 				}
-				if (Market.isClosed(activity.payDateUS)) {
+				if (MarketHoliday.US.isClosed(activity.payDateUS)) {
 					logger.warn("Unexpected  {}", activity);
 					logger.warn("market is closed {}", activity.payDateUS);
 //					logger.error("Unexpected  {}", activity);
@@ -246,7 +245,7 @@ public class Transaction implements Comparable<Transaction> {
 					logger.error("Unexpected  {}", activity);
 					throw new UnexpectedException("Unexpected");
 				}
-				if (JapanHoliday.isClosed(activity.payDateJP)) {
+				if (MarketHoliday.JP.isClosed(activity.payDateJP)) {
 					logger.error("Unexpected  {}", activity);
 					throw new UnexpectedException("Unexpected");
 				}
@@ -270,7 +269,7 @@ public class Transaction implements Comparable<Transaction> {
 					logger.error("Unexpected  {}", activity);
 					throw new UnexpectedException("Unexpected");
 				}
-				if (JapanHoliday.isClosed(activity.settlementDate)) {
+				if (MarketHoliday.JP.isClosed(activity.settlementDate)) {
 					logger.warn("Unexpected  {}", activity);
 					logger.warn("market is closed {}", activity.settlementDate);
 //					logger.error("Unexpected  {}", activity);
@@ -280,7 +279,7 @@ public class Transaction implements Comparable<Transaction> {
 					logger.error("Unexpected  {}", activity);
 					throw new UnexpectedException("Unexpected");
 				}
-				if (JapanHoliday.isClosed(activity.tradeDate)) {
+				if (MarketHoliday.JP.isClosed(activity.tradeDate)) {
 					logger.error("Unexpected  {}", activity);
 					throw new UnexpectedException("Unexpected");
 				}

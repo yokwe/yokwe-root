@@ -17,7 +17,7 @@ import yokwe.stock.jp.edinet.EDINETInfo;
 import yokwe.stock.jp.edinet.FundInfo;
 import yokwe.stock.jp.xbrl.tdnet.report.DividendAnnual;
 import yokwe.util.DoubleUtil;
-import yokwe.util.JapanHoliday;
+import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
@@ -28,7 +28,7 @@ import yokwe.util.stats.RSI;
 public class UpdateStats {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateStats.class);
 	
-	private static final LocalDate DATE_LAST  = JapanHoliday.getLastTradingDate();
+	private static final LocalDate DATE_LAST  = MarketHoliday.JP.getLastTradingDate();
 
 	private static Stats getInstance(Stock stock, List<Price> priceList, ETF etf) {
 		Stats ret = new Stats();
@@ -193,8 +193,8 @@ public class UpdateStats {
 		final LocalDate firstPriceDate;
 		{
 			LocalDate date = DATE_LAST.minusYears(1).plusDays(1);
-			if (JapanHoliday.isClosed(date)) {
-				date = JapanHoliday.getNextTradingDate(date);
+			if (MarketHoliday.JP.isClosed(date)) {
+				date = MarketHoliday.JP.getNextTradingDate(date);
 			}
 			firstPriceDate = date;
 		}
@@ -205,7 +205,7 @@ public class UpdateStats {
 			for(;;) {
 				if (date.isAfter(DATE_LAST)) break;
 				
-				if (JapanHoliday.isClosed(date)) {
+				if (MarketHoliday.JP.isClosed(date)) {
 					//
 				} else {
 					priceListDateSet.add(date);

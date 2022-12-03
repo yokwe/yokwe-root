@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import yokwe.stock.us.Symbol;
 import yokwe.stock.us.SymbolInfo;
 import yokwe.util.DoubleUtil;
-import yokwe.util.Market;
+import yokwe.util.MarketHoliday;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
 import yokwe.util.stats.HV;
@@ -149,13 +149,13 @@ public class UpdateStats {
 	private static Set<String> getDateSet() {
 		Set<String> dateSet = new TreeSet<>();
 		{
-			LocalDate lastDate = Market.getLastTradingDate();
+			LocalDate lastDate = MarketHoliday.US.getLastTradingDate();
 			LocalDate firstDate = lastDate.minusYears(1).plusDays(1);
-			if (Market.isClosed(firstDate)) {
-				firstDate = Market.getPreviousTradeDate(firstDate);
+			if (MarketHoliday.US.isClosed(firstDate)) {
+				firstDate = MarketHoliday.US.getPreviousTradingDate(firstDate);
 			}
 			
-			for(LocalDate date = firstDate; date.isEqual(lastDate) || date.isBefore(lastDate); date = Market.getNextTradeDate(date)) {
+			for(LocalDate date = firstDate; date.isEqual(lastDate) || date.isBefore(lastDate); date = MarketHoliday.US.getNextTradingDate(date)) {
 				dateSet.add(date.toString());
 			}
 		}

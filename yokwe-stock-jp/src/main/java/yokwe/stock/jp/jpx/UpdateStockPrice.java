@@ -27,7 +27,7 @@ import yokwe.stock.jp.jpx.StockPage.SellPriceTime;
 import yokwe.stock.jp.jpx.StockPage.TradeUnit;
 import yokwe.stock.jp.jpx.StockPage.TradeValue;
 import yokwe.stock.jp.jpx.StockPage.TradeVolume;
-import yokwe.util.JapanHoliday;
+import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -287,7 +287,7 @@ public class UpdateStockPrice {
 			TreeMap<String, Price> priceMap = new TreeMap<>();
 			//      date
 			for(Price price: Price.getList(stockCode)) {
-				if (JapanHoliday.isClosed(price.date)) continue;
+				if (MarketHoliday.JP.isClosed(price.date)) continue;
 				
 				priceMap.put(price.date, price);
 			}
@@ -377,7 +377,7 @@ public class UpdateStockPrice {
 					countUpdate++;
 				}
 
-				if (!JapanHoliday.isClosed(date)) {
+				if (!MarketHoliday.JP.isClosed(date)) {
 					Price price = new Price(date, stockCode, open, high, low, close, volume);
 					// Over write old entry or add new entry
 					priceMap.put(date, price);
@@ -419,7 +419,7 @@ public class UpdateStockPrice {
 		logger.info("START");
 		
 		LocalDate today = LocalDate.now();
-		if (JapanHoliday.isClosed(today)) {
+		if (MarketHoliday.JP.isClosed(today)) {
 			logger.warn("market is closed today");
 		} else {
 			updateFiles();

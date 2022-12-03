@@ -3,7 +3,9 @@ package yokwe.util;
 import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -16,23 +18,6 @@ import java.util.regex.Pattern;
 public abstract class MarketHoliday {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final String PATH_MARKET_HOLIDAY_JP = "/yokwe/util/market-holiday-jp.csv";
-	private static final String PATH_MARKET_HOLIDAY_US = "/yokwe/util/market-holiday-us.csv";
-
-	public static final int YEAR_START_DEFAULT = 2015;
-	public static final int YEAR_END_DEFAULT   = Year.now().getValue() + 1;
-	
-	private static final Pattern PAT_YYYY_MM_DD  = Pattern.compile("^(20[0-9]{2})-([01]?[0-9])-([0-3]?[0-9])$");
-	private static final Pattern PAT_MM_DD       = Pattern.compile("^([01]?[0-9])-([0-3]?[0-9])$");
-	private static final Pattern PAT_MM_DDM      = Pattern.compile("^([01]?[0-9])-([0-4])M$");
-	private static final Pattern PAT_MM_DDT      = Pattern.compile("^([01]?[0-9])-([0-4])T$");
-	private static final Pattern PAT_MM_LM       = Pattern.compile("^([01]?[0-9])-LM$");
-	private static final Pattern PAT_YYYY        = Pattern.compile("^(20[0-9]{2})$");
-	private static final Pattern PAT_GOOD_FRIDAY = Pattern.compile("^GOOD_FRIDAY$");
-
-	private static final DateTimeFormatter FORMAT_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy-M-d");
-	private static final DateTimeFormatter FORMAT_MM_DD      = DateTimeFormatter.ofPattern("M-d");
-
 	public static LocalDate goodFriday(int year) {
 	    int g = year % 19;
 	    int c = year / 100;
@@ -92,16 +77,20 @@ public abstract class MarketHoliday {
 	protected final int yearStartDefault;
 	protected final int yearEndDefault;
 	
-	protected final Map<LocalDate, Data> holidayMap;
+	protected final Map<LocalDate, Data> marketHolidayMap;
 	
-	protected abstract void processObserved();
-	
-	private MarketHoliday(int yearStartDefault, int yearEndDefault, String path) {
-		this.yearStartDefault = yearStartDefault;
-		this.yearEndDefault   = yearEndDefault;
-		this.holidayMap       = new TreeMap<>();
-		
-		List<Data> dataList = CSVUtil.read(Data.class).file(JapanHoliday.class, path, StandardCharsets.UTF_8);
+	private void buildMarketHolidayMap(String path) {
+		Pattern pat_YYYY_MM_DD  = Pattern.compile("^(20[0-9]{2})-([01]?[0-9])-([0-3]?[0-9])$");
+		Pattern pat_MM_DD       = Pattern.compile("^([01]?[0-9])-([0-3]?[0-9])$");
+		Pattern pat_MM_DDM      = Pattern.compile("^([01]?[0-9])-([0-4])M$");
+		Pattern pat_MM_DDT      = Pattern.compile("^([01]?[0-9])-([0-4])T$");
+		Pattern pat_MM_LM       = Pattern.compile("^([01]?[0-9])-LM$");
+		Pattern pat_YYYY        = Pattern.compile("^(20[0-9]{2})$");
+		Pattern pat_GOOD_FRIDAY = Pattern.compile("^GOOD_FRIDAY$");
+
+		DateTimeFormatter format_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy-M-d");
+
+		List<Data> dataList = CSVUtil.read(Data.class).file(Data.class, path, StandardCharsets.UTF_8);
 		
 		for(Data data: dataList) {
 			if (data.event.length() == 0) continue;
@@ -110,7 +99,7 @@ public abstract class MarketHoliday {
 			final int yearEnd;
 			
 			if (data.start.length() != 0) {
-				var m = PAT_YYYY.matcher(data.start);
+				var m = pat_YYYY.matcher(data.start);
 				if (m.matches()) {
 					yearStart = Integer.parseInt(data.start);
 				} else {
@@ -121,7 +110,7 @@ public abstract class MarketHoliday {
 				yearStart = yearStartDefault;
 			}
 			if (data.end.length() != 0) {
-				var m = PAT_YYYY.matcher(data.end);
+				var m = pat_YYYY.matcher(data.end);
 				if (m.matches()) {
 					yearEnd = Integer.parseInt(data.end);
 				} else {
@@ -134,14 +123,14 @@ public abstract class MarketHoliday {
 			
 			Matcher m;
 			
-			m = PAT_YYYY_MM_DD.matcher(data.date);
+			m = pat_YYYY_MM_DD.matcher(data.date);
 			if (m.matches()) {
-				LocalDate date = LocalDate.parse(data.date, FORMAT_YYYY_MM_DD);
-				holidayMap.put(date, data);
+				LocalDate date = LocalDate.parse(data.date, format_YYYY_MM_DD);
+				marketHolidayMap.put(date, data);
 				continue;
 			}
 
-			m = PAT_MM_DD.matcher(data.date);
+			m = pat_MM_DD.matcher(data.date);
 			if (m.matches()) {
 				if (m.groupCount() != 2) {
 					logger.error("Unexpected date format {}", data);
@@ -153,12 +142,12 @@ public abstract class MarketHoliday {
 				
 				for(int yyyy = yearStart; yyyy <= yearEnd; yyyy++) {
 					LocalDate date = LocalDate.of(yyyy, mm, dd);
-					holidayMap.put(date, data);
+					marketHolidayMap.put(date, data);
 				}
 				continue;
 			}
 
-			m = PAT_MM_DDM.matcher(data.date);
+			m = pat_MM_DDM.matcher(data.date);
 			if (m.matches()) {
 				if (m.groupCount() != 2) {
 					logger.error("Unexpected date format {}", data);
@@ -181,12 +170,12 @@ public abstract class MarketHoliday {
 					LocalDate firstDateOfMonth = LocalDate.of(yyyy, mm, 1);
 					LocalDate firstMonday = firstDateOfMonth.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
 					LocalDate date = firstMonday.plusDays((dd - 1) * 7);
-					holidayMap.put(date, data);
+					marketHolidayMap.put(date, data);
 				}
 				continue;
 			}
 			
-			m = PAT_MM_DDT.matcher(data.date);
+			m = pat_MM_DDT.matcher(data.date);
 			if (m.matches()) {
 				if (m.groupCount() != 2) {
 					logger.error("Unexpected date format {}", data);
@@ -209,12 +198,12 @@ public abstract class MarketHoliday {
 					LocalDate firstDateOfMonth = LocalDate.of(yyyy, mm, 1);
 					LocalDate firstThrusday = firstDateOfMonth.with(TemporalAdjusters.firstInMonth(DayOfWeek.THURSDAY));
 					LocalDate date = firstThrusday.plusDays((dd - 1) * 7);
-					holidayMap.put(date, data);
+					marketHolidayMap.put(date, data);
 				}
 				continue;
 			}
 			
-			m = PAT_MM_LM.matcher(data.date);
+			m = pat_MM_LM.matcher(data.date);
 			if (m.matches()) {
 				if (m.groupCount() != 1) {
 					logger.error("Unexpected date format {}", data);
@@ -232,17 +221,17 @@ public abstract class MarketHoliday {
 					LocalDate firstDateOfMonth = LocalDate.of(yyyy, mm, 1);
 					LocalDate lastMonday = firstDateOfMonth.with(TemporalAdjusters.lastInMonth(DayOfWeek.MONDAY));
 					
-					holidayMap.put(lastMonday, data);
+					marketHolidayMap.put(lastMonday, data);
 				}
 				continue;
 			}
 
-			m = PAT_GOOD_FRIDAY.matcher(data.date);
+			m = pat_GOOD_FRIDAY.matcher(data.date);
 			if (m.matches()) {
 				for(int yyyy = yearStart; yyyy <= yearEnd; yyyy++) {
 					LocalDate goodFriday = goodFriday(yyyy);
 					
-					holidayMap.put(goodFriday, data);
+					marketHolidayMap.put(goodFriday, data);
 				}
 				continue;
 			}
@@ -255,21 +244,33 @@ public abstract class MarketHoliday {
 		processObserved();
 		
 		// remove out of range entry
-		for(var i = holidayMap.entrySet().iterator(); i.hasNext();) {
+		for(var i = marketHolidayMap.entrySet().iterator(); i.hasNext();) {
 			var e = i.next();
 			var key = e.getKey();
 			int year = key.getYear();
 			if (year < yearStartDefault || yearEndDefault < year) i.remove();
 		}
 		
-		logger.info("holidayMap {} {} {}", yearStartDefault, yearEndDefault, holidayMap.size());
+		logger.info("holidayMap {} {} {}", yearStartDefault, yearEndDefault, marketHolidayMap.size());
 	}
 	
-	public void addHoliday(LocalDate date, String event) {
+	protected abstract void processObserved();
+	
+	private MarketHoliday(int yearStartDefault, int yearEndDefault, String path) {
+		this.yearStartDefault = yearStartDefault;
+		this.yearEndDefault   = yearEndDefault;
+		this.marketHolidayMap = new TreeMap<>();
+		
+		buildMarketHolidayMap(path);
+	}
+	
+	protected void add(LocalDate date, String event) {
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("M-d");
+
 		int year = date.getYear();
 		if (yearStartDefault <= year && year <= yearEndDefault) {
-			Data data = new Data(event, date.format(FORMAT_MM_DD), Integer.toString(year), Integer.toString(year));
-			holidayMap.put(date, data);
+			Data data = new Data(event, date.format(format), Integer.toString(year), Integer.toString(year));
+			marketHolidayMap.put(date, data);
 		} else {
 			logger.error("Unexpected date");
 			logger.error("  date       {}", date.toString());
@@ -279,10 +280,10 @@ public abstract class MarketHoliday {
 		}
 	}
 	
-	public boolean isHoliday(LocalDate date) {
+	public boolean isMarketHoliday(LocalDate date) {
 		int year = date.getYear();
 		if (yearStartDefault <= year && year <= yearEndDefault) {
-			return holidayMap.containsKey(date);
+			return marketHolidayMap.containsKey(date);
 		} else {
 			logger.error("Unexpected date");
 			logger.error("  date       {}", date.toString());
@@ -302,101 +303,210 @@ public abstract class MarketHoliday {
 		}
 	}
 	public boolean isClosed(LocalDate date) {
-		if (isWeekend(date)) return true;
-		if (isHoliday(date)) return true;
+		if (isWeekend(date))       return true;
+		if (isMarketHoliday(date)) return true;
 		return false;
 	}
 
-
-	public static class JP extends MarketHoliday {
-		public JP() {
-			super(YEAR_START_DEFAULT, YEAR_END_DEFAULT, PATH_MARKET_HOLIDAY_JP);
-			
-			// There is no observed holiday for 1/2 1/3 12/31
-			for(int year = yearStartDefault; year <= yearEndDefault; year++) {
-				LocalDate date0102 = LocalDate.parse(year + "-01-02");
-				LocalDate date0103 = LocalDate.parse(year + "-01-03");
-				LocalDate date1231 = LocalDate.parse(year + "-12-31");
-				
-				if (!isHoliday(date0102)) addHoliday(date0102, "1月2日");
-				if (!isHoliday(date0103)) addHoliday(date0103, "1月3日");
-				if (!isHoliday(date1231)) addHoliday(date1231, "大晦日");
-			}
-		}
+	protected static final int YEAR_START_DEFAULT = 2015;
+	protected static final int YEAR_END_DEFAULT   = Year.now().getValue() + 1;
+	
+	public static class JP {
+		private static final String PATH_MARKET_HOLIDAY = "/yokwe/util/market-holiday-jp.csv";
+		private static final ZoneId ZONE_ID           = ZoneId.of("Asia/Tokyo");
+		private static final int    HOUR_CLOSE_MARKET = 15; // market close at 1500
 		
-		protected void processObserved() {
-			Map<LocalDate, Data> observedMap = new TreeMap<>();
-
-			for(var i = holidayMap.entrySet().iterator(); i.hasNext();) {
-				var entry = i.next();
-				var date  = entry.getKey();
-				var data  = entry.getValue();
+		private static final MarketHoliday marketHoliday = new MyMarketHoliday();
+		private static class MyMarketHoliday extends MarketHoliday {
+			private MyMarketHoliday() {
+				super(YEAR_START_DEFAULT, YEAR_END_DEFAULT, PATH_MARKET_HOLIDAY);
 				
-				if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
-					var observedDate = date.plusDays(0);
-					for(;;) {
-						observedDate = observedDate.plusDays(1);
-						if (holidayMap.containsKey(observedDate)) continue;
-						break;
-					}
-					var observedData = new Data(data, String.format("%s - 振替休日", data.event));
+				// There is no observed holiday for 1/2 1/3 12/31
+				for(int year = yearStartDefault; year <= yearEndDefault; year++) {
+					LocalDate date0102 = LocalDate.parse(year + "-01-02");
+					LocalDate date0103 = LocalDate.parse(year + "-01-03");
+					LocalDate date1231 = LocalDate.parse(year + "-12-31");
 					
-//					logger.info("Observed  {}  {}  {}", date, observedDate, observedData);
-					observedMap.put(observedDate, observedData);
-					i.remove();
-				}					
-			}
-			holidayMap.putAll(observedMap);
-		}
-	}
-	public static class US extends MarketHoliday {
-		public US() {
-			super(YEAR_START_DEFAULT, YEAR_END_DEFAULT, PATH_MARKET_HOLIDAY_US);
-		}
-		
-		protected void processObserved() {
-			Map<LocalDate, Data> observedMap = new TreeMap<>();
-
-			for(var i = holidayMap.entrySet().iterator(); i.hasNext();) {
-				var entry = i.next();
-				var date  = entry.getKey();
-				var data  = entry.getValue();
-				
-				int adjust = 0;
-				switch(date.getDayOfWeek()) {
-				case SATURDAY:
-					adjust = -1;
-					break;
-				case SUNDAY:
-					adjust = 1;
-					break;
-				default:
-					break;
+					if (!isMarketHoliday(date0102)) add(date0102, "1月2日");
+					if (!isMarketHoliday(date0103)) add(date0103, "1月3日");
+					if (!isMarketHoliday(date1231)) add(date1231, "大晦日");
 				}
-				if (adjust != 0) {
-					var observedDate = date.plusDays(adjust);
-					var observedData = new Data(data, String.format("%s - Observed", data.event));
-					if (observedDate.getMonthValue() == 12 && observedDate.getDayOfMonth() == 31) {
-						// See Rule 7.2 Holidays
-						// https://nyseguide.srorules.com/rules/document?treeNodeId=csh-da-filter!WKUS-TAL-DOCS-PHC-%7B4A07B716-0F73-46CC-BAC2-43EB20902159%7D--WKUS_TAL_19401%23teid-15
-						//
-						//   The Exchange will not be open for business on New Year's Day, Martin Luther King Jr. Day,
-						//   Presidents' Day, Good Friday, Memorial Day, Independence Day, Labor Day, Thanksgiving Day and Christmas Day.
-						//
-						//   When a holiday observed by the Exchange falls on a Saturday, the Exchange will not be open for business
-						//   on the preceding Friday and when any holiday observed by the Exchange falls on a Sunday,
-						//   the Exchange will not be open for business on the succeeding Monday, unless unusual business conditions exist,
-						//   such as the ending of a monthly or yearly accounting period.
-						i.remove();
-					} else {
+			}
+			
+			protected void processObserved() {
+				Map<LocalDate, Data> observedMap = new TreeMap<>();
+
+				for(var i = marketHolidayMap.entrySet().iterator(); i.hasNext();) {
+					var entry = i.next();
+					var date  = entry.getKey();
+					var data  = entry.getValue();
+					
+					if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+						var observedDate = date.plusDays(0);
+						for(;;) {
+							observedDate = observedDate.plusDays(1);
+							if (marketHolidayMap.containsKey(observedDate)) continue;
+							break;
+						}
+						var observedData = new Data(data, String.format("%s - 振替休日", data.event));
+						
 //						logger.info("Observed  {}  {}  {}", date, observedDate, observedData);
 						observedMap.put(observedDate, observedData);
 						i.remove();
-					}
-					
+					}					
 				}
+				marketHolidayMap.putAll(observedMap);
 			}
-			holidayMap.putAll(observedMap);
+		}
+		
+		private static LocalDate lastTradingDate = null;
+		
+		public static LocalDate getLastTradingDate() {
+			if (lastTradingDate == null) {
+				LocalDateTime now = LocalDateTime.now(ZONE_ID);
+				LocalDate date = now.toLocalDate();
+
+				if (now.getHour() < HOUR_CLOSE_MARKET) date = date.minusDays(1); // Move to yesterday if it is before market close
+
+				if (marketHoliday.isClosed(date)) {
+					date = getPreviousTradingDate(date);
+				}
+				
+				lastTradingDate = date;
+				logger.info("Last Trading Date {}", lastTradingDate);
+			}
+			return lastTradingDate;
+		}
+		public static LocalDate getNextTradingDate(LocalDate date) {
+			date = date.plusDays(1);
+			while(marketHoliday.isClosed(date)) {
+				date = date.plusDays(1);
+			}
+			return date;
+		}
+		public static LocalDate getPreviousTradingDate(LocalDate date) {
+			date = date.minusDays(1);
+			while(marketHoliday.isClosed(date)) {
+				date = date.minusDays(1);
+			}
+			return date;
+		}
+		public static boolean isClosed(LocalDate date) {
+			return marketHoliday.isClosed(date);
+		}
+		public static boolean isMarketHoliday(LocalDate date) {
+			return marketHoliday.isMarketHoliday(date);
+		}
+		public static boolean isWeekend(LocalDate date) {
+			return marketHoliday.isWeekend(date);
+		}
+		
+		public static boolean isClosed(String string) {
+			return isClosed(LocalDate.parse(string));
+		}
+	}
+	
+	public static class US {		
+		private static final String PATH_MARKET_HOLIDAY = "/yokwe/util/market-holiday-us.csv";
+		private static final int    HOUR_CLOSE_MARKET       = 16; // market close at 1600
+		private static final ZoneId ZONE_ID                 = ZoneId.of("America/New_York");
+		
+		private static final MarketHoliday marketHoliday = new MyMarketHoliday();
+		private static class MyMarketHoliday extends MarketHoliday {
+			private MyMarketHoliday() {
+				super(YEAR_START_DEFAULT, YEAR_END_DEFAULT, PATH_MARKET_HOLIDAY);
+			}
+			
+			protected void processObserved() {
+				Map<LocalDate, Data> observedMap = new TreeMap<>();
+
+				for(var i = marketHolidayMap.entrySet().iterator(); i.hasNext();) {
+					var entry = i.next();
+					var date  = entry.getKey();
+					var data  = entry.getValue();
+					
+					int adjust = 0;
+					switch(date.getDayOfWeek()) {
+					case SATURDAY:
+						adjust = -1;
+						break;
+					case SUNDAY:
+						adjust = 1;
+						break;
+					default:
+						break;
+					}
+					if (adjust != 0) {
+						var observedDate = date.plusDays(adjust);
+						var observedData = new Data(data, String.format("%s - Observed", data.event));
+						if (observedDate.getMonthValue() == 12 && observedDate.getDayOfMonth() == 31) {
+							// See Rule 7.2 Holidays
+							// https://nyseguide.srorules.com/rules/document?treeNodeId=csh-da-filter!WKUS-TAL-DOCS-PHC-%7B4A07B716-0F73-46CC-BAC2-43EB20902159%7D--WKUS_TAL_19401%23teid-15
+							//
+							//   The Exchange will not be open for business on New Year's Day, Martin Luther King Jr. Day,
+							//   Presidents' Day, Good Friday, Memorial Day, Independence Day, Labor Day, Thanksgiving Day and Christmas Day.
+							//
+							//   When a holiday observed by the Exchange falls on a Saturday, the Exchange will not be open for business
+							//   on the preceding Friday and when any holiday observed by the Exchange falls on a Sunday,
+							//   the Exchange will not be open for business on the succeeding Monday, unless unusual business conditions exist,
+							//   such as the ending of a monthly or yearly accounting period.
+							i.remove();
+						} else {
+//							logger.info("Observed  {}  {}  {}", date, observedDate, observedData);
+							observedMap.put(observedDate, observedData);
+							i.remove();
+						}
+						
+					}
+				}
+				marketHolidayMap.putAll(observedMap);
+			}
+		}
+
+		private static LocalDate lastTradingDate = null;
+		
+		public static LocalDate getLastTradingDate() {
+			if (lastTradingDate == null) {
+				LocalDateTime now = LocalDateTime.now(ZONE_ID);
+				LocalDate date = now.toLocalDate();
+
+				if (now.getHour() < HOUR_CLOSE_MARKET) date = date.minusDays(1); // Move to yesterday if it is before market close
+
+				if (marketHoliday.isClosed(date)) {
+					date = getPreviousTradingDate(date);
+				}
+				
+				lastTradingDate = date;
+				logger.info("Last Trading Date {}", lastTradingDate);
+			}
+			return lastTradingDate;
+		}
+		public static LocalDate getNextTradingDate(LocalDate date) {
+			date = date.plusDays(1);
+			while(marketHoliday.isClosed(date)) {
+				date = date.plusDays(1);
+			}
+			return date;
+		}
+		public static LocalDate getPreviousTradingDate(LocalDate date) {
+			date = date.minusDays(1);
+			while(marketHoliday.isClosed(date)) {
+				date = date.minusDays(1);
+			}
+			return date;
+		}
+		public static boolean isClosed(LocalDate date) {
+			return marketHoliday.isClosed(date);
+		}
+		public static boolean isMarketHoliday(LocalDate date) {
+			return marketHoliday.isMarketHoliday(date);
+		}
+		public static boolean isWeekend(LocalDate date) {
+			return marketHoliday.isWeekend(date);
+		}
+
+		public static boolean isClosed(String string) {
+			return isClosed(LocalDate.parse(string));
 		}
 	}
 
@@ -428,10 +538,11 @@ public abstract class MarketHoliday {
 		
 		{
 			logger.info("MARKET HOLIDAY JP");
-			MarketHoliday holiday = new JP();
 			var list = new ArrayList<HolidayDetail>();
 			
-			for(var entry: holiday.holidayMap.entrySet()) {
+			JP.isClosed(LocalDate.of(2000, 1, 1));
+			
+			for(var entry: JP.marketHoliday.marketHolidayMap.entrySet()) {
 				logger.info("{}  {}", entry.getKey(), entry.getValue().event);
 				list.add(new HolidayDetail(entry.getKey().toString(), entry.getValue().event));
 			}
@@ -439,10 +550,9 @@ public abstract class MarketHoliday {
 		}
 		{
 			logger.info("MARKET HOLIDAY US");
-			MarketHoliday holiday = new US();
 			var list = new ArrayList<HolidayDetail>();
 			
-			for(var entry: holiday.holidayMap.entrySet()) {
+			for(var entry: US.marketHoliday.marketHolidayMap.entrySet()) {
 				logger.info("{}  {}", entry.getKey(), entry.getValue().event);
 				list.add(new HolidayDetail(entry.getKey().toString(), entry.getValue().event));
 			}

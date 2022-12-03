@@ -11,7 +11,7 @@ import yokwe.stock.us.Symbol;
 import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Historical;
-import yokwe.util.Market;
+import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 
 public class UpdatePrice {
@@ -154,12 +154,12 @@ public class UpdatePrice {
 		logger.info("START");
 		
 		// build toDate and fromDate
-		final LocalDate lastTradingDate         = Market.getLastTradingDate();
-		final LocalDate lastTradingDatePrevious = Market.getPreviousTradeDate(lastTradingDate);
+		final LocalDate lastTradingDate         = MarketHoliday.US.getLastTradingDate();
+		final LocalDate lastTradingDatePrevious = MarketHoliday.US.getPreviousTradingDate(lastTradingDate);
 		final LocalDate lastTradingDateMinus1Year;
 		{
 			LocalDate date = lastTradingDate.minusYears(1);
-			lastTradingDateMinus1Year = Market.isClosed(date) ? Market.getPreviousTradeDate(date) : date;
+			lastTradingDateMinus1Year = MarketHoliday.US.isClosed(date) ? MarketHoliday.US.getPreviousTradingDate(date) : date;
 		}
 		logger.info("date range {} - {}", lastTradingDateMinus1Year, lastTradingDate);
 		
@@ -229,7 +229,7 @@ public class UpdatePrice {
 						countCaseC++;
 //						logger.info("C {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);						
 					} else if (dateFirst.isBefore(lastTradingDateMinus1Year) || dateFirst.isEqual(lastTradingDateMinus1Year)) {
-						myFromDate = Market.getNextTradeDate(dateLast);
+						myFromDate = MarketHoliday.US.getNextTradingDate(dateLast);
 						myToDate   = lastTradingDate;
 						countCaseD++;
 //						logger.info("D {}-{}  {}-{}  {}", dateFirst, dateLast, myFromDate, myToDate, symbol);
