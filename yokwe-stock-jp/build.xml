@@ -84,8 +84,9 @@
 		</java>
 	</target>
 	
-	<target name="jpx-update-etf">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateETF" fork="true">
+	<!-- MONEY BU JPX -->
+	<target name="moneybujpx-update-etf">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.moneybujpx.UpdateETF" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
@@ -290,6 +291,17 @@
 	</target>
 	<target name="sony-gen-source-file">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.GenSourceFile" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
+	<!-- REIT -->
+	<target name="reit-update-reit">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.reit.UpdateREIT" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />

@@ -10,4 +10,35 @@ public final class Storage {
 	public static String getPath(String prefix, String path) {
 		return getPath(String.format("%s/%s", prefix, path));
 	}
+
+	// MoneyBuJPX
+	public static final class MoneyBuJPX {
+		public static final String PREFIX = "moneybujpx";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
+	// REIT
+	public static final class REIT {
+		public static final String PREFIX = "reit";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 }
