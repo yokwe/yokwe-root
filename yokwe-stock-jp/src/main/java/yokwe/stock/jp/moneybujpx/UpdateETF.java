@@ -1,4 +1,4 @@
-package yokwe.stock.jp.jpx;
+package yokwe.stock.jp.moneybujpx;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import yokwe.stock.jp.Storage;
+import yokwe.stock.jp.jpx.Stock;
+import yokwe.util.FileUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -14,7 +18,7 @@ import yokwe.util.json.JSON;
 import yokwe.util.json.JSON.Ignore;
 
 public class UpdateETF {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateETF.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final class RAW {
 	    public static final class Data {
@@ -177,12 +181,6 @@ public class UpdateETF {
 		String     stockCode         = Stock.toStockCode5(raw.data.stockCode);
 		String     listingDate       = convertDate(raw.data.listingDate);
 		BigDecimal expenseRatio      = raw.data.managementFee.scaleByPowerOfTen(-2);
-		BigDecimal divAnnual         = (raw.data.dividend == null) ? BigDecimal.ZERO : raw.data.dividend;
-		String     stockName         = raw.data.stockName;
-		String     categoryName      = raw.data.categoryName;
-		String     productType       = raw.data.productType;
-		String     targetName        = raw.data.targetIndex;
-		String     targetDescription = raw.data.underlierOutline;
 		
 		int divFreq;
 		if (raw.data.dividendDate == null) {
@@ -202,11 +200,14 @@ public class UpdateETF {
 			}
 		}
 		
+		String     categoryName      = raw.data.categoryName;
+		String     stockName         = raw.data.stockName;
+
 		ETF etf = new ETF(
 				date, stockCode, listingDate, expenseRatio,
-				divAnnual, divFreq,
-				stockName, categoryName, productType,
-				targetName, targetDescription
+				divFreq,
+				categoryName,
+				stockName
 				);
 		
 		return etf;
@@ -215,12 +216,18 @@ public class UpdateETF {
 	private static final String URL          = "https://jpx.cloud.qri.jp/tosyo-moneybu/api/detail/info";
 	private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
 	
-	public static ETF getInstance(String stockCode) {
+	public static ETF getInstance(String stockCode, List<Dividend> list) {
 		String body   = String.format("{\"stockCode\":\"%s\"}", Stock.toStockCode4(stockCode));
 		String string = HttpUtil.getInstance().withPost(body, CONTENT_TYPE).download(URL).result;
+		// debug
+		FileUtil.write().file(Storage.MoneyBuJPX.getPath("file", stockCode + ".json"), string);
 		
 		if (string == null) {
 			logger.warn("failed to download {}", stockCode);
+			return null;
+		}
+		if (string.contains("銘柄が見つかりませんでした")) {
+			logger.warn("not found {}", stockCode);
 			return null;
 		}
 
@@ -231,30 +238,9 @@ public class UpdateETF {
 		} else {
 			if (raw.status.equals("0")) {
 				if (raw.data.dividendHist != null) {
-					var map = ETFDiv.getMap(stockCode);
-					int count = 0;
 					for(var e: raw.data.dividendHist) {
-						var div = new ETFDiv(stockCode, e.dividend, convertDate(e.date));
-						if (map.containsKey(div.payDate)) {
-							// sanity check
-							var old = map.get(div.payDate);
-							if (div.equals(old)) {
-								// same value
-							} else {
-								logger.error("Unexpected value");
-								logger.error("  div {}", div);
-								logger.error("  old {}", old);
-								throw new UnexpectedException("Unexpected value");
-							}
-						} else {
-							map.put(div.payDate, div);
-							count++;
-						}
-					}
-					
-					if (0 < count) {
-						logger.info("save {} {}", stockCode, map.size());
-						ETFDiv.save(map.values());
+						var div = new Dividend(convertDate(e.date), stockCode, e.dividend);
+						list.add(div);
 					}
 				}
 				
@@ -280,7 +266,49 @@ public class UpdateETF {
 			if ((count % 10) == 0) logger.info(String.format("%4d / %4d  %s", count, stockList.size(), e.stockCode));
 			count++;
 
-			ETF etf = getInstance(e.stockCode);
+			String stockCode = e.stockCode;
+			var divList = new ArrayList<Dividend>();
+			ETF etf = getInstance(stockCode, divList);
+			if (etf == null) continue;
+			
+			if (!divList.isEmpty()) {
+				// sanity check
+				ListUtil.checkDuplicate(divList, o -> o.date);
+				for(var div: divList) {
+					double value = div.amount.doubleValue();
+					if (Double.isFinite(value)) continue;
+					logger.error("Contains not number");
+					logger.error("  stockCode {}", stockCode);
+					logger.error("  divList   {}", divList);
+					throw new UnexpectedException("Contains not number");
+				}
+
+				// load old data to merger new data
+				var map = Dividend.getList(stockCode).stream().collect(Collectors.toMap(o -> o.date, o -> o));
+				for(var newDiv: divList) {
+					if (map.containsKey(newDiv.date)) {
+						var old = map.get(newDiv.date);
+						// sanity check of old value
+						if (!old.stockCode.equals(newDiv.stockCode)) {
+							logger.error("Unexpected stockCode");
+							logger.error("  old {}", old);
+							logger.error("  new {}", newDiv);
+							throw new UnexpectedException("Unexpected stockCode");
+						}
+						if (!old.amount.equals(newDiv.amount)) {
+							logger.error("Unexpected amount");
+							logger.error("  old {}", old);
+							logger.error("  new {}", newDiv);
+							throw new UnexpectedException("Unexpected amount");
+						}
+					} else {
+						map.put(newDiv.date, newDiv);
+					}
+				}
+				logger.info("save dividend {} {}", stockCode, map.size());
+				Dividend.save(stockCode, map.values());
+			}
+
 //			logger.info("etf {}", etf.toString());
 			etfList.add(etf);
 		}

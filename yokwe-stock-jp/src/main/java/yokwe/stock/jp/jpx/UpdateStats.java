@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.edinet.EDINETInfo;
 import yokwe.stock.jp.edinet.FundInfo;
+import yokwe.stock.jp.moneybujpx.Dividend;
+import yokwe.stock.jp.moneybujpx.ETF;
 import yokwe.stock.jp.xbrl.tdnet.report.DividendAnnual;
 import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
@@ -109,21 +111,32 @@ public class UpdateStats {
 		
 		// dividend
 		{
-			DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
-			if (divAnn == null) {
-				if (etf == null) {
+			if (stock.isETF()) {
+				ret.div   = Dividend.getAnnual(etf);
+				ret.divc  = etf.divFreq;
+				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
+			} else if (stock.isREIT()) {
+				DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
+				if (divAnn == null) {
 					ret.div   = 0;
 					ret.divc  = 0;
 					ret.yield = 0;
 				} else {
-					ret.div   = etf.divAnnual.doubleValue();
-					ret.divc  = etf.divFreq;
+					ret.div   = divAnn.dividend;
+					ret.divc  = divAnn.count;
 					ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
 				}
 			} else {
-				ret.div   = divAnn.dividend;
-				ret.divc  = divAnn.count;
-				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
+				DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
+				if (divAnn == null) {
+					ret.div   = 0;
+					ret.divc  = 0;
+					ret.yield = 0;
+				} else {
+					ret.div   = divAnn.dividend;
+					ret.divc  = divAnn.count;
+					ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
+				}
 			}
 		}
 		
