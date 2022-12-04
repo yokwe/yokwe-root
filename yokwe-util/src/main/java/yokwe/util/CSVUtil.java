@@ -730,6 +730,18 @@ public class CSVUtil {
 					if (1 <= i) bw.write(",");
 					
 					FieldInfo fieldInfo = fieldInfos[i];
+					
+					// sanity check
+					{
+						Object fieldValue = fieldInfo.field.get(value);
+						if (fieldValue == null) {
+							logger.error("field has null value");
+							logger.error("  clazz  {}", fieldInfo.clazzName);
+							logger.error("  field  {}", fieldInfo.name);
+							throw new UnexpectedException("field has null value");
+						}
+					}
+
 					switch (fieldInfo.clazzName) {
 					case "real":
 					case "double":
@@ -754,11 +766,11 @@ public class CSVUtil {
 						Object fieldValue = fieldInfo.field.get(value);
 						if (fieldValue == null) {
 							logger.error("field has null value");
-							logger.error("  field  {}  {}", fieldInfo.clazzName, fieldInfo.name);
+							logger.error("  clazz  {}", fieldInfo.clazzName);
+							logger.error("  field  {}", fieldInfo.name);
 							throw new UnexpectedException("field has null value");
-						} else {
-							writeField(bw, fieldValue.toString());
 						}
+						writeField(bw, fieldValue.toString());
 					}
 						break;
 					}
