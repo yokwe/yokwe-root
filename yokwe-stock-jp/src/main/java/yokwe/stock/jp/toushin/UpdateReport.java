@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import yokwe.stock.jp.toushin.Fund.Offer;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
-import yokwe.util.JapanHoliday;
+import yokwe.util.MarketHoliday;
 
 public class UpdateReport {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateReport.class);
@@ -102,10 +102,10 @@ public class UpdateReport {
 		}
 		logger.info("file {}", file.getPath());
 		
-		LocalDate lastDate  = JapanHoliday.getLastTradingDate();		
+		LocalDate lastDate  = MarketHoliday.JP.getLastTradingDate();		
 		LocalDate firstDate = lastDate.minusYears(1);
 		for(;;) {
-			if (JapanHoliday.isClosed(firstDate)) {
+			if (MarketHoliday.JP.isClosed(firstDate)) {
 				firstDate = firstDate.plusDays(1);
 				continue;
 			}
@@ -114,7 +114,7 @@ public class UpdateReport {
 		
 		int countDays = 1; // 1 for lastDate
 		for(LocalDate date = firstDate; date.isBefore(lastDate); date = date.plusDays(1)) {
-			if (!JapanHoliday.isClosed(date)) countDays++;
+			if (!MarketHoliday.JP.isClosed(date)) countDays++;
 		}
 		logger.info("period {} - {} - {} days", firstDate, lastDate, countDays);
 		
