@@ -101,8 +101,8 @@ public class ETF implements Comparable<ETF> {
 			
 			int        divFreq,
 			
-			String      categoryName,
-			String      stockName
+			String     categoryName,
+			String     stockName
 			) {
 			this.date          = date;
 			this.stockCode     = stockCode;
