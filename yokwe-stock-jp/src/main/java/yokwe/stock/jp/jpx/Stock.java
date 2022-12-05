@@ -186,6 +186,9 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	public boolean isREIT() {
 		return market.equals(Market.REIT_FUND);
 	}
+	public boolean isInfraFund() {
+		return market.equals(Market.REIT_FUND) && name.contains("インフラ");
+	}
 	public boolean isPROMarket() {
 		return market.equals(Market.PRO_MARKET);
 	}
