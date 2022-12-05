@@ -94,16 +94,14 @@ public class ETFDiv implements Comparable<ETFDiv> {
 	
 	
     public String     date;
-	public String     stockCode;
     public BigDecimal amount;
     
-    public ETFDiv(String date, String stockCode, BigDecimal amount) {
+    public ETFDiv(String date, BigDecimal amount) {
     	this.date      = date;
-    	this.stockCode = stockCode;
     	this.amount    = amount;
     }
     public ETFDiv() {
-    	this(null, null, null);
+    	this(null, null);
     }
     
     @Override
@@ -113,9 +111,7 @@ public class ETFDiv implements Comparable<ETFDiv> {
 
 	@Override
 	public int compareTo(ETFDiv that) {
-		int ret = this.stockCode.compareTo(that.stockCode);
-		if (ret == 0) ret = this.date.compareTo(that.date);
-		return ret;
+		return this.date.compareTo(that.date);
 	}
 	
 	@Override
@@ -134,6 +130,6 @@ public class ETFDiv implements Comparable<ETFDiv> {
 	
 	@Override
 	public int hashCode() {
-		return this.stockCode.hashCode() ^ this.date.hashCode();
+		return this.date.hashCode();
 	}
 }

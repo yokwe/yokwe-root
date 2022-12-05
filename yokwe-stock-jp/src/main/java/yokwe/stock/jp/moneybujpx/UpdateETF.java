@@ -239,7 +239,7 @@ public class UpdateETF {
 			if (raw.status.equals("0")) {
 				if (raw.data.dividendHist != null) {
 					for(var e: raw.data.dividendHist) {
-						var div = new ETFDiv(convertDate(e.date), stockCode, e.dividend);
+						var div = new ETFDiv(convertDate(e.date), e.dividend);
 						list.add(div);
 					}
 				}
@@ -289,12 +289,6 @@ public class UpdateETF {
 					if (map.containsKey(newDiv.date)) {
 						var old = map.get(newDiv.date);
 						// sanity check of old value
-						if (!old.stockCode.equals(newDiv.stockCode)) {
-							logger.error("Unexpected stockCode");
-							logger.error("  old {}", old);
-							logger.error("  new {}", newDiv);
-							throw new UnexpectedException("Unexpected stockCode");
-						}
 						if (!old.amount.equals(newDiv.amount)) {
 							logger.error("Unexpected amount");
 							logger.error("  old {}", old);
