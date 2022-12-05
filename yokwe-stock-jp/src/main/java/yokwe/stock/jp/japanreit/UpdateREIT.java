@@ -104,6 +104,41 @@ public class UpdateREIT {
 		}
 	}
 
+	// 決算月
+	public static class Settlement {
+		public static final Pattern PAT = Pattern.compile(
+			// <th>決算月</th>
+		    // <td>5月/11月</td>
+			"<th>決算月</th>\\s+" +
+			"<td>(?<value>.+?)</td>"
+		);
+		public static Settlement getInstance(String page) {
+			return ScrapeUtil.get(Settlement.class, PAT, page);
+		}
+
+		public final String value;
+		
+		public Settlement(String value) {
+			this.value = value.trim();
+		}
+		
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+		
+		public List<Integer> getList() {
+			List<Integer> ret = new ArrayList<>();
+			
+			String[] token = value.split("/");
+			for(var e: token) {
+				String string = e.replace("月", "").trim();
+				ret.add(Integer.parseInt(string));
+			}
+			return ret;
+		}
+	}
+
 	// 分配金の推移
 	public static class Dividend {
 		// 分配金の推移
@@ -166,6 +201,7 @@ public class UpdateREIT {
 			
 			Name        name        = Name.getInstance(page);
 			ListingDate listingDate = ListingDate.getInstance(page);
+			Settlement  settlement  = Settlement.getInstance(page);
 			
 			if (name == null) {
 				logger.warn("failed to scrape name {}", stockCode);
@@ -175,8 +211,12 @@ public class UpdateREIT {
 				logger.warn("failed to scrape listingDate {}", stockCode);
 				return null;
 			}
+			if (settlement == null) {
+				logger.warn("failed to scrape settlement {}", stockCode);
+				return null;
+			}
 
-			reit = new REIT(stockCode, listingDate.getDate(), name.value);
+			reit = new REIT(stockCode, listingDate.getDate(), settlement.getList().size(), name.value);
 		}
 		
 		// build divList
@@ -226,6 +266,8 @@ public class UpdateREIT {
 			
 			var name        = Name.getInstance(page);
 			var listingDate = ListingDate.getInstance(page);
+			var settlement  = Settlement.getInstance(page);
+
 			if (name == null) {
 				logger.warn("failed to scrape name {}", stockCode);
 				return null;
@@ -234,7 +276,11 @@ public class UpdateREIT {
 				logger.warn("failed to scrape listingDate {}", stockCode);
 				return null;
 			}
-			reit = new REIT(stockCode, listingDate.getDate(), name.value);
+			if (settlement == null) {
+				logger.warn("failed to scrape settlement {}", stockCode);
+				return null;
+			}
+			reit = new REIT(stockCode, listingDate.getDate(), settlement.getList().size(), name.value);
 		}
 		{
 			final String url = String.format("https://www.japan-reit.com/infra/%s/dividend/", Stock.toStockCode4(stockCode));			
