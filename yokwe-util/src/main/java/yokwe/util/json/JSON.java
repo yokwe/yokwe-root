@@ -336,6 +336,15 @@ public final class JSON {
 		case "java.math.BigDecimal":
 			fieldInfo.field.set(object, jsonNumber.bigDecimalValue());
 			break;
+		case "java.lang.Integer":
+			fieldInfo.field.set(object, jsonNumber.intValue());
+			break;
+		case "java.lang.Long":
+			fieldInfo.field.set(object, jsonNumber.longValue());
+			break;
+		case "java.lang.Double":
+			fieldInfo.field.set(object, jsonNumber.doubleValue());
+			break;
 		case "java.lang.String":
 			// To handle irregular case in Symbols, add this code. Value of iexId in Symbols can be number or String.
 			fieldInfo.field.set(object, jsonNumber.toString());
