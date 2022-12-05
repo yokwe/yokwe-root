@@ -2,6 +2,7 @@ package yokwe.stock.jp.japanreit;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
@@ -23,7 +24,7 @@ public class REITDiv implements Comparable<REITDiv> {
 		ListUtil.save(REITDiv.class, getPath(stockCode), list);
 	}
 
-	public static List<REITDiv> getList(String stockCode) {
+	public static List<REITDiv> getListAll(String stockCode) {
 		String path = getPath(stockCode);
 		var list = ListUtil.getList(REITDiv.class, path);
 		
@@ -31,6 +32,43 @@ public class REITDiv implements Comparable<REITDiv> {
 		ListUtil.checkDuplicate(list, o -> o.date);
 
 		return list;
+	}
+	public static List<REITDiv> getList(String stockCode) {
+		return getListAll(stockCode).stream().filter(o -> o.hasValue()).collect(Collectors.toList());
+	}
+
+	public static double getAnnual(REIT reit) {
+		String stockCode = reit.stockCode;
+		int    divFreq   = reit.divFreq;
+		
+		if (divFreq == 0) return 0;
+		
+		var divList = getList(stockCode);
+		REITDiv[] divArray = divList.toArray(new REITDiv[0]);
+		int divCount = divArray.length;
+		
+		if (divCount == 0) return 0;
+		
+		double annual = 0;
+
+		if (divFreq <= divCount) {
+			// use latest amount in divList for one year
+			int offset = divCount - divFreq;
+			for(int i = 0; i < divFreq; i++) {
+				annual += divArray[offset + i].actual;
+			}
+		} else {
+			// estimate amount
+			for(int i = 0; i < divCount; i++) {
+				annual += divArray[i].actual;
+			}
+			// calculate average dividend
+			annual /= divCount;
+			// estimate annual from average dividend
+			annual *= divFreq;
+		}
+
+		return annual;
 	}
 
 	public static final int NO_VALUE = -1;
@@ -43,6 +81,9 @@ public class REITDiv implements Comparable<REITDiv> {
     	this.date      = date;
     	this.estimate  = estimate;
     	this.actual    = actual;
+    }
+    public REITDiv() {
+    	this(null, NO_VALUE, NO_VALUE);
     }
     
     public boolean hasValue() {
