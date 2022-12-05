@@ -27,8 +27,8 @@ public final class Storage {
 	}
 	
 	// REIT
-	public static final class REIT {
-		public static final String PREFIX = "reit";
+	public static final class JapanREIT {
+		public static final String PREFIX = "japanreit";
 		
 		public static String getPath() {
 			return Storage.getPath(PREFIX);
