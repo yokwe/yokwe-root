@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.edinet.EDINETInfo;
 import yokwe.stock.jp.edinet.FundInfo;
+import yokwe.stock.jp.japanreit.REIT;
+import yokwe.stock.jp.japanreit.REITDiv;
 import yokwe.stock.jp.moneybujpx.ETFDiv;
 import yokwe.stock.jp.moneybujpx.ETF;
 import yokwe.stock.jp.xbrl.tdnet.report.DividendAnnual;
@@ -32,7 +34,7 @@ public class UpdateStats {
 	
 	private static final LocalDate DATE_LAST  = MarketHoliday.JP.getLastTradingDate();
 
-	private static Stats getInstance(Stock stock, List<Price> priceList, ETF etf) {
+	private static Stats getInstance(Stock stock, List<Price> priceList, ETF etf, REIT reit) {
 		Stats ret = new Stats();
 		
 		StockInfo  stockInfo = StockInfo.get(stock.stockCode);
@@ -116,16 +118,9 @@ public class UpdateStats {
 				ret.divc  = etf.divFreq;
 				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
 			} else if (stock.isREIT()) {
-				DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
-				if (divAnn == null) {
-					ret.div   = 0;
-					ret.divc  = 0;
-					ret.yield = 0;
-				} else {
-					ret.div   = divAnn.dividend;
-					ret.divc  = divAnn.count;
-					ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
-				}
+				ret.div   = REITDiv.getAnnual(reit);
+				ret.divc  = reit.divFreq;
+				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
 			} else {
 				DividendAnnual divAnn = DividendAnnual.getMap().get(ret.stockCode);
 				if (divAnn == null) {
@@ -234,7 +229,8 @@ public class UpdateStats {
 		
 		Collection<Stock> stockList = Stock.getList();
 		
-		Map<String, ETF> etfMap = ETF.getMap();
+		Map<String, ETF>  etfMap  = ETF.getMap();
+		Map<String, REIT> reitMap = REIT.getMap();
 		
 		int total = stockList.size();
 		int count = 0;
@@ -327,7 +323,7 @@ public class UpdateStats {
 
 			}
 						
-			Stats stats = getInstance(stock, priceList, etfMap.get(stockCode));
+			Stats stats = getInstance(stock, priceList, etfMap.get(stockCode), reitMap.get(stockCode));
 			if (stats != null) statsList.add(stats);
 		}
 		return statsList;
