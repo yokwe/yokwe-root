@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.edinet.EDINETInfo;
 import yokwe.stock.jp.edinet.FundInfo;
-import yokwe.stock.jp.moneybujpx.Dividend;
+import yokwe.stock.jp.moneybujpx.ETFDiv;
 import yokwe.stock.jp.moneybujpx.ETF;
 import yokwe.stock.jp.xbrl.tdnet.report.DividendAnnual;
 import yokwe.util.DoubleUtil;
@@ -112,7 +112,7 @@ public class UpdateStats {
 		// dividend
 		{
 			if (stock.isETF()) {
-				ret.div   = Dividend.getAnnual(etf);
+				ret.div   = ETFDiv.getAnnual(etf);
 				ret.divc  = etf.divFreq;
 				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
 			} else if (stock.isREIT()) {

@@ -216,7 +216,7 @@ public class UpdateETF {
 	private static final String URL          = "https://jpx.cloud.qri.jp/tosyo-moneybu/api/detail/info";
 	private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
 	
-	public static ETF getInstance(String stockCode, List<Dividend> list) {
+	public static ETF getInstance(String stockCode, List<ETFDiv> list) {
 		String body   = String.format("{\"stockCode\":\"%s\"}", Stock.toStockCode4(stockCode));
 		String string = HttpUtil.getInstance().withPost(body, CONTENT_TYPE).download(URL).result;
 		// debug
@@ -239,7 +239,7 @@ public class UpdateETF {
 			if (raw.status.equals("0")) {
 				if (raw.data.dividendHist != null) {
 					for(var e: raw.data.dividendHist) {
-						var div = new Dividend(convertDate(e.date), stockCode, e.dividend);
+						var div = new ETFDiv(convertDate(e.date), stockCode, e.dividend);
 						list.add(div);
 					}
 				}
@@ -267,7 +267,7 @@ public class UpdateETF {
 			count++;
 
 			String stockCode = e.stockCode;
-			var divList = new ArrayList<Dividend>();
+			var divList = new ArrayList<ETFDiv>();
 			ETF etf = getInstance(stockCode, divList);
 			if (etf == null) continue;
 			
@@ -284,7 +284,7 @@ public class UpdateETF {
 				}
 
 				// load old data to merger new data
-				var map = Dividend.getList(stockCode).stream().collect(Collectors.toMap(o -> o.date, o -> o));
+				var map = ETFDiv.getList(stockCode).stream().collect(Collectors.toMap(o -> o.date, o -> o));
 				for(var newDiv: divList) {
 					if (map.containsKey(newDiv.date)) {
 						var old = map.get(newDiv.date);
@@ -306,7 +306,7 @@ public class UpdateETF {
 					}
 				}
 				logger.info("save dividend {} {}", stockCode, map.size());
-				Dividend.save(stockCode, map.values());
+				ETFDiv.save(stockCode, map.values());
 			}
 
 //			logger.info("etf {}", etf.toString());

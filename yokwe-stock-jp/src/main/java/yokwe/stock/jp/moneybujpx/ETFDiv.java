@@ -11,25 +11,25 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
-public class Dividend implements Comparable<Dividend> {
+public class ETFDiv implements Comparable<ETFDiv> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static String getPath(String stockCode) {
-		return Storage.MoneyBuJPX.getPath("div", stockCode + ".csv");
+		return Storage.MoneyBuJPX.getPath("etf-div", stockCode + ".csv");
 	}
 
-	public static void save(String stockCode, Collection<Dividend> collection) {
+	public static void save(String stockCode, Collection<ETFDiv> collection) {
 		String path = getPath(stockCode);
-		ListUtil.save(Dividend.class, path, collection);
+		ListUtil.save(ETFDiv.class, path, collection);
 	}
-	public static void save(String stockCode, List<Dividend> list) {
+	public static void save(String stockCode, List<ETFDiv> list) {
 		String path = getPath(stockCode);
-		ListUtil.save(Dividend.class, path, list);
+		ListUtil.save(ETFDiv.class, path, list);
 	}
 
-	public static List<Dividend> getList(String stockCode) {
+	public static List<ETFDiv> getList(String stockCode) {
 		String path = getPath(stockCode);
-		var list = ListUtil.getList(Dividend.class, path);
+		var list = ListUtil.getList(ETFDiv.class, path);
 		
 		// sanity check
 		for(var div: list) {
@@ -52,7 +52,7 @@ public class Dividend implements Comparable<Dividend> {
 		if (divFreq == 0) return 0;
 		
 		var divList = getList(stockCode);
-		Dividend[] divArray = divList.toArray(new Dividend[0]);
+		ETFDiv[] divArray = divList.toArray(new ETFDiv[0]);
 		int divCount = divArray.length;
 		
 		if (divCount == 0) return 0;
@@ -97,12 +97,12 @@ public class Dividend implements Comparable<Dividend> {
 	public String     stockCode;
     public BigDecimal amount;
     
-    public Dividend(String date, String stockCode, BigDecimal amount) {
+    public ETFDiv(String date, String stockCode, BigDecimal amount) {
     	this.date      = date;
     	this.stockCode = stockCode;
     	this.amount    = amount;
     }
-    public Dividend() {
+    public ETFDiv() {
     	this(null, null, null);
     }
     
@@ -112,7 +112,7 @@ public class Dividend implements Comparable<Dividend> {
     }
 
 	@Override
-	public int compareTo(Dividend that) {
+	public int compareTo(ETFDiv that) {
 		int ret = this.stockCode.compareTo(that.stockCode);
 		if (ret == 0) ret = this.date.compareTo(that.date);
 		return ret;
@@ -123,8 +123,8 @@ public class Dividend implements Comparable<Dividend> {
 		if (o == null) {
 			return false;
 		} else {
-			if (o instanceof Dividend) {
-				Dividend that = (Dividend)o;
+			if (o instanceof ETFDiv) {
+				ETFDiv that = (ETFDiv)o;
 				return this.compareTo(that) == 0;
 			} else {
 				return false;
