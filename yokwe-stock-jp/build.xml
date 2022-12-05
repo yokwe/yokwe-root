@@ -300,8 +300,8 @@
 	</target>
 
 	<!-- REIT -->
-	<target name="reit-update-reit">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.reit.UpdateREIT" fork="true">
+	<target name="japanreit-update-reit">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.japanreit.UpdateREIT" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />

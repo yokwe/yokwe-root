@@ -1,0 +1,75 @@
+package yokwe.stock.jp.japanreit;
+
+import java.util.List;
+import java.util.Map;
+
+import yokwe.stock.jp.Storage;
+import yokwe.util.ListUtil;
+import yokwe.util.StringUtil;
+
+public class REIT implements Comparable<REIT> {
+	private static final String PATH = Storage.JapanREIT.getPath("reit.csv");
+	public static String getPath() {
+		return PATH;
+	}
+
+	public static void save(List<REIT> list) {
+		ListUtil.checkDuplicate(list, o -> o.stockCode);
+		ListUtil.save(REIT.class, getPath(), list);
+	}
+	
+	public static List<REIT> load() {
+		return ListUtil.load(REIT.class, getPath());
+	}
+	public static List<REIT> getList() {
+		return ListUtil.getList(REIT.class, getPath());
+	}
+	public static Map<String, REIT> getMap() {
+		//            stockCode
+		var list = ListUtil.getList(REIT.class, getPath());
+		return ListUtil.checkDuplicate(list, o -> o.stockCode);
+	}
+
+
+	// https://www.japan-reit.com/meigara/8954/info/
+	// 上場日 2002/06/12
+	
+	public String stockCode;
+	public String listingDate;
+	public String name;
+
+	public REIT(String stockCode, String listingDate, String name) {
+		this.stockCode   = stockCode;
+		this.listingDate = listingDate;
+		this.name        = name;
+	}
+	
+	@Override
+	public String toString() {
+	    return StringUtil.toString(this);
+	}
+
+	@Override
+	public int compareTo(REIT that) {
+		return this.stockCode.compareTo(that.stockCode);
+	}
+	
+	@Override
+	public int hashCode() {
+		return stockCode.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o != null) {
+			if (o instanceof REIT) {
+				REIT that = (REIT)o;
+				return this.compareTo(that) == 0;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+}
