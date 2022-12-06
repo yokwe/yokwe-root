@@ -42,9 +42,12 @@ update-jpx-stock-price:
 	ant jpx-update-stock-price
 	ant jpx-update-stats
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz jpx
-	
-update-jpx-etf:
-	ant jpx-update-etf
+
+# STOCK ETF REIT
+update-stock-etf-reit:
+	ant jpx-update-stock
+	ant moneybujpx-update-etf
+	ant japanreit-update-reit
 	ant jpx-update-stats
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz jpx
 
