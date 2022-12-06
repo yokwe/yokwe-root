@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.us.Symbol;
 import yokwe.stock.us.SymbolInfo;
 import yokwe.util.DoubleUtil;
@@ -22,7 +20,7 @@ import yokwe.util.stats.MA;
 import yokwe.util.stats.RSI;
 
 public class UpdateStats {
-	static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStats.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static List<Stats> getStatsList(Set<String> dateSet) {
 		List<Stats> statsList = new ArrayList<>();

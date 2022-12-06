@@ -15,7 +15,7 @@ import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 
 public class UpdatePrice {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdatePrice.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class Request {
 		public String     symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A

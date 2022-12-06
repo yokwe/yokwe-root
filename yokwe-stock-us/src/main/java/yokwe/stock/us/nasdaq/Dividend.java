@@ -14,7 +14,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class Dividend implements Comparable<Dividend> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Dividend.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String PATH_DIR = Storage.NASDAQ.getPath("div");
 	public static String getPath(String symbol) {

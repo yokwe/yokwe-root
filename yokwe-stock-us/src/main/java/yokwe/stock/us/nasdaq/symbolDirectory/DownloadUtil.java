@@ -9,7 +9,7 @@ import java.net.URLConnection;
 import yokwe.util.UnexpectedException;
 
 public class DownloadUtil {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DownloadUtil.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static URL toURL(String urlString) {
 		try {

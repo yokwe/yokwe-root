@@ -13,7 +13,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class StockDividend implements Comparable<StockDividend> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StockDividend.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String PATH_FILE = Storage.NASDAQ.getPath("stock-dividend.csv");
 	

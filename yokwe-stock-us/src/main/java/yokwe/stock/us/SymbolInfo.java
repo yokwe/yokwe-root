@@ -10,7 +10,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class SymbolInfo implements Comparable<SymbolInfo> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SymbolInfo.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static void save(Collection<SymbolInfo> collection, String path) {
 		// sanity check

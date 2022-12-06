@@ -8,7 +8,7 @@ import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
 public final class API {	
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(API.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
 	// https://api.nasdaq.com/api/quote/LMT/dividends?assetclass=stocks

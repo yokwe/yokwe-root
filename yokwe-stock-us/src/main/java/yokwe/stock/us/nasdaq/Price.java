@@ -14,7 +14,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class Price implements Comparable<Price> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Price.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String PATH_DIR = Storage.NASDAQ.getPath("price");
 	public static String getPath(String symbol) {

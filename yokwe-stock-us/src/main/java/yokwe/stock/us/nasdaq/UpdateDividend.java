@@ -15,7 +15,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.stats.DoubleStreamUtil;
 
 public class UpdateDividend {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividend.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class Request {
 		public String     symbol;     // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
