@@ -51,7 +51,7 @@ public class UpdateStats {
 				ret.sector17 = (etf == null) ? "ETF" : etf.categoryName;
 			} else if (stock.isREIT()) {
 				ret.sector33 = "REIT";
-				ret.sector17 = "REIT";
+				ret.sector17 = (reit == null) ? "REIT" : reit.category;
 			} else {
 				ret.sector33 = stock.market.toString();
 				ret.sector17 = stock.market.toString();
@@ -322,9 +322,38 @@ public class UpdateStats {
 				}
 
 			}
-						
-			Stats stats = getInstance(stock, priceList, etfMap.get(stockCode), reitMap.get(stockCode));
-			if (stats != null) statsList.add(stats);
+			
+			{
+				final ETF  etf;
+				final REIT reit;
+				
+				if (stock.isETF()) {
+					if (etfMap.containsKey(stockCode)) {
+						etf = etfMap.get(stockCode);
+					} else {
+						logger.error("Unexpected");
+						logger.error("  stockCode {}", stockCode);
+						throw new UnexpectedException("Unexpected");
+					}
+				} else {
+					etf = null;
+				}
+				
+				if (stock.isREIT()) {
+					if (reitMap.containsKey(stockCode)) {
+						reit = reitMap.get(stockCode);
+					} else {
+						logger.error("Unexpected");
+						logger.error("  stockCode {}", stockCode);
+						throw new UnexpectedException("Unexpected");
+					}
+				} else {
+					reit = null;
+				}
+
+				Stats stats = getInstance(stock, priceList, etf, reit);
+				if (stats != null) statsList.add(stats);
+			}
 		}
 		return statsList;
 	}

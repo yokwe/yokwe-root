@@ -37,16 +37,18 @@ public class REIT implements Comparable<REIT> {
 	public String stockCode;
 	public String listingDate;
 	public int    divFreq;
+	public String category;
 	public String name;
 
-	public REIT(String stockCode, String listingDate, int divFreq, String name) {
+	public REIT(String stockCode, String listingDate, int divFreq, String category, String name) {
 		this.stockCode   = stockCode;
 		this.listingDate = listingDate;
 		this.divFreq     = divFreq;
+		this.category    = category;
 		this.name        = name;
 	}
 	public REIT() {
-		this(null, null, 0, null);
+		this(null, null, 0, null, null);
 	}
 	
 	@Override

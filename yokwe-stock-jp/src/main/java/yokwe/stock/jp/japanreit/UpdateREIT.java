@@ -3,10 +3,12 @@ package yokwe.stock.jp.japanreit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.stock.jp.jpx.Stock;
+import yokwe.util.ListUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.ScrapeUtil.AsNumber;
 import yokwe.util.StringUtil;
@@ -185,13 +187,76 @@ public class UpdateREIT {
 		}
 	}
 
+	public static class Link {
+		//<tr>
+		//<td><a href="/meigara/3279/">3279</a></td>
+		//<td><a href="http://www.activia-reit.co.jp/" target="_blank">アクティビア・プロパティーズ投資法人</a><!--アクティビア・プロパティーズ投資法人--></td>
+		//<td><a href="http://www.tokyu-trm.co.jp/" target="_blank">東急不動産リート・マネジメント投信株式会社</a><!--東急不動産リート・マネジメント投信株式会社--></td>
+		//<td><a href="http://www.activia-reit.co.jp/index.html" target="_blank">データシート</a></td>
+		//<td>複合型（オフィス＋都市型商業施設）</td>
+		//</tr>
+		public static final Pattern PAT = Pattern.compile(
+			"<tr>\\s+" +
+			"<td><a .+>(?<stockCode>.+)</a></td>\\s+" +
+			"<td><a .+>(?<reitName>.+)</a>.*</td>\\s+" +
+			"<td><a .+>(?<managementName>.+)</a>.*</td>\\s+" +
+			"<td><a .+>データシート</a></td>\\s+" +
+			"<td>(?<category>.+)</td>\\s+" +
+			"</tr>"
+		);
+		public static List<Link> getInstance(String page) {
+			return ScrapeUtil.getList(Link.class, PAT, page);
+		}
+		
+		public final String stockCode;
+		public final String reitName;
+		public final String managementName;
+		public final String category;
+		
+		public Link(String stockCode, String reitName, String managementName, String category) {
+			this.stockCode      = stockCode;
+			this.reitName       = reitName;
+			this.managementName = managementName;
+			this.category       = category;
+		}
+		
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+	}
 	
 	private static REIT getREIT(Stock stock, List<REITDiv> divList) {
 		String stockCode = stock.stockCode;
 		
+		// category
+		final Map<String, Link> linkMap;
+		//  stockCode
+		{
+			String url = "https://www.japan-reit.com/list/link/";
+			HttpUtil.Result result = HttpUtil.getInstance().download(url);
+			String page = result.result;
+			if (page == null) {
+				logger.warn("failed to download info {}", stockCode);
+				return null;
+			}
+			
+			var list = Link.getInstance(page);
+			if (list == null) {
+				logger.warn("failed to getList {}", stockCode);
+				return null;
+			}
+			if (list.isEmpty()) {
+				logger.warn("list is empty", stockCode);
+			}
+
+			// sanity check
+			linkMap = ListUtil.checkDuplicate(list, o -> Stock.toStockCode5(o.stockCode));
+		}
+		
 		final REIT reit;
 		{
-			final String url = String.format("https://www.japan-reit.com/meigara/%s/info/", Stock.toStockCode4(stockCode));			
+			String url = String.format("https://www.japan-reit.com/meigara/%s/info/", Stock.toStockCode4(stockCode));			
 			HttpUtil.Result result = HttpUtil.getInstance().download(url);
 			String page = result.result;
 			if (page == null) {
@@ -215,8 +280,16 @@ public class UpdateREIT {
 				logger.warn("failed to scrape settlement {}", stockCode);
 				return null;
 			}
+			
+			String category;
+			if (linkMap.containsKey(stockCode)) {
+				category = linkMap.get(stockCode).category;
+			} else {
+				logger.warn("no linkMap entry {}", stockCode);
+				category = "UNKNOWN";
+			}
 
-			reit = new REIT(stockCode, listingDate.getDate(), settlement.getList().size(), name.value);
+			reit = new REIT(stockCode, listingDate.getDate(), settlement.getList().size(), category, name.value);
 		}
 		
 		// build divList
@@ -256,7 +329,7 @@ public class UpdateREIT {
 		
 		REIT reit;
 		{
-			final String url = String.format("https://www.japan-reit.com/infra/%s/info/", Stock.toStockCode4(stockCode));			
+			String url = String.format("https://www.japan-reit.com/infra/%s/info/", Stock.toStockCode4(stockCode));			
 			HttpUtil.Result result = HttpUtil.getInstance().download(url);
 			String page = result.result;
 			if (page == null) {
@@ -280,7 +353,7 @@ public class UpdateREIT {
 				logger.warn("failed to scrape settlement {}", stockCode);
 				return null;
 			}
-			reit = new REIT(stockCode, listingDate.getDate(), settlement.getList().size(), name.value);
+			reit = new REIT(stockCode, listingDate.getDate(), settlement.getList().size(), "INFRA FUND", name.value);
 		}
 		{
 			final String url = String.format("https://www.japan-reit.com/infra/%s/dividend/", Stock.toStockCode4(stockCode));			
