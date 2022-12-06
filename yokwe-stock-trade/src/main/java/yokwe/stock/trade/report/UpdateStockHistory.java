@@ -8,14 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.stock.trade.data.StockHistory;
 import yokwe.util.DoubleUtil;
+import yokwe.util.UnexpectedException;
 
 public class UpdateStockHistory {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockHistory.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static List<StockHistory> getStockHistoryList(List<Transaction> transactionList, boolean includeDividend) {
 		StockHistory.Builder builder = new StockHistory.Builder();

@@ -8,19 +8,17 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.slf4j.LoggerFactory;
-
+import yokwe.util.DoubleUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
-import yokwe.util.DoubleUtil;
 
 
 @Sheet.SheetName("履歴")
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class StockHistory extends Sheet implements Comparable<StockHistory> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockHistory.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@ColumnName("グループ")
 	@NumberFormat(SpreadSheet.FORMAT_STRING)

@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.trade.Storage;
 import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
@@ -16,7 +14,7 @@ import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
 public class Transaction implements Comparable<Transaction> {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Transaction.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final String PATH_ACTIVITY = Storage.Activity.getPath("投資活動_monex.ods");
 	public static final String URL_ACTIVITY  = StringUtil.toURLString(PATH_ACTIVITY);

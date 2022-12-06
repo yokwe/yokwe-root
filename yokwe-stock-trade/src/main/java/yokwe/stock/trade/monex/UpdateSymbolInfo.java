@@ -6,13 +6,12 @@ import java.util.List;
 import yokwe.stock.trade.Storage;
 import yokwe.stock.us.SymbolInfo;
 import yokwe.stock.us.SymbolInfo.Type;
-import yokwe.util.ClassUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
 public class UpdateSymbolInfo {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClassUtil.getCallerClass());
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String DATA_URL     = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsMeigaraJsonGST";
 	private static final String DATA_CHARSET = "SHIFT_JIS";

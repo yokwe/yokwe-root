@@ -7,18 +7,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
-import yokwe.util.libreoffice.Sheet;
-import yokwe.util.libreoffice.SpreadSheet;
 import yokwe.stock.trade.Storage;
 import yokwe.stock.trade.data.StockHistory;
 import yokwe.util.DoubleUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
+import yokwe.util.libreoffice.Sheet;
+import yokwe.util.libreoffice.SpreadSheet;
 
 public class Report {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Report.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final boolean MODE_TEST = false;
 	

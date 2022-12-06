@@ -7,14 +7,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateFX {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateFX.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String URL_CSV      = "https://www.mizuhobank.co.jp/market/quote.csv";
 	public static final String ENCODING_CSV = "SHIFT_JIS";

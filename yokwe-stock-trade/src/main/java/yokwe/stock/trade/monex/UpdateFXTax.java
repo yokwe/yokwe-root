@@ -8,15 +8,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.trade.Storage;
 import yokwe.util.CSVUtil;
 import yokwe.util.http.HttpUtil;
 
 public final class UpdateFXTax {
-	private static final Logger logger = LoggerFactory.getLogger(UpdateFXTax.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String SOURCE_URL       = "https://mst.monex.co.jp/mst/servlet/ITS/ucu/UsEvaluationRateGST";
 	public static final String SOURCE_ENCODING  = "SHIFT_JIS";

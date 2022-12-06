@@ -11,13 +11,12 @@ import yokwe.stock.trade.Storage;
 import yokwe.stock.us.SymbolInfo;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
-import yokwe.util.ClassUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public final class UpdateSymbolInfo {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClassUtil.getCallerClass());
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String PATH = Storage.Rakuten.getPath("symbol-info.csv");
 	public static final String getPath() {

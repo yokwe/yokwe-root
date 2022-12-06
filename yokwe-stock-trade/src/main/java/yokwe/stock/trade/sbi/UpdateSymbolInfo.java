@@ -8,14 +8,13 @@ import java.util.regex.Pattern;
 
 import yokwe.stock.trade.Storage;
 import yokwe.stock.us.SymbolInfo;
-import yokwe.util.ClassUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.StringUtil.MatcherFunction;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateSymbolInfo {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClassUtil.getCallerClass());
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String SOURCE_URL       = "https://search.sbisec.co.jp/v2/popwin/info/stock/pop6040_usequity_list.html";
 	private static final String SOURCE_ENCODING  = "SHIFT_JIS";

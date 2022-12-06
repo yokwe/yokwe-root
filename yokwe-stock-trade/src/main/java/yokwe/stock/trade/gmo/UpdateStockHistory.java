@@ -3,16 +3,14 @@ package yokwe.stock.trade.gmo;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
-import yokwe.util.CSVUtil;
-import yokwe.util.libreoffice.SpreadSheet;
-import yokwe.stock.trade.data.StockHistoryUtil;
 import yokwe.stock.trade.data.StockHistory;
+import yokwe.stock.trade.data.StockHistoryUtil;
+import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
+import yokwe.util.libreoffice.SpreadSheet;
 
 public class UpdateStockHistory {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateStockHistory.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static List<StockHistory> getStockHistoryList() {
 		try (SpreadSheet docActivity = new SpreadSheet(Transaction.URL_ACTIVITY, true)) {

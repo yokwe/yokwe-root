@@ -4,13 +4,11 @@ package yokwe.stock.trade.report;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
-import yokwe.util.UnexpectedException;
 import yokwe.util.DoubleUtil;
+import yokwe.util.UnexpectedException;
 
 public class Portfolio {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Portfolio.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static class Stock {
 		String symbol;

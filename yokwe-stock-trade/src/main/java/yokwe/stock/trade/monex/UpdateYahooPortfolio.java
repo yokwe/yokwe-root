@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.trade.Storage;
 import yokwe.stock.trade.data.StockHistory;
 import yokwe.stock.trade.data.StockHistoryUtil;
@@ -14,7 +12,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
 
 public class UpdateYahooPortfolio {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(UpdateYahooPortfolio.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final String PATH_YAHOO_PORTFOLIO = Storage.Data.getPath("yahoo-portfolio-monex.csv");
 

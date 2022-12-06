@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.slf4j.LoggerFactory;
-
 import yokwe.stock.trade.Storage;
 import yokwe.util.CSVUtil;
 
 public class StockHistoryUtil {
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StockHistory.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String PATH_STOCK_HISTORY_GMO       = Storage.Data.getPath("stock-history-gmo.csv");
 	public static final String PATH_STOCK_HISTORY_MONEX     = Storage.Data.getPath("stock-history-monex.csv");
