@@ -269,7 +269,10 @@ public class UpdateETF {
 			String stockCode = e.stockCode;
 			var divList = new ArrayList<ETFDiv>();
 			ETF etf = getInstance(stockCode, divList);
-			if (etf == null) continue;
+			if (etf == null) {
+				logger.warn("failed to create ETF {}", stockCode);
+				continue;
+			}
 			
 			if (!divList.isEmpty()) {
 				// sanity check
