@@ -8,7 +8,7 @@ public enum Period {
 	HALF   ("s", "中間期"), // 特定事業会社第２四半期／中間期
 	QUATER ("q", "四半期"); // 四半期
 	
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Period.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final Period[] VALUES = Period.values();
 	public static Period getInstance(String value) {

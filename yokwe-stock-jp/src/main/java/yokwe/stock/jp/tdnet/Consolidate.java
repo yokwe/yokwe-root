@@ -7,7 +7,7 @@ public enum Consolidate {
 	CONSOLIDATE     ("c", "連結"), // 連結
 	NOT_CONSOLIDATE ("n", "単体"); // 非連結
 	
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Consolidate.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final Consolidate[] VALUES = Consolidate.values();
 	public static Consolidate getInstance(String value) {

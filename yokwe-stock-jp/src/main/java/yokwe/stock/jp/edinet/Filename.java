@@ -8,7 +8,7 @@ import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
 
 public class Filename {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Filename.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String PATH_FILE_DIR = EDINET.getPath("file");
 	private static final File toFile(LocalDate downloadDate, String docID, String string) {
@@ -70,8 +70,6 @@ public class Filename {
 		public String toMessage() {
 			return message;
 		}
-		
-		private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Report.class);
 		
 		private static final Report[] VALUES = Report.values();
 		public static Report getInstance(String value) {

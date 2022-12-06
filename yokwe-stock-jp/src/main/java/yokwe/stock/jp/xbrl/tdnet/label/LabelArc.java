@@ -11,7 +11,7 @@ import yokwe.util.UnexpectedException;
 // This arc role value is for use on a <labelArc> from a concept Locator (<loc> element) to a <label> element
 // and it indicates that the label conveys human-readable information about the Concept.
 public class LabelArc {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LabelArc.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@XmlEnum
 	@XmlType(name="LabelArc-Type")

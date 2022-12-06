@@ -13,7 +13,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.http.HttpUtil;
 
 public class UpdatePrice {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdatePrice.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	//https://apl.morningstar.co.jp/xml/chart/funddata/2013121001.xml
 	

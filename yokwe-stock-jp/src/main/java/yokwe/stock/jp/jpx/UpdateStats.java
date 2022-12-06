@@ -30,7 +30,7 @@ import yokwe.util.stats.MA;
 import yokwe.util.stats.RSI;
 
 public class UpdateStats {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateStats.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final LocalDate DATE_LAST  = MarketHoliday.JP.getLastTradingDate();
 

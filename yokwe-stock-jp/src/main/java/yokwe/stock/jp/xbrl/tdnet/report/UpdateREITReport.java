@@ -20,7 +20,7 @@ import yokwe.util.UnexpectedException;
 //
 
 public class UpdateREITReport {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateREITReport.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static void main(String[] args) {
 		logger.info("START");

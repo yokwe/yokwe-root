@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import yokwe.util.UnexpectedException;
 
 public class ISINCode {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ISINCode.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static Map<Character, String> charToStringMap = new TreeMap<>();
 	static {

@@ -13,7 +13,7 @@ import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.UnexpectedException;
 
 public class LabelLink {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LabelLink.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@XmlEnum
 	@XmlType(name="LabelLink-Type")

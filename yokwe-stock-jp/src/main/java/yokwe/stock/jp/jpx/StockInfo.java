@@ -11,7 +11,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
 
 public class StockInfo implements Comparable<StockInfo> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StockInfo.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String PATH_FILE = getPath();
 	public static String getPath() {

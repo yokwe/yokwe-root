@@ -14,6 +14,8 @@ import yokwe.util.xml.Element;
 import yokwe.util.xml.QValue;
 
 public class DateElement extends BaseElement {
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
 	public static Set<QValue> validAttributeSet = new TreeSet<>();
 	static {
 		validAttributeSet.add(new QValue("", "contextRef"));

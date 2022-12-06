@@ -11,7 +11,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
 
 public class Price implements Comparable<Price> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Price.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static String getPath(String stockCode) {
 		return JPX.getPath(String.format("price/%s.csv", stockCode));

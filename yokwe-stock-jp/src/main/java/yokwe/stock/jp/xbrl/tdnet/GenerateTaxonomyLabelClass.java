@@ -13,7 +13,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class GenerateTaxonomyLabelClass {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenerateTaxonomyLabelClass.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String PATH_JAVA_SOURCE_TAXONOMY_DIR = "src/main/java/yokwe/stock/jp/xbrl/tdnet/taxonomy";
 	

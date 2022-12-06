@@ -13,7 +13,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class UpdateFundStats {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateFundStats.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String DATE_INFINITY = "無期限";
 	

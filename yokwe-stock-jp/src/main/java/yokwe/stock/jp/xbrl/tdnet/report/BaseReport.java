@@ -28,7 +28,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 
 public abstract class BaseReport {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BaseReport.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

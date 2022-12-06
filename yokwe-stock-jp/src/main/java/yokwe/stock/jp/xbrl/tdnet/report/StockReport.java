@@ -46,7 +46,7 @@ import yokwe.util.CSVUtil.ColumnName;
 import yokwe.util.UnexpectedException;
 
 public class StockReport extends BaseReport implements Comparable<StockReport> {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StockReport.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String PATH_FILE = TDNET.getPath("stock-report.csv");
 

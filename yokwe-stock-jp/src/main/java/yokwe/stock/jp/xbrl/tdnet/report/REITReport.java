@@ -32,7 +32,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 
 public class REITReport extends BaseReport implements Comparable<REITReport> {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(REITReport.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final String PATH_FILE = TDNET.getPath("reit-report.csv");
 

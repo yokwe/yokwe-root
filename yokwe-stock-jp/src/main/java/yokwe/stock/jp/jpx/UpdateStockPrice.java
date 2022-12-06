@@ -36,7 +36,7 @@ import yokwe.util.http.StringTask;
 import yokwe.util.http.Task;
 
 public class UpdateStockPrice {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateStockPrice.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static String getPageURL(String stockCode) {
 		String stockCode4 = Stock.toStockCode4(stockCode);

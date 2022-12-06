@@ -14,7 +14,7 @@ import yokwe.util.xml.Element;
 import yokwe.util.xml.QValue;
 
 public abstract class BaseElement {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BaseElement.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public enum Kind {
 		STRING, BOOLEAN, DATE, NUMBER

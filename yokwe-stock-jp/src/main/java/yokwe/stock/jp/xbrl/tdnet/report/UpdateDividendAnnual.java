@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class UpdateDividendAnnual {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDividendAnnual.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static void main(String[] args) {
 		logger.info("START");

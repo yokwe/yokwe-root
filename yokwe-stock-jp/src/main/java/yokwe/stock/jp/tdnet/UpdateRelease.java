@@ -21,7 +21,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateRelease {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateRelease.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String URL_BASE = "https://www.release.tdnet.info/inbs";
 	private static String getPageURL(LocalDate date, int page) {

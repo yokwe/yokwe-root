@@ -14,7 +14,7 @@ import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
 
 public class UpdateReport {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateReport.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final DateTimeFormatter FILENAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 	

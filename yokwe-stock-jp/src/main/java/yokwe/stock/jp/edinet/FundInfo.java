@@ -10,7 +10,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
 
 public class FundInfo implements Comparable<FundInfo> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FundInfo.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String PATH_DATA = getPath();
 	

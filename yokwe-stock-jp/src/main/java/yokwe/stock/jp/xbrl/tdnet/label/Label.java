@@ -12,7 +12,7 @@ import yokwe.util.UnexpectedException;
 
 // Documentation of XBRL Concepts MUST be contained in <label> element.
 public class Label {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Label.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@XmlEnum
 	@XmlType(name="Label-Type")

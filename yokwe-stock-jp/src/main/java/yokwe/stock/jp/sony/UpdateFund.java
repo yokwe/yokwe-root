@@ -16,7 +16,7 @@ import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
 public class UpdateFund {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateFund.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static class RawData {
 		public Map<String, FundData.JP90C00002U0> map;

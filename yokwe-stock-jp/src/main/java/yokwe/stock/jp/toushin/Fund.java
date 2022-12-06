@@ -10,8 +10,6 @@ import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 
 public class Fund implements Comparable<Fund> {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Fund.class);
-
 	public static final LocalDate INDEFINITE = LocalDate.parse("9999-12-31");
 	
 	public static final String SETTLEMENT_DATE_EVERYDAY = "EVERYDAY";

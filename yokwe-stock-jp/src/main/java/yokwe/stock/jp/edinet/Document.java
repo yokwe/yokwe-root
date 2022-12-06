@@ -16,7 +16,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class Document implements Comparable<Document> {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Document.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final String PATH_TOUCH_FILE = EDINET.getPath("edinet.touch");
 	public static void touch() {

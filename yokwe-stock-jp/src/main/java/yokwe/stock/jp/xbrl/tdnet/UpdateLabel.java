@@ -15,7 +15,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class UpdateLabel {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateLabel.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	//
 	// /mnt/stock/jp/xbrl/tdnet/label.csv

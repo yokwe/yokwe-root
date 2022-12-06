@@ -29,7 +29,7 @@ import yokwe.util.http.Task;
 import yokwe.util.json.JSON;
 
 public final class DataFile {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String PREFIX = "download";
 	

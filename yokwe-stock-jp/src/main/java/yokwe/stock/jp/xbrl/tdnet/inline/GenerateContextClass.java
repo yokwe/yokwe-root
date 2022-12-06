@@ -15,7 +15,7 @@ import yokwe.util.AutoIndentPrintWriter;
 import yokwe.util.StringUtil;
 
 public class GenerateContextClass {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenerateContextClass.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
 	private static final String PATH_FILE = "src/main/java/yokwe/stock/jp/xbrl/tdnet/inline/Context.java";
 

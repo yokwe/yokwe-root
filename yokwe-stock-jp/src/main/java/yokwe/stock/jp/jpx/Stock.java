@@ -16,7 +16,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class Stock extends Sheet implements Comparable<Stock> {	
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Stock.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static String getPath() {
 		return JPX.getPath("stock.csv");

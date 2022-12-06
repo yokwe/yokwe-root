@@ -10,8 +10,6 @@ import java.util.List;
 import yokwe.util.CSVUtil;
 
 public class Dividend implements Comparable<Dividend> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Dividend.class);
-
 	public static final String PATH_DIR_DATA = Sony.getPath("dividend");
 	public static String getPath(String stockCode) {
 		return String.format("%s/%s.csv", PATH_DIR_DATA, stockCode);
@@ -58,13 +56,5 @@ public class Dividend implements Comparable<Dividend> {
 		int ret = this.date.compareTo(that.date);
 		if (ret == 0) ret = this.isinCode.compareTo(that.isinCode);
 		return ret;
-	}
-
-	
-	public static void main(String[] args) {
-		logger.info("START");
-		
-		
-		logger.info("STOP");
 	}
 }

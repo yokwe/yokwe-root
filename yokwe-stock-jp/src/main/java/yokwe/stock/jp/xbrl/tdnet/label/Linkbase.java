@@ -10,7 +10,7 @@ import yokwe.util.UnexpectedException;
 
 @XmlRootElement(name = "linkbase")
 public class Linkbase {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Linkbase.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@XmlElement(name = "labelLink")
 	public LabelLink labelLink;

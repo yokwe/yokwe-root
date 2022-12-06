@@ -17,7 +17,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class DataFile {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DataFile.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static void update(LocalDate lastDate, LocalDate today) {
 		Map<String, Document> map = Document.getDocumentMap();

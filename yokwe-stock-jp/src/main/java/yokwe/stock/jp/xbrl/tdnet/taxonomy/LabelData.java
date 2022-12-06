@@ -7,7 +7,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 
 public class LabelData {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LabelData.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final Map<QValue, LabelData> all = new TreeMap<>();
 	static {

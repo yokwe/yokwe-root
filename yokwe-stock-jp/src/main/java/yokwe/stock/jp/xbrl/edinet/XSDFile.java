@@ -19,7 +19,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class XSDFile {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(XSDFile.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@XmlRootElement(name = "schema", namespace = XML.NS_XSD)
 	public static class Schema {

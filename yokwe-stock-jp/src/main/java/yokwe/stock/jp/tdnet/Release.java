@@ -16,7 +16,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class Release implements Comparable<Release> {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Release.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String PATH_RELEASE_DIR = getReleaseDir();
 	public static String getReleaseDir() {

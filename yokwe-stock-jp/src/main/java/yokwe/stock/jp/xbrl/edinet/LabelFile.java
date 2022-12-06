@@ -17,7 +17,7 @@ import yokwe.util.JAXBUtil;
 import yokwe.util.StringUtil;
 
 public class LabelFile {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LabelFile.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@XmlRootElement(name = "linkbase", namespace = XBRL.NS_LINKBASE)
 	public static class LinkBase {

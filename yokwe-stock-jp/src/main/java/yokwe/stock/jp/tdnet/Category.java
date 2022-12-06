@@ -17,7 +17,7 @@ public enum Category {
 	RRDF   ("rrdf", "分配予想の修正に関するお知らせ"),      // 分配予想の修正に関するお知らせ
 	RRFC   ("rrfc", "運用状況の予想の修正に関するお知らせ"); // 運用状況の予想の修正に関するお知らせ
 	
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Category.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Category[] VALUES = Category.values();
 	public static Category getInstance(String value) {

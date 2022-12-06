@@ -71,6 +71,8 @@ public enum Company {
 	RAKUTEN  ("089", "楽天"),
 	RHEOS    ("093", "レオス");
 	
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
 	public final String code;
 	public final String name;
 	Company(String code, String name) {
@@ -86,7 +88,7 @@ public enum Company {
 		for(Company e: Company.values()) {
 			if (e.code.equals(code)) return e;
 		}
-		Fund.logger.error("Unexpected code {}!", code);
+		logger.error("Unexpected code {}!", code);
 		throw new UnexpectedException("Unexpected value");
 	}
 }

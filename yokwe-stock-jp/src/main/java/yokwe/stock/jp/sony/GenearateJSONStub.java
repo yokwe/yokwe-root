@@ -56,7 +56,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class GenearateJSONStub {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenearateJSONStub.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static String toJavaClassName(String name) {
 		return name.substring(0, 1).toUpperCase() + name.substring(1);

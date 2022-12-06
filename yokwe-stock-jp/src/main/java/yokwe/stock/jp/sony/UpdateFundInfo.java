@@ -16,7 +16,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateFundInfo {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateFundInfo.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	// 現在値
 	// var msFundCode = '2013121001';

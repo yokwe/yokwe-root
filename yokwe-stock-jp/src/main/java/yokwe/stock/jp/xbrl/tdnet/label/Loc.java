@@ -10,7 +10,7 @@ import yokwe.util.UnexpectedException;
 
 // Locators are child elements of an Extended Link that point to resources external to the extended link itself.
 public class Loc {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Loc.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	@XmlEnum
 	@XmlType(name="Loc-Type")

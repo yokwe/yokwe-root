@@ -12,7 +12,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
 
 public class Fund implements Comparable<Fund> {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Fund.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String PATH_FILE = Sony.getPath("fund.csv");
 

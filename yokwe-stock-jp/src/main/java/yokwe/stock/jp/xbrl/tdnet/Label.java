@@ -12,7 +12,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 
 public class Label implements Comparable<Label> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Label.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class Key implements Comparable<Key> {
 		final String namespace;

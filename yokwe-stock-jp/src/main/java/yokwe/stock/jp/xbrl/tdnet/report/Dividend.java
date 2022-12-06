@@ -14,7 +14,7 @@ import yokwe.util.DoubleUtil;
 import yokwe.util.UnexpectedException;
 
 public class Dividend implements Comparable<Dividend> {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Dividend.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static String getPath() {
 		return TDNET.getPath("dividend.csv");

@@ -29,7 +29,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class UpdateManifest {
-	static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateManifest.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
     // asr - 14207 - 有価証券報告書
     // drs -    15 - 有価証券報告書【みなし有価証券届出書】

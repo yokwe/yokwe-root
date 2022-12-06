@@ -12,7 +12,7 @@ import yokwe.util.json.JSON.DateTimeFormat;
 import yokwe.util.json.JSON.Name;
 
 public class API {
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(API.class);
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final String URL_BASE = "https://disclosure.edinet-fsa.go.jp/api";
 	
