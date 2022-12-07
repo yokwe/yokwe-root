@@ -306,9 +306,13 @@ public class GenearateJSONStub {
 								field = new FieldString(fieldName, (JsonString)fieldValue);
 								break;
 							case NULL:
+								logger.warn("Skip NULL {} - {}", name, fieldName);
+								continue;								
 							default:
-					    		logger.error("Unexpected valueType");
-					    		logger.error("  valueType {}", valueType);    		
+					    		logger.error("Unexpected fieldType");
+					    		logger.error("  fieldName  {}", fieldName);    		
+					    		logger.error("  fieldValue {}", fieldValue);    		
+					    		logger.error("  fieldType  {}", fieldType);    		
 					    		throw new UnexpectedException("Unexpected valueType");
 							}
 							
