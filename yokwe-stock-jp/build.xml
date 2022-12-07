@@ -52,6 +52,16 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	
+	<target name="toushin-update-fund-data">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateFundData" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	<!-- JPX -->
 	<target name="jpx-update-stock">
