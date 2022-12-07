@@ -11,9 +11,9 @@ public final class Storage {
 		return getPath(String.format("%s/%s", prefix, path));
 	}
 
-	// MoneyBuJPX
-	public static final class MoneyBuJPX {
-		public static final String PREFIX = "moneybujpx";
+	// JAPAN REIT
+	public static final class JapanREIT {
+		public static final String PREFIX = "japanreit";
 		
 		public static String getPath() {
 			return Storage.getPath(PREFIX);
@@ -26,9 +26,39 @@ public final class Storage {
 		}
 	}
 	
-	// REIT
-	public static final class JapanREIT {
-		public static final String PREFIX = "japanreit";
+	// JASDEC
+	public static final class JASDEC {
+		public static final String PREFIX = "jasdec";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+
+	// JPX
+	public static final class JPX {
+		public static final String PREFIX = "jpx";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+
+	// MoneyBuJPX
+	public static final class MoneyBuJPX {
+		public static final String PREFIX = "moneybujpx";
 		
 		public static String getPath() {
 			return Storage.getPath(PREFIX);
