@@ -308,10 +308,16 @@ public class UpdateStats {
 				}
 				
 				{
+					// It can be today before market close
+					LocalDate latestTradingDate = LocalDate.now();
+					if (MarketHoliday.JP.isClosed(firstPriceDate)) latestTradingDate = MarketHoliday.JP.getPreviousTradingDate(latestTradingDate);
+						
 					// member of dateList should appeared in priceListDateSet
 					List<String> bogusDateList = new ArrayList<>();
 					for(var e: dateList) {
 						if (priceListDateSet.contains(e)) continue;
+						if (e.equals(latestTradingDate)) continue;
+						
 						bogusDateList.add(e.toString());
 					}
 					if (bogusDateList.isEmpty()) {
