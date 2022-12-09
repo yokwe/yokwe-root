@@ -53,8 +53,9 @@
 		</java>
 	</target>
 	
-	<target name="toushin-update-fund-data">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateFundData" fork="true">
+	<!-- TOUSHIN2 -->
+	<target name="toushin2-update-fund-data">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin2.UpdateFundData" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
