@@ -23,8 +23,6 @@ public class Dividend implements Comparable<Dividend>{
 		return CSVUtil.read(Dividend.class).file(getPath(isinCode));
 	}
 
-	// 年月日	基準価額(円)	純資産総額（百万円）	分配金	決算期
-
 	// NOTE amount can have fraction value
 	public String     date;    // 年月日
 	public int        period;  // 決算期
