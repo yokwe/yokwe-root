@@ -25,12 +25,10 @@ public class Dividend implements Comparable<Dividend>{
 
 	// NOTE amount can have fraction value
 	public String     date;    // 年月日
-	public int        period;  // 決算期
 	public BigDecimal amount;  // 分配金
 	
-	public Dividend(LocalDate date, int period, BigDecimal amount) {
+	public Dividend(LocalDate date, BigDecimal amount) {
 		this.date   = date.toString();
-		this.period = period;
 		this.amount = amount;
 	}
 	public Dividend() {
