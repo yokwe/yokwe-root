@@ -278,6 +278,27 @@ public class UpdateFundData {
 		}
 	}
 	
+	private static void updateSeller(List<FundDataSearch.ResultInfo> resultInfoList) {
+		int count = 0;
+		for(var resultInfo: resultInfoList) {
+			if ((count++ % 100) == 0) logger.info("updateSeller {}", String.format("%4d / %4d", count, resultInfoList.size()));
+			if (resultInfo.institutionInfo == null) continue;
+			String isinCode = resultInfo.isinCd;
+			var sellerList = new ArrayList<Seller>();
+			for(var inst: resultInfo.institutionInfo) {				
+				String     name     = inst.instName;
+				BigDecimal salesFee = inst.salesFee;
+				
+				if (salesFee == null) continue;
+				
+				sellerList.add(new Seller(name, salesFee));
+			}
+			if (!sellerList.isEmpty()) {
+				Seller.save(isinCode, sellerList);
+			}
+		}
+	}
+	
 	private static void update() {
 		// build resultInfoList
 		var resultInfoList = new ArrayList<FundDataSearch.ResultInfo>();
@@ -292,6 +313,9 @@ public class UpdateFundData {
 		
 		// update dividend and price
 		updateDividendPrice(fundDataList);
+		
+		// update seller
+		updateSeller(resultInfoList);
 	}
 	
 	public static void main(String[] args) {
