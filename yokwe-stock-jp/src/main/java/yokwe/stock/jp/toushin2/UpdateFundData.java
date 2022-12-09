@@ -168,18 +168,25 @@ public class UpdateFundData {
 	}
 	
 	private static void updateFundDataList(List<FundDataSearch.ResultInfo> resultInfoList, List<FundData> fundDataList) {
+		Pattern pat = Pattern.compile("(?<yyyy>[12][09][0-9][0-9])-(?<mm>[01]?[0-9])-(?<dd>[0123]?[0-9]) 00:00:00");
+
 		for(var resultInfo: resultInfoList) {
 			String    isinCode       = resultInfo.isinCd;
 			String    fundCode       = resultInfo.associFundCd;
 			
-			LocalDate listingDate    = LocalDate.parse(resultInfo.establishedDate.subSequence(0,  10));
+			LocalDate listingDate;
 			{
-				if (resultInfo.establishedDate.length() == 19) {
-					listingDate = LocalDate.parse(resultInfo.establishedDate.subSequence(0,  10));
+				// 2016-07-29 00:00:00
+				Matcher m = pat.matcher(resultInfo.establishedDate);
+				if (m.find()) {
+					int yyyy = Integer.parseInt(m.group("yyyy"));
+					int mm   = Integer.parseInt(m.group("mm"));
+					int dd   = Integer.parseInt(m.group("dd"));
+					listingDate = LocalDate.of(yyyy, mm, dd);
 				} else {
-					logger.info("Unexpected establishedDate");
-					logger.info("  isinCode        {}!", isinCode);
-					logger.info("  establishedDate {}!", resultInfo.establishedDate);
+					logger.error("Unexpected establishedDate");
+					logger.error("  isinCode        {}", isinCode);
+					logger.error("  establishedDate {}", resultInfo.establishedDate);
 					throw new UnexpectedException("Unexpected establishedDate");
 				}
 			}
@@ -190,10 +197,12 @@ public class UpdateFundData {
 					if (resultInfo.redemptionDate.equals("99999999")) {
 						redemptionDate = FundData.NO_REDEMPTION_DATE;
 					} else {
-						String yyyy = resultInfo.redemptionDate.substring(0, 4);
-						String mm   = resultInfo.redemptionDate.substring(4, 6);
-						String dd   = resultInfo.redemptionDate.substring(6, 8);
-						redemptionDate = LocalDate.parse(yyyy + "-" + mm + "-" + dd);
+						// 20221209
+						// 012345678
+						int yyyy = Integer.parseInt(resultInfo.redemptionDate.substring(0, 4));
+						int mm   = Integer.parseInt(resultInfo.redemptionDate.substring(4, 6));
+						int dd   = Integer.parseInt(resultInfo.redemptionDate.substring(6, 8));
+						redemptionDate = LocalDate.of(yyyy, mm, dd);
 					}
 				} else {
 					logger.info("Unexpected redemptionDate");
@@ -225,7 +234,7 @@ public class UpdateFundData {
 	}
 	
 	private static void updateDividendPrice(List<FundData>fundDataList) {
-		Pattern pat = Pattern.compile("(?<yyyy>20[0-9][0-9])年(?<mm>[01]?[0-9])月(?<dd>[0123]?[0-9])日");
+		Pattern pat = Pattern.compile("(?<yyyy>[12][09][0-9][0-9])年(?<mm>[01]?[0-9])月(?<dd>[0123]?[0-9])日");
 		
 		var fileList = downloadDividendPriceAll(fundDataList);
 		int count = 0;
