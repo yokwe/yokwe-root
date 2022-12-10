@@ -65,8 +65,8 @@ public final class FundDataSearch {
         public String            fundNm;
         
 
-        //    運用管理費用 (信託報酬)
-		//    "trustReward" : 0.925,
+        // 運用管理費用 (信託報酬)
+		// "trustReward" : 0.925,
         public BigDecimal        trustReward;
         // 運用管理費用（信託報酬）運用会社
         // "entrustTrustReward" : 0.45,
@@ -86,11 +86,24 @@ public final class FundDataSearch {
         public String            cancelLationFeeCd;
 		//  "retentionMoneyCd" : "1",
         public String            retentionMoneyCd;
+        
+        // 決算日
+		//    "setlDate" : "01/10, 07/10",
+        public String            setlDate;
+
+        // 基準価額 評価基準日
+		//    "standardDate" : "2022-12-06 00:00:00",
+        public String            standardDate;
+        // 基準価額
+		//    "standardPrice" : 12824,
+        public BigDecimal        standardPrice;
 
 
         public DividendInfo[]    dividendInfo;
         public InstitutionInfo[] institutionInfo;
 
+        
+        // Field below are ignored
          
         // dividend
         @Ignore
@@ -268,8 +281,6 @@ public final class FundDataSearch {
         @Ignore
 		//    "separateseparateDiv" : "0",
         public String            separateseparateDiv;
-		//    "setlDate" : "01/10, 07/10",
-        public String            setlDate;
         @Ignore
         public SettlementInfo[]  settlementInfo;
         
@@ -294,14 +305,7 @@ public final class FundDataSearch {
 		//    "sharpRa20y" : null,
         public BigDecimal        sharpRa20y;
         
-        
-        @Ignore
-		//    "standardDate" : "2022-12-06 00:00:00",
-        public String            standardDate;
-        @Ignore
-		//    "standardPrice" : 12824,
-        public BigDecimal        standardPrice;
-        
+                
         // 騰落率
         @Ignore
 		//    "standardPriceRa6m" : -0.06,
