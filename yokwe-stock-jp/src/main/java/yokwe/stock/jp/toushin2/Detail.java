@@ -3,13 +3,40 @@ package yokwe.stock.jp.toushin2;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.ScrapeUtil;
+import yokwe.util.StringUtil;
 
-public class Detail {
+public class Detail implements Comparable<Detail> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	private static final String PATH = Storage.Toushin2.getPath("detail.csv");
+	public static String getPath() {
+		return PATH;
+	}
+
+	public static void save(List<Detail> list) {
+		ListUtil.checkDuplicate(list, o -> o.isinCode);
+		ListUtil.save(Detail.class, getPath(), list);
+	}
+	
+	public static List<Detail> load() {
+		return ListUtil.load(Detail.class, getPath());
+	}
+	public static List<Detail> getList() {
+		return ListUtil.getList(Detail.class, getPath());
+	}
+	public static Map<String, Detail> getMap() {
+		//            stockCode
+		var list = ListUtil.getList(Detail.class, getPath());
+		return ListUtil.checkDuplicate(list, o -> o.isinCode);
+	}
+
 	
 	private static final Pattern PAT = Pattern.compile(
 		"<span class=\"fds-gray-fg fds-font-size-small ml-auto mt-auto\">評価基準日.+(?<yyyy>20[0-9][0-9])年(?<mm>[01]?[0-9])月(?<dd>[0123]?[0-9])日</span>" +
@@ -17,13 +44,13 @@ public class Detail {
 		"<div .+?>\\s+基準価額.+?</div>\\s+" +
 	    "<div .+?>\\s+" +
 	    "<span .+?>\\s+(?<price>.+?)\\s+</span>\\s+" +
-	    "<small>円</small>\\s+" +
+	    "<small>円?</small>\\s+" +
 	    "</div>" +
 	    ".+?" +
 	    "<!-- 前日比 -->\\s+" +
 	    "<div .+?>\\s+" +
-	    "<span .+?> <i\\s+class=\"fa fa-long-arrow-(?<upDown>(up|down))\"></i>\\s+(?<change>.+?)\\s+</span>\\s+" +
-	    "<small>円</small>\\s+" +
+	    "<span .+?> <i\\s+class=\"fa (?<upDown>.*?)\"></i>\\s+(?<change>.+?)\\s+</span>\\s+" +
+	    "<small>円?</small>\\s+" +
 	    ".+?" +
 	    "<div .+?>\\s+純資産総額.+?>.+?</div>\\s+" +
 	    "<div>\\s+(?<nav>.+?)百万円\\s+</div>" +
@@ -44,8 +71,11 @@ public class Detail {
 		);
 		
 	public static Detail getInstance(String page) {
+		if (page.contains("評価基準日&nbsp;&nbsp;-")) return null;
+		
 		return ScrapeUtil.get(Detail.class, PAT, page);
 	}
+	
 	
 	
     public String isinCode;
@@ -91,8 +121,8 @@ public class Detail {
 		this.date = LocalDate.of(Integer.parseInt(yyyy), Integer.parseInt(mm), Integer.parseInt(dd));
 		this.todayValue = new BigDecimal(this.price);
 		
-		BigDecimal delta = new BigDecimal(this.change);
-		if (this.upDown.equals("up")) delta = delta.negate();
+		BigDecimal delta = this.change.equals("-") ? BigDecimal.ZERO : new BigDecimal(this.change);
+		if (this.upDown.contains("up")) delta = delta.negate();
 		
 		this.previousValue = this.todayValue.add(delta);
 		this.navValue = new BigDecimal(this.nav);
@@ -173,5 +203,28 @@ public class Detail {
 		
 		logger.info("STOP");
 	}
+
+    
+    @Override
+    public int compareTo(Detail that) {
+    	return this.isinCode.compareTo(that.isinCode);
+    }
+    @Override
+    public boolean equals(Object o) {
+    	if (o == null) {
+    		return false;
+    	} else {
+    		if (o instanceof Detail) {
+    			Detail that = (Detail)o;
+    			return this.compareTo(that) == 0;
+    		} else {
+    			return false;
+    		}
+    	}
+    }
+    @Override
+    public int hashCode() {
+    	return this.isinCode.hashCode();
+    }
 
 }

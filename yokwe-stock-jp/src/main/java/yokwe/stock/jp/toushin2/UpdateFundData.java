@@ -299,6 +299,62 @@ public class UpdateFundData {
 		}
 	}
 	
+	private static String getDetailPath(String isinCode) {
+		return Storage.Toushin2.getPath("detail", isinCode);
+	}
+	private static File downloadDetailPage(String isinCode) {
+		File file = new File(getDetailPath(isinCode));
+
+		String url = String.format("https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000?isinCd=%s", isinCode);
+		var result = HttpUtil.getInstance().download(url);
+		
+		if (result.result == null) {
+			logger.error("Download failed");
+			logger.error("  url    {}", url);
+			logger.error("  result {} {}", result.code, result.reasonPhrase);
+			throw new UnexpectedException("Dowload failed");
+		}
+		FileUtil.write().file(file, result.result);
+
+		return file;
+	}
+	private static List<File> downloadDetailAll(List<FundData>fundDataList) {
+		List<File> fileList = new ArrayList<>();
+		int count = 0;
+		for(var fundData: fundDataList) {
+			String isinCode = fundData.isinCode;
+			
+			if ((count++ % 100) == 0) logger.info("downloadDetail {}", String.format("%4d / %4d", count, fundDataList.size()));
+
+			File file = new File(getDetailPath(isinCode));
+			if (!file.exists()) {
+				file = downloadDetailPage(isinCode);
+			}
+			fileList.add(file);
+		}
+		return fileList;
+	}
+	private static void updateDetail(List<FundData>fundDataList) {
+		List<Detail> detailList = new ArrayList<>();
+		{
+			List<File> fileList = downloadDetailAll(fundDataList);
+			
+			int count = 0;
+			for(var file: fileList) {
+				if ((count++ % 100) == 0) logger.info("updateDividend {}", String.format("%4d / %4d", count, fundDataList.size()));
+				
+				logger.info("file {}", file.getName());
+				String page = FileUtil.read().file(file);
+				var detail = Detail.getInstance(page);
+				logger.info("detail {}", detail);
+				
+				if (detail != null) detailList.add(detail);
+			}
+		}
+		logger.info("save {} {}", detailList.size(), Detail.getPath());
+		Detail.save(detailList);
+	}
+	
 	private static void update() {
 		// build resultInfoList
 		var resultInfoList = new ArrayList<FundDataSearch.ResultInfo>();
@@ -311,11 +367,16 @@ public class UpdateFundData {
 		logger.info("fundDataList {}", fundDataList.size());
 		FundData.save(fundDataList);
 		
+		/*
 		// update dividend and price
 		updateDividendPrice(fundDataList);
 		
 		// update seller
 		updateSeller(resultInfoList);
+		*/
+		
+		// update detail
+		updateDetail(fundDataList);
 	}
 	
 	public static void main(String[] args) {
