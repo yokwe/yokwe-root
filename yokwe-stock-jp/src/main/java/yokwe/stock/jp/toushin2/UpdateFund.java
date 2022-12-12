@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -248,6 +249,7 @@ public class UpdateFund {
 	private static void updateDivPrice(Download download) {
 		Charset charset = Charset.forName("SHIFT_JIS");
 		var fundList = Fund.getList();
+		Collections.shuffle(fundList); // shuffle fundList
 		for(var fund: fundList) {
 			String isinCode = fund.isinCode;
 			String fundCode = fund.fundCode;
