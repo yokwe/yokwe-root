@@ -5,11 +5,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import yokwe.stock.trade.Storage;
 import yokwe.util.CSVUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public final class UpdateFXTax {
@@ -52,8 +55,8 @@ public final class UpdateFXTax {
 
 		Matcher matcher = PATTERN.matcher(contents);
 		
-		List<FXTax> monexStockFXList = new ArrayList<>();
-		
+		Map<String, FXTax> map = new TreeMap<>();
+		//  date
 		for(;;) {
 			if (!matcher.find()) break;
 			
@@ -61,15 +64,25 @@ public final class UpdateFXTax {
 			String tts = matcher.group(2);
 			String ttb = matcher.group(3);
 			
-			FXTax monexStockFX = new FXTax(date.replaceAll("/", "-"), Double.valueOf(tts), Double.valueOf(ttb));
-			monexStockFXList.add(monexStockFX);
-			
-			logger.info("{}", monexStockFX);
+			FXTax fxTax = new FXTax(date.replaceAll("/", "-"), Double.valueOf(tts), Double.valueOf(ttb));
+			logger.info("{}", fxTax);
+			if (map.containsKey(date)) {
+				var old = map.get(date);
+				if (old.ttb == fxTax.ttb && old.tts == fxTax.tts) {
+					logger.warn("Duplicate data");
+				} else {
+					logger.error("Unexpected data");
+					logger.error("  old {}", old);
+					throw new UnexpectedException("Unexpected data");
+				}
+			} else {
+				map.put(date, fxTax);
+			}
 		}
 //		logger.info("URL  = {}", SOURCE_URL);
 //		logger.info("PATH = {}", path);
-		
-		CSVUtil.write(FXTax.class).file(path, monexStockFXList);
+		List<FXTax> list = new ArrayList<>(map.values());
+		CSVUtil.write(FXTax.class).file(path, list);
 	}
 
 	public static void main(String[] args) {
