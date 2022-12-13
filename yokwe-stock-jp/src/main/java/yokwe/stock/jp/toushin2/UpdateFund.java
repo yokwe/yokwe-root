@@ -85,10 +85,34 @@ public class UpdateFund {
 		String     cancelLationFeeCode  = resultInfo.cancelLationFeeCd;
 		String     retentionMoneyCode   = resultInfo.retentionMoneyCd;
 		
+		String fundType = FundDataSearch.FundType.getInstance(resultInfo.unitOpenDiv).getName();
+
+		String investingArea;
+		{
+			List<String> areaList = new ArrayList<>();
+			if (resultInfo.investArea10kindCd1.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("1").getName());
+			if (resultInfo.investArea10kindCd2.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("2").getName());
+			if (resultInfo.investArea10kindCd3.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("3").getName());
+			if (resultInfo.investArea10kindCd4.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("4").getName());
+			if (resultInfo.investArea10kindCd5.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("5").getName());
+			if (resultInfo.investArea10kindCd6.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("6").getName());
+			if (resultInfo.investArea10kindCd7.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("7").getName());
+			if (resultInfo.investArea10kindCd8.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("8").getName());
+			if (resultInfo.investArea10kindCd8.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("9").getName());
+			if (resultInfo.investArea10kindCd10.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("10").getName());
+			
+			investingArea = String.join(", ", areaList);
+		}
+		
+		String investingAsset = FundDataSearch.InvestingAsset.getInstance(resultInfo.investAssetKindCd).getName();
+		String indexFundType  = FundDataSearch.IndexFundType.getInstance(resultInfo.supplementKindCd).getName();
+		String settlementDate = resultInfo.setlDate;
+		
 		Fund fund = new Fund(
 				isinCode, fundCode, listingDate, redemptionDate, divFreq, name,
 				expenseRatio, expenseRatioManagement, expenseRatioSales, expenseRatioTrustBank,
-				buyFreeMax, cancelLationFeeCode, retentionMoneyCode
+				buyFreeMax, cancelLationFeeCode, retentionMoneyCode,
+				fundType, investingArea, investingAsset, indexFundType, settlementDate
 				);
 		return fund;
 	}

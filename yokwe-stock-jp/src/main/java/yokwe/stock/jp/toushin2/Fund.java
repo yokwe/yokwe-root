@@ -51,7 +51,6 @@ public final class Fund implements Comparable<Fund> {
     public String            retentionMoneyCode;
 
 
-
     //    運用管理費用 (信託報酬)
 	//    "trustReward" : 0.925,
     public BigDecimal        expenseRatio;
@@ -69,6 +68,18 @@ public final class Fund implements Comparable<Fund> {
     // "buyFee" : 0,
     public BigDecimal        buyFeeMax;
     
+    // 単位型 追加型
+    public String fundType;
+    // 投資対象資産
+    public String investingAsset;
+    // 投資対象地域
+    public String investingArea;
+    // インデックスファンド区分
+    public String indexFundType;
+    
+    // 決算日
+    public String settlementDate;
+    
     // LAST
     // "fundNm" : "あおぞら・グローバル・バランス・ファンド（部分為替ヘッジあり）",
     public String            name;
@@ -77,7 +88,8 @@ public final class Fund implements Comparable<Fund> {
 	public Fund(
 		String isinCode, String fundCode, LocalDate listingDate, LocalDate redemptionDate, int divFreq, String name,
 		BigDecimal expenseRatio, BigDecimal expenseRatioManagement, BigDecimal expenseRatioSales, BigDecimal expenseRatioTrustBank,
-		BigDecimal buyFeeMax, String cancelationFeeCode, String retentionMoneyCode
+		BigDecimal buyFeeMax, String cancelationFeeCode, String retentionMoneyCode,
+		String fundType, String investingArea, String investingAsset, String indexFundType, String settlementDate
 		) {
 		this.isinCode       = isinCode;
 		this.fundCode       = fundCode;
@@ -95,6 +107,12 @@ public final class Fund implements Comparable<Fund> {
 		this.cancelLationFeeCode = cancelationFeeCode;
 		this.retentionMoneyCode = retentionMoneyCode;
 		
+		this.fundType       = fundType;
+		this.investingArea  = investingArea;
+		this.investingAsset = investingAsset;
+		this.indexFundType  = indexFundType;
+		this.settlementDate = settlementDate;
+
 		// sanity check
 		
 	}
@@ -102,7 +120,8 @@ public final class Fund implements Comparable<Fund> {
 		this(
 			"", null, null, null, 0, null,
 			null, null, null, null,
-			null, null, null
+			null, null, null,
+			null, null, null, null, null
 			);
 	}
 	

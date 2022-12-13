@@ -2,11 +2,121 @@ package yokwe.stock.jp.toushin2;
 
 import java.math.BigDecimal;
 
+import yokwe.util.EnumUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.json.JSON.Ignore;
 import yokwe.util.json.JSON.Name;
 
 public final class FundDataSearch {
+	// unitOpenDiv
+	public enum FundType {
+		UNIT(1, "単位型"), OPEN(2, "追加型");
+		
+		public static FundType getInstance(String string) {
+			return EnumUtil.getInstance(FundType.class, string);
+		}
+
+		public int    code;
+		public String name;
+
+		private FundType(int code, String name) {
+			this.code = code;
+			this.name = name;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		@Override
+		public String toString() {
+			return Integer.toString(code);
+		}
+	}
+
+	// investAssetKindCd
+	public enum InvestingAsset {
+		STOCK(1, "株式"), BOND(2, "債券"), REIT(3, "不動産投信"), OTHER(4, "その他"),
+		COMPOSITE(5, "複合");
+		
+		public static InvestingAsset getInstance(String string) {
+			return EnumUtil.getInstance(InvestingAsset.class, string);
+		}
+		
+		public int    code;
+		public String name;
+
+		private InvestingAsset(int code, String name) {
+			this.code = code;
+			this.name = name;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		@Override
+		public String toString() {
+			return Integer.toString(code);
+		}
+	}
+	
+	// investArea10kindCd
+	public enum InvestingArea {
+		GLOBAL(1, "グローバル"), JAPAN(2, "日本"), NORTH_AMERICA(3, "北米"), EUROPE(4, "欧州"),
+		ASIA(5, "アジア"), OCEANIA(6, "オセアニア"), LATIN_AMERICA(7, "中南米"),
+		AFRICA(8, "アフリカ"), MIDDLE_EAST(9, "中近東"), EMERGING(10, "エマージング");
+	
+		public static InvestingArea getInstance(String string) {
+			return EnumUtil.getInstance(InvestingArea.class, string);
+		}
+		
+		public int    code;
+		public String name;
+
+		private InvestingArea(int code, String name) {
+			this.code = code;
+			this.name = name;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		@Override
+		public String toString() {
+			return Integer.toString(code);
+		}
+	}
+	
+	// supplementKindCd
+	public enum IndexFundType {
+		NOT_APPLICABLE(0, "該当なし"), ALL(1, "すべて"), INDEX_FUND(2, "インデックスファンド"), ETF(3, "ETF"),
+		NOT_INDEX_FUND(4, "インデックスファンドを除く");
+		
+		public static IndexFundType getInstance(String string) {
+			return EnumUtil.getInstance(IndexFundType.class, string);
+		}
+
+		public int    code;
+		public String name;
+
+		private IndexFundType(int code, String name) {
+			this.code = code;
+			this.name = name;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		@Override
+		public String toString() {
+			return Integer.toString(code);
+		}
+	}
+	
+	
     public static final class ResultInfo {
         public static final class DividendInfo {
 			//"dividend" : 100,
@@ -98,6 +208,44 @@ public final class FundDataSearch {
 		//    "standardPrice" : 12824,
         public BigDecimal        standardPrice;
 
+        // 単位型 追加型
+        // FundType
+		//    "unitOpenDiv" : "2"
+        public String            unitOpenDiv;
+
+        // 投資対象資産
+        // See InvestingAsset
+		//    "investAssetKindCd" : "5",
+        public String            investAssetKindCd;
+
+        // インデックスファンド区分
+        // See IndexFundType
+		//    "supplementKindCd" : "0",
+        public String            supplementKindCd;
+
+        // 投資対象地域
+        // See InvestingArea
+        //     "investArea10kindCd1" : "1",
+        public String            investArea10kindCd1;
+		//    "investArea10kindCd2" : "0",
+        public String            investArea10kindCd2;
+		//    "investArea10kindCd3" : "0",
+        public String            investArea10kindCd3;
+		//    "investArea10kindCd4" : "0",
+        public String            investArea10kindCd4;
+		//    "investArea10kindCd5" : "0",
+        public String            investArea10kindCd5;
+		//    "investArea10kindCd6" : "0",
+        public String            investArea10kindCd6;
+		//    "investArea10kindCd7" : "0",
+        public String            investArea10kindCd7;
+		//    "investArea10kindCd8" : "0",
+        public String            investArea10kindCd8;
+		//    "investArea10kindCd9" : "0",
+        public String            investArea10kindCd9;
+        //     "investArea10kindCd10" : "0",
+        public String            investArea10kindCd10;
+
 
         public DividendInfo[]    dividendInfo;
         public InstitutionInfo[] institutionInfo;
@@ -152,45 +300,11 @@ public final class FundDataSearch {
         public String            instName;
         
         
-        // 投資対象地域
-        @Ignore
-//      "investArea10kindCd1" : "1",
-        public String            investArea10kindCd1;
-        @Ignore
-		//    "investArea10kindCd2" : "0",
-        public String            investArea10kindCd2;
-        @Ignore
-		//    "investArea10kindCd3" : "0",
-        public String            investArea10kindCd3;
-        @Ignore
-		//    "investArea10kindCd4" : "0",
-        public String            investArea10kindCd4;
-        @Ignore
-		//    "investArea10kindCd5" : "0",
-        public String            investArea10kindCd5;
-        @Ignore
-		//    "investArea10kindCd6" : "0",
-        public String            investArea10kindCd6;
-        @Ignore
-		//    "investArea10kindCd7" : "0",
-        public String            investArea10kindCd7;
-        @Ignore
-		//    "investArea10kindCd8" : "0",
-        public String            investArea10kindCd8;
-        @Ignore
-		//    "investArea10kindCd9" : "0",
-        public String            investArea10kindCd9;
-        @Ignore
-//      "investArea10kindCd10" : "0",
-        public String            investArea10kindCd10;
         
         
         @Ignore
 		//    "investArea3kindCd" : "3",
         public String            investArea3kindCd;
-        @Ignore
-		//    "investAssetKindCd" : "5",
-        public String            investAssetKindCd;
         
         
         @Ignore
@@ -335,17 +449,10 @@ public final class FundDataSearch {
         public BigDecimal        stdCostPointFrmDayBfrRt;
         
         
-        // インデックスファンド区分
-        @Ignore
-		//    "supplementKindCd" : "0",
-        public String            supplementKindCd;
         @Ignore
         //    純資産総額(百万円)
 		//    "totalNetAssets" : 126,
         public BigDecimal        totalNetAssets;
-        @Ignore
-		//    "unitOpenDiv" : "2"
-        public String            unitOpenDiv;
 
         @Override
         public String toString() {
