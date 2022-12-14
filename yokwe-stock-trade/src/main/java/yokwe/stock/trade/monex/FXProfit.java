@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import yokwe.stock.trade.Storage;
+import yokwe.util.CSVUtil;
 import yokwe.util.DateMap;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
@@ -51,9 +52,11 @@ public class FXProfit implements Comparable<FXProfit> {
 	
 	public String  date;
 	public Type    type;
+	@CSVUtil.DecimalPlaces(2)
 	public double  fxRate;
+	@CSVUtil.DecimalPlaces(2)
 	public double  usd;
-	public double  jpy;
+	public long    jpy;
 	public String  symbol;
 	
 	public FXProfit(
@@ -61,7 +64,7 @@ public class FXProfit implements Comparable<FXProfit> {
 		Type    type,
 		double  fxRate,
 		double  usd,
-		double  jpy,
+		long    jpy,
 		String  symbol
 		) {
 		this.date    = date;
@@ -72,10 +75,10 @@ public class FXProfit implements Comparable<FXProfit> {
 		this.symbol  = symbol;
 	}
 	public static FXProfit deposit(String date, double fxRate, double usd, double jpy) {
-		return new FXProfit(date, Type.DEPOSIT, fxRate, usd, jpy, "");
+		return new FXProfit(date, Type.DEPOSIT, fxRate, usd, (long)jpy, "");
 	}
 	public static FXProfit withdraw(String date, double fxRate, double usd, double jpy) {
-		return new FXProfit(date, Type.WITHDRAW, fxRate, usd, jpy, "");
+		return new FXProfit(date, Type.WITHDRAW, fxRate, usd, (long)jpy, "");
 	}
 	public static FXProfit buy(String date, double fxRate, double usd, String symbol) {
 		return new FXProfit(date, Type.BUY, fxRate, usd, 0, symbol);
