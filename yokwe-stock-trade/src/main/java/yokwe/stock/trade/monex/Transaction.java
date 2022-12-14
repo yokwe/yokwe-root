@@ -107,6 +107,9 @@ public class Transaction implements Comparable<Transaction> {
 	}
 
 	public static List<Transaction> getTransactionList(SpreadSheet docActivity) {
+		return getTransactionList(docActivity, false);
+	}
+	public static List<Transaction> getTransactionList(SpreadSheet docActivity, boolean useTradeDate) {
 		List<Transaction> transactionList = new ArrayList<>();
 		
 		List<String> sheetNameList = docActivity.getSheetNameList();
@@ -356,14 +359,16 @@ public class Transaction implements Comparable<Transaction> {
 
 					switch (activity.transaction) {
 					case Activity.Trade.TRANSACTION_BUY: {
-						double fee = DoubleUtil.round(activity.total - activity.price, 2);
-						transactionList.add(Transaction.buy(activity.settlementDate, activity.symbol, activity.quantity,
+						double fee  = DoubleUtil.round(activity.total - activity.price, 2);
+						String date = useTradeDate ? activity.tradeDate : activity.settlementDate;
+						transactionList.add(Transaction.buy(date, activity.symbol, activity.quantity,
 								activity.unitPrice, fee, activity.total));
 					}
 						break;
 					case Activity.Trade.TRANSACTION_SELL: {
-						double fee = DoubleUtil.round(activity.price - activity.total, 2);
-						transactionList.add(Transaction.sell(activity.settlementDate, activity.symbol, activity.quantity,
+						double fee  = DoubleUtil.round(activity.price - activity.total, 2);
+						String date = useTradeDate ? activity.tradeDate : activity.settlementDate;
+						transactionList.add(Transaction.sell(date, activity.symbol, activity.quantity,
 								activity.unitPrice, fee, activity.total));
 					}
 						break;
