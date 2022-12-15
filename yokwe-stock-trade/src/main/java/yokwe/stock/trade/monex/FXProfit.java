@@ -26,6 +26,16 @@ public class FXProfit implements Comparable<FXProfit> {
 	public static void save(List<FXProfit> list) {
 		ListUtil.save(FXProfit.class, getPath(), list);
 	}
+	public static List<FXProfit> getList() {
+		return ListUtil.getList(FXProfit.class, getPath());
+	}
+	
+	public enum Kind {
+		DEPOSIT,  // deposit of USD
+		WITHDRAW, // withdraw of USD
+		MINUS,    // decrease of USD
+		PLUS,     // increase of USD
+	}
 	
 	public enum Type {
 		DEPOSIT (Kind.DEPOSIT),   // deposit of USD
@@ -36,13 +46,6 @@ public class FXProfit implements Comparable<FXProfit> {
 		
 		SELL(Kind.PLUS), // Selling of Stock
 		DIV(Kind.PLUS);	// Dividend of Stock
-		
-		public enum Kind {
-			DEPOSIT,  // deposit of USD
-			WITHDRAW, // withdraw of USD
-			MINUS,    // decrease of USD
-			PLUS,     // increase of USD
-		}
 		
 		public Kind kind;
 		Type(Kind kind) {
@@ -56,7 +59,7 @@ public class FXProfit implements Comparable<FXProfit> {
 	public double  fxRate;
 	@CSVUtil.DecimalPlaces(2)
 	public double  usd;
-	public long    jpy;
+	public int     jpy;
 	public String  symbol;
 	
 	public FXProfit(
@@ -64,7 +67,7 @@ public class FXProfit implements Comparable<FXProfit> {
 		Type    type,
 		double  fxRate,
 		double  usd,
-		long    jpy,
+		int     jpy,
 		String  symbol
 		) {
 		this.date    = date;
@@ -74,11 +77,15 @@ public class FXProfit implements Comparable<FXProfit> {
 		this.jpy     = jpy;
 		this.symbol  = symbol;
 	}
-	public static FXProfit deposit(String date, double fxRate, double usd, double jpy) {
-		return new FXProfit(date, Type.DEPOSIT, fxRate, usd, (long)jpy, "");
+	public FXProfit() {
+		this("", null, 0, 0, 0, "");
+	}
+		
+	public static FXProfit deposit(String date, double fxRate, double usd, int jpy) {
+		return new FXProfit(date, Type.DEPOSIT, fxRate, usd, (int)jpy, "");
 	}
 	public static FXProfit withdraw(String date, double fxRate, double usd, double jpy) {
-		return new FXProfit(date, Type.WITHDRAW, fxRate, usd, (long)jpy, "");
+		return new FXProfit(date, Type.WITHDRAW, fxRate, usd, (int)jpy, "");
 	}
 	public static FXProfit buy(String date, double fxRate, double usd, String symbol) {
 		return new FXProfit(date, Type.BUY, fxRate, usd, 0, symbol);
@@ -123,9 +130,7 @@ public class FXProfit implements Comparable<FXProfit> {
 		return this.date.hashCode() ^ this.type.hashCode() ^ this.symbol.hashCode();
 	}
 	
-	public static void main(String[] args) {
-		logger.info("START");
-		
+	public static void update() {
 		var fxTaxMap = new DateMap<FXTax>();
 		// build fxMap
 		for(var e: UpdateFXTax.load()) {
@@ -135,7 +140,8 @@ public class FXProfit implements Comparable<FXProfit> {
 		List<Transaction> transactionList;
 		// build trasactionList
 		try (SpreadSheet docActivity = new SpreadSheet(Transaction.URL_ACTIVITY, true)) {
-			transactionList = Transaction.getTransactionList(docActivity);		
+			boolean useTradeDate = true;
+			transactionList = Transaction.getTransactionList(docActivity, useTradeDate);		
 		}
 		
 		List<FXProfit> fxProfitList = new ArrayList<>();
@@ -171,7 +177,7 @@ public class FXProfit implements Comparable<FXProfit> {
 				fxProfitList.add(fxProfit);
 				break;
 			case FEE:
-				fxProfit = FXProfit.buy(date, fxTax.tts, -e.usd, e.symbol);
+				fxProfit = FXProfit.fee(date, fxTax.tts, -e.usd);
 				fxProfitList.add(fxProfit);
 				break;
 			case CHANGE:
@@ -184,7 +190,12 @@ public class FXProfit implements Comparable<FXProfit> {
 		}
 		logger.info("save {} {}", fxProfitList.size(), FXProfit.getPath());
 		FXProfit.save(fxProfitList);
-
+	}
+	public static void main(String[] args) {
+		logger.info("START");
+		
+		update();
+		
 		logger.info("STOP");
 		System.exit(0);
 	}
