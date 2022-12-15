@@ -22,7 +22,6 @@ public class FXReport {
 		CSVUtil.write(FXReport.class).file(getPath(), list);
 	}
 	
-	
 	private static class DayGroup {
 		static TreeMap<String, DayGroup> buildMap(List<FXProfit> list) {
 			//         date
@@ -109,9 +108,7 @@ public class FXReport {
 		return ret;
 	}
 	
-	
 	private static void update() {
-		
 		List<FXReport> reportList = new ArrayList<>();
 		
 		// build GroupMap.map
@@ -155,15 +152,16 @@ public class FXReport {
 //				logger.info("  {}", String.format("%s %-8s %10.2f %10.2f %10d", sum.date, sum.type.kind, sum.fxRate, sum.usd, sum.jpy));
 				
 				BigDecimal usd = BigDecimal.valueOf(sum.usd).setScale(2, RoundingMode.HALF_UP).negate();
+				// Use totalAVG to calculate jpy
 				BigDecimal jpy = usd.multiply(totalAVG).setScale(2, RoundingMode.DOWN);
 				jpy = jpy.setScale(0, RoundingMode.DOWN);
 				
 				totalJPY = totalJPY.subtract(jpy);
 				totalUSD = totalUSD.subtract(usd);
 				
-				// NO NEED TO CALCULATE
-				totalAVG = totalJPY.divide(totalUSD, 3, RoundingMode.DOWN);
-				totalAVG = totalAVG.setScale(2, RoundingMode.UP);
+				// DO NOT CALCULATE TOTAL AVG
+				//totalAVG = totalJPY.divide(totalUSD, 3, RoundingMode.DOWN);
+				//totalAVG = totalAVG.setScale(2, RoundingMode.UP);
 				
 				var report = new FXReport(sum);
 				report.minusJPY = jpy.intValue();
@@ -171,7 +169,7 @@ public class FXReport {
 				report.totalJPY = totalJPY.intValue();
 				report.totalUSD = totalUSD.doubleValue();
 				report.totalAVG = totalAVG.doubleValue();
-				report.profit   = (-sum.jpy) - report.minusJPY;
+				report.profit   = (-sum.jpy) - jpy.intValue();
 				reportList.add(report);
 
 				logger.info("  report {}", String.format(
@@ -190,9 +188,9 @@ public class FXReport {
 				totalJPY = totalJPY.subtract(jpy);
 				totalUSD = totalUSD.subtract(usd);
 				
-				// NO NEED TO CALCULATE
-				totalAVG = totalJPY.divide(totalUSD, 3, RoundingMode.DOWN);
-				totalAVG = totalAVG.setScale(2, RoundingMode.UP);
+				// DO NOT CALCULATE TOTAL AVG
+				//totalAVG = totalJPY.divide(totalUSD, 3, RoundingMode.DOWN);
+				//totalAVG = totalAVG.setScale(2, RoundingMode.UP);
 				
 				var report = new FXReport(sum);
 				report.minusJPY = jpy.intValue();
@@ -212,7 +210,8 @@ public class FXReport {
 //				logger.info("  {}", String.format("%s %-8s %10.2f %10.2f %10d", sum.date, sum.type.kind, sum.fxRate, sum.usd, sum.jpy));
 
 				BigDecimal usd = BigDecimal.valueOf(sum.usd).setScale(2, RoundingMode.HALF_UP);
-				BigDecimal jpy = usd.multiply(totalAVG).setScale(2, RoundingMode.DOWN);
+				BigDecimal fxRate = BigDecimal.valueOf(sum.fxRate).setScale(2, RoundingMode.HALF_UP);
+				BigDecimal jpy = usd.multiply(fxRate).setScale(2, RoundingMode.DOWN);
 				jpy = jpy.setScale(0, RoundingMode.DOWN);
 
 				totalJPY = totalJPY.add(jpy);
@@ -241,26 +240,28 @@ public class FXReport {
 	}
 	
 	
-	public String date = "";
-	public String type = "";
+	public String date   = "";
+	public String type   = "";
 	@CSVUtil.DecimalPlaces(2)
 	public double fxRate = 0;
 	@CSVUtil.DecimalPlaces(2)
-	public double usd = 0;
-	public int    jpy = 0;
+	public double usd    = 0;
+	public int    jpy    = 0;
 	public String symbol = "";
 	
 	// for DEPOSIT, SELL and DIV
+	@CSVUtil.DecimalPlaces(2)
 	public double plusUSD = 0; // jpy equivalent of usd
 	public int    plusJPY = 0; // jpy equivalent of usd
 	
 	// for WITHDRAW, BUY and FEE
+	@CSVUtil.DecimalPlaces(2)
 	public double minusUSD = 0; // jpy equivalent of usd
 	public int    minusJPY = 0; // jpy equivalent of usd
 
-	public int    totalJPY = 0;
 	@CSVUtil.DecimalPlaces(2)
 	public double totalUSD = 0;
+	public int    totalJPY = 0;
 	@CSVUtil.DecimalPlaces(2)
 	public double totalAVG  = 0;
 	
@@ -274,7 +275,7 @@ public class FXReport {
 
 	private FXReport(FXProfit fxProfit) {
 		this.date   = fxProfit.date;
-		this.type   = fxProfit.type.name();
+		this.type   = fxProfit.type.kind.name();
 		this.fxRate = fxProfit.fxRate;
 		this.usd    = fxProfit.usd;
 		this.jpy    = fxProfit.jpy;
