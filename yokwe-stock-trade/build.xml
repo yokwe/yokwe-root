@@ -86,6 +86,15 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="monex-fx-report">
+		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.FXReport" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<modulepath refid="libreoffice.jar" />
+			<classpath  location="${libreoffice.install.dir}" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 	<!-- SBI -->
 	<target name="sbi-update-symbol-info">
