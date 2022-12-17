@@ -255,6 +255,7 @@ public final class Deposit {
 		}	
 	}
 	
+	
 	private static Activity sum(List<Activity> list) {
 		if (list.isEmpty()) {
 			logger.error("Unexpected");
@@ -498,7 +499,6 @@ public final class Deposit {
 			}
 		}
 	}
-	
 	
 	
 	public static void main(String[] args) {
