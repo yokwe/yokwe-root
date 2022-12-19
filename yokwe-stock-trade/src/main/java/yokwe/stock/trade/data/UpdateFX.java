@@ -14,7 +14,7 @@ import yokwe.util.http.HttpUtil;
 public class UpdateFX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final String URL_CSV      = "https://www.mizuhobank.co.jp/market/quote.csv";
+	public static final String URL_CSV      = "https://www.mizuhobank.co.jp/market/csv/quote.csv";
 	public static final String ENCODING_CSV = "SHIFT_JIS";
 
 	private static final Pattern PAT_YYYYMMDD = Pattern.compile("^(20[0-9]{2})/([01]?[0-9])/([0-3]?[0-9])$");
@@ -50,7 +50,6 @@ public class UpdateFX {
 		public String HUF;
 		public String CZK;
 		public String PLN;
-		public String RUB;
 		public String TRY;
 		public String XXX;
 		public String IDR2;
@@ -58,6 +57,7 @@ public class UpdateFX {
 		public String MYR2;
 		public String KRW2;
 		public String TWD;
+		public String RUB;
 		
 		public MarketQuote() {
 			DATE = "";
@@ -149,6 +149,7 @@ public class UpdateFX {
 		}
 		
 		FX.save(result);
+		logger.info("date {} - {}", result.get(0).date, result.get(result.size() - 1).date);
 		logger.info("save {} {}", result.size(), FX.PATH_FILE);
 		
 		logger.info("STOP");
