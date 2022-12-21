@@ -483,9 +483,9 @@ public final class Deposit {
 
 			logger.info("urlReport {}", urlReport);
 			logger.info("docLoad   {}", URL_TEMPLATE);
-			try (SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true)) {
-				SpreadSheet docSave = new SpreadSheet();
-				
+			try (
+				SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
+				SpreadSheet docSave = new SpreadSheet();) {				
 				String sheetName = Sheet.getSheetName(Report.class);
 				logger.info("sheet {}", sheetName);
 				docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
