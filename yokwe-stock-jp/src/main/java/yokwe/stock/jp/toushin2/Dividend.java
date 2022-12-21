@@ -2,11 +2,10 @@ package yokwe.stock.jp.toushin2;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class Dividend implements Comparable<Dividend>{
@@ -16,23 +15,26 @@ public class Dividend implements Comparable<Dividend>{
 		return Storage.Toushin2.getPath(PREFIX, isinCode + ".csv");
 	}
 	public static void save(String isinCode, List<Dividend> list) {
-		Collections.sort(list);
-		CSVUtil.write(Dividend.class).file(getPath(isinCode), list);
+		ListUtil.save(Dividend.class, getPath(isinCode), list);
 	}
 	public static List<Dividend> load(String isinCode) {
-		return CSVUtil.read(Dividend.class).file(getPath(isinCode));
+		return ListUtil.load(Dividend.class, getPath(isinCode));
+	}
+	public static List<Dividend> getList(String isinCode) {
+		return ListUtil.getList(Dividend.class, getPath(isinCode));
 	}
 
 	// NOTE amount can have fraction value
-	public String     date;    // 年月日
+	public LocalDate  date;    // 年月日
 	public BigDecimal amount;  // 分配金
 	
 	public Dividend(LocalDate date, BigDecimal amount) {
-		this.date   = date.toString();
+		this.date   = date;
 		this.amount = amount;
 	}
+	private static final LocalDate DEFAULT_DATE = LocalDate.of(1980, 1, 1);
 	public Dividend() {
-		date   = "";
+		date   = DEFAULT_DATE;
 		amount = BigDecimal.ZERO;
 	}
 	
