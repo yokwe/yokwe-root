@@ -1,6 +1,7 @@
 package yokwe.stock.jp.toushin2;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -29,16 +30,21 @@ public class Price implements Comparable<Price>{
 	public String     date;   // 年月日
 	public BigDecimal nav;    // 純資産総額（百万円）
 	public BigDecimal price;  // 基準価額(円)
+	public BigDecimal units;  // 総口数 = 純資産総額 / 基準価額
 	
-	public Price(LocalDate date, BigDecimal nav, BigDecimal price) {
+
+	private static final BigDecimal MILLION = BigDecimal.valueOf(1_000_000);
+	public Price(LocalDate date, BigDecimal nav, BigDecimal price) {		
 		this.date  = date.toString();
-		this.nav   = nav;
+		this.nav   = nav.multiply(MILLION);
 		this.price = price;
+		this.units = this.nav.divide(this.price, 0, RoundingMode.HALF_UP);
 	}
 	public Price() {
 		date  = "";
 		nav   = BigDecimal.ZERO;
 		price = BigDecimal.ZERO;
+		units = BigDecimal.ZERO;
 	}
 	
 	@Override
