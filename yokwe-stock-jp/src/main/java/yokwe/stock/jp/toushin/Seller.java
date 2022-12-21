@@ -1,4 +1,4 @@
-package yokwe.stock.jp.toushin2;
+package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -12,7 +12,7 @@ public class Seller implements Comparable<Seller>{
 	public static final String PREFIX = "seller";
 	
 	public static final String getPath(String isinCode) {
-		return Storage.Toushin2.getPath(PREFIX, isinCode + ".csv");
+		return Storage.Toushin.getPath(PREFIX, isinCode + ".csv");
 	}
 	public static void save(String isinCode, List<Seller> list) {
 		Collections.sort(list);

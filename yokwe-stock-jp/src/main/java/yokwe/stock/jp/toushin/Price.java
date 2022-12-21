@@ -1,4 +1,4 @@
-package yokwe.stock.jp.toushin2;
+package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,7 +13,7 @@ public class Price implements Comparable<Price>{
 	public static final String PREFIX = "price";
 	
 	public static final String getPath(String isinCode) {
-		return Storage.Toushin2.getPath(PREFIX, isinCode + ".csv");
+		return Storage.Toushin.getPath(PREFIX, isinCode + ".csv");
 	}
 	public static void save(String isinCode, List<Price> list) {
 		ListUtil.save(Price.class, getPath(isinCode), list);

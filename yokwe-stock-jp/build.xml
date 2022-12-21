@@ -33,8 +33,8 @@
 	</target>
 
 	<!-- TOUSHIN -->
-	<target name="toushin-data-file">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.DataFile" fork="true">
+	<target name="toushin-update-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateFund" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
@@ -42,29 +42,8 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-
 	<target name="toushin-update-report">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateReport" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	
-	<!-- TOUSHIN2 -->
-	<target name="toushin2-update-fund">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin2.UpdateFund" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="toushin2-detail">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin2.Detail" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />

@@ -1,4 +1,4 @@
-package yokwe.stock.jp.toushin2;
+package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,7 +10,7 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public final class Fund implements Comparable<Fund> {
-	private static final String PATH = Storage.Toushin2.getPath("fund.csv");
+	private static final String PATH = Storage.Toushin.getPath("fund.csv");
 	public static String getPath() {
 		return PATH;
 	}

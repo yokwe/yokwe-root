@@ -1,4 +1,4 @@
-package yokwe.stock.jp.toushin2;
+package yokwe.stock.jp.toushin;
 
 import java.io.StringReader;
 import java.math.BigDecimal;

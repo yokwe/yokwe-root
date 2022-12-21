@@ -26,11 +26,9 @@ update-jasdec:
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/jasdec_$$(date +%Y%m%d).taz jasdec
 
 # TOUSHIN
-clear-toushin:
-	rm -rf /mnt/stock/jp/toushin/download/price/*
-	
 update-toushin:
-	ant toushin-data-file
+	ant toushin-update-fund
+	ant toushin-update-report
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/toushin_$$(date +%Y%m%d).taz toushin
 
 # JPX

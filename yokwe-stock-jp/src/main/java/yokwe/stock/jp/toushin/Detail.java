@@ -1,4 +1,4 @@
-package yokwe.stock.jp.toushin2;
+package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,12 +10,11 @@ import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
 
 public class Detail implements Comparable<Detail> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final String PATH = Storage.Toushin2.getPath("detail.csv");
+	private static final String PATH = Storage.Toushin.getPath("detail.csv");
 	public static String getPath() {
 		return PATH;
 	}

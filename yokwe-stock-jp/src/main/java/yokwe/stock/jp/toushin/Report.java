@@ -1,4 +1,4 @@
-package yokwe.stock.jp.toushin2;
+package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,7 +12,7 @@ public class Report implements Comparable<Report> {
 	private static final String PREFIX = "report";
 		
 	public static final String getPath(String name) {
-		return Storage.Toushin2.getPath(PREFIX, name);
+		return Storage.Toushin.getPath(PREFIX, name);
 	}
 	
 	public static void save(List<Report> list, String name) {
