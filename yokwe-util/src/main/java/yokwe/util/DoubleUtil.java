@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class DoubleUtil {
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
 	public static final double ALMOST_ZERO = 0.000001;
 	public static boolean isAlmostZero(double value) {
 		return -ALMOST_ZERO < value && value < ALMOST_ZERO;
@@ -15,6 +17,14 @@ public class DoubleUtil {
 	public static double round(double value, int places) {
 	    if (places < 0) throw new IllegalArgumentException();
 
+	    if (Double.isInfinite(value)) {
+	    	logger.error("value is infinite");
+	    	throw new UnexpectedException("value is infinite");
+	    }
+	    if (Double.isNaN(value)) {
+	    	logger.error("value is NaN");
+	    	throw new UnexpectedException("value is NaN");
+	    }
 	    BigDecimal bd = new BigDecimal(value);
 	    return bd.setScale(places, RoundingMode.HALF_UP).doubleValue();
 	}
