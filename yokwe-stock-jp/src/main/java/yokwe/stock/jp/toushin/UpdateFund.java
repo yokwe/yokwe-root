@@ -1,13 +1,8 @@
 package yokwe.stock.jp.toushin;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
 import yokwe.util.CSVUtil;
+import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -276,37 +272,13 @@ public class UpdateFund {
 		}
 	}
 	
-	private static void delist(Set<String> validNameSet, String dirString, String delistString) {
-		File dir = new File(dirString);
-		File delist = new File(delistString);
-		delist.mkdir();
-		Path delistPath = delist.toPath();
-
-		for(var file: dir.listFiles()) {
-			if (file.isDirectory()) continue;
-			
-			String name = file.getName();
-			if (!name.endsWith(".csv")) continue;
-			if (validNameSet.contains(name)) continue;
-
-			try {
-				logger.warn("delist {}/{}", dirString, name);
-				Files.move(file.toPath(), delistPath.resolve(name), StandardCopyOption.REPLACE_EXISTING);
-			} catch (IOException e) {
-				String exceptionName = e.getClass().getSimpleName();
-				logger.error("{} {}", exceptionName, e);
-				throw new UnexpectedException(exceptionName, e);
-			}
-		}
-	}
-	
-	private static void delistUnknownFiles() {
+	private static void moveUnknownFile() {
 		Set<String> validNameSet = Fund.getList().stream().map(o -> o.isinCode + ".csv").collect(Collectors.toSet());
 		
 		// price
-		delist(validNameSet, Price.getPath(), Price.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, Price.getPath(), Price.getPathDelist());
 		// div
-		delist(validNameSet, Dividend.getPath(), Dividend.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, Dividend.getPath(), Dividend.getPathDelist());
 	}
 	
 	private static void updateDivPrice(Download download) {
@@ -374,7 +346,7 @@ public class UpdateFund {
 		
 		updateFundSeller(download);
 		updateDivPrice(download);
-		delistUnknownFiles();
+		moveUnknownFile();
 		
 		logger.info("STOP");
 	}
