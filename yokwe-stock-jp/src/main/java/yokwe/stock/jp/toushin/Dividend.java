@@ -11,7 +11,10 @@ import yokwe.util.StringUtil;
 public class Dividend implements Comparable<Dividend>{
 	public static final String PREFIX = "div";
 	
-	public static final String getPath(String isinCode) {
+	public static String getPath() {
+		return Storage.Toushin.getPath(PREFIX);
+	}
+	public static String getPath(String isinCode) {
 		return Storage.Toushin.getPath(PREFIX, isinCode + ".csv");
 	}
 	public static void save(String isinCode, List<Dividend> list) {
@@ -23,7 +26,12 @@ public class Dividend implements Comparable<Dividend>{
 	public static List<Dividend> getList(String isinCode) {
 		return ListUtil.getList(Dividend.class, getPath(isinCode));
 	}
-
+	
+	public static final String PREFIX_DELIST = "div-delist";
+	public static String getPathDelist() {
+		return Storage.Toushin.getPath(PREFIX_DELIST);
+	}
+	
 	// NOTE amount can have fraction value
 	public LocalDate  date;    // 年月日
 	public BigDecimal amount;  // 分配金

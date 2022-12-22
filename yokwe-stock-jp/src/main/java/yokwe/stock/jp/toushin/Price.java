@@ -9,10 +9,13 @@ import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
-public class Price implements Comparable<Price>{
+public final class Price implements Comparable<Price>{
 	public static final String PREFIX = "price";
 	
-	public static final String getPath(String isinCode) {
+	public static String getPath() {
+		return Storage.Toushin.getPath(PREFIX);
+	}
+	public static String getPath(String isinCode) {
 		return Storage.Toushin.getPath(PREFIX, isinCode + ".csv");
 	}
 	public static void save(String isinCode, List<Price> list) {
@@ -23,6 +26,11 @@ public class Price implements Comparable<Price>{
 	}
 	public static List<Price> getList(String isinCode) {
 		return ListUtil.getList(Price.class, getPath(isinCode));
+	}
+	
+	public static final String PREFIX_DELIST = "price-delist";
+	public static String getPathDelist() {
+		return Storage.Toushin.getPath(PREFIX_DELIST);
 	}
 
 	// NOTE amount can have fraction value
