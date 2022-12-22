@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -266,6 +267,33 @@ public class FileUtil {
 			}
 		} else {
 			throw new UnexpectedException("Unexpected");
+		}
+	}
+	
+	//
+	// move unknown file
+	//
+	public static void moveUnknownFile(Set<String> validNameSet, String dirString, String delistDirString) {
+		moveUnknownFile(validNameSet, new File(dirString), new File(delistDirString));
+	}
+	public static void moveUnknownFile(Set<String> validNameSet, File dir, File delistDir) {
+		delistDir.mkdir();
+		Path delistDirPath = delistDir.toPath();
+
+		for(var file: dir.listFiles()) {
+			if (file.isDirectory()) continue;
+			
+			String name = file.getName();
+			if (validNameSet.contains(name)) continue;
+
+			try {
+				logger.info("move unknonw file {}/{}  {}", dir.getPath(), name, delistDir.getPath());
+				Files.move(file.toPath(), delistDirPath.resolve(name), StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e);
+				throw new UnexpectedException(exceptionName, e);
+			}
 		}
 	}
 }
