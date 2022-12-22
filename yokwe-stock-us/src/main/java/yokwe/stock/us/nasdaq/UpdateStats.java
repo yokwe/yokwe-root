@@ -68,6 +68,11 @@ public class UpdateStats {
 			statsUS.pricec    = pricec;
 			statsUS.price     = price.close;
 			
+			if (DoubleUtil.isAlmostZero(statsUS.price)) {
+				logger.warn("Skip price is zero  {}", symbol);
+				continue;
+			}
+			
 			// last
 			if (2 <= pricec) {
 				Price last = priceList.get(pricec - 2);
