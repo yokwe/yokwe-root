@@ -1,6 +1,7 @@
 package yokwe.stock.jp.moneybujpx;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -196,6 +197,63 @@ public class UpdateETF {
 				} else {
 					logger.warn("Unpexpected dividendDate {}!", raw.data.dividendDate);
 					divFreq = 0;
+				}
+			}
+		}
+		// guess divFreq
+		if (raw.data.dividendHist != null) {
+			if (2 <= raw.data.dividendHist.length) {
+				LocalDate date0 = LocalDate.parse(convertDate(raw.data.dividendHist[0].date));
+				LocalDate date1 = LocalDate.parse(convertDate(raw.data.dividendHist[1].date));
+				long diff = Math.abs(date1.toEpochDay() - date0.toEpochDay());
+				
+				int guess = 0;
+
+				if ( 20 <= diff && diff <=  40) guess = 12;  // every 30 days
+				if ( 50 <= diff && diff <=  70) guess =  6;  // every 60 days
+				if ( 80 <= diff && diff <= 100) guess =  4;  // every 90 days
+				if (110 <= diff && diff <= 130) guess =  3;  // every 120 days
+				if (170 <= diff && diff <= 190) guess =  2;  // every 180 days
+				if (350 <= diff && diff <= 370) guess =  1;  // every 360 days
+				
+				if (guess == 0) {
+					logger.error("Unexpected diff");
+					logger.error("  stockCode {}", stockCode);
+					logger.error("  date0     {}", date0.toString());
+					logger.error("  date1     {}", date1.toString());
+					logger.error("  diff      {}", diff);
+					throw new UnexpectedException("Unexpected diff");
+				} else {
+					if (divFreq == 0) {
+						divFreq = guess;
+						logger.warn("Assume {} divFreq {}", stockCode, divFreq);
+					} else if (divFreq == guess) {
+						// OK
+					} else {
+						logger.error("Unexpected guess");
+						logger.error("  stockCode {}", stockCode);
+						logger.error("  date0     {}", date0.toString());
+						logger.error("  date1     {}", date1.toString());
+						logger.error("  diff      {}", diff);
+						logger.error("  guess     {}", guess);
+						logger.error("  divFreq   {}", divFreq);
+						throw new UnexpectedException("Unexpected guess");
+					}
+				}
+			} else {
+				// raw.data.dividendHist.length == 1
+				if (divFreq == 0) {
+					divFreq = 1;
+					logger.warn("Assume {} divFreq {}", stockCode, divFreq);
+				} else if (divFreq == 1) {
+					// OK
+				} else {
+					long diff = LocalDate.parse(listingDate).toEpochDay() - LocalDate.now().toEpochDay();
+					if (diff < 365) {
+						// Within one year from listing
+					} else {
+						logger.warn("Unexpected divFreq  {} {}  divFreq {}  length {}", stockCode, listingDate, divFreq, raw.data.dividendHist.length);
+					}
 				}
 			}
 		}
