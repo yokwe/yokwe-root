@@ -252,16 +252,19 @@ public class Transaction implements Comparable<Transaction> {
 	}
 	
 	public static void main(String[] args) {
-		logger.info("START");
-		
-		{
-			List<Transaction> transactionList = getMonex();
-			for(Transaction transaciton: transactionList) {
-				logger.info("monex     {}", transaciton);
+		try {
+			logger.info("START");
+			
+			{
+				List<Transaction> transactionList = getMonex();
+				for(Transaction transaciton: transactionList) {
+					logger.info("monex     {}", transaciton);
+				}
 			}
+			
+			logger.info("END");
+		} finally {
+			System.exit(0);
 		}
-		
-		logger.info("END");
-		System.exit(0);
 	}
 }

@@ -125,11 +125,14 @@ public class UpdateStock {
 	}
 
 	public static void main(String[] args) {
-		logger.info("START");
-		
-		processRequest();
-		
-		logger.info("STOP");
-		System.exit(0);
+		try {
+			logger.info("START");
+			
+			processRequest();
+			
+			logger.info("STOP");
+		} finally {
+			System.exit(0);
+		}
 	}
 }

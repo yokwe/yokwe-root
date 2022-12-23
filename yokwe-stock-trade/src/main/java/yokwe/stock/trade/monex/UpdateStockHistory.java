@@ -59,14 +59,17 @@ public class UpdateStockHistory {
 	}
 
 	public static void main(String[] args) {
-		logger.info("START");
-		
-		List<StockHistory>stockHistoryList = getStockHistoryList();
+		try {
+			logger.info("START");
+			
+			List<StockHistory>stockHistoryList = getStockHistoryList();
 
-		CSVUtil.write(StockHistory.class).file(StockHistoryUtil.PATH_STOCK_HISTORY_MONEX, stockHistoryList);
-		logger.info("stockHistoryList {}  {}", StockHistoryUtil.PATH_STOCK_HISTORY_MONEX, stockHistoryList.size());
-		
-		logger.info("STOP");
-		System.exit(0);
+			CSVUtil.write(StockHistory.class).file(StockHistoryUtil.PATH_STOCK_HISTORY_MONEX, stockHistoryList);
+			logger.info("stockHistoryList {}  {}", StockHistoryUtil.PATH_STOCK_HISTORY_MONEX, stockHistoryList.size());
+			
+			logger.info("STOP");
+		} finally {
+			System.exit(0);
+		}
 	}
 }

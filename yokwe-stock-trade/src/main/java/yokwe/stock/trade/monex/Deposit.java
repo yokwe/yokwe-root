@@ -502,12 +502,15 @@ public final class Deposit {
 	
 	
 	public static void main(String[] args) {
-		logger.info("START");
-		
-		var list = Activity.getList();
-		Report.generate(list);
-		
-		logger.info("STOP");
-		System.exit(0);
+		try {
+			logger.info("START");
+			
+			var list = Activity.getList();
+			Report.generate(list);
+			
+			logger.info("STOP");
+		} finally {
+			System.exit(0);
+		}
 	}
 }

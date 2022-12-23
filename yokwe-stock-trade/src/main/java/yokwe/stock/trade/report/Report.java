@@ -220,11 +220,14 @@ public class Report {
 	}
 	
 	public static void main(String[] args) {
-		logger.info("START");
-		
-		generateReport();
+		try {
+			logger.info("START");
+			
+			generateReport();
 
-		logger.info("STOP");
-		System.exit(0);
+			logger.info("STOP");
+		} finally {
+			System.exit(0);
+		}
 	}
 }

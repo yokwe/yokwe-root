@@ -402,15 +402,18 @@ public class UpdateStats {
 	}
 	
 	public static void main(String[] args) {
-		logger.info("START");
-		
-		List<Stats> statsList = getStatsList();
-		logger.info("save {} {}", Stats.getPath(), statsList.size());
-		Stats.save(statsList);
-		
-		generateReport(statsList);
-				
-		logger.info("STOP");
-		System.exit(0);
+		try {
+			logger.info("START");
+			
+			List<Stats> statsList = getStatsList();
+			logger.info("save {} {}", Stats.getPath(), statsList.size());
+			Stats.save(statsList);
+			
+			generateReport(statsList);
+			
+			logger.info("STOP");
+		} finally {
+			System.exit(0);
+		}
 	}
 }

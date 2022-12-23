@@ -122,19 +122,19 @@ public class UpdateStockHistory {
 		return filter(getSotckHistoryListCollection(stockHistoryList), wantActive, wantThisYear);
 	}
 	
-	public static void main(String[] args) {
-		logger.info("START");
-		
-		{
+	public static void main(String[] args) {		
+		try {
+			logger.info("START");
+			
 			List<StockHistory> stockHistoryList = getStockHistoryListWithDividend(Transaction.getMonex());
 			for(StockHistory stockHistory: stockHistoryList) {
 				logger.info("monex     {}", stockHistory);
 			}
 //			CSVUtil.saveWithHeader(stockHistoryList, "tmp/sh-m.csv");
+			
+			logger.info("STOP");
+		} finally {
+			System.exit(0);
 		}
-		
-		
-		logger.info("STOP");
-		System.exit(0);
 	}
 }

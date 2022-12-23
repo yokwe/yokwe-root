@@ -161,19 +161,22 @@ public class Transaction implements Comparable<Transaction> {
 	}
 	
 	public static void main(String[] args) {
-		logger.info("START");
-		
-		String url = URL_ACTIVITY;
-		logger.info("url        {}", url);		
-		try (SpreadSheet docActivity = new SpreadSheet(url, true)) {
-			List<Transaction> transactionList = getTransactionList(docActivity);
-			for(Transaction transaction: transactionList) {
-				logger.info("{}", transaction);
+		try {
+			logger.info("START");
+			
+			String url = URL_ACTIVITY;
+			logger.info("url        {}", url);
+			try (SpreadSheet docActivity = new SpreadSheet(url, true)) {
+				List<Transaction> transactionList = getTransactionList(docActivity);
+				for(Transaction transaction: transactionList) {
+					logger.info("{}", transaction);
+				}
+				logger.info("transactionList {}", transactionList.size());
 			}
-			logger.info("transactionList {}", transactionList.size());
+			logger.info("STOP");
+		} finally {
+			System.exit(0);
 		}
-		logger.info("STOP");
-		System.exit(0);
 	}
 
 }
