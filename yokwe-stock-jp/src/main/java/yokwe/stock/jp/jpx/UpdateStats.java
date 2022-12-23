@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.edinet.EDINETInfo;
 import yokwe.stock.jp.edinet.FundInfo;
 import yokwe.stock.jp.japanreit.REIT;
@@ -22,7 +23,10 @@ import yokwe.stock.jp.moneybujpx.ETF;
 import yokwe.stock.jp.xbrl.tdnet.report.DividendAnnual;
 import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
+import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.libreoffice.Sheet;
+import yokwe.util.libreoffice.SpreadSheet;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
 import yokwe.util.stats.HV;
@@ -278,6 +282,14 @@ public class UpdateStats {
 				logger.info("{}  no price info {}", String.format("%4d / %4d",  count, total), stockCode);
 				continue;
 			}
+			// skip if last close price is zero
+			{
+				var lastPrice = priceList.get(priceList.size() - 1);
+				if (DoubleUtil.isAlmostZero(lastPrice.close)) {
+					logger.info("{}  price is zero {}", String.format("%4d / %4d",  count, total), stockCode);
+					continue;
+				}
+			}
 			
 			// Sanity check
 			{
@@ -364,13 +376,41 @@ public class UpdateStats {
 		return statsList;
 	}
 
+	private static void generateReport(List<Stats> statsList) {		
+		String pathTemplate = Storage.JPX.getPath("TEMPLATE_STATS.ods");
+		String urlTemplate  = StringUtil.toURLString(pathTemplate);
+
+		String pathReport = Storage.JPX.getPath("stats.ods");
+		String urlReport  = StringUtil.toURLString(pathReport);
+
+		logger.info("urlReport {}", urlReport);
+		logger.info("docLoad   {}", urlTemplate);
+		try (
+			SpreadSheet docLoad = new SpreadSheet(urlTemplate, true);
+			SpreadSheet docSave = new SpreadSheet();) {				
+			String sheetName = Sheet.getSheetName(Stats.class);
+			logger.info("sheet {}", sheetName);
+			docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
+			Sheet.fillSheet(docSave, statsList);
+			
+			// remove first sheet
+			docSave.removeSheet(docSave.getSheetName(0));
+
+			docSave.store(urlReport);
+			logger.info("output {}", urlReport);
+		}
+	}
+	
 	public static void main(String[] args) {
 		logger.info("START");
 		
 		List<Stats> statsList = getStatsList();
 		logger.info("save {} {}", Stats.getPath(), statsList.size());
 		Stats.save(statsList);
+		
+		generateReport(statsList);
 				
 		logger.info("STOP");
+		System.exit(0);
 	}
 }
