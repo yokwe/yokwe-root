@@ -49,7 +49,11 @@ public class UpdateStats {
 			}
 			
 			List<Price> priceList = Price.getList(symbol).stream().filter(o -> dateSet.contains(o.date)).collect(Collectors.toList());
-			if (priceList.isEmpty()) continue;
+			// skip if priceList is empty
+			if (priceList.isEmpty()) {
+				logger.info("no price info {}", symbol);
+				continue;
+			}
 
 			int pricec = priceList.size();
 			double[] closeArray  = priceList.stream().mapToDouble(o -> o.close).toArray();
@@ -76,8 +80,13 @@ public class UpdateStats {
 			// last
 			if (2 <= pricec) {
 				Price last = priceList.get(pricec - 2);
-				statsUS.last    = last.close;
-				statsUS.lastPCT = DoubleUtil.round((statsUS.price - statsUS.last) / statsUS.last, 3) ;
+				if (DoubleUtil.isAlmostZero(last.close)) {
+					statsUS.last    = -1;
+					statsUS.lastPCT = -1;
+				} else {
+					statsUS.last    = last.close;
+					statsUS.lastPCT = DoubleUtil.round((statsUS.price - statsUS.last) / statsUS.last, 3) ;
+				}
 			} else {
 				statsUS.last    = -1;
 				statsUS.lastPCT = -1;
