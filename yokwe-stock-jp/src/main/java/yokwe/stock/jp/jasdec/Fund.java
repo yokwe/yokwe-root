@@ -2,27 +2,26 @@ package yokwe.stock.jp.jasdec;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class Fund implements Comparable<Fund> {
 	public static final String INDEFINITE = "9999-12-31";
 	public static final String PREFIX = "jasdec";
 	
+	private static final String PATH_FILE = Storage.getPath(PREFIX, "fund.csv");
 	public static final String getPath() {
-		return Storage.getPath(PREFIX, "fund.csv");
+		return PATH_FILE;
 	}
 	
 	public static void save(List<Fund> list) {
-		Collections.sort(list);
-		CSVUtil.write(Fund.class).file(getPath(), list);
+		ListUtil.save(Fund.class, getPath(), list);
 	}
 	public static List<Fund> load() {
-		return CSVUtil.read(Fund.class).file(getPath());
+		return ListUtil.load(Fund.class, getPath());
 	}
 
 	public int        idno;           // IDNO
