@@ -3,6 +3,8 @@ package yokwe.stock.jp.jpx;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -376,17 +378,22 @@ public class UpdateStats {
 		return statsList;
 	}
 
-	private static void generateReport(List<Stats> statsList) {		
-		String pathTemplate = Storage.JPX.getPath("TEMPLATE_STATS.ods");
-		String urlTemplate  = StringUtil.toURLString(pathTemplate);
+	private static final String PREFIX_REPORT = "report";
+	private static final String URL_TEMPLATE  = StringUtil.toURLString(Storage.JPX.getPath("TEMPLATE_STATS.ods"));
 
-		String pathReport = Storage.JPX.getPath("stats.ods");
-		String urlReport  = StringUtil.toURLString(pathReport);
+	private static void generateReport(List<Stats> statsList) {
+		String urlReport;
+		{
+			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
+			String name       = String.format("stats-%s.ods", timestamp);
+			String pathReport = Storage.JPX.getPath(PREFIX_REPORT, name);
+			urlReport  = StringUtil.toURLString(pathReport);
+		}
 
 		logger.info("urlReport {}", urlReport);
-		logger.info("docLoad   {}", urlTemplate);
+		logger.info("docLoad   {}", URL_TEMPLATE);
 		try (
-			SpreadSheet docLoad = new SpreadSheet(urlTemplate, true);
+			SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
 			SpreadSheet docSave = new SpreadSheet();) {				
 			String sheetName = Sheet.getSheetName(Stats.class);
 			logger.info("sheet {}", sheetName);
