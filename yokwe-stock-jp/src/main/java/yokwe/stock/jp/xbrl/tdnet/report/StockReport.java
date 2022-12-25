@@ -32,37 +32,33 @@ import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_ED_T_LABEL.QUARTERLY_PERIOD
 import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_ED_T_LABEL.SECURITIES_CODE;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.tdnet.SummaryFilename;
-import yokwe.stock.jp.xbrl.inline.BaseElement;
 import yokwe.stock.jp.xbrl.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.TDNET;
-import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
 public class StockReport extends BaseReport implements Comparable<StockReport> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final String PATH_FILE = TDNET.getPath("stock-report.csv");
+	private static final String PATH_FILE = Storage.XBRL.TDNET.getPath("stock-report.csv");
+	public static final String getPath() {
+		return PATH_FILE;
+	}
 
 	public static List<StockReport> getList() {
-		List<StockReport> ret = CSVUtil.read(StockReport.class).file(PATH_FILE);
-		return (ret == null) ? new ArrayList<>() : ret;
+		return ListUtil.getList(StockReport.class, getPath());
 	}
 	
 	public static void save(Collection<StockReport> collection) {
-		List<StockReport> list = new ArrayList<>(collection);
-		save(list);
+		ListUtil.save(StockReport.class, getPath(), collection);
 	}
 	public static void save(List<StockReport> list) {
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(StockReport.class).file(PATH_FILE, list);
+		ListUtil.save(StockReport.class, getPath(), list);
 	}
 	
 

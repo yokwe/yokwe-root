@@ -1,41 +1,33 @@
 package yokwe.stock.jp.xbrl.tdnet.report;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import yokwe.stock.jp.xbrl.tdnet.TDNET;
-import yokwe.util.CSVUtil;
+import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil.DecimalPlaces;
 import yokwe.util.DoubleUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
 public class DividendREIT implements Comparable<DividendREIT> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
+	private static final String PATH_FILE = Storage.XBRL.TDNET.getPath("dividend-reit.csv");
 	public static String getPath() {
-		return TDNET.getPath("dividend-reit.csv");
+		return PATH_FILE;
 	}
 
 	public static void save(Collection<DividendREIT> collection) {
-		save(new ArrayList<>(collection));
+		ListUtil.save(DividendREIT.class, getPath(), collection);
 	}
 	public static void save(List<DividendREIT> list) {
-		if (list.isEmpty()) return;
-		String path = getPath();
-		
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(DividendREIT.class).file(path, list);
+		ListUtil.save(DividendREIT.class, getPath(), list);
 	}
 	
 	public static List<DividendREIT> getList() {
-		String path = getPath();
-		List<DividendREIT> ret = CSVUtil.read(DividendREIT.class).file(path);
-		return ret == null ? new ArrayList<>() : ret;
+		return ListUtil.getList(DividendREIT.class, getPath());
 	}
 	public static Map<String, Map<String, DividendREIT>> getMap() {
 		//            sotckCode   date

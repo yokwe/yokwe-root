@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import jakarta.xml.bind.JAXB;
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.tdnet.Label.Key;
 import yokwe.stock.jp.xbrl.tdnet.label.Linkbase;
@@ -32,17 +33,17 @@ public class UpdateLabel {
 	}
 	private static final List<PathInfo> pathInfolist= new ArrayList<>();
 	static {
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, TDNET.getPath("61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab.xml")));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, TDNET.getPath("61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab-en.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, Storage.XBRL.TDNET.getPath("61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, Storage.XBRL.TDNET.getPath("61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab-en.xml")));
 		
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, TDNET.getPath("61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab.xml")));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, TDNET.getPath("61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab-en.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, Storage.XBRL.TDNET.getPath("61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_RE_T, Storage.XBRL.TDNET.getPath("61_taxonomy/tse-re-2014-01-12/taxonomy/jp/tse/tdnet/re/t/2014-01-12/tse-re-t-2014-01-12-lab-en.xml")));
 
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, TDNET.getPath("61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab.xml")));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, TDNET.getPath("61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab-en.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, Storage.XBRL.TDNET.getPath("61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_AT_T, Storage.XBRL.TDNET.getPath("61_taxonomy/tse-at-2014-01-12/taxonomy/jp/tse/tdnet/at/t/2014-01-12/tse-at-t-2014-01-12-lab-en.xml")));
 
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_T_CG, TDNET.getPath("tse-cg-2015-04-01/jp/br/tdnet/t/cg/2007-06-30/tse-t-cg-2007-06-30-label.xml")));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_T_CG, TDNET.getPath("tse-cg-2015-04-01/jp/br/tdnet/t/cg/2007-06-30/tse-t-cg-2007-06-30-label-en.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_T_CG, Storage.XBRL.TDNET.getPath("tse-cg-2015-04-01/jp/br/tdnet/t/cg/2007-06-30/tse-t-cg-2007-06-30-label.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_T_CG, Storage.XBRL.TDNET.getPath("tse-cg-2015-04-01/jp/br/tdnet/t/cg/2007-06-30/tse-t-cg-2007-06-30-label-en.xml")));
 	}
 
 	public static void main(String[] args) {

@@ -19,36 +19,31 @@ import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.PAYOUT_RATIO;
 import static yokwe.stock.jp.xbrl.tdnet.taxonomy.TSE_RE_T_LABEL.SECURITIES_CODE;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.tdnet.SummaryFilename;
 import yokwe.stock.jp.xbrl.inline.BaseElement;
 import yokwe.stock.jp.xbrl.inline.Document;
-import yokwe.stock.jp.xbrl.tdnet.TDNET;
-import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
+import yokwe.util.ListUtil;
 
 public class REITReport extends BaseReport implements Comparable<REITReport> {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	public static final String PATH_FILE = TDNET.getPath("reit-report.csv");
+	private static final String PATH_FILE = Storage.XBRL.TDNET.getPath("reit-report.csv");
+	public static final String getPath() {
+		return PATH_FILE;
+	}
 
 	public static List<REITReport> getList() {
-		List<REITReport> ret = CSVUtil.read(REITReport.class).file(PATH_FILE);
-		return (ret == null) ? new ArrayList<>() : ret;
+		return ListUtil.getList(REITReport.class, getPath());
 	}
 	
 	public static void save(Collection<REITReport> collection) {
-		List<REITReport> list = new ArrayList<>(collection);
-		save(list);
+		ListUtil.save(REITReport.class, getPath(), collection);
 	}
 	public static void save(List<REITReport> list) {
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(REITReport.class).file(PATH_FILE, list);
+		ListUtil.save(REITReport.class, getPath(), list);
 	}
 
 

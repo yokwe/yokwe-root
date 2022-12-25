@@ -93,7 +93,7 @@ public class UpdateStockReport {
 		// save list
 		logger.info("count {} / {}", countUpdate, count);
 		if (0 < countUpdate) {
-			logger.info("save {} {}", StockReport.PATH_FILE, list.size());
+			logger.info("save {} {}", list.size(), StockReport.getPath());
 			StockReport.save(list);
 		}
 

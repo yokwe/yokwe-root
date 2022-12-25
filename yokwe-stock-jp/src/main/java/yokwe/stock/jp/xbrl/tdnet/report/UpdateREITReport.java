@@ -91,7 +91,7 @@ public class UpdateREITReport {
 		
 		logger.info("count {} / {}", countUpdate, count);
 		if (0 < countUpdate) {
-			logger.info("save {} {}", REITReport.PATH_FILE, list.size());
+			logger.info("save {} {}", list.size(), REITReport.getPath());
 			REITReport.save(list);
 		}
 
