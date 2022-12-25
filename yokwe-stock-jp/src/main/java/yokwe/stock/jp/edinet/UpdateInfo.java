@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
@@ -42,7 +42,7 @@ public class UpdateInfo {
 				        		if (c == '\n') break;
 				        	}
 				        	
-				        	List<EDINETInfo> list = CSVUtil.read(EDINETInfo.class).file(isr);
+				        	List<EDINETInfo> list = ListUtil.getList(EDINETInfo.class, isr);
 				        							
 							logger.info("write  {}   {}", list.size(), EDINETInfo.getPath());
 							EDINETInfo.save(list);
@@ -85,7 +85,7 @@ public class UpdateInfo {
 				        		if (c == '\n') break;
 				        	}
 				        	
-				        	List<FundInfo> list = CSVUtil.read(FundInfo.class).file(isr);
+				        	List<FundInfo> list = ListUtil.getList(FundInfo.class, isr);
 							logger.info("write  {}   {}", list.size(), FundInfo.getPath());
 							FundInfo.save(list);
 				        }
