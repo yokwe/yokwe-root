@@ -2,7 +2,7 @@ package yokwe.stock.jp.toushin;
 
 import yokwe.util.CSVUtil;
 
-public class DivPrice {
+public class DivPrice implements Comparable<DivPrice> {
 	// 年月日	        基準価額(円)	純資産総額（百万円）	分配金	決算期
 	// 2022年04月25日	19239	        1178200	                0       4
 	// 2022年04月26日	19167	        1174580   
@@ -23,5 +23,10 @@ public class DivPrice {
 		this.nav      = null;
 		this.dividend = null;
 		this.period   = null;
+	}
+
+	@Override
+	public int compareTo(DivPrice that) {
+		return this.date.compareTo(that.date);
 	}
 }
