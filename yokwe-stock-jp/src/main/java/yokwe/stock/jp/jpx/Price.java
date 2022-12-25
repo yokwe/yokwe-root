@@ -1,19 +1,15 @@
 package yokwe.stock.jp.jpx;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
-import yokwe.util.UnexpectedException;
+import yokwe.util.ListUtil;
 
 public class Price implements Comparable<Price> {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
 	private static final String PREFIX = "price";
 	public static String getPath() {
 		return Storage.JPX.getPath(PREFIX);
@@ -27,41 +23,25 @@ public class Price implements Comparable<Price> {
 		return Storage.JPX.getPath(PREFIX_DELIST);
 	}
 
-	public static void save(Collection<Price> collection) {
-		save(new ArrayList<>(collection));
-	}
-	public static void save(List<Price> list) {
-		if (list.isEmpty()) return;
-		Price price = list.get(0);
-		String stockCode = price.stockCode;
+	public static void save(String stockCode, Collection<Price> collection) {
 		String path = getPath(stockCode);
-		
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(Price.class).file(path, list);
+		ListUtil.save(Price.class, path, collection);
+	}
+	public static void save(String stockCode, List<Price> list) {
+		String path = getPath(stockCode);
+		ListUtil.save(Price.class, path, list);
 	}
 	
 	public static List<Price> getList(String stockCode) {
 		String path = getPath(stockCode);
-		List<Price> ret = CSVUtil.read(Price.class).file(path);
-		return ret == null ? new ArrayList<>() : ret;
+		return ListUtil.getList(Price.class, path);
 	}
 	public static Map<String, Price> getMap(String stockCode) {
-		//            date		
-		Map<String, Price> ret = new TreeMap<>();
-
-		for(Price price: getList(stockCode)) {
-			String date = price.date;
-			if (ret.containsKey(date)) {
-				logger.error("duplicate date {}!", date);
-				logger.error("old {}", ret.get(date));
-				logger.error("new {}", date);
-				throw new UnexpectedException("duplicate date");
-			} else {
-				ret.put(date, price);
-			}
-		}
-		return ret;
+		//            date
+		var list = getList(stockCode);
+		ListUtil.checkDuplicate(list);
+		
+		return list.stream().collect(Collectors.toMap(o -> o.date, o -> o));
 	}
 	
 	private static Map<String, Map<String, Price>> cacheMap = new TreeMap<>();

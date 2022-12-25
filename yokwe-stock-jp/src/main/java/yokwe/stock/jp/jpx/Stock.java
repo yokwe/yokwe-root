@@ -1,14 +1,13 @@
 package yokwe.stock.jp.jpx;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
@@ -25,34 +24,19 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	}
 	
 	public static List<Stock> getList() {
-		List<Stock> list = CSVUtil.read(Stock.class).file(getPath());
-		if (list == null) {
-			list = new ArrayList<>();
-		}
-		return list;
+		return ListUtil.getList(Stock.class, getPath());
 	}
 	public static Map<String, Stock> getMap() {
-		Map<String, Stock> map = new TreeMap<>();
-		for(Stock e: getList()) {
-			String stockCode = e.stockCode;
-			if (map.containsKey(stockCode)) {
-				logger.error("Duplicate stockCode {}", stockCode);
-				throw new UnexpectedException("Duplicate stockCode");
-			} else {
-				map.put(stockCode, e);
-			}
-		}
-		return map;
+		//            stockCode
+		var list = getList();
+		ListUtil.checkDuplicate(list);
+		return list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o));
 	}
 	public static void save(Collection<Stock> collection) {
-		save(new ArrayList<>(collection));
+		ListUtil.save(Stock.class, getPath(), collection);
 	}
 	public static void save(List<Stock> list) {
-		if (list.isEmpty()) return;
-		
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(Stock.class).file(getPath(), list);
+		ListUtil.save(Stock.class, getPath(), list);
 	}
 	
 	public static String toStockCode4(String stockCode) {

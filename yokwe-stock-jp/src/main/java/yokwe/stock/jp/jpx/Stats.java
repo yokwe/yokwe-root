@@ -3,24 +3,24 @@ package yokwe.stock.jp.jpx;
 import java.util.List;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.libreoffice.Sheet;
 
 @Sheet.SheetName("stats")
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
-public class Stats extends Sheet {
+public class Stats extends Sheet implements Comparable<Stats>  {
 	private static final String PATH_FILE = Storage.JPX.getPath("stats.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}
 
 	public static void save(List<Stats> statsList) {
-		CSVUtil.write(Stats.class).file(PATH_FILE, statsList);
+		ListUtil.save(Stats.class, getPath(), statsList);
 	}
 	
 	public static List<Stats> load() {
-		return CSVUtil.read(Stats.class).file(PATH_FILE);
+		return ListUtil.load(Stats.class, getPath());
 	}
 
 	
@@ -105,4 +105,9 @@ public class Stats extends Sheet {
 	public double volPCT;          // vol / numberOfIssued
 	@Sheet.ColumnName("feb17PCT")
 	public double feb17PCT;
+	
+	@Override
+	public int compareTo(Stats that) {
+		return this.stockCode.compareTo(that.stockCode);
+	}
 }

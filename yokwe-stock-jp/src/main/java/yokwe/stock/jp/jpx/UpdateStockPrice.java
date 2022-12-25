@@ -423,7 +423,7 @@ public class UpdateStockPrice {
 				}
 			}
 			
-			Price.save(priceMap.values());
+			Price.save(stockCode, priceMap.values());
 		}
 		
 		logger.info("countTotal  {}", String.format("%4d", countTotal));

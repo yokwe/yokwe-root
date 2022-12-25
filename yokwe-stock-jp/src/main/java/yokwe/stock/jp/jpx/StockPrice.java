@@ -2,11 +2,10 @@ package yokwe.stock.jp.jpx;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 
 public class StockPrice implements Comparable<StockPrice> {
 	private static final String PATH_FILE = Storage.JPX.getPath("stock-price.csv");
@@ -16,19 +15,14 @@ public class StockPrice implements Comparable<StockPrice> {
 	}
 
 	public static List<StockPrice> getList() {
-		List<StockPrice> ret = CSVUtil.read(StockPrice.class).file(PATH_FILE);
-		if (ret == null) {
-			ret = new ArrayList<>();
-		}
-		return ret;
+		return ListUtil.getList(StockPrice.class, getPath());
 	}
 	public static void save(Collection<StockPrice> collection) {
+		ListUtil.save(StockPrice.class, getPath(), collection);
 		save(new ArrayList<>(collection));
 	}
 	public static void save(List<StockPrice> list) {
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(StockPrice.class).file(PATH_FILE, list);
+		ListUtil.save(StockPrice.class, getPath(), list);
 	}
 	
 	public String date;      // YYYY-MM-DD -- taken from file modified time

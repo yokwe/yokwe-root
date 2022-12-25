@@ -1,45 +1,27 @@
 package yokwe.stock.jp.jpx;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
-import yokwe.util.UnexpectedException;
+import yokwe.util.ListUtil;
 
 public class StockInfo implements Comparable<StockInfo> {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
 	private static final String PATH_FILE = Storage.JPX.getPath("stock-info.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}
 	
 	public static List<StockInfo> getList() {
-		List<StockInfo> list = CSVUtil.read(StockInfo.class).file(PATH_FILE);
-		if (list == null) {
-			list = new ArrayList<>();
-		}
-		return list;
+		return ListUtil.getList(StockInfo.class, getPath());
 	}
 	private static Map<String, StockInfo> getMap() {
-		Map<String, StockInfo> map = new TreeMap<>();
-		for(StockInfo stock: getList()) {
-			String stockCode = stock.stockCode;
-			if (map.containsKey(stockCode)) {
-				logger.error("duplicate stockCode {}!", stockCode);
-				logger.error("old {}", map.get(stockCode));
-				logger.error("new {}", stock);
-				throw new UnexpectedException("duplicate stockCode");
-			} else {
-				map.put(stock.stockCode, stock);
-			}
-		}
-		return map;
+		//             stockCode
+		var list = getList();
+		ListUtil.checkDuplicate(list);
+		return list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o));
 	}
 	private static Map<String, StockInfo> map = null;
 	public static StockInfo get(String stockCode) {
@@ -49,12 +31,10 @@ public class StockInfo implements Comparable<StockInfo> {
 		return map.containsKey(stockCode) ? map.get(stockCode) : null;
 	}
 	public static void save(Collection<StockInfo> collection) {
-		save(new ArrayList<>(collection));
+		ListUtil.save(StockInfo.class, getPath(), collection);
 	}
 	public static void save(List<StockInfo> list) {
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(StockInfo.class).file(PATH_FILE, list);
+		ListUtil.save(StockInfo.class, getPath(), list);
 	}
 
 	public String stockCode; // コード 4 or 5 digits
