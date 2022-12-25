@@ -1,5 +1,6 @@
 package yokwe.util;
 
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -62,8 +63,15 @@ public final class ListUtil {
 	public static <E extends Comparable<E>, K> List<E> load(Class<E> clazz, String path) {
 		return CSVUtil.read(clazz).file(path);
 	}
+	public static <E extends Comparable<E>, K> List<E> load(Class<E> clazz, Reader reader) {
+		return CSVUtil.read(clazz).file(reader);
+	}
 	public static <E extends Comparable<E>, K> List<E> getList(Class<E> clazz, String path) {
 		var ret = load(clazz, path);
+		return ret == null ? new ArrayList<>() : ret;
+	}
+	public static <E extends Comparable<E>, K> List<E> getList(Class<E> clazz, Reader reader) {
+		var ret = load(clazz, reader);
 		return ret == null ? new ArrayList<>() : ret;
 	}
 }
