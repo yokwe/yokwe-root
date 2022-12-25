@@ -287,13 +287,27 @@ public class FileUtil {
 			if (validNameSet.contains(name)) continue;
 
 			try {
-				logger.info("move unknonw file {}/{}  {}", dir.getPath(), name, delistDir.getPath());
+				logger.info("move unknonw file {} to {}", file.getPath(), delistDir.getPath());
 				Files.move(file.toPath(), delistDirPath.resolve(name), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
 				throw new UnexpectedException(exceptionName, e);
 			}
+		}
+	}
+	public static void deleteUnknownFile(Set<String> validNameSet, String dirString) {
+		deleteUnknownFile(validNameSet, new File(dirString));
+	}
+	public static void deleteUnknownFile(Set<String> validNameSet, File dir) {
+		for(var file: dir.listFiles()) {
+			if (file.isDirectory()) continue;
+			
+			String name = file.getName();
+			if (validNameSet.contains(name)) continue;
+
+			logger.info("delete unknown file {}", file.getPath());
+			file.delete();
 		}
 	}
 }
