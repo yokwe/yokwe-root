@@ -11,6 +11,21 @@ public final class Storage {
 		return getPath(String.format("%s/%s", prefix, path));
 	}
 
+	// EDINET
+	public static final class EDINET {
+		public static final String PREFIX = "edinet";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 	// JAPAN REIT
 	public static final class JapanREIT {
 		public static final String PREFIX = "japanreit";

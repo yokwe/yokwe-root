@@ -4,13 +4,14 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.regex.Pattern;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
 
 public class Filename {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final String PATH_FILE_DIR = EDINET.getPath("file");
+	public static final String PATH_FILE_DIR = Storage.EDINET.getPath("file");
 	private static final File toFile(LocalDate downloadDate, String docID, String string) {
 		String path = String.format("%s/%04d/%02d/%02d/%s/%s",
 			PATH_FILE_DIR, downloadDate.getYear(), downloadDate.getMonthValue(), downloadDate.getDayOfMonth(),docID, string);

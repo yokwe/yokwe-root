@@ -1,39 +1,34 @@
 package yokwe.stock.jp.edinet;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
 public class EDINETInfo implements Comparable<EDINETInfo> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	private static final String PATH_DATA = getPath();	
-	public static String getPath() {
-		return EDINET.getPath("edinet-info.csv");
+	private static final String PATH_FILE = Storage.EDINET.getPath("edinet-info.csv");
+	public static final String getPath() {
+		return PATH_FILE;
 	}
 	
 	public static final void save(List<EDINETInfo> list) {
-		// Sort before write
-		Collections.sort(list);
-		CSVUtil.write(EDINETInfo.class).file(PATH_DATA, list);
+		ListUtil.save(EDINETInfo.class, getPath(), list);
 	}
 	
 	public static List<EDINETInfo> load() {
-		return CSVUtil.read(EDINETInfo.class).file(PATH_DATA);
+		return ListUtil.load(EDINETInfo.class, getPath());
 	}
 	
 	private static List<EDINETInfo> list = null;
 	public static List<EDINETInfo> getList() {
 		if (list == null) {
-			list = CSVUtil.read(EDINETInfo.class).file(PATH_DATA);
-			if (list == null) {
-				list = new ArrayList<>();
-			}
+			list = ListUtil.getList(EDINETInfo.class, getPath());
 		}
 		return list;
 	}

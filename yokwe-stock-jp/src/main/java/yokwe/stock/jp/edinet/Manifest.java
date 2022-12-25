@@ -1,39 +1,32 @@
 package yokwe.stock.jp.edinet;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.edinet.Filename.Report;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 
 public class Manifest implements Comparable<Manifest> {
-	private static final String PATH_DATA = EDINET.getPath("manifest.csv");
-	public static String getPath() {
-		return PATH_DATA;
+	private static final String PATH_FILE = Storage.EDINET.getPath("manifest.csv");
+	public static final String getPath() {
+		return PATH_FILE;
 	}
 	
-	public static final void save(Collection<Manifest> list) {
-		save(new ArrayList<>(list));
+	public static final void save(Collection<Manifest> collection) {
+		ListUtil.save(Manifest.class, getPath(), collection);
 	}
 	public static final void save(List<Manifest> list) {
-		// Sort before write
-		Collections.sort(list);
-		CSVUtil.write(Manifest.class).file(PATH_DATA, list);
+		ListUtil.save(Manifest.class, getPath(), list);
 	}
 	
 	public static List<Manifest> load() {
-		return CSVUtil.read(Manifest.class).file(PATH_DATA);
+		return ListUtil.load(Manifest.class, getPath());
 	}
 	
 	public static List<Manifest> getList() {
-		List<Manifest> ret = load();
-		if (ret == null) {
-			ret = new ArrayList<>();
-		}
-		return ret;
+		return ListUtil.getList(Manifest.class, getPath());
 	}
 	
 	public LocalDate downloadDate;

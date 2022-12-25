@@ -3,40 +3,35 @@ package yokwe.stock.jp.edinet;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.edinet.API.DocType;
-import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
 public class Document implements Comparable<Document> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static final String PATH_TOUCH_FILE = EDINET.getPath("edinet.touch");
+	public static final String PATH_TOUCH_FILE    = Storage.EDINET.getPath("edinet.touch");
 	public static void touch() {
 		logger.info("touch {}", PATH_TOUCH_FILE);
 		FileUtil.touch(PATH_TOUCH_FILE);
 	}
 	
-	public static final String PATH_DOCUMENT_FILE     = EDINET.getPath("document.csv");
+	public static final String PATH_DOCUMENT_FILE = Storage.EDINET.getPath("document.csv");
 
 	public static List<Document> load() {
-		List<Document> ret = CSVUtil.read(Document.class).file(PATH_DOCUMENT_FILE);
-		return ret;
+		return ListUtil.load(Document.class, PATH_DOCUMENT_FILE);
 	}
 	private static List<Document> list = null;
 	public static List<Document> getList() {
 		if (list == null) {
-			list = load();
-			if (list == null) {
-				list = new ArrayList<>();
-			}
+			list = ListUtil.getList(Document.class, PATH_DOCUMENT_FILE);
 		}
 		return list;
 	}
@@ -44,18 +39,9 @@ public class Document implements Comparable<Document> {
 	//                 docID
 	public static Map<String, Document> getDocumentMap() {
 		if (documentMap == null) {
-			documentMap = new TreeMap<>();
-			for(Document e: getList()) {
-				String key = e.docID;
-				if (documentMap.containsKey(key)) {
-					logger.error("Duplicate key {}", key);
-					logger.error("  old {}", documentMap.get(key));
-					logger.error("  new {}", e);
-					throw new UnexpectedException("Duplicate key");
-				} else {
-					documentMap.put(key, e);
-				}
-			}
+			var list = getList();
+			ListUtil.checkDuplicate(list);
+			documentMap = list.stream().collect(Collectors.toMap(o -> o.docID, o -> o));
 		}
 		return documentMap;
 	}
@@ -77,13 +63,10 @@ public class Document implements Comparable<Document> {
 	}
 	
 	public static void save(Collection<Document> collection) {
-		List<Document> list = new ArrayList<>(collection);
-		save(list);
+		ListUtil.save(Document.class, PATH_DOCUMENT_FILE, collection);
 	}
 	public static void save(List<Document> list) {
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(Document.class).file(PATH_DOCUMENT_FILE, list);
+		ListUtil.save(Document.class, PATH_DOCUMENT_FILE, list);
 	}
 	
 	public LocalDate	 downloadDate;
@@ -151,7 +134,7 @@ public class Document implements Comparable<Document> {
 		return this.docID;
 	}
 	
-	public static final String PATH_DOCUMENT_DIR = EDINET.getPath("document");
+	public static final String PATH_DOCUMENT_DIR = Storage.EDINET.getPath("document");
 	
 	public File toFile() {
 		String path = String.format("%s/%04d/%02d/%02d/%s",

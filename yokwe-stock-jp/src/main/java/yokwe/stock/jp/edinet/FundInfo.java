@@ -1,40 +1,36 @@
 package yokwe.stock.jp.edinet;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
 public class FundInfo implements Comparable<FundInfo> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	private static final String PATH_DATA = getPath();
+	private static final String PATH_FILE = Storage.EDINET.getPath("fund-info.csv");
 	
 	public static final String getPath() {
-		return EDINET.getPath("fund-info.csv");
+		return PATH_FILE;
 	}
 	
 	public static final void save(List<FundInfo> list) {
-		// Sort before write
-		Collections.sort(list);
-		CSVUtil.write(FundInfo.class).file(PATH_DATA, list);
+		ListUtil.save(FundInfo.class, getPath(), list);
 	}
 	
 	public static List<FundInfo> load() {
-		return CSVUtil.read(FundInfo.class).file(PATH_DATA);
+		return ListUtil.load(FundInfo.class, getPath());
 	}
 	
 	private static List<FundInfo> list = null;
 	public static List<FundInfo> getList() {
 		if (list == null) {
-			list = CSVUtil.read(FundInfo.class).file(PATH_DATA);
-			if (list == null) {
-				list = new ArrayList<>();
-			}
+			list = ListUtil.getList(FundInfo.class, getPath());
 		}
 		return list;
 	}
@@ -43,18 +39,9 @@ public class FundInfo implements Comparable<FundInfo> {
 	//                 fundCode
 	public static Map<String, FundInfo> getMap() {
 		if (map == null) {
-			map = new TreeMap<>();
-			for(FundInfo e: getList()) {
-				String key = e.fundCode;
-				if (map.containsKey(key)) {
-					logger.error("Duplicate edinetCode");
-					logger.error("  old  {}", map.get(key));
-					logger.error("  new  {}", e);
-					throw new UnexpectedException("Duplicate edinetCode");
-				} else {
-					map.put(key, e);
-				}
-			}
+			var list = getList();
+			ListUtil.checkDuplicate(list);
+			map = list.stream().collect(Collectors.toMap(o -> o.fundCode, o -> o));
 		}
 		return map;
 	}
