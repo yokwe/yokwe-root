@@ -196,7 +196,7 @@ public class UpdateFundStats {
 			statsList.add(stats);
 		}
 		
-		logger.info("save {} {}", statsList.size(), FundStats.PATH_FILE);
+		logger.info("save {} {}", statsList.size(), FundStats.getPath());
 		FundStats.save(statsList);		
 		
 		logger.info("STOP");

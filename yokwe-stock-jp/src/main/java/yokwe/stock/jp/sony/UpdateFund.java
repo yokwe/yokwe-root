@@ -139,7 +139,7 @@ public class UpdateFund {
 		{
 			List<Fund> list = updateList();
 			
-			logger.info("save {} {}", list.size(), Fund.PATH_FILE);
+			logger.info("save {} {}", list.size(), Fund.getPath());
 			Fund.save(list);
 		}
 		

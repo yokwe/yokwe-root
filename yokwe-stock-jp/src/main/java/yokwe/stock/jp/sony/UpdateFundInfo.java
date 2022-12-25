@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
@@ -527,11 +528,9 @@ public class UpdateFundInfo {
 		return String.format(FORMAT_URL, isinCode);
 	}
 	
-	public static final String PATH_DIR_DATA = Sony.getPath("page");
-
-	public static final String FORMAT_PATH   = String.format("%s/%%s.html", PATH_DIR_DATA);
+	private static final String PREFIX = "page";
 	public static String getPath(String isinCode) {
-		return String.format(FORMAT_PATH, isinCode);
+		return Storage.Sony.getPath(PREFIX, isinCode + "html");
 	}
 
 	public static void main(String[] args) {
@@ -565,7 +564,7 @@ public class UpdateFundInfo {
 		}
 		
 		// Save infoList
-		logger.info("save {} {}", infoList.size(), FundInfo.PATH_FILE);
+		logger.info("save {} {}", infoList.size(), FundInfo.getPath());
 		FundInfo.save(infoList);
 		
 		// Save divList
@@ -584,8 +583,10 @@ public class UpdateFundInfo {
 				}
 			}
 			logger.info("divList map {}", map.size());
-			for(List<Dividend> list: map.values()) {
-				Dividend.save(list);
+			for(var e: map.entrySet()) {
+				var isinCode = e.getKey();
+				var list     = e.getValue();
+				Dividend.save(isinCode, list);
 			}
 		}
 		

@@ -2,37 +2,27 @@ package yokwe.stock.jp.sony;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import yokwe.util.CSVUtil;
+import yokwe.stock.jp.Storage;
+import yokwe.util.ListUtil;
 
 public class Price implements Comparable<Price> {
-	public static final String PATH_DIR_DATA = Sony.getPath("price");
-	public static String getPath(String stockCode) {
-		return String.format("%s/%s.csv", PATH_DIR_DATA, stockCode);
+	private static final String PREFIX = "price";
+	public static String getPath(String isinCode) {
+		return Storage.Sony.getPath(PREFIX, isinCode + ".csv");
 	}
 
-	public static void save(Collection<Price> collection) {
-		save(new ArrayList<>(collection));
+	public static void save(String isinCode, Collection<Price> collection) {
+		ListUtil.save(Price.class, getPath(isinCode), collection);
 	}
-	public static void save(List<Price> list) {
-		if (list.isEmpty()) return;
-		Price price = list.get(0);
-		String isinCode = price.isinCode;
-		String path = getPath(isinCode);
-		
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(Price.class).file(path, list);
+	public static void save(String isinCode, List<Price> list) {
+		ListUtil.save(Price.class, getPath(isinCode), list);
 	}
 
 	public static List<Price> getList(String isinCode) {
-		String path = getPath(isinCode);
-		List<Price> ret = CSVUtil.read(Price.class).file(path);
-		return ret == null ? new ArrayList<>() : ret;
+		return ListUtil.getList(Price.class, getPath(isinCode));
 	}
 
 	

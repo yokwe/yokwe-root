@@ -1,50 +1,45 @@
 package yokwe.stock.jp.sony;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import yokwe.util.CSVUtil;
+import yokwe.stock.jp.Storage;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
 public class Fund implements Comparable<Fund> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final String PATH_FILE = Sony.getPath("fund.csv");
+	private static final String PATH_FILE = Storage.Sony.getPath("fund.csv");
+	public static final String getPath() {
+		return PATH_FILE;
+	}
 
 	private static List<Fund> list = null;
 	public static List<Fund> getList() {
 		if (list == null) {
-			list = CSVUtil.read(Fund.class).file(PATH_FILE);
-			if (list == null) {
-				list = new ArrayList<>();
-			}
+			list = ListUtil.getList(Fund.class, getPath());
 		}
 		return list;
 	}
-	
+
 	private static Map<String, Fund> map = null;
 	public static Map<String, Fund> getMap() {
 		if (map == null) {
-			map = new TreeMap<>();
-			for(var e: getList()) {
-				map.put(e.isinCode, e);
-			}
+			var list = getList();
+			map = list.stream().collect(Collectors.toMap(o -> o.isinCode, o -> o));
 		}
 		return map;
 	}
 
 	public static void save(Collection<Fund> collection) {
-		save(new ArrayList<>(collection));
+		ListUtil.save(Fund.class, getPath(), collection);
 	}
 	public static void save(List<Fund> list) {
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(Fund.class).file(PATH_FILE, list);
+		ListUtil.save(Fund.class, getPath(), list);
 	}
 
 	public static enum Region {

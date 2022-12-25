@@ -3,19 +3,23 @@ package yokwe.stock.jp.sony;
 import java.math.BigDecimal;
 import java.util.List;
 
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.sony.Fund.Region;
 import yokwe.stock.jp.sony.Fund.Target;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 
-public class FundStats {
-	public static final String PATH_FILE = Sony.getPath("fund-stats.csv");
+public class FundStats implements Comparable<FundStats> {
+	private static final String PATH_FILE = Storage.Sony.getPath("fund-stats.csv");
+	public static final String getPath() {
+		return PATH_FILE;
+	}
 
-	public static void save(List<FundStats> statsList) {
-		CSVUtil.write(FundStats.class).file(PATH_FILE, statsList);
+	public static void save(List<FundStats> list) {
+		ListUtil.save(FundStats.class, getPath(), list);
 	}
 	
 	public static List<FundStats> load() {
-		return CSVUtil.read(FundStats.class).file(PATH_FILE);
+		return ListUtil.load(FundStats.class, getPath());
 	}
 
 	//
@@ -49,16 +53,21 @@ public class FundStats {
 	//
 	// From Price
 	//
-	public String priceDate;
+	public String     priceDate;
 	public BigDecimal price;
 	
 	//
 	// From Dividend
 	//
-	public String divDate;
+	public String     divDate;
     public BigDecimal div;
     public BigDecimal div1YCount;
     public BigDecimal div1Y;
     public BigDecimal yieldLast;
     public BigDecimal yield1Y;
+    
+	@Override
+	public int compareTo(FundStats that) {
+		return this.isinCode.compareTo(that.isinCode);
+	}
 }

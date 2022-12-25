@@ -9,6 +9,7 @@ import java.util.List;
 
 import jakarta.xml.bind.DataBindingException;
 import jakarta.xml.bind.JAXB;
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 import yokwe.util.http.HttpUtil;
 
@@ -22,11 +23,9 @@ public class UpdatePrice {
 		return String.format("%s/%s.xml", URL_BASE_FUNDDATA, msFundCode);
 	}
 	
-	public static final String PATH_DIR_DATA = Sony.getPath("page");
-
-	public static final String FORMAT_PATH   = String.format("%s/%%s.xml", PATH_DIR_DATA);
-	public static String getPath(String isinCode) {
-		return String.format(FORMAT_PATH, isinCode);
+	private static final String PREFIX = "page";
+	public static final String getPath(String isinCode) {
+		return Storage.Sony.getPath(PREFIX, isinCode + ".xml");
 	}
 
 
@@ -34,10 +33,11 @@ public class UpdatePrice {
 		logger.info("START");
 
 		for(FundInfo fundInfo: FundInfo.getList()) {
+			String isinCode   = fundInfo.isinCode;
 			String msFundCode = fundInfo.msFundCode;
 			if (msFundCode.isEmpty()) continue;
 			
-			logger.info("{} {} {}", fundInfo.isinCode, msFundCode, fundInfo.fundName);
+			logger.info("{} {} {}", isinCode, msFundCode, fundInfo.fundName);
 			
 			final yokwe.stock.jp.sony.xml.ChartFundData chartFundData;
 			{
@@ -82,17 +82,17 @@ public class UpdatePrice {
 							if (day.volume.isEmpty()) continue;
 
 							// 	public Price(LocalDate date, String isinCode, BigDecimal price, long volume) {
-							LocalDate  date = LocalDate.parse(String.format("%s-%s-%s", day.year, day.month, day.value));
-							BigDecimal value = new BigDecimal(day.price);
+							LocalDate  date   = LocalDate.parse(String.format("%s-%s-%s", day.year, day.month, day.value));
+							BigDecimal value  = new BigDecimal(day.price);
 							long       volume = Long.parseLong(day.volume);
-							Price price = new Price(date, fundInfo.isinCode, fundInfo.currency, value, volume);
+							Price price = new Price(date, isinCode, fundInfo.currency, value, volume);
 							priceList.add(price);
 						}
 					}
 				}
 			}
-			logger.info("  save {} {}", priceList.size(), Price.getPath(fundInfo.isinCode));
-			Price.save(priceList);
+			logger.info("  save {} {}", priceList.size(), Price.getPath(isinCode));
+			Price.save(isinCode, priceList);
 		}
 
 		logger.info("STOP");

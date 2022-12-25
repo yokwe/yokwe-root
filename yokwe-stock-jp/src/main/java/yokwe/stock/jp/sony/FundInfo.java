@@ -1,25 +1,24 @@
 package yokwe.stock.jp.sony;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import yokwe.util.CSVUtil;
+import yokwe.stock.jp.Storage;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class FundInfo implements Comparable<FundInfo> {
-	public static final String PATH_FILE = Sony.getPath("fund-info.csv");
+	private static final String PATH_FILE = Storage.Sony.getPath("fund-info.csv");
+	public static final String getPath() {
+		return PATH_FILE;
+	}
 
 	private static List<FundInfo> list = null;
 	public static List<FundInfo> getList() {
 		if (list == null) {
-			list = CSVUtil.read(FundInfo.class).file(PATH_FILE);
-			if (list == null) {
-				list = new ArrayList<>();
-			}
+			list = ListUtil.getList(FundInfo.class, getPath());
 		}
 		return list;
 	}
@@ -27,21 +26,17 @@ public class FundInfo implements Comparable<FundInfo> {
 	private static Map<String, FundInfo> map = null;
 	public static Map<String, FundInfo> getMap() {
 		if (map == null) {
-			map = new TreeMap<>();
-			for(var e: getList()) {
-				map.put(e.isinCode, e);
-			}
+			var list = getList();
+			map = list.stream().collect(Collectors.toMap(o -> o.isinCode, o -> o));
 		}
 		return map;
 	}
 
 	public static void save(Collection<FundInfo> collection) {
-		save(new ArrayList<>(collection));
+		ListUtil.save(FundInfo.class, getPath(), collection);
 	}
 	public static void save(List<FundInfo> list) {
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(FundInfo.class).file(PATH_FILE, list);
+		ListUtil.save(FundInfo.class, getPath(), list);
 	}
 	
 	// from Fund
