@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
-import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -229,7 +229,7 @@ public class UpdateFund {
 		
 		@Override
 		public void accept(String string) {
-			var divPriceList = CSVUtil.read(DivPrice.class).file(new StringReader(string));
+			var divPriceList = ListUtil.load(DivPrice.class, new StringReader(string));
 			if (divPriceList == null) {
 				logger.error("Unexpected null");
 				logger.error("string {}", string);
