@@ -101,6 +101,21 @@ public final class Storage {
 		}
 	}
 	
+	// TDNET
+	public static final class TDNET {
+		public static final String PREFIX = "tdnet";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 	// Toushin
 	public static final class Toushin {
 		public static final String PREFIX = "toushin";

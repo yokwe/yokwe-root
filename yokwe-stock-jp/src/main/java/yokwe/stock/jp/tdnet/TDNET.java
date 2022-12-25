@@ -13,21 +13,12 @@ import yokwe.util.UnexpectedException;
 public class TDNET {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final String DIR_BASE = Storage.getPath("tdnet");
-	public static String getPath() {
-		return DIR_BASE;
-	}
-	public static String getPath(String path) {
-		return String.format("%s/%s", DIR_BASE, path);
-	}
-	
-	private static final String SUMMARY_DIR = getPath("summary");
-	
+	private static final String SUMMARY_DIR = Storage.TDNET.getPath("summary");
 	public static String getSummaryFilePath(SummaryFilename filename) {
 		return String.format("%s/%s/%s", SUMMARY_DIR, filename.tdnetCode, filename);
 	}
 	
-	private static final String PATH_TOUCH_FILE = String.format("%s/%s", DIR_BASE, "tdnet.touch");
+	private static final String PATH_TOUCH_FILE = Storage.TDNET.getPath("tdnet.touch");
 	public static void touch() {
 		logger.info("touch {}", TDNET.PATH_TOUCH_FILE);
 		FileUtil.touch(PATH_TOUCH_FILE);
@@ -38,7 +29,6 @@ public class TDNET {
 		if (summaryFileList == null) {
 			summaryFileList = new ArrayList<>(getSummaryFileMap().values());
 		}
-		
 		return summaryFileList;
 	}
 	public static List<File> getSummaryFileList(Category category) {

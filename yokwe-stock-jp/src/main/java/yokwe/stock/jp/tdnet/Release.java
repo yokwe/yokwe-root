@@ -5,27 +5,26 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import yokwe.util.CSVUtil;
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
 public class Release implements Comparable<Release> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final String PATH_RELEASE_DIR = getReleaseDir();
+	private static final String PATH_RELEASE_DIR = Storage.TDNET.getPath("release");
 	public static String getReleaseDir() {
-		return String.format("%s/release", TDNET.getPath());
+		return PATH_RELEASE_DIR;
 	}
 	private static List<File> releaseFileList = null;
 	public static List<File> getReleaseFileList() {
 		if (releaseFileList == null) {
-			releaseFileList = FileUtil.listFile(PATH_RELEASE_DIR).stream().
+			releaseFileList = FileUtil.listFile(getReleaseDir()).stream().
 					filter(o -> o.getName().endsWith(".pdf") || o.getName().endsWith(".zip")).
 					collect(Collectors.toList());
 		}
@@ -40,9 +39,9 @@ public class Release implements Comparable<Release> {
 	}
 	
 	
-	private static final String PATH_FILE = getPath();
+	private static final String PATH_FILE = Storage.TDNET.getPath("release.csv");
 	public static String getPath() {
-		return String.format("%s/release.csv", TDNET.getPath());
+		return PATH_FILE;
 	}
 
 	public static void save(Collection<Release> collection) {
@@ -50,40 +49,27 @@ public class Release implements Comparable<Release> {
 		save(list);
 	}
 	public static void save(List<Release> list) {
-		// Sort before save
-		Collections.sort(list);
-		CSVUtil.write(Release.class).file(PATH_FILE, list);
+		ListUtil.save(Release.class, getPath(), list);
 	}
 	
 	public static List<Release> load() {
-		return CSVUtil.read(Release.class).file(PATH_FILE);
+		return ListUtil.load(Release.class, getPath());
 	}
 	private static List<Release> list = null;
 	public static List<Release> getList() {
 		if (list == null) {
-			list = load();
+			list = ListUtil.getList(Release.class, getPath());
 		}
 		return list;
 	}
 	private static Map<String, Release> map = null;
-	// key is id
+	//                 id
 	public static Map<String, Release> getMap() {
+		//            id
 		if (map == null) {
-			map = new TreeMap<>();
-			List<Release> list = getList();
-			if (list == null) return map;
-			
-			for(Release e: list) {
-				String key = e.id;
-				if (map.containsKey(key)) {
-					logger.error("Duplicate key {}", key);
-					logger.error("  old {}", map.get(key));
-					logger.error("  new {}", e);
-					throw new UnexpectedException("Duplicate key");
-				} else {
-					map.put(key, e);
-				}
-			}
+			var list = getList();
+			ListUtil.checkDuplicate(list, o -> o.id);
+			map = list.stream().collect(Collectors.toMap(o -> o.id, o -> o));
 		}
 		return map;
 	}
