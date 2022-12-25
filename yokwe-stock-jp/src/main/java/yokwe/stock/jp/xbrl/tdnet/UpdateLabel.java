@@ -117,7 +117,7 @@ public class UpdateLabel {
 			Collections.sort(list);
 			
 			// Save
-			logger.info("Save {} {}", list.size(), Label.PATH_DATA_FILE);
+			logger.info("Save {} {}", list.size(), Label.getPath());
 			Label.save(list);
 		}
 		

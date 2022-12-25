@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.xbrl.XBRL;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.xml.QValue;
 
@@ -43,13 +44,15 @@ public class Label implements Comparable<Label> {
 	}
 	private static Map<Key, String> cache = new TreeMap<>();
 
-	public static final String PATH_DATA_FILE = TDNET.getPath("label.csv");
-		
-	public static List<Label> load() {
-		return CSVUtil.read(Label.class).file(PATH_DATA_FILE);
+	private static final String PATH_DATA_FILE = Storage.XBRL.getPath("label.csv");
+	public static final String getPath() {
+		return PATH_DATA_FILE;
 	}
-	public static void save(Collection<Label> data) {
-		CSVUtil.write(Label.class).file(PATH_DATA_FILE, data);
+	public static List<Label> load() {
+		return ListUtil.load(Label.class, getPath());
+	}
+	public static void save(Collection<Label> collection) {
+		ListUtil.save(Label.class, getPath(), collection);
 	}
 	
 	private static void fillCache() {
