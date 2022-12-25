@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import jakarta.xml.bind.JAXB;
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.stock.jp.xbrl.tdnet.Label.Key;
 import yokwe.stock.jp.xbrl.tdnet.label.Linkbase;
@@ -35,8 +36,8 @@ public class UpdateLabel {
 //		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, TDNET.getPath("61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab.xml")));
 //		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, TDNET.getPath("61_taxonomy/tse-ed-2014-01-12/taxonomy/jp/tse/tdnet/ed/t/2014-01-12/tse-ed-t-2014-01-12-lab-en.xml")));
 		
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, EDINET.getPath("ALL_20201101/taxonomy/jpcrp/2020-11-01/label/jpcrp_2020-11-01_lab.xml")));
-		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, EDINET.getPath("ALL_20201101/taxonomy/jpcrp/2020-11-01/label/jpcrp_2020-11-01_lab-en.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, Storage.XBRL.EDINET.getPath("ALL_20201101/taxonomy/jpcrp/2020-11-01/label/jpcrp_2020-11-01_lab.xml")));
+		pathInfolist.add(new PathInfo(XBRL.NS_TSE_ED_T, Storage.XBRL.EDINET.getPath("ALL_20201101/taxonomy/jpcrp/2020-11-01/label/jpcrp_2020-11-01_lab-en.xml")));
 	}
 
 	public static void main(String[] args) {
@@ -111,7 +112,7 @@ public class UpdateLabel {
 			Collections.sort(list);
 			
 			// Save
-			logger.info("Save {} {}", list.size(), Label.PATH_DATA_FILE);
+			logger.info("Save {} {}", list.size(), Label.getPath());
 			Label.save(list);
 		}
 		
