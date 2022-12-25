@@ -2,6 +2,7 @@ package yokwe.stock.jp.jpx;
 
 import java.util.List;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
 import yokwe.util.libreoffice.Sheet;
 
@@ -9,9 +10,9 @@ import yokwe.util.libreoffice.Sheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class Stats extends Sheet {
-	private static final String PATH_FILE = getPath();
+	private static final String PATH_FILE = Storage.JPX.getPath("stats.csv");
 	public static String getPath() {
-		return JPX.getPath("stats.csv");
+		return PATH_FILE;
 	}
 
 	public static void save(List<Stats> statsList) {

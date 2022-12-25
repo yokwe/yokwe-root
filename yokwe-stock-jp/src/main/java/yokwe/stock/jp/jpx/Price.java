@@ -7,14 +7,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
 
 public class Price implements Comparable<Price> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
+	
+	private static final String PREFIX = "price";
+	public static String getPath() {
+		return Storage.JPX.getPath(PREFIX);
+	}
 	public static String getPath(String stockCode) {
-		return JPX.getPath(String.format("price/%s.csv", stockCode));
+		return Storage.JPX.getPath(PREFIX, stockCode + ".csv");
+	}
+	
+	private static final String PREFIX_DELIST = "price-delist";
+	public static String getPathDelist() {
+		return Storage.JPX.getPath(PREFIX_DELIST);
 	}
 
 	public static void save(Collection<Price> collection) {

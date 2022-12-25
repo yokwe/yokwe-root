@@ -1,10 +1,10 @@
 package yokwe.stock.jp.jpx;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 import yokwe.util.HashCode;
 import yokwe.util.StringUtil;
@@ -18,7 +18,8 @@ public class UpdateStock {
 	
 	private static final String URL_DATAFILE  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	
-	private static final String PATH_DATAFILE = JPX.getPath("data_j.xls");
+	private static final String PATH_DATAFILE      = Storage.JPX.getPath("data_j.xls");
+	private static final String URL_DATAFILE_LOCAL = StringUtil.toURLString(PATH_DATAFILE);
 
 	private static void processRequest() {
 		logger.info("download {}", URL_DATAFILE);
@@ -49,20 +50,11 @@ public class UpdateStock {
 			}
 		}
 
-		String url;
-		try {
-			url = new File(PATH_DATAFILE).toURI().toURL().toString();
-		} catch (MalformedURLException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
-		logger.info("open {}", url);
-		
+		logger.info("open {}", URL_DATAFILE_LOCAL);
 		List<Stock> newList = new ArrayList<>();
 		
 		// Build newList
-		try (SpreadSheet spreadSheet = new SpreadSheet(url, true)) {
+		try (SpreadSheet spreadSheet = new SpreadSheet(URL_DATAFILE_LOCAL, true)) {
 			List<Stock> rawDataList = Sheet.extractSheet(spreadSheet, Stock.class);
 			logger.info("read {}", rawDataList.size());
 			
@@ -123,7 +115,7 @@ public class UpdateStock {
 			}
 		}
 	}
-
+	
 	public static void main(String[] args) {
 		try {
 			logger.info("START");

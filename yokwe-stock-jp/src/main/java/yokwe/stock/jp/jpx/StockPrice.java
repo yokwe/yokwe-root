@@ -5,13 +5,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
 
 public class StockPrice implements Comparable<StockPrice> {
-	private static final String PATH_FILE = getPath();
+	private static final String PATH_FILE = Storage.JPX.getPath("stock-price.csv");
 
 	public static String getPath() {
-		return JPX.getPath("stock-price.csv");
+		return PATH_FILE;
 	}
 
 	public static List<StockPrice> getList() {
