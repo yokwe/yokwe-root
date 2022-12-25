@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -25,31 +26,12 @@ public class DataFile {
 	private static final String PREFIX = "download";
 	
 	public static String getPath(String path) {
-		return JASDEC.getPath(String.format("%s/%s", PREFIX, path));
+		return Storage.JASDEC.getPath(PREFIX, path);
 	}
 	public static String getPath() {
-		return getPath("");
+		return Storage.JASDEC.getPath(PREFIX);
 	}
 	
-	private static void deleteForeignFile(String path, Set<String> set) {
-		File dir = new File(path);
-		dir.mkdirs();
-		
-		for(var e: dir.listFiles()) {
-			if (e.isDirectory()) continue;
-			// delete empty file
-			if (e.length() == 0) {
-				e.delete();
-				continue;
-			}
-			// skip if set contains the name
-			if (set.contains(e.getName())) continue;
-			
-			// otherwise delete the file
-			e.delete();
-		}
-	}
-
 	private static List<String> notExistingList(String path, Set<String> set) {
 		File dir = new File(path);
 		dir.mkdirs();
@@ -231,15 +213,14 @@ public class DataFile {
 			String rootPageString = httpUtil.download(URL_ROOT).result;
 			RootPage rootPage = RootPage.getInstance(rootPageString);
 						
-			Set<String> set = new TreeSet<>();
+			Set<String> validNameSet = new TreeSet<>();
 			{
 				int fileNo = 0;
 				for(int i = 0; i < rootPage.rowcntmax; i += 50) {
-					set.add(String.valueOf(fileNo++));
+					validNameSet.add(String.valueOf(fileNo++));
 				}
 			}
-			String dir = getPath();
-			deleteForeignFile(dir, set);
+			FileUtil.deleteUnknownFile(validNameSet, getPath());
 			
 			{
 				int fileNo = 0;
@@ -248,7 +229,7 @@ public class DataFile {
 					File file = new File(getPath(fileNo++));
 					if (file.exists()) continue;
 					
-					logger.info("{}", String.format("%4d / %4d", fileNo, set.size()));
+					logger.info("{}", String.format("%4d / %4d", fileNo, validNameSet.size()));
 					
 					String url = getURL(rootPage.rowcntmax, i - 50);
 					String page = httpUtil.download(url).result;
@@ -339,14 +320,17 @@ public class DataFile {
 		private static void download(HttpUtil httpUtil, Map<String, Fund> fundMap) {
 			logger.info("download detail");
 
-			Set<String> set = fundMap.keySet();
+			List<String> list;
+			{
+				Set<String> validNameList = fundMap.keySet();
 
-			String dir = getPath();
-			
-			// delete foreign file
-			deleteForeignFile(dir, set);
-			// create list of not existing file
-			List<String> list = notExistingList(dir, set);
+				String dir = getPath();
+				
+				// delete unknown file
+				FileUtil.deleteUnknownFile(validNameList, dir);
+				// create list of not existing file
+				list = notExistingList(dir, validNameList);
+			}
 			
 			Collections.shuffle(list);
 
