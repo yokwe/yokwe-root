@@ -130,4 +130,50 @@ public final class Storage {
 			return getPath(String.format("%s/%s", prefix, path));
 		}
 	}
+	
+	// XBRL
+	public static final class XBRL {
+		public static final String PREFIX = "xbrl";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+		
+		// XBRL EDINET
+		public static final class EDINET {
+			public static final String PREFIX = "edinet";
+			
+			public static String getPath() {
+				return Storage.XBRL.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.XBRL.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
+		}
+		
+		// XBRL TDNET
+		public static final class TDNET {
+			public static final String PREFIX = "tdnet";
+			
+			public static String getPath() {
+				return Storage.XBRL.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.XBRL.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
+		}
+	}
+
 }
