@@ -1,5 +1,6 @@
 package yokwe.stock.jp.jpx;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,7 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
@@ -27,6 +30,7 @@ import yokwe.stock.jp.jpx.StockPage.SellPriceTime;
 import yokwe.stock.jp.jpx.StockPage.TradeUnit;
 import yokwe.stock.jp.jpx.StockPage.TradeValue;
 import yokwe.stock.jp.jpx.StockPage.TradeVolume;
+import yokwe.util.FileUtil;
 import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
@@ -450,6 +454,17 @@ public class UpdateStockPrice {
 		updatePrice(context);
 	}
 	
+	private static void moveUnknownFile() {
+		Set<String> validNameSet = new TreeSet<>();
+		for(var e: Stock.getList()) {
+			File file = new File(Price.getPath(e.stockCode));
+			validNameSet.add(file.getName());
+		}
+		
+		// price
+		FileUtil.moveUnknownFile(validNameSet, Price.getPath(), Price.getPathDelist());
+	}
+	
 	public static void main(String[] args) throws IOException {
 		logger.info("START");
 		
@@ -459,7 +474,8 @@ public class UpdateStockPrice {
 		} else {
 			updateFiles();
 		}
-
+		moveUnknownFile();
+		
 		logger.info("STOP");
 	}
 }
