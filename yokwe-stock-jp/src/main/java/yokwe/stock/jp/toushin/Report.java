@@ -2,11 +2,10 @@ package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 
 public class Report implements Comparable<Report> {
 	private static final String PREFIX = "report";
@@ -16,11 +15,10 @@ public class Report implements Comparable<Report> {
 	}
 	
 	public static void save(List<Report> list, String name) {
-		Collections.sort(list);
-		CSVUtil.write(Report.class).file(getPath(name), list);
+		ListUtil.save(Report.class, getPath(name), list);
 	}
 	public static List<Report> load(String name) {
-		return CSVUtil.read(Report.class).file(getPath(name));
+		return ListUtil.load(Report.class, getPath(name));
 	}
 
 	
