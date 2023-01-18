@@ -4,8 +4,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # Use english language
 LANG=en_US.UTF-8
 LANGUAGE=en_US:en
-# yokwe-util requires java version 11
-JAVA_VERSION=11
+# yokwe-util requires java version 17
+JAVA_VERSION=17
 #
 YOKWE_ROOT=/mnt/home/hasegawa/git/yokwe-root
 
