@@ -248,6 +248,7 @@ public class Transaction implements Comparable<Transaction> {
 				}
 				if (MarketHoliday.JP.isClosed(activity.payDateJP)) {
 					logger.error("Unexpected  {}", activity);
+					logger.error("jp market is closed {}", activity.payDateJP);
 					throw new UnexpectedException("Unexpected");
 				}
 				
