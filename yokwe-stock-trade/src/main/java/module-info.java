@@ -3,7 +3,9 @@ open module yokwe.stock.trade {
 	exports yokwe.stock.trade.data;
 	exports yokwe.stock.trade.gmo;
 	exports yokwe.stock.trade.monex;
+	exports yokwe.stock.trade.rakuten;
 	exports yokwe.stock.trade.report;
+	exports yokwe.stock.trade.sbi;
 
 	// http
 	requires httpcore5;
