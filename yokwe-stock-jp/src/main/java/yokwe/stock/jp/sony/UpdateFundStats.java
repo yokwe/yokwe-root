@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -150,9 +151,37 @@ public class UpdateFundStats {
 			
 			// from price
 			{
-				Price lastPrice = priceList.get(priceList.size() - 1);
-				stats.priceDate = lastPrice.date.toString();
-				stats.price     = lastPrice.price;
+				List<Price> priceLast1Y = priceList.stream().filter(m -> m.date.isAfter(TODAY_1Y)).collect(Collectors.toList());
+				
+				if (priceLast1Y.size() == 0) {
+					stats.priceDate      = "-";
+					stats.price1YCount   = BigDecimal.ZERO;
+					stats.price          = BigDecimal.ZERO;
+					stats.priceMin       = BigDecimal.ZERO;
+					stats.priceMax       = BigDecimal.ZERO;
+					stats.priceMinPCT    = BigDecimal.ZERO;
+					stats.priceMaxPCT    = BigDecimal.ZERO;
+					stats.netAsset       = BigDecimal.ZERO;
+					stats.netAssetMin    = BigDecimal.ZERO;
+					stats.netAssetMax    = BigDecimal.ZERO;
+					stats.netAssetMinPCT = BigDecimal.ZERO;
+					stats.netAssetMaxPCT = BigDecimal.ZERO;
+				} else {
+					Price lastPrice = priceLast1Y.get(priceLast1Y.size() - 1);
+					stats.priceDate      = lastPrice.date.toString();
+					stats.price1YCount   = new BigDecimal(priceLast1Y.size());
+					stats.price          = lastPrice.price;
+					stats.priceMin       = priceLast1Y.stream().map(m -> m.price).min(Comparator.naturalOrder()).get();
+					stats.priceMax       = priceLast1Y.stream().map(m -> m.price).max(Comparator.naturalOrder()).get();
+					stats.priceMinPCT    = stats.price.subtract(stats.priceMin).divide(stats.price, 3, RoundingMode.HALF_DOWN);
+					stats.priceMaxPCT    = stats.priceMax.subtract(stats.price).divide(stats.price, 3, RoundingMode.HALF_DOWN);
+					stats.netAsset       = new BigDecimal(lastPrice.netAsset);
+					stats.netAssetMin    = priceLast1Y.stream().map(m -> new BigDecimal(m.netAsset)).min(Comparator.naturalOrder()).get();
+					stats.netAssetMax    = priceLast1Y.stream().map(m -> new BigDecimal(m.netAsset)).max(Comparator.naturalOrder()).get();
+					stats.netAssetMinPCT = stats.netAsset.subtract(stats.netAssetMin).divide(stats.netAsset, 3, RoundingMode.HALF_DOWN);
+					stats.netAssetMaxPCT = stats.netAssetMax.subtract(stats.netAsset).divide(stats.netAsset, 3, RoundingMode.HALF_DOWN);
+				}
+				
 			}
 			
 			// from div
