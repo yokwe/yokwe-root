@@ -23,6 +23,12 @@ clear-log-file:
 show-ant-process:
 	ps -xwww -o pid,lstart,etime,time,user,command | egrep 'ant|PID' | egrep -v 'egrep|show-ant-process'
 
+kill-long-running-process:
+	ps -wwxo pid,etimes,args | awk '/bin\/java/ && 3600<$$2 && !/org.eclipse.equinox.launcher/ {print}' | tee tmp/kill-long-running-process
+	@if [ -s tmp/kill-long-running-process ]; then \
+		awk '{COMMAND="kill -kill " $$1; print(COMMAND); system(COMMAND);}' <tmp/kill-long-running-process; \
+	fi
+
 backup:
 	cp /mnt/stock/trade/activity/投資活動_monex.ods      /mnt/stock/trade/activity/backup/投資活動_monex_$$(date +%Y%m%d).ods
 	cp /mnt/stock/trade/activity/投資活動_gmo.ods        /mnt/stock/trade/activity/backup/投資活動_gmo_$$(date +%Y%m%d).ods
