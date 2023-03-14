@@ -14,24 +14,12 @@
 		<pathelement location="${maven.build.dir}/${maven.build.finalName}.jar" />
 	</path>
 
-	<path id="libreoffice.jar">
-		<fileset dir="${libreoffice.jar.dir}">
-			<include name="unoloader.jar" />
-			<include name="libreoffice.jar" />
-			<include name="unoil.jar" />
-			<include name="juh.jar" />
-			<include name="jurt.jar" />
-			<include name="ridl.jar" />
-		</fileset>
-	</path>
-	
 	<!-- NASDAQ -->
 	<target name="nasdaq-update-price">
 		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdatePrice" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.jar.dir}" />
+			<classpath  location="${libreoffice.lib.dir}" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -39,8 +27,7 @@
 		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateDividend" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.jar.dir}" />
+			<classpath  location="${libreoffice.lib.dir}" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -48,8 +35,7 @@
 		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateStats" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.jar.dir}" />
+			<classpath  location="${libreoffice.lib.dir}" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -57,8 +43,7 @@
 		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateNASDAQSymbol" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.jar.dir}" />
+			<classpath  location="${libreoffice.lib.dir}" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
