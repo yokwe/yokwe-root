@@ -33,7 +33,7 @@
             </activation>
             <!-- libreoffice 7.1 -->
             <properties>
-                <libreoffice.install.dir>/usr/local/lib/libreoffice/program</libreoffice.install.dir>
+                <libreoffice.jar.dir>/usr/local/lib/libreoffice/program/classes</libreoffice.jar.dir>
             </properties>
             <dependencies>
                 <dependency>
@@ -41,10 +41,11 @@
                     <artifactId>libreoffice</artifactId>
                     <version>7.1</version>
                     <scope>system</scope>
-                    <systemPath>${libreoffice.install.dir}/classes/libreoffice.jar</systemPath>
+                    <systemPath>${libreoffice.jar.dir}/libreoffice.jar</systemPath>
                 </dependency>
             </dependencies>
         </profile>
+<!-- 
         <profile>
             <id>linux</id>
             <activation>
@@ -52,10 +53,31 @@
                     <name>linux</name>
                 </os>
             </activation>
-            <!-- libreoffice 6.4 -->
             <properties>
-                <libreoffice.install.dir>/usr/lib/libreoffice/program</libreoffice.install.dir>
+                <libreoffice.jar.dir>/usr/lib/libreoffice/program/classes</libreoffice.jar.dir>
             </properties>
+        </profile>
+-->
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <name>Mac OS X</name>
+                </os>
+            </activation>
+            <!-- libreoffice 7.4 -->
+            <properties>
+                <libreoffice.jar.dir>/Applications/LibreOffice.app/Contents/Resources/java</libreoffice.jar.dir>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.libreoffice</groupId>
+                    <artifactId>libreoffice</artifactId>
+                    <version>7.4</version>
+                    <scope>system</scope>
+                    <systemPath>${libreoffice.jar.dir}/libreoffice.jar</systemPath>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
     

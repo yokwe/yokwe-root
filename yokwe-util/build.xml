@@ -14,7 +14,7 @@
 	</path>
 
 	<path id="libreoffice.jar">
-		<fileset dir="${libreoffice.install.dir}/classes">
+		<fileset dir="${libreoffice.jar.dir}">
 			<include name="unoloader.jar" />
 			<include name="libreoffice.jar" />
 			<include name="unoil.jar" />
@@ -30,7 +30,7 @@
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
+			<classpath  location="${libreoffice.jar.dir}" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -39,7 +39,7 @@
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<modulepath refid="libreoffice.jar" />
-			<classpath  location="${libreoffice.install.dir}" />
+			<classpath  location="${libreoffice.jar.dir}" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
