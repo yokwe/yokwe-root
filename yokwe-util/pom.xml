@@ -107,5 +107,19 @@
             <version>3.0.0</version>
         </dependency>
         <!-- Use libreoffice installed on Operating System -->
+        <dependency>
+            <groupId>org.libreoffice</groupId>
+            <artifactId>libreoffice</artifactId>
+            <version>7.1</version>
+            <scope>system</scope>
+            <systemPath>${libreoffice.jar.dir}/libreoffice.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.libreoffice</groupId>
+            <artifactId>unoloader</artifactId>
+            <version>7.1</version>
+            <scope>system</scope>
+            <systemPath>${libreoffice.jar.dir}/unoloader.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>
