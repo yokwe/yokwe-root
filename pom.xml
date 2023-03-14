@@ -34,16 +34,8 @@
             <!-- libreoffice 7.1 -->
             <properties>
                 <libreoffice.jar.dir>/usr/local/lib/libreoffice/program/classes</libreoffice.jar.dir>
+                <libreoffice.lib.dir>/usr/local/lib/libreoffice/program</libreoffice.lib.dir>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.libreoffice</groupId>
-                    <artifactId>libreoffice</artifactId>
-                    <version>7.1</version>
-                    <scope>system</scope>
-                    <systemPath>${libreoffice.jar.dir}/libreoffice.jar</systemPath>
-                </dependency>
-            </dependencies>
         </profile>
 <!-- 
         <profile>
@@ -68,16 +60,8 @@
             <!-- libreoffice 7.4 -->
             <properties>
                 <libreoffice.jar.dir>/Applications/LibreOffice.app/Contents/Resources/java</libreoffice.jar.dir>
+                <libreoffice.lib.dir>/Applications/LibreOffice.app/Contents/Framework</libreoffice.lib.dir>
             </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.libreoffice</groupId>
-                    <artifactId>libreoffice</artifactId>
-                    <version>7.4</version>
-                    <scope>system</scope>
-                    <systemPath>${libreoffice.jar.dir}/libreoffice.jar</systemPath>
-                </dependency>
-            </dependencies>
         </profile>
     </profiles>
     
