@@ -35,6 +35,7 @@
             <properties>
                 <libreoffice.jar.dir>/usr/local/lib/libreoffice/program/classes</libreoffice.jar.dir>
                 <libreoffice.lib.dir>/usr/local/lib/libreoffice/program</libreoffice.lib.dir>
+                <libreoffice.app.dir>/usr/local/lib/bin</libreoffice.app.dir>
             </properties>
         </profile>
 <!-- 
@@ -60,7 +61,8 @@
             <!-- libreoffice 7.4 -->
             <properties>
                 <libreoffice.jar.dir>/Applications/LibreOffice.app/Contents/Resources/java</libreoffice.jar.dir>
-                <libreoffice.lib.dir>/Applications/LibreOffice.app/Contents/Framework</libreoffice.lib.dir>
+                <libreoffice.lib.dir>/Applications/LibreOffice.app/Contents/Frameworks</libreoffice.lib.dir>
+                <libreoffice.app.dir>/Applications/LibreOffice.app/Contents/MacOS</libreoffice.app.dir>
             </properties>
         </profile>
     </profiles>
