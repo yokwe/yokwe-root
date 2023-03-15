@@ -35,7 +35,7 @@
             <properties>
                 <libreoffice.jar.dir>/usr/local/lib/libreoffice/program/classes</libreoffice.jar.dir>
                 <libreoffice.lib.dir>/usr/local/lib/libreoffice/program</libreoffice.lib.dir>
-                <libreoffice.app.dir>/usr/local/lib/bin</libreoffice.app.dir>
+                <libreoffice.app.dir>/usr/local/bin</libreoffice.app.dir>
             </properties>
         </profile>
 <!-- 

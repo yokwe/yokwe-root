@@ -12,13 +12,17 @@
 	<path id="target.jar">
 		<pathelement location="${maven.build.dir}/${maven.build.finalName}.jar" />
 	</path>
+	<path id="libreoffice.lib">
+		<pathelement location="${libreoffice.lib.dir}" />
+		<pathelement location="${libreoffice.app.dir}" />
+	</path>
 
 	<!-- APPLICATION -->
 	<target name="util-japan-holiday">
 		<java module="yokwe.util/yokwe.util.JapanHoliday" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -26,7 +30,7 @@
 		<java module="yokwe.util/yokwe.util.MarketHoliday" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>

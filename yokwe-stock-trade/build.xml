@@ -8,13 +8,17 @@
 	<path id="target.jar">
 		<pathelement location="${maven.build.dir}/${maven.build.finalName}.jar" />
 	</path>
+	<path id="libreoffice.lib">
+		<pathelement location="${libreoffice.lib.dir}" />
+		<pathelement location="${libreoffice.app.dir}" />
+	</path>
 
 	<!-- GMO -->
 	<target name="gmo-update-stock-history">
 		<java module="yokwe.stock.trade/yokwe.stock.trade.gmo.UpdateStockHistory" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -22,7 +26,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.gmo.UpdateYahooPortfolio" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -32,7 +36,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateStockHistory" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -40,7 +44,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateYahooPortfolio" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -48,7 +52,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateFXTax" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -56,7 +60,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.UpdateSymbolInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -64,7 +68,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.monex.Deposit" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -74,7 +78,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.sbi.UpdateSymbolInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -84,7 +88,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.rakuten.UpdateSymbolInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -94,7 +98,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.data.UpdateFX" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -104,7 +108,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.report.Report" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
@@ -114,7 +118,7 @@
 		<java module="yokwe.stock.trade/yokwe.stock.trade.data.UpdateSymbol" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
-			<classpath  location="${libreoffice.lib.dir}" />
+			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
