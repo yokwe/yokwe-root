@@ -26,7 +26,7 @@ open module yokwe.util {
 	
 	requires logback.classic;
 	requires logback.core;
-	requires org.slf4j;
+	requires transitive org.slf4j;
 	
 	requires transitive org.libreoffice.uno;
 	
