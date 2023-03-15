@@ -23,6 +23,49 @@
         <maven.compiler.release>17</maven.compiler.release>
     </properties>
     
+    <profiles>
+        <profile>
+            <id>freebsd</id>
+            <activation>
+                <os>
+                    <name>freebsd</name>
+                </os>
+            </activation>
+            <!-- libreoffice 7.1 -->
+            <properties>
+                <libreoffice.jar.dir>/usr/local/lib/libreoffice/program/classes</libreoffice.jar.dir>
+                <libreoffice.lib.dir>/usr/local/lib/libreoffice/program</libreoffice.lib.dir>
+            </properties>
+        </profile>
+<!-- 
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <name>linux</name>
+                </os>
+            </activation>
+            <properties>
+                <libreoffice.jar.dir>/usr/lib/libreoffice/program/classes</libreoffice.jar.dir>
+            </properties>
+        </profile>
+-->
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <name>Mac OS X</name>
+                </os>
+            </activation>
+            <!-- libreoffice 7.4 -->
+            <properties>
+                <libreoffice.jar.dir>/Applications/LibreOffice.app/Contents/Resources/java</libreoffice.jar.dir>
+                <libreoffice.lib.dir>/Applications/LibreOffice.app/Contents/Framework</libreoffice.lib.dir>
+            </properties>
+        </profile>
+    </profiles>
+    
+    
     <build>
         <plugins>
             <!-- compiler -->
