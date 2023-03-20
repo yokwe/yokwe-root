@@ -440,4 +440,59 @@ public class StringUtil {
 		return toURLString(new File(filePath));
 	}
 
+	//
+	// Add padding by character width
+	//
+	public static int width(String string) {
+		int ret = 0;
+				
+		for(int i = 0; i < string.length(); i = string.offsetByCodePoints(i, 1)) {
+			char[] c = Character.toChars(string.codePointAt(i));
+			Character.UnicodeBlock  ub = Character.UnicodeBlock.of(c[0]);
+			switch(ub.toString()) {
+			case "KATAKANA":
+			case "KATAKANA_PHONETIC_EXTENSIONS":
+			case "HIRAGANA":
+			//
+			case "CJK_SYMBOLS_AND_PUNCTUATION":
+			case "ENCLOSED_CJK_LETTERS_AND_MONTHS":
+			case "CJK_COMPATIBILITY":
+			case "CJK_UNIFIED_IDEOGRAPHS":
+			case "CJK_COMPATIBILITY_IDEOGRAPHS":
+			case "CJK_COMPATIBILITY_FORMS":
+			case "CJK_RADICALS_SUPPLEMENT":
+			case "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A":
+			case "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B":
+			case "CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT":
+			case "CJK_STROKES":
+			case "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C":
+			case "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D":
+			case "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_E":
+			case "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_F":
+			case "CJK_UNIFIED_IDEOGRAPHS_EXTENSION_G":
+				ret += 2;
+				break;
+			default:
+				ret++;
+				break;
+			}
+		}
+		return ret;
+	}
+	public static String padLeft(String string, int width, String pad) {
+		int w = width(string);
+		if (width <= w) return string;
+		return pad.repeat(width - w) + string;
+	}
+	public static String padRight(String string, int width, String pad) {
+		int w = width(string);
+		if (width <= w) return string;
+		return string + pad.repeat(width - w);
+	}
+	public static String padLeftSpace(String string, int width) {
+		return padLeft(string, width, " ");
+	}
+	public static String padRightSpace(String string, int width) {
+		return padRight(string, width, " ");
+	}
 }
