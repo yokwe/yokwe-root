@@ -1,5 +1,7 @@
 package yokwe.util;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -25,25 +27,19 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 		return dateString == null ? null : new JapaneseDate(dateString);
 	}
 	
-	private static Map<String, Integer> offsetMap = new TreeMap<>();
+	static class EraData {
+		String era;
+		int    year;
+	}
+	private static final String DATA_PATH = "/yokwe/util/japanese-date.csv";
+	private static Map<String, Integer> eraMap = new TreeMap<>();
+	//                 era     star year
 	static {
-		offsetMap.put("享和", 1801);
-		offsetMap.put("文化", 1804);
-		offsetMap.put("文政", 1818);
-		offsetMap.put("天保", 1831);
-		offsetMap.put("弘化", 1845);
-		offsetMap.put("嘉永", 1848);
-		offsetMap.put("安政", 1855);
-		offsetMap.put("万延", 1860);
-		offsetMap.put("文久", 1861);
-		offsetMap.put("元治", 1864);
-		offsetMap.put("慶応", 1865);
-		
-		offsetMap.put("明治", 1868);
-		offsetMap.put("大正", 1912);
-		offsetMap.put("昭和", 1926);
-		offsetMap.put("平成", 1989);
-		offsetMap.put("令和", 2019);
+		List<EraData> list = CSVUtil.read(EraData.class).file(EraData.class, DATA_PATH, StandardCharsets.UTF_8);
+		for(var e: list) {
+			eraMap.put(e.era, e.year);
+		}
+		logger.info("JapaneseDate map {}", eraMap.size());
 	}
 		
 	public final String string;
@@ -68,8 +64,8 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 			String monthString = m.group(3);
 			String dayString   = m.group(4);
 			
-			if (offsetMap.containsKey(era)) {
-				year  = offsetMap.get(era) + (yearString.equals("元") ? 1 : Integer.valueOf(yearString)) - 1;
+			if (eraMap.containsKey(era)) {
+				year  = eraMap.get(era) + (yearString.equals("元") ? 1 : Integer.valueOf(yearString)) - 1;
 				month = Integer.valueOf(monthString);
 				day   = Integer.valueOf(dayString);
 			} else {
