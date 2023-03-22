@@ -44,6 +44,7 @@ public enum Company {
 	EAST     ("009", "イーストS"),
 	INVESCO  ("011", "インベスコ"),
 	HSBC     ("012", "HSBC"),
+	SBI      ("013", "SBIアセット"),
 	NN       ("014", "NN"),
 	COMMONS  ("024", "コモンズ"),
 	SCHRODER ("027", "シュローダー"),
