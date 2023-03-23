@@ -132,10 +132,7 @@ public class CSVUtil {
 				if (constructor != null) {
 					int modifiers = constructor.getModifiers();
 					if (!Modifier.isPublic(modifiers)) {
-						logger.error("constructor is not public");
-						logger.error("  clazz       {}", clazz.getName());
-						logger.error("  constructor {}", constructor.toString());
-						throw new UnexpectedException("method is not public");
+						constructor.setAccessible(true);
 					}
 				}
 				
