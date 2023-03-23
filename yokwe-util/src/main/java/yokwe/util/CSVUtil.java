@@ -16,10 +16,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -35,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class CSVUtil {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -70,9 +73,11 @@ public class CSVUtil {
 			}
 		}
 
-		final Class<?>    clazz;
-		final FieldInfo[] fieldInfos;
-		final String[]    names;
+		final Class<?>       clazz;
+		final FieldInfo[]    fieldInfos;
+		final String[]       names;
+		final Constructor<?> constructor;
+		
 		ClassInfo(Class<?> value) {
 			clazz = value;
 			
@@ -89,13 +94,61 @@ public class CSVUtil {
 			for(int i = 0; i < names.length; i++) {
 				names[i] = fieldInfos[i].name;
 			}
+			
+			{
+				Constructor<?>   constructor = null;
+				Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+				
+				// Sanity check
+				if (constructors.length == 0) {
+					logger.error("no constructor");
+					logger.error("  clazz       {}", clazz.getName());
+					throw new UnexpectedException("no constructor");
+				}
+				
+				// Find constructor by parameter type
+				for(Constructor<?> myConstructor: constructors) {						
+					Parameter[] myParameters = myConstructor.getParameters();
+					if (myParameters.length == fieldInfos.length) {
+						boolean hasSameType = true;
+						for(int i = 0; i < myParameters.length; i++) {
+							Class<?> paramType = myParameters[i].getType();
+							Class<?> fieldType = fieldInfos[i].type;
+							if (paramType.equals(fieldType)) continue;
+							hasSameType = false;
+						}
+						if (hasSameType) {
+							if (constructor != null) {
+								logger.error("duplicate constuctor with same parameter type");
+								logger.error("  clazz       {}", clazz.getName());
+								logger.error("    expect    {}", Arrays.stream(fieldInfos).map(o -> o.typeName).collect(Collectors.toList()));
+								throw new UnexpectedException("duplicate constuctor with same parameter type");
+							}
+							constructor = myConstructor;
+						}
+					}
+				}
+				// sanity check
+				if (constructor != null) {
+					int modifiers = constructor.getModifiers();
+					if (!Modifier.isPublic(modifiers)) {
+						logger.error("constructor is not public");
+						logger.error("  clazz       {}", clazz.getName());
+						logger.error("  constructor {}", constructor.toString());
+						throw new UnexpectedException("method is not public");
+					}
+				}
+				
+				this.constructor = constructor;
+			}
+
 		}
 	}
 	private static class FieldInfo {
 		final Field    field;
 		final String   name;
-		final Class<?> clazz;
-		final String   clazzName;
+		final Class<?> type;
+		final String   typeName;
 		final String   format;
 		
 		final Map<String, Enum<?>> enumMap;
@@ -108,14 +161,14 @@ public class CSVUtil {
 			ColumnName columnName = field.getDeclaredAnnotation(ColumnName.class);
 			name = (columnName == null) ? field.getName() : columnName.value();
 
-			clazz      = field.getType();
-			clazzName  = clazz.getName();
+			type      = field.getType();
+			typeName  = type.getName();
 			
 			DecimalPlaces decimalPlaces = field.getDeclaredAnnotation(DecimalPlaces.class);
 			if (decimalPlaces == null) {
 				format = null;
 			} else {
-				switch(clazzName) {
+				switch(typeName) {
 				case "double":
 				case "real":
 					int digits = decimalPlaces.value();
@@ -134,11 +187,11 @@ public class CSVUtil {
 				}
 			}
 			
-			if (clazz.isEnum()) {
+			if (type.isEnum()) {
 				enumMap = new TreeMap<>();
 				
 				@SuppressWarnings("unchecked")
-				Class<Enum<?>> enumClazz = (Class<Enum<?>>)clazz;
+				Class<Enum<?>> enumClazz = (Class<Enum<?>>)type;
 				for(Enum<?> e: enumClazz.getEnumConstants()) {
 					enumMap.put(e.toString(), e);
 				}
@@ -149,7 +202,7 @@ public class CSVUtil {
 			{
 				Method method = null;
 				try {
-					method = clazz.getDeclaredMethod("getInstance", String.class);
+					method = type.getDeclaredMethod("getInstance", String.class);
 					// Sanity check
 					int modifiers = method.getModifiers();
 					if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
@@ -425,146 +478,102 @@ public class CSVUtil {
 			}
 		}
 
+		private interface GetArg<E> {
+			public E get(String string);
+		}
+		
+		private static Map<String, GetArg<?>> getArgMap = new TreeMap<>();
+		static {
+			getArgMap.put(java.math.BigDecimal.class.getTypeName(),    (String s) -> {s = s.replace(",", ""); return new BigDecimal(s);});
+			getArgMap.put(java.lang.Integer.class.getTypeName(),       (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Integer.parseInt(s);});
+			getArgMap.put(java.lang.Integer.TYPE.getTypeName(),        (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Integer.parseInt(s);});
+			getArgMap.put(java.lang.Long.class.getTypeName(),          (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Long.parseLong(s);});
+			getArgMap.put(java.lang.Long.TYPE.getTypeName(),           (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Long.parseLong(s);});
+			getArgMap.put(java.lang.Double.class.getTypeName(),        (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Double.parseDouble(s);});
+			getArgMap.put(java.lang.Double.TYPE.getTypeName(),         (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Double.parseDouble(s);});
+			getArgMap.put(java.lang.Boolean.class.getTypeName(),       (String s) -> {return s.isEmpty() ? 0 : Boolean.parseBoolean(s);});
+			getArgMap.put(java.lang.Boolean.TYPE.getTypeName(),        (String s) -> {return s.isEmpty() ? 0 : Boolean.parseBoolean(s);});
+			getArgMap.put(java.lang.String.class.getTypeName(),        (String s) -> {return s;});
+			getArgMap.put(java.time.LocalDateTime.class.getTypeName(), (String s) -> {
+				if (s.isEmpty() || s.equals("0")) return NULL_LOCAL_DATE_TIME;
+				if (s.matches("\\d++")) return LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(s)), ZoneOffset.UTC);
+				return LocalDateTime.parse(s);
+			});
+			getArgMap.put(java.time.LocalDate.class.getTypeName(), (String s) -> {
+				if (s.isEmpty() || s.equals("0")) return NULL_LOCAL_DATE;
+				if (s.matches("\\d++")) return LocalDate.ofInstant(Instant.ofEpochMilli(Long.parseLong(s)), ZoneOffset.UTC);
+				return LocalDateTime.parse(s);
+			});
+			getArgMap.put(java.time.LocalTime.class.getTypeName(), (String s) -> {
+				if (s.isEmpty() || s.equals("0")) return NULL_LOCAL_TIME;
+				return LocalTime.parse(s);
+			});
+		}
+		
+		private static Object getArg(FieldInfo fieldInfo, String value) {
+			if (fieldInfo.enumMap != null) {
+				if (fieldInfo.enumMap.containsKey(value)) {
+					return fieldInfo.enumMap.get(value);
+				}
+				logger.error("Unknow enum value  {}  {}", fieldInfo.typeName, value);
+				throw new UnexpectedException("Unknow enum value");
+			}
+			if (fieldInfo.getInstance != null) {
+				try {
+					return fieldInfo.getInstance.invoke(null, value);
+				} catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
+					String exceptionName = e.getClass().getSimpleName();
+					logger.error("{} {}", exceptionName, e);
+					throw new UnexpectedException(exceptionName, e);
+				}
+			}
+			if (getArgMap.containsKey(fieldInfo.typeName)) {
+				return getArgMap.get(fieldInfo.typeName).get(value);
+			}
+			logger.error("Unknow field type  {}  {}", fieldInfo.typeName, value);
+			throw new UnexpectedException("Unknow enum value");
+		}
+		
 		private E read(BufferedReader br) {
 			try {
 				String[] values = parseLine(br);
 				if (values == null) return null;
-
-				@SuppressWarnings("unchecked")
-				Class<E> clazz = (Class<E>)classInfo.clazz;
-				
-				E data = clazz.getDeclaredConstructor().newInstance();
 				
 				FieldInfo[] fieldInfos = classInfo.fieldInfos;
-				for(int i = 0; i < fieldInfos.length; i++) {
-					FieldInfo fieldInfo = fieldInfos[i];
-
-					String value = values[i];
-
-					switch(fieldInfo.clazzName) {
-					case "java.math.BigDecimal":
-					{
-						if (value.contains(",")) {
-							value = value.replace(",", "");
-						}
-						BigDecimal bigDecimalValue = new BigDecimal(value);
-						fieldInfo.field.set(data, bigDecimalValue);
-					}
-						break;
-					case "int":
-					case "java.lang.Integer":
-					{
-						if (value.contains(",")) {
-							value = value.replace(",", "");
-						}
-						int intValue = value.isEmpty() ? 0 : Integer.parseInt(value);
-						fieldInfo.field.set(data, intValue);
-					}
-						break;
-					case "long":
-					case "java.lang.Long":
-					{
-						if (value.contains(",")) {
-							value = value.replace(",", "");
-						}
-						long longValue = value.isEmpty() ? 0 : Long.parseLong(value);
-						fieldInfo.field.set(data, longValue);
-					}
-						break;
-					case "double":
-					case "java.lang.Double":
-					{
-						if (value.contains(",")) {
-							value = value.replace(",", "");
-						}
-						double doubleValue = value.isEmpty() ? 0 : Double.parseDouble(value);
-						fieldInfo.field.set(data, doubleValue);
-					}
-						break;
-					case "boolean":
-					case "java.lang.Boolean":
-					{
-						boolean booleanValue = value.isEmpty() ? false : Boolean.parseBoolean(value);
-						fieldInfo.field.set(data, booleanValue);
-					}
-						break;
-					case "java.lang.String":
-						fieldInfo.field.set(data, value);
-						break;
-					case "java.time.LocalDateTime":
-					{
-						final LocalDateTime localDateTime;
-						
-						if (value.isEmpty() || value.equals("0")) {
-							localDateTime = NULL_LOCAL_DATE_TIME;
-						} else {
-							if (value.matches("\\d+")) {
-								long number = Long.parseLong(value);
-								localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(number), ZoneOffset.UTC);
-							} else {
-								localDateTime = LocalDateTime.parse(value);
-							}
-						}
-						
-						fieldInfo.field.set(data, localDateTime);
-					}
-						break;
-					case "java.time.LocalDate":
-					{
-						final LocalDate localDate;
-						
-						if (value.isEmpty() || value.equals("0")) {
-							localDate = NULL_LOCAL_DATE;
-						} else {
-							if (value.matches("\\d+")) {
-								long number = Long.parseLong(value);
-								localDate = LocalDate.ofInstant(Instant.ofEpochMilli(number), ZoneOffset.UTC);
-							} else {
-								localDate = LocalDate.parse(value);
-							}
-						}
-						
-						fieldInfo.field.set(data, localDate);
-					}
-						break;
-					case "java.time.LocalTime":
-					{
-						final LocalTime localTime;
-						
-						if (value.isEmpty() || value.equals("0")) {
-							localTime = NULL_LOCAL_TIME;
-						} else {
-							localTime = LocalTime.parse(value);
-						}
-						
-						fieldInfo.field.set(data, localTime);
-					}
-						break;
-					default:
-						if (fieldInfo.enumMap != null) {
-							if (fieldInfo.enumMap.containsKey(value)) {
-								fieldInfo.field.set(data, fieldInfo.enumMap.get(value));
-							} else {
-								logger.error("Unknow enum value  {}  {}", fieldInfo.clazzName, value);
-								throw new UnexpectedException("Unknow enum value");
-							}
-						} else if (fieldInfo.getInstance != null) {
-							try {
-								Object o = fieldInfo.getInstance.invoke(null, value);
-								fieldInfo.field.set(data, o);
-							} catch (IllegalArgumentException | InvocationTargetException e) {
-								String exceptionName = e.getClass().getSimpleName();
-								logger.error("{} {}", exceptionName, e);
-								throw new UnexpectedException(exceptionName, e);
-							}
-						} else {
-							logger.error("Unexptected fieldInfo.clazzName {}", fieldInfo.clazzName);
-							throw new UnexpectedException("Unexptected fieldInfo.clazzName");
-						}
+				// sanity check
+				{
+					if (fieldInfos.length != values.length) {
+						logger.error("fieldInfos {}", fieldInfos.length);
+						logger.error("values     {}", values.length);
+						throw new UnexpectedException("fieldInfos.length != values.length");
 					}
 				}
 				
-				return data;
+				// build args
+				Object[] args = new Object[classInfo.fieldInfos.length];
+				for(int i = 0; i < args.length; i++) {
+					FieldInfo fieldInfo = classInfo.fieldInfos[i];
+					String    value     = values[i];
+					args[i] = getArg(fieldInfo, value);
+				}
+				
+				if (classInfo.constructor == null) {
+					// call default constructor
+					@SuppressWarnings("unchecked")
+					Class<E> clazz = (Class<E>)classInfo.clazz;
+					E data = clazz.getDeclaredConstructor().newInstance();
+					// set each field of data
+					for(int i = 0; i < classInfo.fieldInfos.length; i++) {
+						FieldInfo fieldInfo = classInfo.fieldInfos[i];
+						fieldInfo.field.set(data, args[i]);
+					}
+					return data;
+				} else {
+					// call constructor to create data
+					@SuppressWarnings("unchecked")
+					E data = (E)classInfo.constructor.newInstance(args);
+					return data;
+				}
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
@@ -736,13 +745,13 @@ public class CSVUtil {
 						Object fieldValue = fieldInfo.field.get(value);
 						if (fieldValue == null) {
 							logger.error("field has null value");
-							logger.error("  clazz  {}", fieldInfo.clazzName);
+							logger.error("  clazz  {}", fieldInfo.typeName);
 							logger.error("  field  {}", fieldInfo.name);
 							throw new UnexpectedException("field has null value");
 						}
 					}
 
-					switch (fieldInfo.clazzName) {
+					switch (fieldInfo.typeName) {
 					case "real":
 					case "double":
 					{
@@ -766,7 +775,7 @@ public class CSVUtil {
 						Object fieldValue = fieldInfo.field.get(value);
 						if (fieldValue == null) {
 							logger.error("field has null value");
-							logger.error("  clazz  {}", fieldInfo.clazzName);
+							logger.error("  clazz  {}", fieldInfo.typeName);
 							logger.error("  field  {}", fieldInfo.name);
 							throw new UnexpectedException("field has null value");
 						}
