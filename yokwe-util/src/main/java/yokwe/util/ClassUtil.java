@@ -183,6 +183,19 @@ public final class ClassUtil {
 	
 	// create instance of clazz using args
 	public static class ClassInfo {
+		static private Map<String, ClassInfo> map = new TreeMap<>();
+
+		public static ClassInfo getClassInfo(Class<?> clazz) {
+			String name = clazz.getTypeName();
+			if (map.containsKey(name)) {
+				return map.get(name);
+			} else {
+				ClassInfo classInfo = new ClassInfo(clazz);
+				map.put(name, classInfo);
+				return classInfo;
+			}
+		}
+
 		final Class<?>       clazz;
 		final String         name;
 		final Field[]        fields;
@@ -237,15 +250,27 @@ public final class ClassUtil {
 		
 		boolean isCompatible(Class<?> a, Class<?> b) {
 			if (a.equals(b)) return true;
+			// Byte
+			if (a.equals(Byte.TYPE) && b.equals(Byte.class)) return true;
+			if (a.equals(Byte.class) && b.equals(Byte.TYPE)) return true;
+			// Short
+			if (a.equals(Short.TYPE) && b.equals(Short.class)) return true;
+			if (a.equals(Short.class) && b.equals(Short.TYPE)) return true;
 			// Integer
 			if (a.equals(Integer.TYPE) && b.equals(Integer.class)) return true;
 			if (a.equals(Integer.class) && b.equals(Integer.TYPE)) return true;
 			// Long
 			if (a.equals(Long.TYPE) && b.equals(Long.class)) return true;
 			if (a.equals(Long.class) && b.equals(Long.TYPE)) return true;
+			// Float
+			if (a.equals(Float.TYPE) && b.equals(Float.class)) return true;
+			if (a.equals(Float.class) && b.equals(Float.TYPE)) return true;
 			// Double
 			if (a.equals(Double.TYPE) && b.equals(Double.class)) return true;
 			if (a.equals(Double.class) && b.equals(Double.TYPE)) return true;
+			// Char
+			if (a.equals(Character.TYPE) && b.equals(Character.class)) return true;
+			if (a.equals(Character.class) && b.equals(Character.TYPE)) return true;
 			// Boolean
 			if (a.equals(Boolean.TYPE) && b.equals(Boolean.class)) return true;
 			if (a.equals(Boolean.class) && b.equals(Boolean.TYPE)) return true;
@@ -315,20 +340,9 @@ public final class ClassUtil {
 			}
 		}
 	}
-	static private Map<String, ClassInfo> classMap = new TreeMap<>();
 	
-	public static ClassInfo getClassInfo(Class<?> clazz) {
-		String name = clazz.getTypeName();
-		if (classMap.containsKey(name)) {
-			return classMap.get(name);
-		} else {
-			ClassInfo classInfo = new ClassInfo(clazz);
-			classMap.put(name, classInfo);
-			return classInfo;
-		}
-	}
 	public static Object getInstance(Class<?> clazz, Object... args) {
-		ClassInfo classInfo = getClassInfo(clazz);
+		ClassInfo classInfo = ClassInfo.getClassInfo(clazz);
 		return classInfo.getInstance(args);
 	}
 
