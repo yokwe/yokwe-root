@@ -16,12 +16,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -37,7 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class CSVUtil {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -76,7 +73,6 @@ public class CSVUtil {
 		final Class<?>       clazz;
 		final FieldInfo[]    fieldInfos;
 		final String[]       names;
-		final Constructor<?> constructor;
 		
 		ClassInfo(Class<?> value) {
 			clazz = value;
@@ -94,51 +90,6 @@ public class CSVUtil {
 			for(int i = 0; i < names.length; i++) {
 				names[i] = fieldInfos[i].name;
 			}
-			
-			{
-				Constructor<?>   constructor = null;
-				Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-				
-				// Sanity check
-				if (constructors.length == 0) {
-					logger.error("no constructor");
-					logger.error("  clazz       {}", clazz.getName());
-					throw new UnexpectedException("no constructor");
-				}
-				
-				// Find constructor by parameter type
-				for(Constructor<?> myConstructor: constructors) {						
-					Parameter[] myParameters = myConstructor.getParameters();
-					if (myParameters.length == fieldInfos.length) {
-						boolean hasSameType = true;
-						for(int i = 0; i < myParameters.length; i++) {
-							Class<?> paramType = myParameters[i].getType();
-							Class<?> fieldType = fieldInfos[i].type;
-							if (paramType.equals(fieldType)) continue;
-							hasSameType = false;
-						}
-						if (hasSameType) {
-							if (constructor != null) {
-								logger.error("duplicate constuctor with same parameter type");
-								logger.error("  clazz       {}", clazz.getName());
-								logger.error("    expect    {}", Arrays.stream(fieldInfos).map(o -> o.typeName).collect(Collectors.toList()));
-								throw new UnexpectedException("duplicate constuctor with same parameter type");
-							}
-							constructor = myConstructor;
-						}
-					}
-				}
-				// sanity check
-				if (constructor != null) {
-					int modifiers = constructor.getModifiers();
-					if (!Modifier.isPublic(modifiers)) {
-						constructor.setAccessible(true);
-					}
-				}
-				
-				this.constructor = constructor;
-			}
-
 		}
 	}
 	private static class FieldInfo {
@@ -538,12 +489,10 @@ public class CSVUtil {
 				
 				FieldInfo[] fieldInfos = classInfo.fieldInfos;
 				// sanity check
-				{
-					if (fieldInfos.length != values.length) {
-						logger.error("fieldInfos {}", fieldInfos.length);
-						logger.error("values     {}", values.length);
-						throw new UnexpectedException("fieldInfos.length != values.length");
-					}
+				if (fieldInfos.length != values.length) {
+					logger.error("fieldInfos {}", fieldInfos.length);
+					logger.error("values     {}", values.length);
+					throw new UnexpectedException("fieldInfos.length != values.length");
 				}
 				
 				// build args
@@ -554,24 +503,10 @@ public class CSVUtil {
 					args[i] = getArg(fieldInfo, value);
 				}
 				
-				if (classInfo.constructor == null) {
-					// call default constructor
-					@SuppressWarnings("unchecked")
-					Class<E> clazz = (Class<E>)classInfo.clazz;
-					E data = clazz.getDeclaredConstructor().newInstance();
-					// set each field of data
-					for(int i = 0; i < classInfo.fieldInfos.length; i++) {
-						FieldInfo fieldInfo = classInfo.fieldInfos[i];
-						fieldInfo.field.set(data, args[i]);
-					}
-					return data;
-				} else {
-					// call constructor to create data
-					@SuppressWarnings("unchecked")
-					E data = (E)classInfo.constructor.newInstance(args);
-					return data;
-				}
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				@SuppressWarnings("unchecked")
+				E data = (E) ClassUtil.getInstance(classInfo.clazz, args);
+				return data;
+			} catch (IllegalArgumentException | SecurityException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
 				throw new UnexpectedException(exceptionName, e);
@@ -894,7 +829,8 @@ public class CSVUtil {
 		save(clazz, new ArrayList<>(collection));
 	}
 	public static <E extends Detail> void save(Class<E> clazz, List<E> list) {
-		E e = ClassUtil.getInstance(clazz);
+		@SuppressWarnings("unchecked")
+		E e = (E) ClassUtil.getInstance(clazz);
 		String path = e.getPath();
 		
 		// Sort before save
@@ -903,7 +839,8 @@ public class CSVUtil {
 	}
 	
 	public static <E extends Detail> List<E> load(Class<E> clazz) {
-		E e = ClassUtil.getInstance(clazz);
+		@SuppressWarnings("unchecked")
+		E e = (E) ClassUtil.getInstance(clazz);
 		String path = e.getPath();
 		
 		List<E> ret = CSVUtil.read(clazz).file(path);
