@@ -8,14 +8,20 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public final class ClassUtil {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -167,26 +173,163 @@ public final class ClassUtil {
     	return FindClass.find(packageName);
     }
     
-    // create instance of clazz using args
-	public static <E> E getInstance(Class<E> clazz, Object... args) {
-		try {
-			Class<?> argClass[] = new Class<?>[args.length];
-			for(int i = 0; i < args.length; i++) {
-				argClass[i] = args[i].getClass();
-			}
-			Constructor<E> constructor = clazz.getConstructor(argClass);
-			return constructor.newInstance(args);
-		} catch (UnexpectedException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
-	}
-
 	public static Class<?> getCallerClass() {
 //		Class<?> callerClass = java.lang.invoke.MethodHandles.lookup().lookupClass();
 		Class<?> callerClass = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
 
 		return callerClass;
 	}
+
+	
+	// create instance of clazz using args
+	public static class ClassInfo {
+		final Class<?>       clazz;
+		final String         name;
+		final Field[]        fields;
+		final Constructor<?> constructor;
+		final Class<?>[]     parameterTypes;
+		final Constructor<?> constructor0;
+		
+		ClassInfo(Class<?> clazz_) {
+			clazz  = clazz_;
+			name   = clazz.getTypeName();
+			
+			{
+				List<Field> list = new ArrayList<>();
+				for(var field: clazz.getDeclaredFields()) {
+					if (Modifier.isStatic(field.getModifiers())) continue;
+					field.setAccessible(true);
+					list.add(field);
+				}
+				fields = list.toArray(new Field[0]);
+			}
+			
+			{
+				Constructor<?> cntr       = null;
+				Class<?>[]     paramTypes = null;
+				Constructor<?> cntr0      = null;
+				Constructor<?>[] list = clazz.getDeclaredConstructors();
+				for(var e: list) {
+					int parameterCount = e.getParameterCount();
+					if (parameterCount == 0) {
+						cntr0 = e;
+						cntr0.setAccessible(true);
+					}
+					if (parameterCount == fields.length) {
+						paramTypes = e.getParameterTypes();
+						boolean hasSameType = true;
+						for(int i = 0; i < fields.length; i++) {
+							if (!paramTypes[i].equals(fields[i].getType())) {
+								hasSameType = false;
+							}
+						}
+						if (hasSameType) {
+							cntr = e;
+							cntr.setAccessible(true);
+						}
+					}
+				}
+				constructor    = cntr;
+				parameterTypes = paramTypes;
+				constructor0   = cntr0;
+			}
+		}
+		
+		boolean isCompatible(Class<?> a, Class<?> b) {
+			if (a.equals(b)) return true;
+			// Integer
+			if (a.equals(Integer.TYPE) && b.equals(Integer.class)) return true;
+			if (a.equals(Integer.class) && b.equals(Integer.TYPE)) return true;
+			// Long
+			if (a.equals(Long.TYPE) && b.equals(Long.class)) return true;
+			if (a.equals(Long.class) && b.equals(Long.TYPE)) return true;
+			// Double
+			if (a.equals(Double.TYPE) && b.equals(Double.class)) return true;
+			if (a.equals(Double.class) && b.equals(Double.TYPE)) return true;
+			// Boolean
+			if (a.equals(Boolean.TYPE) && b.equals(Boolean.class)) return true;
+			if (a.equals(Boolean.class) && b.equals(Boolean.TYPE)) return true;
+			
+			return false;
+		}
+		Object getInstance(Object... args) {
+			if (args.length == 0) {
+				if (constructor0 != null) {
+					try {
+						Object o = constructor0.newInstance();
+						return o;
+					} catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						String exceptionName = e.getClass().getSimpleName();
+						logger.error("{} {}", exceptionName, e);
+						throw new UnexpectedException(exceptionName, e);
+					}
+				} else {
+					throw new UnexpectedException("Unexpected");
+				}
+			} else {
+				// sanity check
+				if (fields.length != args.length) {
+					logger.info("clazz   {}", this.name);
+					logger.info("fields  {}", fields.length);
+					logger.info("args    {}", args.length);
+					logger.info("fields  {}", Arrays.stream(fields).map(o -> {return o.getType().getName();}).collect(Collectors.toList()));
+					logger.info("args    {}", Arrays.stream(args)  .map(o -> {return o.getClass().getName();}).collect(Collectors.toList()));
+					throw new UnexpectedException("Unexpected");
+				}
+				for(int i = 0; i < fields.length; i++) {
+					if (!isCompatible(fields[i].getType(), args[i].getClass())) {
+						logger.info("clazz   {}", this.name);
+						logger.info("fields  {}", Arrays.stream(fields).map(o -> {return o.getType().getName();}).collect(Collectors.toList()));
+						logger.info("args    {}", Arrays.stream(args)  .map(o -> {return o.getClass().getName();}).collect(Collectors.toList()));
+						
+						logger.info("class   {}  -  {}  -  {}", i, fields[i].getType().getTypeName(), args[i].getClass().getTypeName());
+						
+						throw new UnexpectedException("Unexpected");
+					}
+				}
+				
+				if (constructor != null) {
+					try {
+						Object o = constructor.newInstance(args);
+						return o;
+					} catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						String exceptionName = e.getClass().getSimpleName();
+						logger.error("{} {}", exceptionName, e);
+						throw new UnexpectedException(exceptionName, e);
+					}
+				} else if (constructor0 != null) {
+					try {
+						Object o = constructor0.newInstance();
+						for(int i = 0; i < fields.length; i++) {
+							fields[i].set(o, args[i]);
+						}
+						return o;
+					} catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						String exceptionName = e.getClass().getSimpleName();
+						logger.error("{} {}", exceptionName, e);
+						throw new UnexpectedException(exceptionName, e);
+					}
+				} else {
+					throw new UnexpectedException("Unexpected");
+				}
+			}
+		}
+	}
+	static private Map<String, ClassInfo> classMap = new TreeMap<>();
+	
+	public static ClassInfo getClassInfo(Class<?> clazz) {
+		String name = clazz.getTypeName();
+		if (classMap.containsKey(name)) {
+			return classMap.get(name);
+		} else {
+			ClassInfo classInfo = new ClassInfo(clazz);
+			classMap.put(name, classInfo);
+			return classInfo;
+		}
+	}
+	public static Object getInstance(Class<?> clazz, Object... args) {
+		ClassInfo classInfo = getClassInfo(clazz);
+		return classInfo.getInstance(args);
+	}
+
 }
