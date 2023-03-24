@@ -450,7 +450,7 @@ public class CSVUtil {
 			getArgMap.put(java.time.LocalDate.class.getTypeName(), (String s) -> {
 				if (s.isEmpty() || s.equals("0")) return NULL_LOCAL_DATE;
 				if (s.matches("\\d++")) return LocalDate.ofInstant(Instant.ofEpochMilli(Long.parseLong(s)), ZoneOffset.UTC);
-				return LocalDateTime.parse(s);
+				return LocalDate.parse(s);
 			});
 			getArgMap.put(java.time.LocalTime.class.getTypeName(), (String s) -> {
 				if (s.isEmpty() || s.equals("0")) return NULL_LOCAL_TIME;
