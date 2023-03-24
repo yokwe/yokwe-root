@@ -85,13 +85,13 @@ public class NASDAQListed implements Comparable<NASDAQListed> {
 
 	
 	public String symbol;
+	public String name;
 	public String marketCategory;
 	public String testIssue;
 	public String financialStatus;
 	public String roundLotSize;
 	public String etf;
 	public String nextShare;
-	public String name; // move to last
 	
 	public NASDAQListed(
 		String symbol,
