@@ -66,10 +66,10 @@ public class UpdatePrice {
 				// close: "194.39", date: "11/26/2021", high: "196.82", low: "194.19", open: "196.82", volume: "11,113"
 				// close: "$17.86", date: "11/26/2021", high: "$18.155", low: "$17.765", open: "$18.03", volume: "1,645,865
 				String date  = API.convertDate(e.date);
-				String open  = e.open.replace("$", "");
-				String high  = e.high.replace("$", "");
-				String low   = e.low.replace("$", "");
-				String close = e.close.replace("$", "");
+				String open  = e.open.replace(",", "").replace("$", "");
+				String high  = e.high.replace(",", "").replace("$", "");
+				String low   = e.low.replace(",", "").replace("$", "");
+				String close = e.close.replace(",", "").replace("$", "");
 				String value = e.volume.replace(",", "").replace("N/A", "0");
 				
 				if (date.equals(toDateStrng)) containsToDate = true;
