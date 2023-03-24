@@ -227,6 +227,9 @@ public class HttpUtil {
 //				for(var e: response.getHeaders()) {
 //					logger.debug("header {} {}!", e.getName(), e.getValue());
 //				}
+			} else if (entity.getContentLength() == -1) {
+				charset = null;
+				content = null;
 			} else {
 				String contentTypeString = entity.getContentType();
 				ContentType conentType = ContentType.parse(contentTypeString);
@@ -298,7 +301,15 @@ public class HttpUtil {
 		        int          code         = response.getCode();
 		        String       reasonPhrase = response.getReasonPhrase();
 		        
-				if (code == 429) { // 429 Too Many Requests
+				if (code == HttpStatus.SC_TOO_MANY_REQUESTS) { // 429 Too Many Requests
+					if (retryCount < 10) {
+						retryCount++;
+						logger.warn("retry {} {} {}  {}", retryCount, code, reasonPhrase, url);
+						Thread.sleep(1000 * retryCount * retryCount); // sleep 1 * retryCount * retryCount sec
+						continue;
+					}
+				}
+				if (code == HttpStatus.SC_FORBIDDEN) { // 403
 					if (retryCount < 10) {
 						retryCount++;
 						logger.warn("retry {} {} {}  {}", retryCount, code, reasonPhrase, url);
