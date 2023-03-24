@@ -182,8 +182,46 @@ public final class ClassUtil {
 
 	
 	// create instance of clazz using args
+	public static class EnumInfo {
+		static private Map<String, EnumInfo> map = new TreeMap<>();
+		//                 typename
+
+		public static EnumInfo getEnumInfo(Class<?> clazz) {
+			String name = clazz.getTypeName();
+			if (map.containsKey(name)) {
+				return map.get(name);
+			} else {
+				EnumInfo enumInfo = new EnumInfo(clazz);
+				map.put(name, enumInfo);
+				return enumInfo;
+			}
+		}
+		
+		record Entry (String string, Object value) {}
+		//                   result of toString()
+		final Entry[] entries;
+	
+		EnumInfo(Class<?> clazz) {
+			if (!clazz.isEnum()) new UnexpectedException("Unexpected");
+			Object[] values = clazz.getEnumConstants();
+			
+			entries = new Entry[values.length];
+			for(int i = 0; i < values.length; i++) {
+				Object value = values[i];
+				entries[i] = new Entry(value.toString(), value);
+			}
+		}
+		
+		public Object getInstance(String string) {
+			for(var e: entries) {
+				if (e.string.equals(string)) return e.value;
+			}
+			throw new UnexpectedException("Unexpected");
+		}
+	}
 	public static class ClassInfo {
 		static private Map<String, ClassInfo> map = new TreeMap<>();
+		//                 typename
 
 		public static ClassInfo getClassInfo(Class<?> clazz) {
 			String name = clazz.getTypeName();
@@ -342,8 +380,17 @@ public final class ClassUtil {
 	}
 	
 	public static Object getInstance(Class<?> clazz, Object... args) {
-		ClassInfo classInfo = ClassInfo.getClassInfo(clazz);
-		return classInfo.getInstance(args);
+		if (clazz.isEnum()) {
+			if (args.length == 1 && args[0].getClass().equals(String.class)) {
+				String string = (String)args[0];
+				logger.info("enum {}", string);
+				return  EnumInfo.getEnumInfo(clazz).getInstance(string);
+			}
+			throw new UnexpectedException("Unexpected");
+		} else {
+			ClassInfo classInfo = ClassInfo.getClassInfo(clazz);
+			return classInfo.getInstance(args);
+		}
 	}
 
 }
