@@ -212,13 +212,18 @@ public final class ClassUtil {
 			}
 		}
 		
-		public Object getInstance(String string) {
+		public Object getEnumObject(String string) {
 			for(var e: entries) {
 				if (e.string.equals(string)) return e.value;
 			}
 			throw new UnexpectedException("Unexpected");
 		}
 	}
+	public static Object getEnumObject(Class<?> clazz, String value) {
+		EnumInfo enumInfo = EnumInfo.getEnumInfo(clazz);
+		return enumInfo.getEnumObject(value);
+	}
+	
 	public static class ClassInfo {
 		static private Map<String, ClassInfo> map = new TreeMap<>();
 		//                 typename
@@ -380,17 +385,8 @@ public final class ClassUtil {
 	}
 	
 	public static Object getInstance(Class<?> clazz, Object... args) {
-		if (clazz.isEnum()) {
-			if (args.length == 1 && args[0].getClass().equals(String.class)) {
-				String string = (String)args[0];
-				logger.info("enum {}", string);
-				return  EnumInfo.getEnumInfo(clazz).getInstance(string);
-			}
-			throw new UnexpectedException("Unexpected");
-		} else {
-			ClassInfo classInfo = ClassInfo.getClassInfo(clazz);
-			return classInfo.getInstance(args);
-		}
+		ClassInfo classInfo = ClassInfo.getClassInfo(clazz);
+		return classInfo.getInstance(args);
 	}
 
 }
