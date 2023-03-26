@@ -122,7 +122,7 @@ public final class JSON {
 		
 		public final Class<?>       clazz;
 		public final String         clazzName;
-		public final Constructor<?> construcor;
+		public final Constructor<?> constructor;
 
 		public final FieldInfo[]    fieldInfos;
 		public final Set<String>    fieldNameSet;
@@ -133,17 +133,18 @@ public final class JSON {
 				this.clazzName  = clazz.getName();
 				
 				{
-					Constructor<?> construcor = null;
+					Constructor<?> constructor = null;
 					
 					if (!clazz.isInterface()) {
 						try {
-							construcor = clazz.getDeclaredConstructor();
+							constructor = clazz.getDeclaredConstructor();
+							constructor.setAccessible(true); // to access protected and private method, call setAccessble(true)
 						} catch(NoSuchMethodException | SecurityException e) {
 							logger.warn("Failed to get constructor  {}", clazzName);
 						}
 					}
 					
-					this.construcor = construcor;
+					this.constructor = constructor;
 				}
 				
 				{
@@ -151,7 +152,7 @@ public final class JSON {
 					for(Field field: clazz.getDeclaredFields()) {
 						// Skip static field
 						if (Modifier.isStatic(field.getModifiers())) continue;
-						field.setAccessible(true); // to access protected and private file, call setAccessble(true) of the field
+						field.setAccessible(true); // to access protected and private file, call setAccessble(true)
 						fieldList.add(field);
 					}
 					this.fieldInfos = new FieldInfo[fieldList.size()];
@@ -183,7 +184,7 @@ public final class JSON {
 			
 			// call default constructor of the class
 			@SuppressWarnings("unchecked")
-			E ret = (E)classInfo.construcor.newInstance();
+			E ret = (E)classInfo.constructor.newInstance();
 
 			// Assume jsonReader has only one object
 			JsonObject jsonObject = jsonReader.readObject();
@@ -214,7 +215,7 @@ public final class JSON {
 				case OBJECT:
 				{
 					@SuppressWarnings("unchecked")
-					E e = (E)classInfo.construcor.newInstance();
+					E e = (E)classInfo.constructor.newInstance();
 					
 					JsonObject jsonObject = jsonValue.asJsonObject();
 
@@ -561,7 +562,7 @@ public final class JSON {
 							JsonObject jsonObjectValue = jsonObject.getJsonObject(childKey);
 							
 							ClassInfo valueClassInfo = ClassInfo.get(mapValueClass);
-							Object value = valueClassInfo.construcor.newInstance();
+							Object value = valueClassInfo.constructor.newInstance();
 							
 							setValue(value, jsonObjectValue);
 
@@ -582,7 +583,7 @@ public final class JSON {
 			}
 
 		} else {
-			Object fieldObject = classInfo.construcor.newInstance();
+			Object fieldObject = classInfo.constructor.newInstance();
 			setValue(fieldObject, jsonObject);
 			
 			fieldInfo.field.set(object, fieldObject);
@@ -645,7 +646,7 @@ public final class JSON {
 				switch(jsonValue.getValueType()) {
 				case OBJECT:
 				{
-					array[i] = classInfo.construcor.newInstance();
+					array[i] = classInfo.constructor.newInstance();
 					setValue(array[i], jsonValue.asJsonObject());
 				}
 					break;
