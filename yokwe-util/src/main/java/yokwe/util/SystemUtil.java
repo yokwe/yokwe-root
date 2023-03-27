@@ -1,6 +1,6 @@
 package yokwe.util;
 
-public class SystemUtil {
+public final class SystemUtil {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public  static final String MOUNT_POINT;
@@ -16,5 +16,9 @@ public class SystemUtil {
 				throw new UnexpectedException("Unexpected OS_NAME");
 			}
 		};
+	}
+	
+	public static String getMountPoint(String prefix) {
+		return String.format("%s/%s", MOUNT_POINT, prefix);
 	}
 }
