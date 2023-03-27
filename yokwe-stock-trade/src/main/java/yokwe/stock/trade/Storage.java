@@ -1,7 +1,9 @@
 package yokwe.stock.trade;
 
+import yokwe.util.StorageUtil;
+
 public final class Storage {
-	public static final String PATH_BASE = "/mnt/stock/trade";
+	public static final String PATH_BASE = StorageUtil.getPath();
 	
 	private static String getPath(String path) {
 		return String.format("%s/%s", PATH_BASE, path);

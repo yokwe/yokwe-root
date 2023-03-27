@@ -1,7 +1,9 @@
 package yokwe.stock.us;
 
+import yokwe.util.StorageUtil;
+
 public final class Storage {
-	public static final String PATH_BASE = "/mnt/stock/us";
+	public static final String PATH_BASE = StorageUtil.getPath();
 	
 	public static String getPath(String path) {
 		return String.format("%s/%s", PATH_BASE, path);
