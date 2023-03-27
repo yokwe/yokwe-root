@@ -4,8 +4,8 @@ import yokwe.util.SystemUtil;
 
 public final class Storage {
 	public static final String PREFIX    = "stock/us";
-	public static final String PATH_BASE = String.format("%s/%s", SystemUtil.MOUNT_POINT, PREFIX);
-	
+	public static final String PATH_BASE = SystemUtil.getMountPoint(PREFIX);
+
 	public static String getPath(String path) {
 		return String.format("%s/%s", PATH_BASE, path);
 	}
