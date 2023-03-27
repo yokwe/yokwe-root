@@ -1,0 +1,16 @@
+hostname,type,path
+dev-base,yokwe.stock.jp.Storage,/mnt/stock/jp
+dev-base,yokwe.stock.us.Storage,/mnt/stock/us
+dev-base,yokwe.stock.trade.Storage,/mnt/stock/trade
+dev-clang,yokwe.stock.jp.Storage,/mnt/stock/jp
+dev-clang,yokwe.stock.us.Storage,/mnt/stock/us
+dev-clang,yokwe.stock.trade.Storage,/mnt/stock/trade
+dev-java,yokwe.stock.jp.Storage,/mnt/stock/jp
+dev-java,yokwe.stock.us.Storage,/mnt/stock/us
+dev-java,yokwe.stock.trade.Storage,/mnt/stock/trade
+macmini2020,yokwe.stock.jp.Storage,/mnt/stock/jp
+macmini2020,yokwe.stock.us.Storage,/mnt/stock/us
+macmini2020,yokwe.stock.trade.Storage,/mnt/stock/trade
+macbookair2022,yokwe.stock.jp.Storage,/Volumes/SanDisk2T/stock/jp
+macbookair2022,yokwe.stock.us.Storage,/Volumes/SanDisk2T/stock/us
+macbookair2022,yokwe.stock.trade.Storage,/Volumes/SanDisk2T/stock/trade
