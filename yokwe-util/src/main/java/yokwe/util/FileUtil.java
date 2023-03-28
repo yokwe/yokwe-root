@@ -310,4 +310,12 @@ public class FileUtil {
 			file.delete();
 		}
 	}
+
+	//
+	// check directory
+	//
+	public static boolean isDirectory(String path) {
+		File file = new File(path);
+		return file.isDirectory();
+	}
 }
