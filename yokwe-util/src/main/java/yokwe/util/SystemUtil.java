@@ -3,7 +3,7 @@ package yokwe.util;
 public final class SystemUtil {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	private static final String PROPS_MACOS_DRIVE = "yokwe.mount.macos.drive.name";
+	private static final String ENV_MOUNT_POINT = "YOKWE_MOUNT_POINT";
 	
 	private static final String OS_NAME_FREEBSD = "FreeBSD";
 	private static final String OS_NAME_MACOS   = "Mac OS X";
@@ -13,24 +13,28 @@ public final class SystemUtil {
 
 	public  static final String MOUNT_POINT;
 	static {
-		String osName = System.getProperty("os.name");
-		
-		if (osName.equals(OS_NAME_FREEBSD)) {
-			MOUNT_POINT = MOUNT_POINT_FREEBSD;
-		} else if (osName.equals(OS_NAME_MACOS)) {
-			String driveName = System.getProperty(PROPS_MACOS_DRIVE);
-			if (driveName == null) {
-				logger.error("No driveName");
-				logger.error("  {}", PROPS_MACOS_DRIVE);
-				throw new UnexpectedException("No driveName");
-			}
-			MOUNT_POINT = MOUNT_POINT_MACOS + "/" + driveName;
+		String envMountPoint = System.getenv(ENV_MOUNT_POINT);
+		if (envMountPoint != null) {
+			MOUNT_POINT = envMountPoint;
 		} else {
-			logger.error("Unexpected OS_NAME");
-			logger.error("  os.name {}", osName);
-			throw new UnexpectedException("Unexpected OS_NAME");
+			String osName = System.getProperty("os.name");
+			
+			if (osName.equals(OS_NAME_FREEBSD)) {
+				MOUNT_POINT = MOUNT_POINT_FREEBSD;
+			} else if (osName.equals(OS_NAME_MACOS)) {
+				MOUNT_POINT = MOUNT_POINT_MACOS;
+			} else {
+				logger.error("Unexpected OS_NAME");
+				logger.error("  os.name {}", osName);
+				throw new UnexpectedException("Unexpected OS_NAME");
+			}
 		}
+		
 		logger.info("MOUNT_POINT {}", MOUNT_POINT);
+		if (!FileUtil.isDirectory(MOUNT_POINT)) {
+			logger.error("No directory");
+			throw new UnexpectedException("No dorectory");
+		}
 	}
 	
 	public static String getMountPoint(String prefix) {
