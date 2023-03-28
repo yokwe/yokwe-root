@@ -38,6 +38,12 @@ public final class SystemUtil {
 	}
 	
 	public static String getMountPoint(String prefix) {
-		return String.format("%s/%s", MOUNT_POINT, prefix);
+		String path = String.format("%s/%s", MOUNT_POINT, prefix);
+		if (!FileUtil.isDirectory(path)) {
+			logger.error("No directory");
+			logger.error("  path {}", path);
+			throw new UnexpectedException("No dorectory");
+		}
+		return path;
 	}
 }
