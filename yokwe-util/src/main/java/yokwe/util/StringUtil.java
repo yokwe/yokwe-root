@@ -8,6 +8,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
@@ -410,7 +412,21 @@ public class StringUtil {
 							// Dont' dig into system class
 							line.append(value.toString());
 						} else {
-							line.append(toString(value));
+							Class<?> clazz = value.getClass();
+							
+							Method method = null;
+							for(var e: clazz.getDeclaredMethods()) {
+								if (e.getName().equals("toString") && e.getParameterCount() == 0) {
+									method = e;
+									break;
+								}
+							}
+							if (method != null) {
+								String string = (String)method.invoke(value);
+								line.append(string);
+							} else {
+								line.append(toString(value));
+							}
 						}
 					}
 				}
@@ -420,7 +436,7 @@ public class StringUtil {
 			}
 			
 			return String.format("{%s}", String.join(", ", result));
-		} catch (IllegalAccessException e) {
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
 			throw new UnexpectedException(exceptionName, e);
