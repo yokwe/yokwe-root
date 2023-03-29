@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class JapaneseDate implements Comparable<JapaneseDate> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final JapaneseDate UNDEFIEND = new JapaneseDate("*UNDEFINED*", 0, 0, 0);
+	public static final JapaneseDate UNDEFIEND = new JapaneseDate("", 0, 0, 0);
 
 	public static String findDateString(String string) {
 		Matcher m = pat_DATE.matcher(string);
@@ -81,7 +81,7 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 		}
 	}
 	
-	boolean isDefined() {
+	public boolean isDefined() {
 		return !equals(UNDEFIEND);
 	}
 
