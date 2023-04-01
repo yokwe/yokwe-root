@@ -216,18 +216,19 @@ public class HttpUtil {
 			this.response = response;
 			
 			HttpEntity entity = response.getEntity();
-//			logger.debug("entity {}", entity);
+//			logger.debug("entity       {}", entity);			
+//			logger.debug("entiry contentTyppe {}", entity.getContentEncoding());
+//			logger.debug("entiry contentLenth {}", entity.getContentLength());
+//			logger.debug("entiry contentType  {}", entity.getContentType());
+//			logger.debug("response code {}", response.getCode());
+//			for(var e: response.getHeaders()) {
+//				logger.debug("response header       {} {}!", e.getName(), e.getValue());
+//			}
+			
 			if (entity == null) {
 				charset = null;
 				content = null;
 			} else if (entity.isChunked() == false && entity.getContentLength() == 0 && entity.getContentType() == null) {
-				charset = null;
-				content = null;
-//				logger.debug("response {} {}", response.getCode(), response.getReasonPhrase());
-//				for(var e: response.getHeaders()) {
-//					logger.debug("header {} {}!", e.getName(), e.getValue());
-//				}
-			} else if (entity.getContentLength() == -1) {
 				charset = null;
 				content = null;
 			} else {
