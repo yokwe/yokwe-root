@@ -69,7 +69,7 @@ public class StockDividend implements Comparable<StockDividend> {
 		this.symbol     = symbol;
 		this.lastExDate = lastExDate;
 		this.annual     = annual;
-		this.count      = 0;
+		this.count      = count;
 	}
 	public StockDividend() {
 		this("", DEFAULT_DATE, 0, 0);
