@@ -94,60 +94,69 @@ public final class UpdateSymbolInfo {
 		public static final String URL = "https://www.rakuten-sec.co.jp/web/market/search/etf_search/ETFD.csv";
 
 		public static class Data {
-//			"QQQ.O"
-			public String tickerInternal;
-//			"QQQ"
-			public String ticker;
-//			"Invesco QQQ Trust Series 1"
+			public String f01;
+			public String symbol;
 			public String name;
-//			"ﾅｽﾀﾞｯｸ"
 			public String exchangeJP;
-//			"NASDAQ 100 TR"
-			public String indexName;
-//			"0.20"
-			public String expenseRatio;
-//			"株式"
-			public String assetClass;
-//			"アメリカ"
-			public String assetRegion;
-//			"252.07"
-			public String pctChangeStart;
-//			"2.85"
-			public String pctChangeYTD;
-//			"-8.01"
-			public String pctChane1M;
-//			"-11.55"
-			public String pctChane3M;
-//			"-5.09"
-			public String pctChane6M;
-//			"-2.82"
-			public String pctChane9M;
-//			"3.17"
-			public String pctChaneY1;
-//			"36.69"
-			public String pctChaneY2;
-//			"43.23"
-			public String pctChaneY3;
-//			"101.22"
-			public String pctChaneY5;
-//			"米ドル"
-			public String currency;
-//			"0.83"
-			public String pctChange1D;
-//			"159.22"
-			public String referencePrice;
-//			"2018/11/20"
-			public String referencePriceDate;
-//			"パワーシェアーズ QQQ 信託シリーズ1"
-			public String nameJP;
-//			"パワーシェアーズ QQQ 信託シリーズ1(PowerShares QQQ Trust Series 1)はパワーシェアーズ・キューキューキュー指数連動株式と呼ばれる証券を発行するユニット型投資信託。同信託はナスダック100指数(Nasdaq-100 Index)(同指数)の構成証券の全てを保有する。同信託の投資目的は同指数の価格・利回り実績に連動する投資成果を提供すること。同信託のスポンサーはInvesco PowerShares Capital Management, LLCで、受託銀行はThe Bank of New York Mellonである。"
-			public String description;
-//			"67716.70"
-			public String aum;
-//			"百万米ドル"
-			public String aumUnit;
-//			"2018/10/31"
-			public String aumDate;
+			public String f05;
+			public String f06;
+			public String f07;
+			public String f08;
+			public String f09;
+			
+			public String f10;
+			public String f11;
+			public String f12;
+			public String f13;
+			public String f14;
+			public String f15;
+			public String f16;
+			public String f17;
+			public String f18;
+			public String f19;
+			
+			public String f20;
+			public String f21;
+			public String f22;
+			public String f23;
+			public String f24;
+			public String f25;
+			public String f26;
+			public String f27;
+			public String f28;
+			public String f29;
+			
+			public String f30;
+			public String f31;
+			public String f32;
+			public String f33;
+			public String f34;
+			public String f35;
+			public String f36;
+			public String f37;
+			public String f38;
+			public String f39;
+			
+			public String f40;
+			public String f41;
+			public String f42;
+			public String f43;
+			public String f44;
+			public String f45;
+			public String f46;
+			public String f47;
+			public String f48;
+			public String f49;
+			
+			public String f50;
+			public String f51;
+			public String f52;
+			public String f53;
+			public String f54;
+			public String f55;
+			public String f56;
+			public String f57;
+			public String f58;			
 		}
 
 		private static void update(Map<String, SymbolInfo> map) {
@@ -167,7 +176,7 @@ public final class UpdateSymbolInfo {
 			//  symbol
 			for(var e: list) {
 				// sanity check
-				if (e.ticker.isEmpty()) continue;
+				if (e.symbol.isEmpty()) continue;
 				switch(e.exchangeJP) {
 				case "香港":
 				case "名証ETF":
@@ -187,9 +196,9 @@ public final class UpdateSymbolInfo {
 					throw new UnexpectedException("Unexpected");
 				}
 
-				String     symbol     = e.ticker;
+				String     symbol     = e.symbol;
 				String     name       = e.name.replaceAll("&amp;", "&");
-				SymbolInfo symbolName = new SymbolInfo(symbol, SymbolInfo.Type.ETF, name);
+				SymbolInfo symbolInfo = new SymbolInfo(symbol, SymbolInfo.Type.ETF, name);
 				
 				if (map.containsKey(symbol)) {
 					var old = map.get(symbol);
@@ -198,7 +207,7 @@ public final class UpdateSymbolInfo {
 					logger.error("  new {}", symbol.toString());
 					throw new UnexpectedException("Duplicate symbol");
 				} else {
-					map.put(symbol, symbolName);
+					map.put(symbol, symbolInfo);
 				}
 			}
 		}
