@@ -121,7 +121,7 @@ public class UpdateNASDAQSymbol {
 				String nasdaqSymbol = token[7].strip();
 				
 				String symbol       = nasdaqSymbol;
-				OtherListed otherListed = new OtherListed(symbol, name, exchange, etf, roundLotSize, testIssue);
+				OtherListed otherListed = new OtherListed(symbol, exchange, etf, roundLotSize, testIssue, name);
 				
 				list.add(otherListed);
 			}

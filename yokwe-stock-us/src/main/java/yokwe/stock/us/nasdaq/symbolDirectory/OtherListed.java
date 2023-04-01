@@ -108,22 +108,22 @@ public class OtherListed implements Comparable<OtherListed> {
 	public String roundLotSize;
 	public String testIssue;
 	// public String nasdaqSymbol;
-	public String name; // move to last
+	public String name;
 	
 	public OtherListed(
 		String symbol,
-		String name,
 		String exchange,
 		String etf,
 		String roundLotSize,
-		String testIssue
+		String testIssue,
+		String name
 		) {
 		this.symbol       = symbol;
-		this.name         = name;
 		this.exchange     = exchange;
 		this.etf          = etf;
 		this.roundLotSize = roundLotSize;
 		this.testIssue    = testIssue;
+		this.name         = name;
 	}
 	public OtherListed() {
 		this(null, null, null, null, null, null);
