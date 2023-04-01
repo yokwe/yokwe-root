@@ -454,6 +454,9 @@ public final class FundDataSearch {
 		//    "totalNetAssets" : 126,
         public BigDecimal        totalNetAssets;
 
+        // Add new field
+        public String            dcFundFlg;
+
         @Override
         public String toString() {
             return StringUtil.toString(this);

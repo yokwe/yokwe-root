@@ -84,6 +84,7 @@ public class Dividends {
 
 
 	public static class Table {
+		public String   asOf;
 		public Header   headers;
 		public Values[] rows;
 		

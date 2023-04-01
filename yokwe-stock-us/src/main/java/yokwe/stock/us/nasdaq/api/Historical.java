@@ -52,6 +52,7 @@ public class Historical {
 	
 	public static class Data {
 		public static class TradesTable {
+			public String              asOf;
 			public Historical.Values   headers;
 			public Historical.Values[] rows;
 			
