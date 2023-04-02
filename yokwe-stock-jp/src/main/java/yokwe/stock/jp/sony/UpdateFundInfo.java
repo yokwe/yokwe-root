@@ -523,7 +523,7 @@ public class UpdateFundInfo {
 		
 	}
 
-	private static String FORMAT_URL = "https://apl.morningstar.co.jp/webasp/sonybk/detail/%s.html";
+	private static String FORMAT_URL = "https://apl.wealthadvisor.jp/webasp/sonybk/detail/%s.html";
 	public static String getURL(String isinCode) {
 		return String.format(FORMAT_URL, isinCode);
 	}
