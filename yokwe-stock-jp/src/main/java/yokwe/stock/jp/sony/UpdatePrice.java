@@ -18,7 +18,7 @@ public class UpdatePrice {
 
 	//https://apl.morningstar.co.jp/xml/chart/funddata/2013121001.xml
 	
-	private static String URL_BASE_FUNDDATA = "https://apl.morningstar.co.jp/xml/chart/funddata";
+	private static String URL_BASE_FUNDDATA = "https://apl.wealthadvisor.jp/xml/chart/funddata";
 	public static String getURL(String msFundCode) {
 		return String.format("%s/%s.xml", URL_BASE_FUNDDATA, msFundCode);
 	}
