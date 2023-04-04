@@ -3,8 +3,11 @@ package yokwe.stock.jp.jpx;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import yokwe.stock.jp.Storage;
+import yokwe.stock.jp.jpx.Stock.Market;
 import yokwe.util.FileUtil;
 import yokwe.util.HashCode;
 import yokwe.util.StringUtil;
@@ -84,6 +87,22 @@ public class UpdateStock {
 				newValue.stockCode = Stock.toStockCode5(newValue.stockCode);
 				
 				newList.add(newValue);
+			}
+			
+			{
+				Map<Market, Integer> countMap = new TreeMap<>();
+				for(var e: Market.values()) {
+					countMap.put(e, 0);
+				}
+				for(var e: newList) {
+					int count = countMap.get(e.market);
+					countMap.put(e.market, count + 1);
+				}
+				for(var e: countMap.entrySet()) {
+					String name  = e.getKey().name();
+					int    count = e.getValue();
+					logger.info("market {}", String.format("%-16s %4d", name, count));
+				}
 			}
 			
 			// Sanity check
