@@ -16,8 +16,6 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
-import yokwe.stock.jp.edinet.EDINETInfo;
-import yokwe.stock.jp.edinet.FundInfo;
 import yokwe.stock.jp.japanreit.REIT;
 import yokwe.stock.jp.japanreit.REITDiv;
 import yokwe.stock.jp.moneybujpx.ETFDiv;
@@ -44,8 +42,6 @@ public class UpdateStats {
 		Stats ret = new Stats();
 		
 		StockInfo  stockInfo = StockInfo.get(stock.stockCode);
-		EDINETInfo edinet    = EDINETInfo.getFromStockCode(stock.stockCode);
-		FundInfo   fund      = FundInfo.getFromStockCodeFundName(stock.stockCode, stock.name);
 
 		ret.stockCode = stock.stockCode;
 		
@@ -154,18 +150,8 @@ public class UpdateStats {
 		
 		// endDate1 endDate2
 		{
-			if (fund != null) {
-				ret.endDate1 = fund.specialDate1;
-				ret.endDate2 = fund.specialDate2;
-			} else {
-				if (edinet != null) {
-					ret.endDate1 = edinet.closingDate;
-					ret.endDate2 = "";
-				} else {
-					ret.endDate1 = "";
-					ret.endDate2 = "";
-				}
-			}
+			ret.endDate1 = "";
+			ret.endDate2 = "";
 		}
 		
 		BigDecimal mllion = BigDecimal.valueOf(1, -6);

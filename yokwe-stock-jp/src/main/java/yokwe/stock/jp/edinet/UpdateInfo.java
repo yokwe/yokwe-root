@@ -104,6 +104,8 @@ public class UpdateInfo {
 		
 		HttpUtil httpUtil = HttpUtil.getInstance().withRawData(true);
 
+		// FIXME download of edinet file and fund file does not work !!
+		// FIXME may be time to use Selenium for doenload
 		EDNETFile.update(httpUtil);
 		FundFile.update(httpUtil);
 		
