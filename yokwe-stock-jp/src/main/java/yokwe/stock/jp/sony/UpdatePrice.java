@@ -3,6 +3,7 @@ package yokwe.stock.jp.sony;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,9 +84,11 @@ public class UpdatePrice {
 
 							// 	public Price(LocalDate date, String isinCode, BigDecimal price, long volume) {
 							LocalDate  date   = LocalDate.parse(String.format("%s-%s-%s", day.year, day.month, day.value));
-							BigDecimal value  = new BigDecimal(day.price);
-							long       volume = Long.parseLong(day.volume);
-							Price price = new Price(date, isinCode, fundInfo.currency, value, volume);
+							BigDecimal value  = new BigDecimal(day.price);                       // 基準価額
+							BigDecimal volume = new BigDecimal(day.volume).scaleByPowerOfTen(6); // 純資産総額
+							BigDecimal unit   = volume.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : volume.divide(value, 0, RoundingMode.HALF_UP);
+							
+							Price price = new Price(date, isinCode, fundInfo.currency, value, volume, unit);
 							priceList.add(price);
 						}
 					}

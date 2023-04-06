@@ -30,17 +30,19 @@ public class Price implements Comparable<Price> {
 	public String     isinCode;
 	public Currency   currency;
 	public BigDecimal price;    // 基準価額
-	public long       netAsset; // 純資産総額 百万円
-	
-	public Price(LocalDate date, String isinCode, Currency currency, BigDecimal price, long netAsset) {
+	public BigDecimal netAsset; // 純資産総額 百万円
+	public BigDecimal unit;     // 口数
+		
+	public Price(LocalDate date, String isinCode, Currency currency, BigDecimal price, BigDecimal netAsset, BigDecimal unit) {
 		this.date     = date;
 		this.isinCode = isinCode;
 		this.currency = currency;
 		this.price    = price;
 		this.netAsset = netAsset;
+		this.unit     = unit;
 	}
 	public Price() {
-		this(null, null, null, null, 0);
+		this(null, null, null, null, null, null);
 	}
 
 	@Override
