@@ -25,21 +25,21 @@ public class FundStats implements Comparable<FundStats> {
 	//
 	// From Fund
 	//
-	public String isinCode; // IE0030804631
-	public String fundName; // ワールド・リート・オープン（毎月決算型）
+	public String isinCode;
+	public String name;
 	public String category;
 
 	//
 	// From Price
 	//
-	public String     priceDate;
-	public BigDecimal price1YCount;
+	public String     date;
+	public int        pricec;
 	public BigDecimal price;
 	public BigDecimal priceMinPCT;
 	public BigDecimal priceMaxPCT;
-	public BigDecimal netAsset;
-	public BigDecimal netAssetMinPCT;
-	public BigDecimal netAssetMaxPCT;
+	public BigDecimal uam;
+	public BigDecimal uamMinPCT;
+	public BigDecimal uamMaxPCT;
 	public BigDecimal unit;
 	public BigDecimal unitMinPCT;
 	public BigDecimal unitMaxPCT;
@@ -47,9 +47,8 @@ public class FundStats implements Comparable<FundStats> {
 	//
 	// From Dividend
 	//
-    public String     divFreq;  // 12
+    public int        divc;
     public BigDecimal div;
-    public BigDecimal div1YCount;
     public BigDecimal div1Y;
     public BigDecimal yieldLast;
     public BigDecimal yield1Y;
