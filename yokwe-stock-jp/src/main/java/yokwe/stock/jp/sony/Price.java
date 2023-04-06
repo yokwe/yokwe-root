@@ -30,15 +30,15 @@ public class Price implements Comparable<Price> {
 	public String     isinCode;
 	public Currency   currency;
 	public BigDecimal price;    // 基準価額
-	public BigDecimal netAsset; // 純資産総額 百万円
+	public BigDecimal uam;      // 純資産総額
 	public BigDecimal unit;     // 口数
 		
-	public Price(LocalDate date, String isinCode, Currency currency, BigDecimal price, BigDecimal netAsset, BigDecimal unit) {
+	public Price(LocalDate date, String isinCode, Currency currency, BigDecimal price, BigDecimal uam, BigDecimal unit) {
 		this.date     = date;
 		this.isinCode = isinCode;
 		this.currency = currency;
 		this.price    = price;
-		this.netAsset = netAsset;
+		this.uam      = uam;
 		this.unit     = unit;
 	}
 	public Price() {
