@@ -47,21 +47,6 @@ public class UpdateFundStats {
 	private static final LocalDate TODAY = LocalDate.now();
 	private static final LocalDate TODAY_1Y = TODAY.minusYears(1).minusDays(1);
 	
-	private static BigDecimal toBigDecimalFromPercent(String string) {
-		string = string.replace("＋運用報酬", "");
-		string = string.replace("＋成功報酬", "");
-		
-		if (string.endsWith("%")) {
-			return new BigDecimal(string.substring(0, string.length() - 1)).scaleByPowerOfTen(-2);
-		} else if (string.length() == 0) {
-			return BigDecimal.ZERO;
-		} else {
-			logger.error("Unexpected string");
-			logger.error("  string = {}", string);
-			throw new UnexpectedException("Unexpected string");
-		}
-	}
-	
 	public static void main(String[] args) {
 		logger.info("START");
 		
@@ -99,56 +84,10 @@ public class UpdateFundStats {
 			
 			// from fund
 			stats.isinCode = fund.isinCode;
-			stats.category = fund.category;
 			stats.fundName = fund.fundName;
-			stats.company  = fund.company;
+			stats.category = fund.category;
 			stats.divFreq  = fund.divFreq;
-			stats.region   = fund.region;
-			stats.target   = fund.target;
-			stats.currency = fund.currency;
 		
-			// from info
-			{
-				List<YearMonthDay> list = StringUtil.find(info.inceptionDate, YearMonthDay.PAT, YearMonthDay.OP).collect(Collectors.toList());
-				
-				if (list.size() == 1) {
-					var e = list.get(0);
-					stats.inceptionDate = String.format("%s-%02d-%02d", e.year, e.month, e.day);
-				} else {
-					logger.error("Unexpected inceptionDate");
-					logger.error("  inceptionDate = {}!", info.inceptionDate);
-					throw new UnexpectedException("Unexpected inceptionDate");
-				}
-			}
-					
-			{
-				if (info.redemptionDate.equals(DATE_INFINITY)) {
-					stats.redemptionDate = "-";
-				} else {
-					List<YearMonthDay> list = StringUtil.find(info.redemptionDate, YearMonthDay.PAT, YearMonthDay.OP).collect(Collectors.toList());
-					
-					if (list.size() == 1) {
-						var e = list.get(0);
-						stats.redemptionDate = String.format("%s-%02d-%02d", e.year, e.month, e.day);
-					} else {
-						logger.error("Unexpected redemptionDate");
-						logger.error("  redemptionDate = {}!", info.redemptionDate);
-						throw new UnexpectedException("Unexpected redemptionDate");
-					}
-				}
-			}
-			{
-				List<String> list = new ArrayList<>();
-				for(var e: StringUtil.find(info.closingDate, MonthDay.PAT, MonthDay.OP).collect(Collectors.toList())) {
-					list.add(String.format("%d/%d", e.mm, e.dd));
-				}
-				stats.closingDate = String.join(", ", list);
-			}
-			
-			stats.trustFee     = toBigDecimalFromPercent(info.trustFee);
-			stats.realTrustFee = toBigDecimalFromPercent(info.realTrustFee);
-			stats.cancelFee    = toBigDecimalFromPercent(info.cancelFee);
-			
 			// from price
 			{
 				List<Price> priceLast1Y = priceList.stream().filter(m -> m.date.isAfter(TODAY_1Y)).collect(Collectors.toList());
@@ -157,29 +96,33 @@ public class UpdateFundStats {
 					stats.priceDate      = "-";
 					stats.price1YCount   = BigDecimal.ZERO;
 					stats.price          = BigDecimal.ZERO;
-					stats.priceMin       = BigDecimal.ZERO;
-					stats.priceMax       = BigDecimal.ZERO;
 					stats.priceMinPCT    = BigDecimal.ZERO;
 					stats.priceMaxPCT    = BigDecimal.ZERO;
 					stats.netAsset       = BigDecimal.ZERO;
-					stats.netAssetMin    = BigDecimal.ZERO;
-					stats.netAssetMax    = BigDecimal.ZERO;
 					stats.netAssetMinPCT = BigDecimal.ZERO;
 					stats.netAssetMaxPCT = BigDecimal.ZERO;
+					stats.unit           = BigDecimal.ZERO;
+					stats.unitMinPCT     = BigDecimal.ZERO;
+					stats.unitMaxPCT     = BigDecimal.ZERO;
 				} else {
 					Price lastPrice = priceLast1Y.get(priceLast1Y.size() - 1);
 					stats.priceDate      = lastPrice.date.toString();
 					stats.price1YCount   = new BigDecimal(priceLast1Y.size());
 					stats.price          = lastPrice.price;
-					stats.priceMin       = priceLast1Y.stream().map(m -> m.price).min(Comparator.naturalOrder()).get();
-					stats.priceMax       = priceLast1Y.stream().map(m -> m.price).max(Comparator.naturalOrder()).get();
-					stats.priceMinPCT    = stats.price.subtract(stats.priceMin).divide(stats.price, 3, RoundingMode.HALF_DOWN);
-					stats.priceMaxPCT    = stats.priceMax.subtract(stats.price).divide(stats.price, 3, RoundingMode.HALF_DOWN);
-					stats.netAsset       = new BigDecimal(lastPrice.netAsset);
-					stats.netAssetMin    = priceLast1Y.stream().map(m -> new BigDecimal(m.netAsset)).min(Comparator.naturalOrder()).get();
-					stats.netAssetMax    = priceLast1Y.stream().map(m -> new BigDecimal(m.netAsset)).max(Comparator.naturalOrder()).get();
-					stats.netAssetMinPCT = stats.netAsset.subtract(stats.netAssetMin).divide(stats.netAsset, 3, RoundingMode.HALF_DOWN);
-					stats.netAssetMaxPCT = stats.netAssetMax.subtract(stats.netAsset).divide(stats.netAsset, 3, RoundingMode.HALF_DOWN);
+					var priceMin         = priceLast1Y.stream().map(m -> m.price).min(Comparator.naturalOrder()).get();
+					var priceMax         = priceLast1Y.stream().map(m -> m.price).max(Comparator.naturalOrder()).get();
+					stats.priceMinPCT    = stats.price.subtract(priceMin).divide(stats.price, 3, RoundingMode.HALF_DOWN);
+					stats.priceMaxPCT    = priceMax.subtract(stats.price).divide(stats.price, 3, RoundingMode.HALF_DOWN);
+					stats.netAsset       = lastPrice.netAsset;
+					var netAssetMin      = priceLast1Y.stream().map(m -> m.netAsset).min(Comparator.naturalOrder()).get();
+					var netAssetMax      = priceLast1Y.stream().map(m -> m.netAsset).max(Comparator.naturalOrder()).get();
+					stats.netAssetMinPCT = stats.netAsset.subtract(netAssetMin).divide(stats.netAsset, 3, RoundingMode.HALF_DOWN);
+					stats.netAssetMaxPCT = netAssetMax.subtract(stats.netAsset).divide(stats.netAsset, 3, RoundingMode.HALF_DOWN);
+					stats.unit           = lastPrice.unit;
+					var unitMin          = priceLast1Y.stream().map(m -> m.unit).min(Comparator.naturalOrder()).get();
+					var unitMax          = priceLast1Y.stream().map(m -> m.unit).max(Comparator.naturalOrder()).get();
+					stats.unitMinPCT     = stats.unit.subtract(unitMin).divide(stats.unit, 3, RoundingMode.HALF_DOWN);
+					stats.unitMaxPCT     = unitMax.subtract(stats.unit).divide(stats.unit, 3, RoundingMode.HALF_DOWN);
 				}
 				
 			}
@@ -189,7 +132,6 @@ public class UpdateFundStats {
 				if (divList.isEmpty()) {
 					stats.divFreq    = "0";
 					//
-					stats.divDate    = "-";
 					stats.div        = BigDecimal.ZERO;
 					stats.div1YCount = BigDecimal.ZERO;
 					stats.div1Y      = BigDecimal.ZERO;
@@ -197,7 +139,6 @@ public class UpdateFundStats {
 					stats.yield1Y    = BigDecimal.ZERO;
 				} else {
 					Dividend lastDiv = divList.get(divList.size() - 1);
-					stats.divDate = lastDiv.date.toString();
 					stats.div = lastDiv.dividend;
 					
 					List<Dividend> divList1Y = divList.stream().filter(m -> m.date.isAfter(TODAY_1Y)).collect(Collectors.toList());
@@ -212,7 +153,6 @@ public class UpdateFundStats {
 					if (stats.div1Y.equals(BigDecimal.ZERO)) {
 						stats.divFreq    = "0";
 						//
-						stats.divDate    = "-";
 						stats.div        = BigDecimal.ZERO;
 						stats.div1YCount = BigDecimal.ZERO;
 						stats.div1Y      = BigDecimal.ZERO;

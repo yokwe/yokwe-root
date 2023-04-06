@@ -26,51 +26,28 @@ public class FundStats implements Comparable<FundStats> {
 	// From Fund
 	//
 	public String isinCode; // IE0030804631
-	public String category; // 国際REIT型
 	public String fundName; // ワールド・リート・オープン（毎月決算型）
-    public Company company;  // 081
-    public String divFreq;  // 12
-    public Region region;   // 01
-    public Target target;   // 20
-    public Currency currency; // JPY
+	public String category;
 
-    //
-	// From FundInfo
-	//
-	// 設定日
-	public String inceptionDate;
-	// 償還日
-	public String redemptionDate;
-	// 決算日
-	public String closingDate;
-	// 信託報酬（税込）
-	public BigDecimal trustFee;
-	// 実質信託報酬（税込）
-	public BigDecimal realTrustFee;
-	// 信託財産留保額
-	public BigDecimal cancelFee;
-	
 	//
 	// From Price
 	//
 	public String     priceDate;
 	public BigDecimal price1YCount;
 	public BigDecimal price;
-	public BigDecimal priceMin;
-	public BigDecimal priceMax;
 	public BigDecimal priceMinPCT;
 	public BigDecimal priceMaxPCT;
 	public BigDecimal netAsset;
-	public BigDecimal netAssetMin;
-	public BigDecimal netAssetMax;
 	public BigDecimal netAssetMinPCT;
 	public BigDecimal netAssetMaxPCT;
-	
+	public BigDecimal unit;
+	public BigDecimal unitMinPCT;
+	public BigDecimal unitMaxPCT;
 	
 	//
 	// From Dividend
 	//
-	public String     divDate;
+    public String     divFreq;  // 12
     public BigDecimal div;
     public BigDecimal div1YCount;
     public BigDecimal div1Y;
