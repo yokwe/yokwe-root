@@ -33,9 +33,9 @@ public class ChartFundData {
 					@XmlAttribute(name="value")        public String value;
 					@XmlAttribute(name="year")         public String year;
 					@XmlAttribute(name="month")        public String month;
-					@XmlAttribute(name="price")        public String price;
-					@XmlAttribute(name="volume")       public String volume;
-					@XmlAttribute(name="return_value") public String returnValue;
+					@XmlAttribute(name="price")        public String price;       // 基準価額
+					@XmlAttribute(name="volume")       public String volume;      // 純資産総額
+					@XmlAttribute(name="return_value") public String returnValue; // 前日比
 					@XmlAttribute(name="indication")   public String indication;
 
 					@Override
