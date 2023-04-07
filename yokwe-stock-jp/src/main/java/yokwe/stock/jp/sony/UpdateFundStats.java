@@ -81,21 +81,21 @@ public class UpdateFundStats {
 					
 					var priceMin      = priceLast1Y.stream().map(m -> m.price).min(Comparator.naturalOrder()).get();
 					var priceMax      = priceLast1Y.stream().map(m -> m.price).max(Comparator.naturalOrder()).get();
-					stats.priceMinPCT = stats.price.subtract(priceMin).divide(stats.price, 3, RoundingMode.HALF_DOWN);
-					stats.priceMaxPCT = priceMax.subtract(stats.price).divide(stats.price, 3, RoundingMode.HALF_DOWN);
+					stats.priceMinPCT = stats.price.subtract(priceMin).divide(stats.price, 3, RoundingMode.HALF_UP);
+					stats.priceMaxPCT = priceMax.subtract(stats.price).divide(stats.price, 3, RoundingMode.HALF_UP);
 					
 					var uam           = lastPrice.uam;
 					var uamMin        = priceLast1Y.stream().map(m -> m.uam).min(Comparator.naturalOrder()).get();
 					var uamMax        = priceLast1Y.stream().map(m -> m.uam).max(Comparator.naturalOrder()).get();
 					stats.uam         = uam;
-					stats.uamMinPCT   = uam.subtract(uamMin).divide(uam, 3, RoundingMode.HALF_DOWN);
-					stats.uamMaxPCT   = uamMax.subtract(stats.uam).divide(uam, 3, RoundingMode.HALF_DOWN);
+					stats.uamMinPCT   = uam.subtract(uamMin).divide(uam, 3, RoundingMode.HALF_UP);
+					stats.uamMaxPCT   = uamMax.subtract(stats.uam).divide(uam, 3, RoundingMode.HALF_UP);
 					stats.unit        = lastPrice.unit;
 					
 					var unitMin       = priceLast1Y.stream().map(m -> m.unit).min(Comparator.naturalOrder()).get();
 					var unitMax       = priceLast1Y.stream().map(m -> m.unit).max(Comparator.naturalOrder()).get();
-					stats.unitMinPCT  = stats.unit.subtract(unitMin).divide(stats.unit, 3, RoundingMode.HALF_DOWN);
-					stats.unitMaxPCT  = unitMax.subtract(stats.unit).divide(stats.unit, 3, RoundingMode.HALF_DOWN);
+					stats.unitMinPCT  = stats.unit.subtract(unitMin).divide(stats.unit, 3, RoundingMode.HALF_UP);
+					stats.unitMaxPCT  = unitMax.subtract(stats.unit).divide(stats.unit, 3, RoundingMode.HALF_UP);
 				}
 				
 			}
@@ -104,13 +104,13 @@ public class UpdateFundStats {
 			{
 				if (divList.isEmpty()) {
 					stats.divc       = 0;
-					stats.div        = BigDecimal.ZERO;
+					stats.divLast    = BigDecimal.ZERO;
 					stats.div1Y      = BigDecimal.ZERO;
 					stats.yieldLast  = BigDecimal.ZERO;
 					stats.yield1Y    = BigDecimal.ZERO;
 				} else {
 					Dividend lastDiv = divList.get(divList.size() - 1);
-					stats.div = lastDiv.dividend;
+					stats.divLast = lastDiv.dividend;
 					
 					List<Dividend> divList1Y = divList.stream().filter(m -> m.date.isAfter(TODAY_1Y)).collect(Collectors.toList());
 					stats.divc = divList1Y.size();
@@ -119,12 +119,12 @@ public class UpdateFundStats {
 					for(var e: divList1Y) {
 						stats.div1Y = stats.div1Y.add(e.dividend);
 					}
-					stats.yieldLast = stats.div.multiply(divc).divide(stats.price, 8, RoundingMode.HALF_DOWN);
-					stats.yield1Y   = stats.div1Y.divide(stats.price, 8, RoundingMode.HALF_DOWN);
+					stats.yieldLast = stats.divLast.multiply(divc).divide(stats.price, 8, RoundingMode.HALF_UP);
+					stats.yield1Y   = stats.div1Y.divide(stats.price, 8, RoundingMode.HALF_UP);
 					
 					if (stats.div1Y.equals(BigDecimal.ZERO)) {
 						stats.divc       = 0;
-						stats.div        = BigDecimal.ZERO;
+						stats.divLast    = BigDecimal.ZERO;
 						stats.div1Y      = BigDecimal.ZERO;
 						stats.yieldLast  = BigDecimal.ZERO;
 						stats.yield1Y    = BigDecimal.ZERO;	
