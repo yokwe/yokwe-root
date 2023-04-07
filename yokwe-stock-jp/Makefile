@@ -73,9 +73,6 @@ update-tdnet:
 	cd /mnt/stock/jp; tar cfz /mnt/stock/jp/save/xbrl-tdnet_$$(date +%Y%m%d).taz xbrl/tdnet/*.csv
 
 # SONY
-clear-sony-page:
-	cd /mnt/stock/jp; rm sony/page/*
-
 update-sony-stats:
 	ant sony-update-fund
 	ant sony-update-fund-info
