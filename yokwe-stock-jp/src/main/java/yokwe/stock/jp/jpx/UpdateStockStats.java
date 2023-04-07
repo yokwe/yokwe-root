@@ -110,7 +110,19 @@ public class UpdateStockStats {
 			// stockCode name category unit issued
 			stockStats.stockCode = stock.stockCode;
 			stockStats.name      = stock.name;
-			stockStats.category  = stock.market.toString();
+			if (stock.isETF()) {
+				if (etf != null) {
+					stockStats.category = "ETF-" + etf.categoryName.replace("ETF", "");
+				} else {
+					stockStats.category = "ETF";
+				}
+			} else {
+				if (stock.sector33.equals("-")) {
+					stockStats.category = stock.market.toString();
+				} else {
+					stockStats.category = stock.sector33;
+				}
+			}
 			stockStats.unit      = info.tradeUnit;
 			stockStats.issued    = new BigDecimal(info.issued);
 			
