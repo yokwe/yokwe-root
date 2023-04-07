@@ -17,7 +17,7 @@ public class StockInfo implements Comparable<StockInfo> {
 	public static List<StockInfo> getList() {
 		return ListUtil.getList(StockInfo.class, getPath());
 	}
-	private static Map<String, StockInfo> getMap() {
+	public static Map<String, StockInfo> getMap() {
 		//             stockCode
 		var list = getList();
 		ListUtil.checkDuplicate(list);
