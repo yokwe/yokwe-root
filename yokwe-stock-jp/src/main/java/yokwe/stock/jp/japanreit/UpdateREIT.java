@@ -156,7 +156,7 @@ public class UpdateREIT {
 			"<td>(?<term>[0-9]+)</td>\\s+" +
 			"<td>(?<yyyy>20[0-9][0-9])-(?<mm>[01]?[0-9])-(?<dd>[0123]?[0-9])</td>\\s+" +
 			"<td>(?<result>[0-9,]*)</td>\\s+" +
-			"<td>(?<estimate>[0-9,]+)</td>\\s+" +
+			"<td>(?<estimate>[0-9,]*)</td>\\s+" +
 			"</tr>"
 		);
 		public static List<Dividend> getInstance(String page) {
@@ -170,15 +170,15 @@ public class UpdateREIT {
 		@AsNumber
 		public final String result;
 		@AsNumber
-		public final int    estimate;
+		public final String estimate;
 		
-		public Dividend(int term, int yyyy, int mm, int dd, String result, int estimate) {
+		public Dividend(int term, int yyyy, int mm, int dd, String result, String estimate) {
 			this.term     = term;
 			this.yyyy     = yyyy;
 			this.mm       = mm;
 			this.dd       = dd;
-			this.result   = result;
-			this.estimate = estimate;
+			this.result   = result.trim();
+			this.estimate = estimate.trim();
 		}
 		
 		@Override
@@ -371,9 +371,8 @@ public class UpdateREIT {
 			}
 			for(var e: list) {
 			    String date     = String.format("%d-%02d-%02d", e.yyyy, e.mm, e.dd);
-			    int    estimate = e.estimate;
-			    int    actual   = e.result.isEmpty() ? REITDiv.NO_VALUE : Integer.parseInt(e.result);
-
+				int    estimate = (e.estimate == null || e.estimate.isEmpty()) ? REITDiv.NO_VALUE : Integer.parseInt(e.estimate);
+				int    actual   = (e.result   == null || e.result.isEmpty())   ? REITDiv.NO_VALUE : Integer.parseInt(e.result);
 				REITDiv div = new REITDiv(date, estimate, actual);
 				if (div.hasValue()) {
 					divList.add(div);
