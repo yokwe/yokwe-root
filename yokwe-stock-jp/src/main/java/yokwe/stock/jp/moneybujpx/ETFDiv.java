@@ -31,16 +31,16 @@ public class ETFDiv implements Comparable<ETFDiv> {
 		String path = getPath(stockCode);
 		var list = ListUtil.getList(ETFDiv.class, path);
 		
-		// sanity check
-		for(var div: list) {
-			double value = div.amount.doubleValue();
-			if (Double.isFinite(value)) continue;
-			
-			logger.error("Contains not number");
-			logger.error("  stockCode {}", stockCode);
-			logger.error("  list      {}", list);
-			throw new UnexpectedException("Contains not number");
-		}
+//		// sanity check
+//		for(var div: list) {
+//			double value = div.amount.doubleValue();
+//			if (Double.isFinite(value)) continue;
+//			
+//			logger.error("Contains not number");
+//			logger.error("  stockCode {}", stockCode);
+//			logger.error("  list      {}", list);
+//			throw new UnexpectedException("Contains not number");
+//		}
 
 		return list;
 	}
