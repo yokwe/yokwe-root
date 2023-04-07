@@ -48,7 +48,7 @@ public class FundStats implements Comparable<FundStats> {
 	// From Dividend
 	//
     public int        divc;
-    public BigDecimal div;
+    public BigDecimal divLast;
     public BigDecimal div1Y;
     public BigDecimal yieldLast;
     public BigDecimal yield1Y;
