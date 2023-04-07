@@ -1,6 +1,5 @@
 package yokwe.stock.jp.sony;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -539,28 +537,16 @@ public class UpdateFundInfo {
 		List<FundInfo> infoList = new ArrayList<>();
 		List<Dividend> divList  = new ArrayList<>();
 		
-		{
-			for(Fund e: Fund.getList()) {
-				String isinCode = e.isinCode;
-				logger.info("{} {}", isinCode, e.fundName);
-				
-				String page;
-				{
-					String path = getPath(isinCode);
-					File file = new File(path);
-					if (file.exists()) {
-						page = FileUtil.read().file(file);
-					} else {
-						String url = getURL(isinCode);
-						logger.info("  download {}", url);
-						HttpUtil.Result result = HttpUtil.getInstance().download(url);
-						page = result.result;
-						FileUtil.write().file(file, page);
-					}
-				}
-				
-				updateList(infoList, divList, e, page);
-			}
+		// Build infoLsit and divList
+		for(Fund e: Fund.getList()) {
+			String isinCode = e.isinCode;
+			logger.info("{} {}", isinCode, e.fundName);
+			
+			String url = getURL(isinCode);
+			HttpUtil.Result result = HttpUtil.getInstance().download(url);
+			String page = result.result;
+			
+			updateList(infoList, divList, e, page);
 		}
 		
 		// Save infoList
