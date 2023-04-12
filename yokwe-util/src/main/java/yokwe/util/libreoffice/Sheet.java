@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,7 @@ public class Sheet {
 	private static final int HASHCODE_CLASS_LONG       = Long.class.hashCode();
 	private static final int HASHCODE_CLASS_STRING     = String.class.hashCode();
 	private static final int HASHCODE_CLASS_BIGDECIMAL = BigDecimal.class.hashCode();
+	private static final int HASHCODE_CLASS_LOCALDATE  = LocalDate.class.hashCode();
 	private static final int HASHCODE_INT              = Integer.TYPE.hashCode();
 	private static final int HASHCODE_DOUBLE           = Double.TYPE.hashCode();
 	private static final int HASHCODE_LONG             = Long.TYPE.hashCode();
@@ -362,6 +364,13 @@ public class Sheet {
 							value = Double.valueOf((Double)o);
 						} else if (columnInfo.fieldType == HASHCODE_CLASS_BIGDECIMAL) {
 							value = Double.valueOf(((BigDecimal)o).doubleValue());
+						} else if (columnInfo.fieldType == HASHCODE_CLASS_LOCALDATE) {
+							String string = o.toString();
+							if (columnInfo.isDate && string.length() == SpreadSheet.FORMAT_DATE.length()) {
+								value = Double.valueOf(SpreadSheet.toDateNumber(string)); // Convert to double for date number
+							} else {
+								value = string;
+							}
 						} else if (columnInfo.fieldType == HASHCODE_CLASS_INTEGER) {
 							value = Double.valueOf((Integer)o);
 						} else if (columnInfo.fieldType == HASHCODE_CLASS_LONG) {
@@ -553,6 +562,8 @@ public class Sheet {
 										field.set(data, null);
 									} else if (fieldType == HASHCODE_CLASS_BIGDECIMAL) {
 										field.set(data, null);
+									} else if (fieldType == HASHCODE_CLASS_LOCALDATE) {
+										field.set(data, null);
 									} else if (fieldType == HASHCODE_CLASS_INTEGER) {
 										field.set(data, null);
 									} else if (fieldType == HASHCODE_CLASS_LONG) {
@@ -576,6 +587,8 @@ public class Sheet {
 										field.set(data, Double.valueOf(value));
 									} else if (fieldType == HASHCODE_CLASS_BIGDECIMAL) {
 										field.set(data, new BigDecimal(value));
+									} else if (fieldType == HASHCODE_CLASS_LOCALDATE) {
+										field.set(data, LocalDate.parse(value));
 									} else if (fieldType == HASHCODE_CLASS_INTEGER) {
 										field.set(data, Integer.valueOf(value));
 									} else if (fieldType == HASHCODE_CLASS_LONG) {
@@ -614,6 +627,13 @@ public class Sheet {
 									field.set(data, (Double)value);
 								} else if (fieldType == HASHCODE_CLASS_BIGDECIMAL) {
 									field.set(data, DoubleUtil.toBigDecimal(value));
+								} else if (fieldType == HASHCODE_CLASS_LOCALDATE) {
+									if (isDate) {
+										field.set(data, SpreadSheet.toDateString(value));
+									} else {
+										logger.error("Unexpected NumberFormat annotation = {}", columnInfo.field.getType().getName());
+										throw new UnexpectedException("Unexpected");
+									}
 								} else if (fieldType == HASHCODE_CLASS_INTEGER) {
 									field.set(data, (Integer)((int)value));
 								} else if (fieldType == HASHCODE_CLASS_LONG) {
