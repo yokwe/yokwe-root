@@ -114,7 +114,7 @@ public class UpdateFundStats {
 					
 					List<Dividend> divList1Y = divList.stream().filter(m -> m.date.isAfter(TODAY_1Y)).collect(Collectors.toList());
 					stats.divc = divList1Y.size();
-					var divc = new BigDecimal(stats.divc);
+					var divc = BigDecimal.valueOf(stats.divc);
 					stats.div1Y = BigDecimal.ZERO;
 					for(var e: divList1Y) {
 						stats.div1Y = stats.div1Y.add(e.dividend);

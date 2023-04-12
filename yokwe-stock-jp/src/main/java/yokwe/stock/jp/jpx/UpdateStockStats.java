@@ -124,7 +124,7 @@ public class UpdateStockStats {
 				}
 			}
 			stockStats.unit      = info.tradeUnit;
-			stockStats.issued    = new BigDecimal(info.issued);
+			stockStats.issued    = BigDecimal.valueOf(info.issued);
 			
 			if (etf != null) {
 				stockStats.category = "ETF-" + etf.categoryName.replace("ETF", "");
@@ -246,7 +246,7 @@ public class UpdateStockStats {
 				double   vol5     = MA.sma( 5, volArray).getValue();
 				double   vol21    = MA.sma(21, volArray).getValue();
 				
-				stockStats.vol   = new BigDecimal(lastPrice.volume);
+				stockStats.vol   = BigDecimal.valueOf(lastPrice.volume);
 				stockStats.vol5  = DoubleUtil.toBigDecimal(vol5, 0);
 				stockStats.vol21 = DoubleUtil.toBigDecimal(vol21, 0);
 			}
