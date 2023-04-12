@@ -47,13 +47,15 @@ public class SpreadSheet extends LibreOffice {
 	
 	public static final String FORMAT_NUMBER2_BLANK = "#,##0.00;[RED]-#,##0.00;\"\";@";
 	
-	public static final String FORMAT_USD = "[$$-409]#,##0.00;[RED]-[$$-409]#,##0.00";
+	public static final String FORMAT_USD  = "[$$-409]#,##0.00;[RED]-[$$-409]#,##0.00";
 	public static final String FORMAT_USD5 = "[$$-409]#,##0.00000;[RED]-[$$-409]#,##0.00000";
-	public static final String FORMAT_JPY = "[$￥-411]#,##0;[RED]-[$￥-411]#,##0";
+	public static final String FORMAT_JPY  = "[$￥-411]#,##0;[RED]-[$￥-411]#,##0";
+	public static final String FORMAT_JPY1 = "[$￥-411]#,##0.0;[RED]-[$￥-411]#,##0.0";
 
-	public static final String FORMAT_USD_BLANK = "[$$-409]#,##0.00;[RED]-[$$-409]#,##0.00;\"\";@";
+	public static final String FORMAT_USD_BLANK  = "[$$-409]#,##0.00;[RED]-[$$-409]#,##0.00;\"\";@";
 	public static final String FORMAT_USD5_BLANK = "[$$-409]#,##0.00000;[RED]-[$$-409]#,##0.00000;\"\";@";
-	public static final String FORMAT_JPY_BLANK = "[$￥-411]#,##0;[RED]-[$￥-411]#,##0;\"\";@";
+	public static final String FORMAT_JPY_BLANK  = "[$￥-411]#,##0;[RED]-[$￥-411]#,##0;\"\";@";
+	public static final String FORMAT_JPY1_BLANK = "[$￥-411]#,##0.0;[RED]-[$￥-411]#,##0.0;\"\";@";
 	public static final String FORMAT_INTEGER_BLANK = "#,##0.#####;[RED]-#,##0.#####;\"\";@";
 
 	private static final Map<CellContentType, String> cellContentTypeMap = new HashMap<>();
