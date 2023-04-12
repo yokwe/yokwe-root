@@ -32,9 +32,7 @@ public class DoubleUtil {
 		return round(String.format("%.7f", value), 5);
 	}
 
-	public static BigDecimal toBigDecimal(double value, int places) {
-	    if (places < 0) throw new IllegalArgumentException();
-
+	public static BigDecimal toBigDecimal(double value) {
 	    if (Double.isInfinite(value)) {
 	    	logger.error("value is infinite");
 	    	throw new UnexpectedException("value is infinite");
@@ -43,7 +41,12 @@ public class DoubleUtil {
 	    	logger.error("value is NaN");
 	    	throw new UnexpectedException("value is NaN");
 	    }
-	    BigDecimal rawValue = new BigDecimal(value);
+	    return BigDecimal.valueOf(value);
+	}
+	public static BigDecimal toBigDecimal(double value, int places) {
+	    if (places < 0) throw new IllegalArgumentException();
+
+	    BigDecimal rawValue = toBigDecimal(value);
 	    return rawValue.setScale(places, RoundingMode.HALF_UP);
 	}
 }
