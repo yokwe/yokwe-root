@@ -26,6 +26,7 @@ show-ant-process:
 kill-long-running-process:
 	@ps -wwxo pid,etimes,args | awk '/bin\/java/ && 3600<$$2 && !/org.eclipse.equinox.launcher/ {print}' | tee tmp/kill-long-running-process
 	@if [ -s tmp/kill-long-running-process ]; then \
+		date +'%y-%m-%d %H:%M:%S'; \
 		awk '{COMMAND="kill -kill " $$1; print(COMMAND); system(COMMAND);}' <tmp/kill-long-running-process; \
 	fi
 
