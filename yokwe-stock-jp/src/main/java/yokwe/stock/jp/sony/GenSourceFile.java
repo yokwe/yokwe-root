@@ -18,8 +18,7 @@ public class GenSourceFile {
 //    	GenearateJSONStub.generate("yokwe.security.japan.sony.json", "Dividend", new File("tmp/F000000MU9-div.json"));
     	
     	{
-    		String url = "https://moneykit.net/data/fund/SFBA1700F471.js";
-    		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(url);
+    		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(UpdateFund.URL_FUND_LIST);
 			logger.info("result {} {} {} {}", result.code, result.reasonPhrase, result.version, result.rawData.length);
 			
     		String jsonString;

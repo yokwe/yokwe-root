@@ -17,6 +17,18 @@ import yokwe.util.json.JSON;
 
 public class UpdateFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	// To get msFundCode from isinCode, fetch page using above getURL() and find line like "var msFundCode = '2013121001';"
+
+	// Fund list
+	//   https://moneykit.net/data/fund/SFBA1700F471.js
+
+	// Fund basic info
+	//   https://apl.morningstar.co.jp/webasp/funddataxml/basic/basic_2013121001.xml
+	// Fund historical price info
+	//   https://apl.morningstar.co.jp/xml/chart/funddata/2013121001.xml
+	
+	public static final String URL_FUND_LIST = "https://moneykit.net/data/fund/SFBA1700F471.js";
 
 	public static class RawData {
 		public Map<String, FundData.JP90C00002U0> map;
@@ -87,10 +99,8 @@ public class UpdateFund {
         return ret;
 	}
 
-	private static final String URL = "https://moneykit.net/data/fund/SFBA1700F471.js";
-
 	public static List<Fund> updateList() {
-		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(URL);
+		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(URL_FUND_LIST);
 		
 		String string = result.result;
 		
