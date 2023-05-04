@@ -56,6 +56,7 @@ public class UpdateFundStats {
 			stats.isinCode = fund.isinCode;
 			stats.name     = fund.fundName;
 			stats.category = fund.category;
+			stats.rating   = fund.rating;
 		
 			// from price
 			{

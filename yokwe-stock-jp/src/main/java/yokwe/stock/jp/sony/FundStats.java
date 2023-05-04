@@ -28,6 +28,7 @@ public class FundStats implements Comparable<FundStats> {
 	public String isinCode;
 	public String name;
 	public String category;
+	public String rating;
 
 	//
 	// From Price

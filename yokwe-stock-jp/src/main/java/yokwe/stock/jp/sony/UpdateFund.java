@@ -71,7 +71,7 @@ public class UpdateFund {
 //        ret.expenseRatio       = toString(new BigDecimal(raw.sintakHosyu).movePointLeft(2));
  //       ret.expenseRatio       = raw.sintakHosyu;
 //      ret.sintakHosyuFM      = raw.sintakHosyuFM;
-//      ret.sougouRating       = raw.sougouRating.equals("-") ? MISSING_DATA : Integer.parseInt(raw.sougouRating);
+        ret.rating             = raw.sougouRating;
 //      ret.sougouRatingFM     = raw.sougouRatingFM;
         ret.region             = Region.get(raw.toshiArea);
         ret.target             = Target.get(raw.toshiTarget);
