@@ -36,14 +36,14 @@ public class FundStats implements Comparable<FundStats> {
 	public String     date;
 	public int        pricec;
 	public BigDecimal price;
-	public BigDecimal priceMinPCT;
-	public BigDecimal priceMaxPCT;
+	public BigDecimal priceMin;
+	public BigDecimal priceMax;
 	public BigDecimal uam;
-	public BigDecimal uamMinPCT;
-	public BigDecimal uamMaxPCT;
+	public BigDecimal uamMin;
+	public BigDecimal uamMax;
 	public BigDecimal unit;
-	public BigDecimal unitMinPCT;
-	public BigDecimal unitMaxPCT;
+	public BigDecimal unitMin;
+	public BigDecimal unitMax;
 	
 	//
 	// From Dividend
