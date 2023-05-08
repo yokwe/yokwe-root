@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import yokwe.util.DoubleUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.stats.RSI;
 
 public class UpdateFundStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -68,12 +70,15 @@ public class UpdateFundStats {
 					stats.price    = BigDecimal.ZERO;
 					stats.priceMin = BigDecimal.ZERO;
 					stats.priceMax = BigDecimal.ZERO;
+					stats.priceRSI = 0;
 					stats.uam      = BigDecimal.ZERO;
 					stats.uamMin   = BigDecimal.ZERO;
 					stats.uamMax   = BigDecimal.ZERO;
+					stats.uamRSI   = 0;
 					stats.unit     = BigDecimal.ZERO;
 					stats.unitMin  = BigDecimal.ZERO;
 					stats.unitMax  = BigDecimal.ZERO;
+					stats.unitRSI  = 0;
 				} else {
 					Price lastPrice = priceLast1Y.get(priceLast1Y.size() - 1);
 					stats.date      = lastPrice.date.toString();
@@ -84,6 +89,12 @@ public class UpdateFundStats {
 					var priceMax    = priceLast1Y.stream().map(m -> m.price).max(Comparator.naturalOrder()).get();
 					stats.priceMin  = stats.price.subtract(priceMin).divide(stats.price, 3, RoundingMode.HALF_UP);
 					stats.priceMax  = priceMax.subtract(stats.price).divide(stats.price, 3, RoundingMode.HALF_UP);
+					{
+						double[] doubleArray = priceLast1Y.stream().mapToDouble(m -> m.price.doubleValue()).toArray();
+						RSI rsi = new RSI(doubleArray);
+						double value = rsi.getValue();
+						stats.priceRSI = Double.isFinite(value) ? DoubleUtil.round(value, 1) : -1;
+					}
 					
 					var uam         = lastPrice.uam;
 					var uamMin      = priceLast1Y.stream().map(m -> m.uam).min(Comparator.naturalOrder()).get();
@@ -91,12 +102,26 @@ public class UpdateFundStats {
 					stats.uam       = uam;
 					stats.uamMin    = uam.subtract(uamMin).divide(uam, 3, RoundingMode.HALF_UP);
 					stats.uamMax    = uamMax.subtract(stats.uam).divide(uam, 3, RoundingMode.HALF_UP);
-					stats.unit      = lastPrice.unit;
+					{
+						double[] doubleArray = priceLast1Y.stream().mapToDouble(m -> m.uam.doubleValue()).toArray();
+						RSI rsi = new RSI(doubleArray);
+						double value = rsi.getValue();
+						stats.uamRSI = Double.isFinite(value) ? DoubleUtil.round(value, 1) : -1;
+					}
 					
+					
+					stats.unit      = lastPrice.unit;
 					var unitMin     = priceLast1Y.stream().map(m -> m.unit).min(Comparator.naturalOrder()).get();
 					var unitMax     = priceLast1Y.stream().map(m -> m.unit).max(Comparator.naturalOrder()).get();
 					stats.unitMin   = stats.unit.subtract(unitMin).divide(stats.unit, 3, RoundingMode.HALF_UP);
 					stats.unitMax   = unitMax.subtract(stats.unit).divide(stats.unit, 3, RoundingMode.HALF_UP);
+					{
+						double[] doubleArray = priceLast1Y.stream().mapToDouble(m -> m.unit.doubleValue()).toArray();
+						RSI rsi = new RSI(doubleArray);
+						double value = rsi.getValue();
+						stats.unitRSI = Double.isFinite(value) ? DoubleUtil.round(value, 1) : -1;
+					}
+
 				}
 				
 			}

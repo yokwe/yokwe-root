@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import yokwe.stock.jp.Storage;
-import yokwe.stock.jp.sony.Fund.Region;
-import yokwe.stock.jp.sony.Fund.Target;
 import yokwe.util.ListUtil;
 
 public class FundStats implements Comparable<FundStats> {
@@ -38,12 +36,15 @@ public class FundStats implements Comparable<FundStats> {
 	public BigDecimal price;
 	public BigDecimal priceMin;
 	public BigDecimal priceMax;
+	public double     priceRSI;
 	public BigDecimal uam;
 	public BigDecimal uamMin;
 	public BigDecimal uamMax;
+	public double     uamRSI;
 	public BigDecimal unit;
 	public BigDecimal unitMin;
 	public BigDecimal unitMax;
+	public double     unitRSI;
 	
 	//
 	// From Dividend
