@@ -178,5 +178,20 @@ public final class Storage {
 			}
 		}
 	}
+	
+	// Nikkei
+	public static final class Nikkei {
+		public static final String PREFIX = "nikkei";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
 
 }
