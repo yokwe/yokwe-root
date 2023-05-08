@@ -315,6 +315,9 @@ public class StringUtil {
 	
 	public static String toString(Object o) {
 		// handle special case
+		if (o == null) {
+			return "null";
+		}
 		if (o.getClass().equals(String.class)) {
 			return o.toString();
 		}
