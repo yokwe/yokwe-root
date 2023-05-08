@@ -318,6 +318,14 @@ public class HttpUtil {
 						continue;
 					}
 				}
+				if (code == HttpStatus.SC_SERVICE_UNAVAILABLE) { // 503
+					if (retryCount < 10) {
+						retryCount++;
+						logger.warn("retry {} {} {}  {}", retryCount, code, reasonPhrase, url);
+						Thread.sleep(1000 * retryCount * retryCount); // sleep 1 * retryCount * retryCount sec
+						continue;
+					}
+				}
 				
 				retryCount = 0;
 				if (code == HttpStatus.SC_NOT_FOUND) { // 404
