@@ -13,34 +13,35 @@ import yokwe.util.http.HttpUtil;
 public class DownloadFile {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public interface DownloadInfo {
+	public interface Detail {
 		String getName();
-		String getURL(String code);
-		String getPath(String code);
+		default String getPath(String code) {
+			return Storage.Nikkei.getPath(getName(), code + ".html");
+		}
+		default String getPath() {
+			return Storage.Nikkei.getPath(getName());
+		}
+		default List<String> getCodeList() {
+			var list = FileUtil.listFile(getPath()).stream().filter(o -> o.getName().endsWith(".html")).map(o -> o.getName().replace(".html", "")).collect(Collectors.toList());
+			Collections.sort(list);
+			return list;
+		}
+
+		static final String URL_BASE = "https://www.nikkei.com/nkd/fund/%s?fcode=%s";
+		String getURLSubType();
+		default String getURL(String code) {
+			return String.format(URL_BASE, getURLSubType(), code);
+		}
+
 		boolean isValid(String code, String page);
 	}
-	
-	private static final String URL_BASE = "https://www.nikkei.com/nkd/fund/%s?fcode=%s";
-	private static String getURL(String category, String code) {
-		return String.format(URL_BASE, category, code);
-	}
-	private static String getURL(String code) {
-		return getURL("", code);
-	}
-	
-	private static String getPath(String dir, String code) {
-		return Storage.Nikkei.getPath(dir, code + ".html");
-	}
-	
-	private static class DownloadFundInfo implements DownloadInfo {
+		
+	private static class FundDetail implements Detail {
 		public String getName() {
 			return "fund";
 		}
-		public String getURL(String code) {
-			return DownloadFile.getURL(code);
-		}
-		public String getPath(String code) {
-			return DownloadFile.getPath(getName(), code);
+		public String getURLSubType() {
+			return "";
 		}
 		public boolean isValid(String code, String page) {
 			// <!-- ▼ QP-COMMON01：共通（コード他） ▼ -->
@@ -85,17 +86,14 @@ public class DownloadFile {
 			return true;
 		}
 	}
-	public static final DownloadInfo downloadFundInfo = new DownloadFundInfo();
+	public static final Detail FUND_DETAIL = new FundDetail();
 	
-	private static class DownloadPerfInfo implements DownloadInfo {
+	private static class PerfDetail implements Detail {
 		public String getName() {
 			return "perf";
 		}
-		public String getURL(String code) {
-			return DownloadFile.getURL("performance/", code);
-		}
-		public String getPath(String code) {
-			return DownloadFile.getPath(getName(), code);
+		public String getURLSubType() {
+			return "performance/";
 		}
 		public boolean isValid(String code, String page) {
 			// <!-- ▼ QP-COMMON01：共通（コード他） ▼ -->
@@ -126,17 +124,14 @@ public class DownloadFile {
 			return true;
 		}
 	}
-	public static final DownloadInfo downloadPerfInfo = new DownloadPerfInfo();
+	public static final Detail PERF_DETAIL = new PerfDetail();
 
-	private static class DownloadDivInfo implements DownloadInfo {
+	private static class DIV_DETAIL implements Detail {
 		public String getName() {
 			return "div";
 		}
-		public String getURL(String code) {
-			return DownloadFile.getURL("dividend/", code);
-		}
-		public String getPath(String code) {
-			return DownloadFile.getPath(getName(), code);
+		public String getURLSubType() {
+			return "dividend/";
 		}
 		public boolean isValid(String code, String page) {
 			// <!-- ▼ QP-COMMON01：共通（コード他） ▼ -->
@@ -172,17 +167,17 @@ public class DownloadFile {
 			return true;
 		}
 	}
-	public static final DownloadInfo downloadDivInfo = new DownloadDivInfo();
+	public static final Detail DIV_DETAIL = new DIV_DETAIL();
 
-	private static void download(List<String> codeList, DownloadInfo download) {
-		logger.info("download {}", download.getName());
+	private static void download(List<String> codeList, Detail detail) {
+		logger.info("download {}", detail.getName());
 		
 		List<String> list = new ArrayList<>();
 		for(var code: codeList) {
-			File file = new File(download.getPath(code));
+			File file = new File(detail.getPath(code));
 			if (file.exists()) {
 				String page = FileUtil.read().file(file);
-				if (!download.isValid(code, page)) {
+				if (!detail.isValid(code, page)) {
 					// delete bad file
 					FileUtil.delete(file);
 					// need to download code
@@ -196,28 +191,28 @@ public class DownloadFile {
 		}
 		Collections.shuffle(list);
 		
-		logger.info("{}  download  {} / {}", download.getName(), list.size(), codeList.size());
+		logger.info("{}  download  {} / {}", detail.getName(), list.size(), codeList.size());
 		List<String> badList = new ArrayList<>();
 		
 		{
 			int count = 0;
 			for(var code: list) {
 				count++;
-				if ((count % 10) == 1) logger.info("{}  {}", download.getName(), String.format("%4d / %4d  %s", count, list.size(), code));
+				if ((count % 10) == 1) logger.info("{}  {}", detail.getName(), String.format("%4d / %4d  %s", count, list.size(), code));
 				
-				String path = download.getPath(code);
-				String url  = download.getURL(code);
+				String path = detail.getPath(code);
+				String url  = detail.getURL(code);
 				
 				HttpUtil.Result result = HttpUtil.getInstance().download(url);
 				if (result == null) {
-					logger.warn("{}  {}  result is null", download.getName(), code);
+					logger.warn("{}  {}  result is null", detail.getName(), code);
 					continue;
 				}
 				if (result.result == null) {
-					logger.warn("{}  {}  result.result is null  {}  {}", download.getName(), code, result.code, result.reasonPhrase);
+					logger.warn("{}  {}  result.result is null  {}  {}", detail.getName(), code, result.code, result.reasonPhrase);
 					continue;
 				}
-				if (download.isValid(code, result.result)) {
+				if (detail.isValid(code, result.result)) {
 					FileUtil.write().file(path, result.result);
 				} else {
 					badList.add(code);
@@ -233,17 +228,17 @@ public class DownloadFile {
 		for(int retry = 0; retry < 5; retry++) {
 			if (badList.isEmpty()) break;
 			
-			logger.info("{}  retry {}   badList {}", download.getName(), retry, badList.size());
+			logger.info("{}  retry {}   badList {}", detail.getName(), retry, badList.size());
 
 			List<String> nextBadList = new ArrayList<>();
 
 			int count = 0;
 			for(var code: badList) {
 				// if ((count % 10) == 1) logger.info("{}  {}", download.getName(), String.format("%4d / %4d  %s", count, list.size(), code));
-				logger.info("{}  {}", download.getName(), String.format("%4d / %4d  %s", count, badList.size(), code));
+				logger.info("{}  {}", detail.getName(), String.format("%4d / %4d  %s", count, badList.size(), code));
 
-				String path = download.getPath(code);
-				String url  = download.getURL(code);
+				String path = detail.getPath(code);
+				String url  = detail.getURL(code);
 				
 				HttpUtil.Result result = HttpUtil.getInstance().download(url);
 				if (result == null) {
@@ -254,7 +249,7 @@ public class DownloadFile {
 					logger.warn("result.result is null  {}  {}  {}", code, result.code, result.reasonPhrase);
 					continue;
 				}
-				if (download.isValid(code, result.result)) {
+				if (detail.isValid(code, result.result)) {
 					FileUtil.write().file(path, result.result);
 				} else {
 					nextBadList.add(code);
@@ -275,11 +270,6 @@ public class DownloadFile {
 		Collections.sort(list);
 		return list;
 	}
-	public static List<String> getCodeListFromFund() {
-		var list = FileUtil.listFile(Storage.Nikkei.getPath("fund")).stream().filter(o -> o.getName().endsWith(".html")).map(o -> o.getName().replace(".html", "")).collect(Collectors.toList());
-		Collections.sort(list);
-		return list;
-	}
 	
 	
 	public static void main(String[] args) {
@@ -288,18 +278,20 @@ public class DownloadFile {
 		var toushinList = getCodeListFromToushin();
 		
 		logger.info("toushin   {}", toushinList.size());
-		logger.info("fund      {}", getCodeListFromFund().size());
+		logger.info("fund      {}", FUND_DETAIL.getCodeList().size());
 
-		// download using getCodeListFromToushin
-		// download(toushinList, downloadFundInfo);
-		// update
-		download(getCodeListFromFund(), downloadFundInfo);
+		// use toushin data
+		//var targetList = toushinList;
+		// use file in fund 
+		var targetList = FUND_DETAIL.getCodeList();
 		
-		var fundList = getCodeListFromFund();
+		download(targetList, FUND_DETAIL);
+		
+		var fundList = FUND_DETAIL.getCodeList();
 		logger.info("fund      {}", fundList.size());
 
-		download(fundList, downloadPerfInfo);
-		download(fundList, downloadDivInfo);
+		download(fundList, PERF_DETAIL);
+		download(fundList, DIV_DETAIL);
 		
 		logger.info("STOP");
 	}
