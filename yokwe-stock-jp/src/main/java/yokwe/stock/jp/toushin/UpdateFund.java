@@ -135,7 +135,6 @@ public class UpdateFund {
 				for(var e: data.resultInfoArray) {
 					fundList.add(toFund(e));
 					saveSeller(e);
-					logger.info("## {}  {}  {}", pagee.isinCd, e.associFundCd, e.fundNm);
 				}
 			}
 		}
