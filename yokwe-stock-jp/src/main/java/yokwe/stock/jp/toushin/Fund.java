@@ -45,25 +45,9 @@ public final class Fund implements Comparable<Fund> {
 	//  "setlFqcy" : "002",
     public int               divFreq;
     
-    // "cancelLationFeeCd" : "1",
-    public String            cancelLationFeeCode;
-	//  "retentionMoneyCd" : "1",
-    public String            retentionMoneyCode;
-
-
     //    運用管理費用 (信託報酬)
 	//    "trustReward" : 0.925,
     public BigDecimal        expenseRatio;
-    // 運用管理費用（信託報酬）運用会社
-    // "entrustTrustReward" : 0.45,
-    public BigDecimal        expenseRatioManagement;
-    // 運用管理費用（信託報酬）販売会社	
-    // "bondTrustReward" : 0.45,
-    public BigDecimal        expenseRatioSales;
-    // 運用管理費用（信託報酬）信託銀行
-    // "custodyTrustReward" : 0.025,
-    public BigDecimal        expenseRatioTrustBank;
-
     // 購入時手数料（上限）
     // "buyFee" : 0,
     public BigDecimal        buyFeeMax;
@@ -86,26 +70,19 @@ public final class Fund implements Comparable<Fund> {
 	
 	
 	public Fund(
-		String isinCode, String fundCode, LocalDate listingDate, LocalDate redemptionDate, int divFreq, String name,
-		BigDecimal expenseRatio, BigDecimal expenseRatioManagement, BigDecimal expenseRatioSales, BigDecimal expenseRatioTrustBank,
-		BigDecimal buyFeeMax, String cancelationFeeCode, String retentionMoneyCode,
+		String isinCode, String fundCode, LocalDate inceptionDate, LocalDate redemptionDate, int divFreq, String name,
+		BigDecimal expenseRatio, BigDecimal buyFeeMax,
 		String fundType, String investingArea, String investingAsset, String indexFundType, String settlementDate
 		) {
 		this.isinCode       = isinCode;
 		this.fundCode       = fundCode;
-		this.inceptionDate    = listingDate;
+		this.inceptionDate  = inceptionDate;
 		this.redemptionDate = redemptionDate;
 		this.divFreq        = divFreq;
 		this.name           = name;
 		
-		this.expenseRatio           = expenseRatio;
-		this.expenseRatioManagement = expenseRatioManagement;
-		this.expenseRatioSales      = expenseRatioSales;
-		this.expenseRatioTrustBank  = expenseRatioTrustBank;
-		
-		this.buyFeeMax = buyFeeMax;
-		this.cancelLationFeeCode = cancelationFeeCode;
-		this.retentionMoneyCode = retentionMoneyCode;
+		this.expenseRatio   = expenseRatio;
+		this.buyFeeMax      = buyFeeMax;
 		
 		this.fundType       = fundType;
 		this.investingArea  = investingArea;
@@ -119,8 +96,7 @@ public final class Fund implements Comparable<Fund> {
 	public Fund() {
 		this(
 			"", null, null, null, 0, null,
-			null, null, null, null,
-			null, null, null,
+			null, null,
 			null, null, null, null, null
 			);
 	}

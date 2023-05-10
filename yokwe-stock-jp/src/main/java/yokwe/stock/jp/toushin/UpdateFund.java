@@ -79,16 +79,10 @@ public class UpdateFund {
 		int        divFreq = resultInfo.setlFqcy.equals("-") ? 0 : Integer.parseInt(resultInfo.setlFqcy);
 		String     name    = resultInfo.fundNm;
 		
-		BigDecimal expenseRatio           = resultInfo.trustReward.scaleByPowerOfTen(-2);        // percent to value
-		BigDecimal expenseRatioManagement = resultInfo.entrustTrustReward.scaleByPowerOfTen(-2); // percent to value
-		BigDecimal expenseRatioSales      = resultInfo.bondTrustReward.scaleByPowerOfTen(-2);    // percent to value
-		BigDecimal expenseRatioTrustBank  = resultInfo.custodyTrustReward.scaleByPowerOfTen(-2); // percent to value
+		BigDecimal expenseRatio = resultInfo.trustReward.scaleByPowerOfTen(-2);        // percent to value
+		BigDecimal buyFreeMax   = (resultInfo.buyFee != null) ? resultInfo.buyFee.scaleByPowerOfTen(-2) : BigDecimal.ZERO;
 		
-		BigDecimal buyFreeMax           = (resultInfo.buyFee != null) ? resultInfo.buyFee.scaleByPowerOfTen(-2) : BigDecimal.ZERO;
-		String     cancelLationFeeCode  = resultInfo.cancelLationFeeCd;
-		String     retentionMoneyCode   = resultInfo.retentionMoneyCd;
-		
-		String fundType = FundDataSearch.FundType.getInstance(resultInfo.unitOpenDiv).getName();
+		String     fundType = FundDataSearch.FundType.getInstance(resultInfo.unitOpenDiv).getName();
 
 		String investingArea;
 		{
@@ -113,8 +107,7 @@ public class UpdateFund {
 		
 		Fund fund = new Fund(
 				isinCode, fundCode, listingDate, redemptionDate, divFreq, name,
-				expenseRatio, expenseRatioManagement, expenseRatioSales, expenseRatioTrustBank,
-				buyFreeMax, cancelLationFeeCode, retentionMoneyCode,
+				expenseRatio, buyFreeMax,
 				fundType, investingArea, investingAsset, indexFundType, settlementDate
 				);
 		return fund;
@@ -142,6 +135,7 @@ public class UpdateFund {
 				for(var e: data.resultInfoArray) {
 					fundList.add(toFund(e));
 					saveSeller(e);
+					logger.info("## {}  {}  {}", pagee.isinCd, e.associFundCd, e.fundNm);
 				}
 			}
 		}
