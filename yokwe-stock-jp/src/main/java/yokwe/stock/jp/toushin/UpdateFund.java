@@ -76,15 +76,15 @@ public class UpdateFund {
 			}
 		}
 		
-		int       divFreq = resultInfo.setlFqcy.equals("-") ? 0 : Integer.parseInt(resultInfo.setlFqcy);
-		String    name    = resultInfo.fundNm;
+		int        divFreq = resultInfo.setlFqcy.equals("-") ? 0 : Integer.parseInt(resultInfo.setlFqcy);
+		String     name    = resultInfo.fundNm;
 		
-		BigDecimal expenseRatio           = resultInfo.trustReward;
-		BigDecimal expenseRatioManagement = resultInfo.entrustTrustReward;
-		BigDecimal expenseRatioSales      = resultInfo.bondTrustReward;
-		BigDecimal expenseRatioTrustBank  = resultInfo.custodyTrustReward;
+		BigDecimal expenseRatio           = resultInfo.trustReward.scaleByPowerOfTen(-2);        // percent to value
+		BigDecimal expenseRatioManagement = resultInfo.entrustTrustReward.scaleByPowerOfTen(-2); // percent to value
+		BigDecimal expenseRatioSales      = resultInfo.bondTrustReward.scaleByPowerOfTen(-2);    // percent to value
+		BigDecimal expenseRatioTrustBank  = resultInfo.custodyTrustReward.scaleByPowerOfTen(-2); // percent to value
 		
-		BigDecimal buyFreeMax           = (resultInfo.buyFee != null) ? resultInfo.buyFee : BigDecimal.ZERO;
+		BigDecimal buyFreeMax           = (resultInfo.buyFee != null) ? resultInfo.buyFee.scaleByPowerOfTen(-2) : BigDecimal.ZERO;
 		String     cancelLationFeeCode  = resultInfo.cancelLationFeeCd;
 		String     retentionMoneyCode   = resultInfo.retentionMoneyCd;
 		
@@ -121,27 +121,10 @@ public class UpdateFund {
 	}
 
 	private static class FundDataSearchConumer implements Consumer<String> {
-		private static void saveSeller(FundDataSearch.ResultInfo resultInfo) {
-			var sellerList = new ArrayList<Seller>();
-			
-			if (resultInfo.institutionInfo != null) {;
-				for(var inst: resultInfo.institutionInfo) {				
-					String     name     = inst.instName;
-					BigDecimal salesFee = inst.salesFee;
-					
-					if (salesFee == null) continue;
-					
-					sellerList.add(new Seller(name, salesFee));
-				}
-			}
-			if (!sellerList.isEmpty()) {
-				Seller.save(resultInfo.isinCd, sellerList);
-			}
-		}
-
-		public List<Fund> fundList  = new ArrayList<>();
-		public int        allPageNo = -1;
-		public int        pageSize  = -1;
+		public List<Seller> sellerList = new ArrayList<>();
+		public List<Fund>   fundList  = new ArrayList<>();
+		public int          allPageNo = -1;
+		public int          pageSize  = -1;
 		
 		public FundDataSearchConumer() {
 		}
@@ -162,6 +145,22 @@ public class UpdateFund {
 				}
 			}
 		}
+		
+		private  void saveSeller(FundDataSearch.ResultInfo resultInfo) {
+			String    isinCode       = resultInfo.isinCd;
+
+			if (resultInfo.institutionInfo != null) {;
+				for(var inst: resultInfo.institutionInfo) {
+					if (inst.salesFee == null) continue;
+
+					String     name     = inst.instName;
+					BigDecimal salesFee = inst.salesFee.scaleByPowerOfTen(-2); // percent to value
+										
+					sellerList.add(new Seller(isinCode, name, salesFee));
+				}
+			}
+		}
+
 	}
 
 	private static String getBody(int startNo) {
@@ -210,8 +209,10 @@ public class UpdateFund {
 		download.startAndWait();
 		logger.info("AFTER  RUN");
 		
-		logger.info("fundList {}  {}", consumer.fundList.size(), Fund.getPath());
+		logger.info("fundList   {}  {}", consumer.fundList.size(), Fund.getPath());
 		Fund.save(consumer.fundList);
+		logger.info("sellerList {}  {}", consumer.sellerList.size(), Seller.getPath());
+		Seller.save(consumer.sellerList);
 	}
 
 	

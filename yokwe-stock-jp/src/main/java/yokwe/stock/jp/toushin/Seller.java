@@ -8,28 +8,36 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class Seller implements Comparable<Seller> {
-	public static final String PREFIX = "seller";
-	
-	public static final String getPath(String isinCode) {
-		return Storage.Toushin.getPath(PREFIX, isinCode + ".csv");
-	}
-	public static void save(String isinCode, List<Seller> list) {
-		ListUtil.save(Seller.class, getPath(isinCode), list);
-	}
-	public static List<Seller> load(String isinCode) {
-		return ListUtil.load(Seller.class, getPath(isinCode));
+	private static final String PATH = Storage.Toushin.getPath("seller.csv");
+	public static String getPath() {
+		return PATH;
 	}
 
-	public String     name;
+	public static void save(List<Seller> list) {
+		ListUtil.checkDuplicate(list, o -> o.isinCode + o.sellerName);
+		ListUtil.save(Seller.class, getPath(), list);
+	}
+	
+	public static List<Seller> load() {
+		return ListUtil.load(Seller.class, getPath());
+	}
+	public static List<Seller> getList() {
+		return ListUtil.getList(Seller.class, getPath());
+	}
+
+	public String     isinCode;
+	public String     sellerName;
 	public BigDecimal salesFee;
 	
-	public Seller(String name, BigDecimal salesFee) {
-		this.name     = name;
-		this.salesFee = salesFee;
+	public Seller(String isinCode, String name, BigDecimal salesFee) {
+		this.isinCode   = isinCode;
+		this.sellerName = name;
+		this.salesFee   = salesFee;
 	}
 	public Seller() {
-		name     = "";
-		salesFee = BigDecimal.ZERO;
+		isinCode   = "";
+		sellerName = "";
+		salesFee   = BigDecimal.ZERO;
 	}
 	
 	@Override
@@ -39,7 +47,10 @@ public class Seller implements Comparable<Seller> {
 
 	@Override
 	public int compareTo(Seller that) {
-		return this.name.compareTo(that.name);
+		int ret = this.isinCode.compareTo(that.isinCode);
+		if (ret == 0) this.sellerName.compareTo(that.sellerName);
+		if (ret == 0) this.salesFee.compareTo(that.salesFee);
+		return ret;
 	}
 	@Override
 	public boolean equals(Object o) {
@@ -56,6 +67,10 @@ public class Seller implements Comparable<Seller> {
 	}
 	@Override
 	public int hashCode() {
-		return this.name.hashCode();
+		int hashCode = 0;
+		if (this.isinCode   != null) hashCode ^= this.isinCode.hashCode();
+		if (this.sellerName != null) hashCode ^= this.sellerName.hashCode();
+		if (this.salesFee   != null) hashCode ^= this.salesFee.hashCode();
+		return hashCode;
 	}
 }
