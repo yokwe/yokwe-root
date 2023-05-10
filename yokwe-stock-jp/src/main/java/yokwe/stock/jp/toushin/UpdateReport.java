@@ -21,7 +21,7 @@ public class UpdateReport {
 		report.isinCode = fund.isinCode;
 		report.name     = fund.name;
 		
-		report.issueDate      = fund.listingDate;
+		report.issueDate      = fund.inceptionDate;
 		report.redemptionDate = fund.redemptionDate;
 
 		report.cat1 = fund.fundType;
@@ -42,7 +42,7 @@ public class UpdateReport {
 		report.divC        = divList.size();
 		
 		if (priceList.isEmpty()) {
-			logger.warn("priceList is empty   {}  {}  {}", fund.isinCode, fund.listingDate, fund.name);
+			logger.warn("priceList is empty   {}  {}  {}", fund.isinCode, fund.inceptionDate, fund.name);
 			return;
 		}
 		
@@ -56,7 +56,7 @@ public class UpdateReport {
 		report.minPrice = priceList.stream().mapToDouble(o -> o.price.doubleValue()).min().getAsDouble();
 		report.maxPrice = priceList.stream().mapToDouble(o -> o.price.doubleValue()).max().getAsDouble();
 		if (DoubleUtil.isAlmostZero(report.price)) {
-			logger.warn("price is almost zero {}  {}  {}", fund.isinCode, fund.listingDate, fund.name);
+			logger.warn("price is almost zero {}  {}  {}", fund.isinCode, fund.inceptionDate, fund.name);
 		} else {
 			report.minPricePCT = DoubleUtil.round((report.price - report.minPrice) / report.price, 5);
 			report.maxPricePCT = DoubleUtil.round((report.maxPrice - report.price) / report.price, 5);
@@ -65,7 +65,7 @@ public class UpdateReport {
 		report.minNav = priceList.stream().mapToDouble(o -> o.nav.doubleValue()).min().getAsDouble();
 		report.maxNav = priceList.stream().mapToDouble(o -> o.nav.doubleValue()).max().getAsDouble();
 		if (DoubleUtil.isAlmostZero(report.nav)) {
-			logger.warn("nav is almost zero   {}  {}  {}", fund.isinCode, fund.listingDate, fund.name);
+			logger.warn("nav is almost zero   {}  {}  {}", fund.isinCode, fund.inceptionDate, fund.name);
 			return;
 		} else {
 			report.minNavPCT = DoubleUtil.round((report.nav - report.minNav) / report.nav, 5);
@@ -75,7 +75,7 @@ public class UpdateReport {
 		report.minUnits = priceList.stream().mapToDouble(o -> o.units.doubleValue()).min().getAsDouble();
 		report.maxUnits = priceList.stream().mapToDouble(o -> o.units.doubleValue()).max().getAsDouble();
 		if (DoubleUtil.isAlmostZero(report.units)) {
-			logger.warn("units is almost zero {}  {}  {}", fund.isinCode, fund.listingDate, fund.name);
+			logger.warn("units is almost zero {}  {}  {}", fund.isinCode, fund.inceptionDate, fund.name);
 			return;
 		} else {
 			report.minUnitsPCT = DoubleUtil.round((report.units - report.minUnits) / report.units, 5);

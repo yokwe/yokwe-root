@@ -39,7 +39,7 @@ public final class Fund implements Comparable<Fund> {
     // "associFundCd" : "AE313167",
     public String            fundCode;
     // "establishedDate" : "2016-07-29 00:00:00",
-    public LocalDate         listingDate;
+    public LocalDate         inceptionDate;
 	//  "redemptionDate" : "99999999",
     public LocalDate         redemptionDate;
 	//  "setlFqcy" : "002",
@@ -69,16 +69,16 @@ public final class Fund implements Comparable<Fund> {
     public BigDecimal        buyFeeMax;
     
     // 単位型 追加型
-    public String fundType;
+    public String            fundType;
     // 投資対象資産
-    public String investingAsset;
+    public String            investingAsset;
     // 投資対象地域
-    public String investingArea;
+    public String            investingArea;
     // インデックスファンド区分
-    public String indexFundType;
+    public String            indexFundType;
     
     // 決算日
-    public String settlementDate;
+    public String            settlementDate;
     
     // LAST
     // "fundNm" : "あおぞら・グローバル・バランス・ファンド（部分為替ヘッジあり）",
@@ -93,7 +93,7 @@ public final class Fund implements Comparable<Fund> {
 		) {
 		this.isinCode       = isinCode;
 		this.fundCode       = fundCode;
-		this.listingDate    = listingDate;
+		this.inceptionDate    = listingDate;
 		this.redemptionDate = redemptionDate;
 		this.divFreq        = divFreq;
 		this.name           = name;
