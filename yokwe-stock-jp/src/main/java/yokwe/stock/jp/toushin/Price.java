@@ -33,19 +33,14 @@ public final class Price implements Comparable<Price>{
 		return Storage.Toushin.getPath(PREFIX_DELIST);
 	}
 
-	// NOTE amount can have fraction value
-	// 年月日	基準価額(円)	純資産総額（百万円）	分配金	決算期
-
 	public LocalDate  date;   // 年月日
-	public BigDecimal nav;    // 純資産総額（百万円）
+	public BigDecimal nav;    // 純資産総額（円）
 	public BigDecimal price;  // 基準価額(円)
 	public BigDecimal units;  // 総口数 = 純資産総額 / 基準価額
-	
 
-	private static final BigDecimal MILLION = BigDecimal.valueOf(1_000_000);
 	public Price(LocalDate date, BigDecimal nav, BigDecimal price) {		
 		this.date  = date;
-		this.nav   = nav.multiply(MILLION);
+		this.nav   = nav;
 		this.price = price;
 		this.units = this.nav.divide(this.price, 0, RoundingMode.HALF_UP);
 	}

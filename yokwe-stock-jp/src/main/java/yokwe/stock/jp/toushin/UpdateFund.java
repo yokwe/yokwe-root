@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
+import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
@@ -29,7 +30,6 @@ import yokwe.util.json.JSON;
 public class UpdateFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	
 	//
 	// Fund Seller
 	//
@@ -212,6 +212,26 @@ public class UpdateFund {
 	//
 	// Dividend Price
 	//
+	private static class DivPrice implements Comparable<DivPrice> {
+		// 年月日	        基準価額(円)	純資産総額（百万円）	分配金	決算期
+		// 2022年04月25日	19239	        1178200	                0       4
+		// 2022年04月26日	19167	        1174580   
+		@CSVUtil.ColumnName("年月日")
+		public String date;
+		@CSVUtil.ColumnName("基準価額(円)")
+		public String price;
+		@CSVUtil.ColumnName("純資産総額（百万円）")
+		public String nav;
+		@CSVUtil.ColumnName("分配金")
+		public String dividend;
+		@CSVUtil.ColumnName("決算期")
+		public String period;
+		
+		@Override
+		public int compareTo(DivPrice that) {
+			return this.date.compareTo(that.date);
+		}
+	}
 	private static class DivPriceConsumer implements Consumer<String> {
 		private static final Pattern PAT_DATE = Pattern.compile("(?<yyyy>[12][09][0-9][0-9])年(?<mm>[01]?[0-9])月(?<dd>[0123]?[0-9])日");
 
@@ -249,7 +269,7 @@ public class UpdateFund {
 						throw new UnexpectedException("Unexpected date");
 					}
 				}
-				BigDecimal nav   = new BigDecimal(divPrice.nav);
+				BigDecimal nav   = new BigDecimal(divPrice.nav).scaleByPowerOfTen(6); // 純資産総額（百万円）
 				BigDecimal price = new BigDecimal(divPrice.price);
 				
 				priceList.add(new Price(date, nav, price));
