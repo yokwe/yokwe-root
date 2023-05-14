@@ -62,7 +62,7 @@ public class PriceDiv implements Comparable<PriceDiv> {
 		}
 		
 		return map;
-	}	
+	}
 	
 	public LocalDate  date;
 	public BigDecimal price;
