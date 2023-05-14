@@ -15,32 +15,55 @@ import java.util.function.BiFunction;
 //	決算日に分配金が出た場合は、日次リターンを「（当日の基準価格＋分配金）÷前営業日基準価格 -1」として計算する。分配金は税引き前。
 //	（※1）当初元本の設定がある場合は当初元本価格を使用。
 public class ReinvestedPrice implements BiFunction<BigDecimal, BigDecimal, BigDecimal> {
-	private static final int          DEFAULT_SCALE         = 15;
-	private static final RoundingMode DEFAULT_ROUNDING_MODE = RoundingMode.HALF_UP;
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
+	private static final int          DEFAULT_RESULT_SCALE   = 2;
+	private static final int          DEFAULT_INTERNAL_SCALE = 15;
+	private static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_UP;
 	
-	private BigDecimal previousPrice;
-	private BigDecimal previousReinvestedPrce;
+	private final int          resultScale;
+	private final int          internalScale;
+	private final RoundingMode roundingMode;
 	
+	private BigDecimal previousPrice          = null;
+	private BigDecimal previousReinvestedPrce = null;
+	
+	public ReinvestedPrice(int resultScale, int internalScale, RoundingMode roundingMode) {
+		this.resultScale   = resultScale;
+		this.internalScale = internalScale;
+		this.roundingMode  = roundingMode;
+	}
+
 	public ReinvestedPrice() {
-		previousPrice          = null;
-		previousReinvestedPrce = null;
+		this(DEFAULT_RESULT_SCALE, DEFAULT_INTERNAL_SCALE, DEFAULT_ROUNDING_MODE);
 	}
 	
 	public BigDecimal apply(BigDecimal price, BigDecimal div) {
+		// sanity check of parameter
+		if (price == null) {
+			logger.error("price is null");
+			throw new NullPointerException("price is null");
+		}
+		if (div == null) {
+			logger.error("div is null");
+			throw new NullPointerException("div is null");
+		}
+		
+		// for first time called
 		if (previousPrice == null) {
 			previousPrice          = price;
 			previousReinvestedPrce = price;
 		}
 		
 		// 日次リターンを「（当日の基準価格＋分配金）÷前営業日基準価格 -1」として計算
-		BigDecimal dailyReturnPlusOne = price.add(div).divide(previousPrice, DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
+		BigDecimal dailyReturnPlusOne = price.add(div).divide(previousPrice, internalScale, roundingMode);
 		//	<計算式>前営業日の分配金再投資基準価格 × (1+日次リターン)
-		BigDecimal reinvestedPrice    = previousReinvestedPrce.multiply(dailyReturnPlusOne).setScale(DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
+		BigDecimal reinvestedPrice    = previousReinvestedPrce.multiply(dailyReturnPlusOne).setScale(internalScale, roundingMode);
 		
 		// update for next iteration
 		previousPrice          = price;
 		previousReinvestedPrce = reinvestedPrice;
 		
-		return reinvestedPrice.setScale(2, DEFAULT_ROUNDING_MODE);
+		return reinvestedPrice.setScale(resultScale, roundingMode);
 	}
 }
