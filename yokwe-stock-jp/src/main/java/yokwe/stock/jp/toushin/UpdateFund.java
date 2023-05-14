@@ -214,10 +214,6 @@ public class UpdateFund {
 	//
 	// Dividend Price
 	//
-	private static final int          REINVESTED_PRICE_SCALE = 2;
-	private static final int          DEFAULT_SCALE          = 15;
-	private static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_UP;
-
 	private static class DivPrice implements Comparable<DivPrice> {
 		// 年月日	        基準価額(円)	純資産総額（百万円）	分配金	決算期
 		// 2022年04月25日	19239	        1178200	                0       4
@@ -260,8 +256,7 @@ public class UpdateFund {
 			var divList   = new ArrayList<Dividend>();
 			var priceList = new ArrayList<Price>();
 			
-			BigDecimal previousPrice          = null;
-			BigDecimal previousReinvestedPrce = null;
+			ReinvestedPrice reinvestedPrice = new ReinvestedPrice();
 			
 			for(var divPrice: divPriceList) {
 				LocalDate  date;
@@ -290,22 +285,8 @@ public class UpdateFund {
 					div = BigDecimal.ZERO;
 				}
 				
-				if (previousPrice == null) {
-					previousPrice          = price;
-					previousReinvestedPrce = price;
-				}
-				
-				// 日次リターンを「（当日の基準価格＋分配金）÷前営業日基準価格 -1」として計算
-				BigDecimal dailyReturnPlusOne = price.add(div).divide(previousPrice, DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
-				//	<計算式>前営業日の分配金再投資基準価格 × (1+日次リターン)
-				BigDecimal reinvestedPrice = previousReinvestedPrce.multiply(dailyReturnPlusOne).setScale(DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
-				
 				// add to priceList
-				priceList.add(new Price(date, nav, price, reinvestedPrice.setScale(REINVESTED_PRICE_SCALE, DEFAULT_ROUNDING_MODE)));
-
-				// update for next iteration
-				previousPrice          = price;
-				previousReinvestedPrce = reinvestedPrice;
+				priceList.add(new Price(date, nav, price, reinvestedPrice.apply(price, div)));
 			}
 			
 			if (!divList.isEmpty())   Dividend.save(isinCode, divList);
