@@ -37,19 +37,20 @@ public final class Price implements Comparable<Price>{
 	public BigDecimal nav;    // 純資産総額（円）
 	public BigDecimal price;  // 基準価額(円)
 	public BigDecimal units;  // 総口数 = 純資産総額 / 基準価額
+	public BigDecimal reinvestedPrice;  // 分配金再投資基準価額
 
-	public Price(LocalDate date, BigDecimal nav, BigDecimal price) {		
+	public Price(LocalDate date, BigDecimal nav, BigDecimal price, BigDecimal reinvestedPrice) {		
 		this.date  = date;
 		this.nav   = nav;
 		this.price = price;
-		this.units = this.nav.divide(this.price, 0, RoundingMode.HALF_UP);
+		this.units = this.price.compareTo(BigDecimal.ZERO) != 0 ? nav.divide(this.price, 0, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+		this.reinvestedPrice = reinvestedPrice;
 	}
-	private static final LocalDate DEFAULT_DATE = LocalDate.of(1980, 1, 1);
+	public Price(LocalDate date, BigDecimal nav, BigDecimal price) {
+		this(date, nav, price, BigDecimal.ZERO);
+	}
 	public Price() {
-		date  = DEFAULT_DATE;
-		nav   = BigDecimal.ZERO;
-		price = BigDecimal.ZERO;
-		units = BigDecimal.ZERO;
+		this(LocalDate.EPOCH, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
 	}
 	
 	@Override
