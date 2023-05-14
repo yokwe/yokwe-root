@@ -2,11 +2,13 @@ package yokwe.stock.jp.toushin;
 
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -212,6 +214,10 @@ public class UpdateFund {
 	//
 	// Dividend Price
 	//
+	private static final int          REINVESTED_PRICE_SCALE = 2;
+	private static final int          DEFAULT_SCALE          = 15;
+	private static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_UP;
+
 	private static class DivPrice implements Comparable<DivPrice> {
 		// 年月日	        基準価額(円)	純資産総額（百万円）	分配金	決算期
 		// 2022年04月25日	19239	        1178200	                0       4
@@ -253,6 +259,10 @@ public class UpdateFund {
 			// build divList and priceList
 			var divList   = new ArrayList<Dividend>();
 			var priceList = new ArrayList<Price>();
+			
+			BigDecimal previousPrice          = null;
+			BigDecimal previousReinvestedPrce = null;
+			
 			for(var divPrice: divPriceList) {
 				LocalDate  date;
 				{
@@ -272,15 +282,32 @@ public class UpdateFund {
 				BigDecimal nav   = new BigDecimal(divPrice.nav).scaleByPowerOfTen(6); // 純資産総額（百万円）
 				BigDecimal price = new BigDecimal(divPrice.price);
 				
-				priceList.add(new Price(date, nav, price));
-				
+				BigDecimal div;
 				if (!divPrice.dividend.isEmpty()) {
-					BigDecimal div = new BigDecimal(divPrice.dividend);
+					div = new BigDecimal(divPrice.dividend);
 					divList.add(new Dividend(date, div));
+				} else {
+					div = BigDecimal.ZERO;
 				}
-			}
+				
+				if (previousPrice == null) {
+					previousPrice          = price;
+					previousReinvestedPrce = price;
+				}
+				
+				// 日次リターンを「（当日の基準価格＋分配金）÷前営業日基準価格 -1」として計算
+				BigDecimal dailyReturnPlusOne = price.add(div).divide(previousPrice, DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
+				//	<計算式>前営業日の分配金再投資基準価格 × (1+日次リターン)
+				BigDecimal reinvestedPrice = previousReinvestedPrce.multiply(dailyReturnPlusOne).setScale(DEFAULT_SCALE, DEFAULT_ROUNDING_MODE);
+				
+				// add to priceList
+				priceList.add(new Price(date, nav, price, reinvestedPrice.setScale(REINVESTED_PRICE_SCALE, DEFAULT_ROUNDING_MODE)));
 
-			// logger.info("save {}  div {}  price {}", isinCode, divList.size(), priceList.size());
+				// update for next iteration
+				previousPrice          = price;
+				previousReinvestedPrce = reinvestedPrice;
+			}
+			
 			if (!divList.isEmpty())   Dividend.save(isinCode, divList);
 			if (!priceList.isEmpty()) Price.save(isinCode, priceList);
 		}
@@ -316,6 +343,45 @@ public class UpdateFund {
 		logger.info("BEFORE RUN");
 		download.startAndWait();
 		logger.info("AFTER  RUN");
+	}
+	
+	public static void updateReinvestedPrice() {
+		logger.info("updateReinvestedPrice");
+		var fundList = Fund.getList();
+		int count = 0;
+		for(var fund: fundList) {
+			count++;
+			if ((count % 1000) == 1) logger.info("{} / {}", count, fundList.size());
+			//logger.info("{} / {}  {}", count, fundList.size(), fund.isinCode);
+			
+			String isinCode = fund.isinCode;
+			List<Price> priceList = Price.getList(isinCode);
+			if (priceList.isEmpty()) continue;
+
+			List<PriceDiv.PriceData> priceDataList = priceList.stream().map(o -> new PriceDiv.PriceData(o.date, o.price)).toList();
+			List<PriceDiv.DivData>   divDataList   = Dividend.getList(isinCode).stream().map(o -> new PriceDiv.DivData(o.date, o.amount)).toList();
+			
+			Map<LocalDate, PriceDiv> priceMap = PriceDiv.getMap(priceDataList, divDataList);
+			if (priceList.size() != priceMap.size()) {
+				logger.error("Unexpected");
+				logger.error("  priceList    {}", priceList.size());
+				logger.error("  PriceDivMap  {}", priceMap.size());
+				throw new UnexpectedException("Unexpected");
+			}
+
+			for(var e: priceList) {
+				if (priceMap.containsKey(e.date)) {
+					var priceDiv = priceMap.get(e.date);
+					// update reinvestedPrice
+					e.reinvestedPrice = priceDiv.reinvestedPrice;
+				} else {
+					logger.error("Unexpected");
+					logger.error("  price {}", e);
+					throw new UnexpectedException("Unexpected");
+				}
+			}
+			Price.save(isinCode, priceList);
+		}
 	}
 	
 	private static void initialize(Download download) {
@@ -360,6 +426,7 @@ public class UpdateFund {
 		
 		updateFundSeller(download);
 		updateDivPrice(download);
+		
 		moveUnknownFile();
 		
 		logger.info("STOP");
