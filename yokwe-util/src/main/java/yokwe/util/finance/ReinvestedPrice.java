@@ -1,4 +1,5 @@
-package yokwe.stock.jp.toushin;
+package yokwe.util.finance;
+
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -2,7 +2,6 @@ package yokwe.stock.jp.toushin;
 
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,6 +20,9 @@ import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.finance.DailyValue;
+import yokwe.util.finance.PriceDiv;
+import yokwe.util.finance.ReinvestedPrice;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
 import yokwe.util.http.HttpUtil;
@@ -339,8 +341,8 @@ public class UpdateFund {
 			List<Price> priceList = Price.getList(isinCode);
 			if (priceList.isEmpty()) continue;
 
-			List<PriceDiv.DailyValue> priceDataList = priceList.stream().map(o -> new PriceDiv.DailyValue(o.date, o.price)).toList();
-			List<PriceDiv.DailyValue> divDataList   = Dividend.getList(isinCode).stream().map(o -> new PriceDiv.DailyValue(o.date, o.amount)).toList();
+			List<DailyValue> priceDataList = priceList.stream().map(o -> new DailyValue(o.date, o.price)).toList();
+			List<DailyValue> divDataList   = Dividend.getList(isinCode).stream().map(o -> new DailyValue(o.date, o.amount)).toList();
 			
 			Map<LocalDate, PriceDiv> priceMap = PriceDiv.getMap(priceDataList, divDataList);
 			if (priceList.size() != priceMap.size()) {

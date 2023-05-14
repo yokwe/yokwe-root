@@ -1,4 +1,4 @@
-package yokwe.stock.jp.toushin;
+package yokwe.util.finance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,24 +12,6 @@ import yokwe.util.UnexpectedException;
 public class PriceDiv implements Comparable<PriceDiv> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static class DailyValue {
-		public static DailyValue getInstance(LocalDate date, BigDecimal value) {
-			return new DailyValue(date, value);
-		}
-		
-		public LocalDate  date;
-		public BigDecimal value;
-
-		public DailyValue(LocalDate date, BigDecimal value) {
-			this.date  = date;
-			this.value = value;
-		}
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-	}
-	
 	public static Map<LocalDate, PriceDiv> getMap(List<DailyValue> priceList, List<DailyValue> divList) {
 		Map<LocalDate, PriceDiv> map = new TreeMap<>();
 		// date
@@ -107,5 +89,4 @@ public class PriceDiv implements Comparable<PriceDiv> {
 	public int hashCode() {
 		return this.date.hashCode();
 	}
-
 }
