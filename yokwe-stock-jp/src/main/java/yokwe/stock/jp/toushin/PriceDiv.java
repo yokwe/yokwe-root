@@ -16,34 +16,17 @@ import yokwe.util.UnexpectedException;
 public class PriceDiv implements Comparable<PriceDiv> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static class PriceData {
-		public static PriceData getInstance(LocalDate date, BigDecimal price) {
-			return new PriceData(date, price);
+	public static class DailyValue {
+		public static DailyValue getInstance(LocalDate date, BigDecimal value) {
+			return new DailyValue(date, value);
 		}
 		
 		public LocalDate  date;
-		public BigDecimal price;
+		public BigDecimal value;
 
-		public PriceData(LocalDate date, BigDecimal price) {
+		public DailyValue(LocalDate date, BigDecimal value) {
 			this.date  = date;
-			this.price = price;
-		}
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-	}
-	public static class DivData {
-		public static DivData getInstance(LocalDate date, BigDecimal div) {
-			return new DivData(date, div);
-		}
-
-		public LocalDate  date;
-		public BigDecimal div;
-		
-		public DivData(LocalDate date, BigDecimal div) {
-			this.date = date;
-			this.div  = div;
+			this.value = value;
 		}
 		@Override
 		public String toString() {
@@ -51,7 +34,7 @@ public class PriceDiv implements Comparable<PriceDiv> {
 		}
 	}
 	
-	public static Map<LocalDate, PriceDiv> getMap(List<PriceData> priceList, List<DivData> divList) {
+	public static Map<LocalDate, PriceDiv> getMap(List<DailyValue> priceList, List<DailyValue> divList) {
 		Map<LocalDate, PriceDiv> map = new TreeMap<>();
 		// date
 		for(var e: priceList) {
@@ -62,13 +45,13 @@ public class PriceDiv implements Comparable<PriceDiv> {
 				logger.error("  new  {}", e);
 				throw new UnexpectedException("Duplicate date");
 			} else {
-				map.put(e.date, new PriceDiv(e.date, e.price));
+				map.put(e.date, new PriceDiv(e.date, e.value));
 			}
 		}
 		for(var e: divList) {
 			if (map.containsKey(e.date)) {
 				var priceMap = map.get(e.date);
-				priceMap.div = e.div;
+				priceMap.div = e.value;
 			} else {
 				// duplicate
 				logger.error("Unexpected div date");

@@ -358,8 +358,8 @@ public class UpdateFund {
 			List<Price> priceList = Price.getList(isinCode);
 			if (priceList.isEmpty()) continue;
 
-			List<PriceDiv.PriceData> priceDataList = priceList.stream().map(o -> new PriceDiv.PriceData(o.date, o.price)).toList();
-			List<PriceDiv.DivData>   divDataList   = Dividend.getList(isinCode).stream().map(o -> new PriceDiv.DivData(o.date, o.amount)).toList();
+			List<PriceDiv.DailyValue> priceDataList = priceList.stream().map(o -> new PriceDiv.DailyValue(o.date, o.price)).toList();
+			List<PriceDiv.DailyValue> divDataList   = Dividend.getList(isinCode).stream().map(o -> new PriceDiv.DailyValue(o.date, o.amount)).toList();
 			
 			Map<LocalDate, PriceDiv> priceMap = PriceDiv.getMap(priceDataList, divDataList);
 			if (priceList.size() != priceMap.size()) {
