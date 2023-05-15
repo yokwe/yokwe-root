@@ -256,8 +256,6 @@ public class UpdateFund {
 			var divList   = new ArrayList<Dividend>();
 			var priceList = new ArrayList<Price>();
 			
-			ReinvestedPrice reinvestedPrice = new ReinvestedPrice();
-			
 			for(var divPrice: divPriceList) {
 				LocalDate  date;
 				{
@@ -276,17 +274,14 @@ public class UpdateFund {
 				}
 				BigDecimal nav   = new BigDecimal(divPrice.nav).scaleByPowerOfTen(6); // 純資産総額（百万円）
 				BigDecimal price = new BigDecimal(divPrice.price);
-				
-				BigDecimal div;
-				if (!divPrice.dividend.isEmpty()) {
-					div = new BigDecimal(divPrice.dividend);
-					divList.add(new Dividend(date, div));
-				} else {
-					div = BigDecimal.ZERO;
-				}
-				
 				// add to priceList
-				priceList.add(new Price(date, nav, price, reinvestedPrice.apply(price, div)));
+				priceList.add(new Price(date, nav, price));
+				
+				if (!divPrice.dividend.isEmpty()) {
+					BigDecimal div = new BigDecimal(divPrice.dividend);
+					// add to divList
+					divList.add(new Dividend(date, div));
+				}
 			}
 			
 			if (!divList.isEmpty())   Dividend.save(isinCode, divList);
@@ -324,30 +319,6 @@ public class UpdateFund {
 		logger.info("BEFORE RUN");
 		download.startAndWait();
 		logger.info("AFTER  RUN");
-	}
-	
-	public static void updateReinvestedPrice() {
-		logger.info("updateReinvestedPrice");
-		var fundList = Fund.getList();
-		int count = 0;
-		for(var fund: fundList) {
-			count++;
-			if ((count % 1000) == 1) logger.info("{} / {}", count, fundList.size());
-			//logger.info("{} / {}  {}", count, fundList.size(), fund.isinCode);
-			
-			String isinCode = fund.isinCode;
-			List<Price> priceList = Price.getList(isinCode);
-			if (priceList.isEmpty()) continue;
-
-			Map<LocalDate, Dividend> divMap = Dividend.getMap(isinCode);
-			
-			ReinvestedPrice reinvestedPrice = new ReinvestedPrice();
-			for(var e: priceList) {
-				BigDecimal div = divMap.containsKey(e.date) ? divMap.get(e.date).amount : BigDecimal.ZERO;
-				e.reinvestedPrice = reinvestedPrice.apply(e.price, div);
-			}
-			Price.save(isinCode, priceList);
-		}
 	}
 	
 	private static void initialize(Download download) {
