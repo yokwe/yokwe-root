@@ -3,6 +3,7 @@ package yokwe.stock.jp.toushin;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
@@ -25,6 +26,9 @@ public class Dividend implements Comparable<Dividend>{
 	}
 	public static List<Dividend> getList(String isinCode) {
 		return ListUtil.getList(Dividend.class, getPath(isinCode));
+	}
+	public static Map<LocalDate, Dividend> getMap(String isinCode) {
+		return ListUtil.checkDuplicate(getList(isinCode), o -> o.date);
 	}
 	
 	public static final String PREFIX_DELIST = "div-delist";
