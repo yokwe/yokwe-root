@@ -275,17 +275,18 @@ public class DownloadFile {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		var toushinList = getCodeListFromToushin();
-		
-		logger.info("toushin   {}", toushinList.size());
-		logger.info("fund      {}", FUND_DETAIL.getCodeList().size());
+		{
+			var toushinList = getCodeListFromToushin();
+			var fundList    = FUND_DETAIL.getCodeList();
+			
+			logger.info("toushin   {}", toushinList.size());
+			logger.info("fund      {}", fundList.size());
 
-		// use toushin data
-		//var targetList = toushinList;
-		// use file in fund 
-		var targetList = FUND_DETAIL.getCodeList();
-		
-		download(targetList, FUND_DETAIL);
+			// download fund using toushin data
+			//download(toushinList, FUND_DETAIL);
+			// download fund using existing fund.csv
+			download(fundList, FUND_DETAIL);
+		}
 		
 		var fundList = FUND_DETAIL.getCodeList();
 		logger.info("fund      {}", fundList.size());
