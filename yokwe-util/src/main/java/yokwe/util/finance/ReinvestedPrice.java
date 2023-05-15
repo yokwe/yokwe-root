@@ -19,24 +19,21 @@ import java.util.function.BiFunction;
 public class ReinvestedPrice implements BiFunction<BigDecimal, BigDecimal, BigDecimal> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	private static final int          DEFAULT_RESULT_SCALE   =  2;
-	private static final int          DEFAULT_INTERNAL_SCALE = 15;
-	private static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_UP;
+	private static final int DEFAULT_RESULT_SCALE   =  2;
 	
 	private final MathContext internalMathContext;
 	private final MathContext resultMathContext;
 
-	
 	private BigDecimal previousPrice          = null;
 	private BigDecimal previousReinvestedPrce = null;
 	
-	public ReinvestedPrice(int resultScale, int internalScale, RoundingMode roundingMode) {
-		this.internalMathContext = new MathContext(internalScale, roundingMode);
-		this.resultMathContext   = new MathContext(resultScale, roundingMode);
+	public ReinvestedPrice(int resultScale, MathContext internalMathContext) {
+		this.internalMathContext = internalMathContext;
+		this.resultMathContext   = new MathContext(resultScale, Math.DEFAULT_ROUNDING_MODE);
 	}
 
 	public ReinvestedPrice() {
-		this(DEFAULT_RESULT_SCALE, DEFAULT_INTERNAL_SCALE, DEFAULT_ROUNDING_MODE);
+		this(DEFAULT_RESULT_SCALE, Math.DEFAULT_MATH_CONTEXT);
 	}
 	
 	public BigDecimal apply(BigDecimal price, BigDecimal div) {
