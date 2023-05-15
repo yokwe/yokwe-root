@@ -2,6 +2,7 @@ package yokwe.util.finance;
 
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.function.BiFunction;
 
@@ -18,21 +19,20 @@ import java.util.function.BiFunction;
 public class ReinvestedPrice implements BiFunction<BigDecimal, BigDecimal, BigDecimal> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	private static final int          DEFAULT_RESULT_SCALE   = 2;
+	private static final int          DEFAULT_RESULT_SCALE   =  2;
 	private static final int          DEFAULT_INTERNAL_SCALE = 15;
 	private static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_UP;
 	
-	private final int          resultScale;
-	private final int          internalScale;
-	private final RoundingMode roundingMode;
+	private final MathContext internalMathContext;
+	private final MathContext resultMathContext;
+
 	
 	private BigDecimal previousPrice          = null;
 	private BigDecimal previousReinvestedPrce = null;
 	
 	public ReinvestedPrice(int resultScale, int internalScale, RoundingMode roundingMode) {
-		this.resultScale   = resultScale;
-		this.internalScale = internalScale;
-		this.roundingMode  = roundingMode;
+		this.internalMathContext = new MathContext(internalScale, roundingMode);
+		this.resultMathContext   = new MathContext(resultScale, roundingMode);
 	}
 
 	public ReinvestedPrice() {
@@ -57,14 +57,14 @@ public class ReinvestedPrice implements BiFunction<BigDecimal, BigDecimal, BigDe
 		}
 		
 		// 日次リターンを「（当日の基準価格＋分配金）÷前営業日基準価格 -1」として計算
-		BigDecimal dailyReturnPlusOne = price.add(div).divide(previousPrice, internalScale, roundingMode);
+		BigDecimal dailyReturnPlusOne = price.add(div).divide(previousPrice, internalMathContext);
 		//	<計算式>前営業日の分配金再投資基準価格 × (1+日次リターン)
-		BigDecimal reinvestedPrice    = previousReinvestedPrce.multiply(dailyReturnPlusOne).setScale(internalScale, roundingMode);
+		BigDecimal reinvestedPrice    = previousReinvestedPrce.multiply(dailyReturnPlusOne).round(internalMathContext);
 		
 		// update for next iteration
 		previousPrice          = price;
 		previousReinvestedPrce = reinvestedPrice;
 		
-		return reinvestedPrice.setScale(resultScale, roundingMode);
+		return reinvestedPrice.round(resultMathContext);
 	}
 }
