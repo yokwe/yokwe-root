@@ -20,8 +20,6 @@ import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.finance.DailyValue;
-import yokwe.util.finance.PriceDiv;
 import yokwe.util.finance.ReinvestedPrice;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -341,27 +339,12 @@ public class UpdateFund {
 			List<Price> priceList = Price.getList(isinCode);
 			if (priceList.isEmpty()) continue;
 
-			List<DailyValue> priceDataList = priceList.stream().map(o -> new DailyValue(o.date, o.price)).toList();
-			List<DailyValue> divDataList   = Dividend.getList(isinCode).stream().map(o -> new DailyValue(o.date, o.amount)).toList();
+			Map<LocalDate, Dividend> divMap = Dividend.getMap(isinCode);
 			
-			Map<LocalDate, PriceDiv> priceMap = PriceDiv.getMap(priceDataList, divDataList);
-			if (priceList.size() != priceMap.size()) {
-				logger.error("Unexpected");
-				logger.error("  priceList    {}", priceList.size());
-				logger.error("  PriceDivMap  {}", priceMap.size());
-				throw new UnexpectedException("Unexpected");
-			}
-
+			ReinvestedPrice reinvestedPrice = new ReinvestedPrice();
 			for(var e: priceList) {
-				if (priceMap.containsKey(e.date)) {
-					var priceDiv = priceMap.get(e.date);
-					// update reinvestedPrice
-					e.reinvestedPrice = priceDiv.reinvestedPrice;
-				} else {
-					logger.error("Unexpected");
-					logger.error("  price {}", e);
-					throw new UnexpectedException("Unexpected");
-				}
+				BigDecimal div = divMap.containsKey(e.date) ? divMap.get(e.date).amount : BigDecimal.ZERO;
+				e.reinvestedPrice = reinvestedPrice.apply(e.price, div);
 			}
 			Price.save(isinCode, priceList);
 		}
