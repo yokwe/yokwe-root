@@ -1,12 +1,17 @@
 package yokwe.stock.jp.nikkei;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 
 public class UpdateFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -189,7 +194,40 @@ public class UpdateFund {
 		}
 	}
 	
-	private static void set(Fund fund, CommonName commonName) {
+	private static final BigDecimal MINUS_ONE = BigDecimal.ONE.negate();
+	
+	private static BigDecimal fromPercentString(String string) {
+		String numericString = string.trim().replace("%", "");
+		return numericString.compareTo("--") == 0 ? MINUS_ONE : new BigDecimal(numericString).movePointLeft(2);
+	}
+	
+	private static BigDecimal fromCurrencyString(String string) {
+		String currencyString = string.trim().replace(",", "").replace("円", "");
+		return currencyString.compareTo("--") == 0 ? MINUS_ONE : new BigDecimal(currencyString).movePointLeft(2);
+	}
+	
+	private static Pattern pat_DATE  = Pattern.compile("(19[6-9][0-9]|20[0-9]{2})年([012]?[0-9])月([123]?[0-9])日");
+	private static LocalDate fromDateString(String string) {
+		if (string.compareTo("無期限") == 0) return Fund.UNLIMITED_DATE;
+		if (string.compareTo("--") == 0) return Fund.UNLIMITED_DATE;
+		
+		Matcher m = pat_DATE.matcher(string);
+		if (m.matches()) {
+			String yearString  = m.group(1);
+			String monthString = m.group(2);
+			String dayString   = m.group(3);
+			int year  = Integer.parseInt(yearString);
+			int month = Integer.parseInt(monthString);
+			int day   = Integer.parseInt(dayString);
+			return LocalDate.of(year, month, day);
+		} else {
+			logger.error("Unexpecetd");
+			logger.error("  {}!", string);
+			throw new UnexpectedException("Unxpected");
+		}
+	}
+
+ 	private static void set(Fund fund, CommonName commonName) {
 		fund.name = commonName.name;
 	}
 	private static void set(Fund fund, FundInfo fundInfo) {
@@ -197,12 +235,12 @@ public class UpdateFund {
 		fund.category2 = fundInfo.category2;
 		fund.category3 = fundInfo.category3;
 		fund.settlementFrequency = fundInfo.settlementFrequency;
-		fund.establishmentDate = fundInfo.establishmentDate;
-		fund.redemptionDate = fundInfo.redemptionDate;
+		fund.initiationDate = fromDateString(fundInfo.establishmentDate);
+		fund.redemptionDate = fromDateString(fundInfo.redemptionDate);
 		fund.salesType = fundInfo.salesType;
 		fund.fundType = fundInfo.fundType;
-		fund.initialFee = fundInfo.initialFee;
-		fund.trustFee = fundInfo.trustFee;
+		fund.initialFee = fromPercentString(fundInfo.initialFee);
+		fund.trustFee = fromPercentString(fundInfo.trustFee);
 		
 		if (fund.category2 == null) fund.category2 = "";
 		if (fund.category3 == null) fund.category3 = "";
@@ -221,16 +259,16 @@ public class UpdateFund {
 	}
 	private static void set(Fund fund, PerfValues perfValues) {
 		fund.valueAsOf = perfValues.asOf;
-		fund.return6m = perfValues.return6m;
-		fund.return1y = perfValues.return1y;
-		fund.return3y = perfValues.return3y;
-		fund.return5y = perfValues.return5y;
-		fund.return10y = perfValues.return10y;
-		fund.risk6m = perfValues.risk6m;
-		fund.risk1y = perfValues.risk1y;
-		fund.risk3y = perfValues.risk3y;
-		fund.risk5y = perfValues.risk5y;
-		fund.risk10y = perfValues.risk10y;
+		fund.return6m = fromPercentString(perfValues.return6m);
+		fund.return1y = fromPercentString(perfValues.return1y);
+		fund.return3y = fromPercentString(perfValues.return3y);
+		fund.return5y = fromPercentString(perfValues.return5y);
+		fund.return10y = fromPercentString(perfValues.return10y);
+		fund.risk6m = fromPercentString(perfValues.risk6m);
+		fund.risk1y = fromPercentString(perfValues.risk1y);
+		fund.risk3y = fromPercentString(perfValues.risk3y);
+		fund.risk5y = fromPercentString(perfValues.risk5y);
+		fund.risk10y = fromPercentString(perfValues.risk10y);
 		fund.sharpRatio6m = perfValues.sharpRatio6m;
 		fund.sharpRatio1y = perfValues.sharpRatio1y;
 		fund.sharpRatio3y = perfValues.sharpRatio3y;
@@ -238,16 +276,16 @@ public class UpdateFund {
 		fund.sharpRatio10y = perfValues.sharpRatio10y;
 	}
 	private static void set(Fund fund, DivScore divScore) {
-		fund.divScore1Y = divScore.score1Y;
-		fund.divScore3Y = divScore.score3Y;
-		fund.divScore5Y = divScore.score5Y;
-		fund.divScore10Y = divScore.score10Y;
+		fund.divScore1Y  = fromPercentString(divScore.score1Y);
+		fund.divScore3Y  = fromPercentString(divScore.score3Y);
+		fund.divScore5Y  = fromPercentString(divScore.score5Y);
+		fund.divScore10Y = fromPercentString(divScore.score10Y);
 	}
 	private static void set(Fund fund, DivLast divLast) {
-		fund.divLastDate = divLast.date;
-		fund.divLastAmount = divLast.amount;
-		fund.divLastRate = divLast.rate;
-		fund.divLastPrice = divLast.price;
+		fund.divLastDate = fromDateString(divLast.date);
+		fund.divLastAmount = fromCurrencyString(divLast.amount);
+		fund.divLastRate = fromPercentString(divLast.rate);
+		fund.divLastPrice = fromCurrencyString(divLast.price);
 	}
 
 	
