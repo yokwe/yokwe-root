@@ -2,6 +2,7 @@ package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
@@ -25,6 +26,10 @@ public class Seller implements Comparable<Seller> {
 		return ListUtil.getList(Seller.class, getPath());
 	}
 
+	public static String getSellerName(List<Seller> list, String isinCode) {
+		return list.stream().filter(o -> o.isinCode.compareTo(isinCode) == 0).map(o -> o.sellerName).collect(Collectors.joining(" "));
+	}
+	
 	public String     isinCode;
 	public String     sellerName;
 	public BigDecimal salesFee;
