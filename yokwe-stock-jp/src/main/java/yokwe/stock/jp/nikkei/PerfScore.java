@@ -65,7 +65,7 @@ public class PerfScore {
 		HEADER + "\\s+" +
 		"<div .+?>\\s+" +
 		"<div .+?>\\s+" +
-		"<h2 .+?>QUICKファンドスコア<a .+?>.+?</a>　\\((?<asOf>.+?)</h2>\\s+" +
+		"<h2 .+?>QUICKファンドスコア<a .+?>.+?</a>　\\((?<asOf>.+?)\\)</h2>\\s+" +
 		"</div>\\s+" +
 		"<div .+?>\\s+" +
 		"<div .+?>\\s+" +
