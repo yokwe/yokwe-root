@@ -3,7 +3,6 @@ package yokwe.util.finance;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.function.BiFunction;
 
 // https://www.nikkei.com/help/contents/markets/fund/#qf5
@@ -29,11 +28,11 @@ public class ReinvestedPrice implements BiFunction<BigDecimal, BigDecimal, BigDe
 	
 	public ReinvestedPrice(int resultScale, MathContext internalMathContext) {
 		this.internalMathContext = internalMathContext;
-		this.resultMathContext   = new MathContext(resultScale, Math.DEFAULT_ROUNDING_MODE);
+		this.resultMathContext   = new MathContext(resultScale, Finance.DEFAULT_ROUNDING_MODE);
 	}
 
 	public ReinvestedPrice() {
-		this(DEFAULT_RESULT_SCALE, Math.DEFAULT_MATH_CONTEXT);
+		this(DEFAULT_RESULT_SCALE, Finance.DEFAULT_MATH_CONTEXT);
 	}
 	
 	public BigDecimal apply(BigDecimal price, BigDecimal div) {
