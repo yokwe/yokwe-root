@@ -41,6 +41,22 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="toushin-update-stats">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateStats" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="toushin-update-price-stats">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdatePriceStats" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	<!-- JPX -->
 	<target name="jpx-update-stock">
