@@ -28,11 +28,11 @@ public class ReinvestedPrice implements BiFunction<BigDecimal, BigDecimal, BigDe
 	
 	public ReinvestedPrice(int resultScale, MathContext internalMathContext) {
 		this.internalMathContext = internalMathContext;
-		this.resultMathContext   = new MathContext(resultScale, Finance.DEFAULT_ROUNDING_MODE);
+		this.resultMathContext   = new MathContext(resultScale, BigDecimalUtil.DEFAULT_ROUNDING_MODE);
 	}
 
 	public ReinvestedPrice() {
-		this(DEFAULT_RESULT_SCALE, Finance.DEFAULT_MATH_CONTEXT);
+		this(DEFAULT_RESULT_SCALE, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 	}
 	
 	public BigDecimal apply(BigDecimal price, BigDecimal div) {

@@ -6,7 +6,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-import yokwe.util.finance.Finance;
+import yokwe.util.finance.BigDecimalUtil;
 
 public class UpdateStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -30,8 +30,8 @@ private static MyStats getMyStats(List<PriceStats> priceStatsList, List<Dividend
 		final BigDecimal reinvestedReturn;
 		
 		{
-			var priceStats = Finance.stats(logReturnArray, Finance.DEFAULT_MATH_CONTEXT);
-			sd = priceStats.sd; // FIXME ANNUALIZE
+			var priceStats = BigDecimalUtil.stats(logReturnArray, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+			sd = priceStats.sd(); // FIXME ANNUALIZE
 		}
 		{
 			BigDecimal lastPrice = priceArray[priceArray.length - 1];
@@ -39,13 +39,13 @@ private static MyStats getMyStats(List<PriceStats> priceStatsList, List<Dividend
 			for(var e: divArray) {
 				totalDiv = totalDiv.add(e);
 			}
-			div   = totalDiv.divide(BigDecimal.valueOf(years), Finance.DEFAULT_MATH_CONTEXT);
-			yield = div.divide(lastPrice, Finance.DEFAULT_MATH_CONTEXT);
+			div   = totalDiv.divide(BigDecimal.valueOf(years), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+			yield = div.divide(lastPrice, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		}
 		{
 			var first = reinvestedPriceArray[0];
 			var last  = reinvestedPriceArray[reinvestedPriceArray.length - 1];
-			reinvestedReturn = Finance.annualizedRetrun(first, last, years);
+			reinvestedReturn = BigDecimalUtil.annualizedRetrun(first, last, years);
 		}
 		return new MyStats(sd, div, yield, reinvestedReturn);
 	}
