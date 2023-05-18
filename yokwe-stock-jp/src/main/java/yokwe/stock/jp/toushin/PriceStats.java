@@ -9,7 +9,7 @@ import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
-import yokwe.util.finance.Finance;
+import yokwe.util.finance.BigDecimalUtil;
 
 public class PriceStats implements Comparable<PriceStats> {
 	public static final String PREFIX = "price-stats";
@@ -35,12 +35,13 @@ public class PriceStats implements Comparable<PriceStats> {
 	public BigDecimal price;  // 基準価額(円)
 	public BigDecimal units;  // 総口数 = 純資産総額 / 基準価額
 	
+	public BigDecimal totalDiv;         // 分配金合計
 	public BigDecimal reinvestedPrice;  // 分配金再投資基準価額
 	public BigDecimal logReturn;        // 対数収益率
 
 	public PriceStats(
 		LocalDate date, BigDecimal nav, BigDecimal price, BigDecimal units,
-		BigDecimal reinvestedPrice, BigDecimal logReturn
+		BigDecimal totalDiv, BigDecimal reinvestedPrice, BigDecimal logReturn
 		) {		
 		this.date  = date;
 		this.nav   = nav;
@@ -49,14 +50,16 @@ public class PriceStats implements Comparable<PriceStats> {
 		
 		this.logReturn       = logReturn;
 		this.reinvestedPrice = reinvestedPrice;
+		this.totalDiv        = totalDiv;
 	}
 	public PriceStats(
 		LocalDate date, BigDecimal nav, BigDecimal price, BigDecimal units,
-		double reinvestedPrice, double logReturn
+		BigDecimal totalDiv, double reinvestedPrice, double logReturn
 		) {
 		this(date, nav, price, units,
-			BigDecimal.valueOf(logReturn).setScale(Finance.DEFAULT_INTERNAL_SCALE, Finance.DEFAULT_ROUNDING_MODE),
-			BigDecimal.valueOf(reinvestedPrice).setScale(2, Finance.DEFAULT_ROUNDING_MODE));
+			totalDiv,
+			BigDecimal.valueOf(logReturn).setScale(BigDecimalUtil.DEFAULT_INTERNAL_SCALE, BigDecimalUtil.DEFAULT_ROUNDING_MODE),
+			BigDecimal.valueOf(reinvestedPrice).setScale(2, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
 	}
 
 	@Override

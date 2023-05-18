@@ -28,7 +28,8 @@ public class UpdatePriceStats {
 			double previousPrice           = -1;
 			double previousReinvestedPrice = -1;
 			double previousLogPrice        = -1;
-			
+			BigDecimal totalDiv = BigDecimal.ZERO;
+
 			List<PriceStats> statsList = new ArrayList<>();
 			for(var e: priceList) {
 				LocalDate  date  = e.date;
@@ -45,15 +46,17 @@ public class UpdatePriceStats {
 					previousLogPrice        = logPrice;
 				}
 				
+				BigDecimal div = divMap.containsKey(date) ? divMap.get(date).amount : BigDecimal.ZERO;
+				totalDiv = totalDiv.add(div);
+
 				double logReturn = logPrice - previousLogPrice;
-				
-				// 日次リターンを「（当日の基準価格＋分配金）÷前営業日基準価格 -1」として計算
-				double div = divMap.containsKey(date) ? divMap.get(date).amount.doubleValue() : 0;				
-				double dailyReturnPlusOne = (doublePrice + div) / previousPrice;
+
+				// 日次リターンを「（当日の基準価格＋分配金）÷前営業日基準価格 -1」として計算				
+				double dailyReturnPlusOne = (doublePrice + div.doubleValue()) / previousPrice;
 				//	<計算式>前営業日の分配金再投資基準価格 × (1+日次リターン)
 				double reinvestedPrice = previousReinvestedPrice * dailyReturnPlusOne;
 				
-				statsList.add(new PriceStats(date, nav, price, units, logReturn, reinvestedPrice));
+				statsList.add(new PriceStats(date, nav, price, units, totalDiv, logReturn, reinvestedPrice));
 				
 				// update for next iteration
 				previousPrice           = doublePrice;
