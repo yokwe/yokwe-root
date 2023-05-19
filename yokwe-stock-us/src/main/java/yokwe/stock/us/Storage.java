@@ -26,4 +26,17 @@ public final class Storage {
 		}
 
 	}
+	
+	// nyse
+	public static class NYSE {
+		public static final String PREFIX = "nyse";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+
+	}
 }
