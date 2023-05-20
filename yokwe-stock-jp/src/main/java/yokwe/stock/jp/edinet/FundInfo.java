@@ -40,8 +40,7 @@ public class FundInfo implements Comparable<FundInfo> {
 	public static Map<String, FundInfo> getMap() {
 		if (map == null) {
 			var list = getList();
-			ListUtil.checkDuplicate(list);
-			map = list.stream().collect(Collectors.toMap(o -> o.fundCode, o -> o));
+			map = ListUtil.checkDuplicate(list, o -> o.fundCode);
 		}
 		return map;
 	}

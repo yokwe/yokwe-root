@@ -40,8 +40,7 @@ public class Document implements Comparable<Document> {
 	public static Map<String, Document> getDocumentMap() {
 		if (documentMap == null) {
 			var list = getList();
-			ListUtil.checkDuplicate(list);
-			documentMap = list.stream().collect(Collectors.toMap(o -> o.docID, o -> o));
+			documentMap = ListUtil.checkDuplicate(list, o -> o.docID);
 		}
 		return documentMap;
 	}

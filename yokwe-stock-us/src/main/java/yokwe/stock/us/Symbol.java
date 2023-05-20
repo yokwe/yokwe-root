@@ -22,14 +22,14 @@ public class Symbol implements Comparable<Symbol> {
 	public static List<Symbol> load(String path) {
 		var list = ListUtil.load(Symbol.class, path);
 		// sanity check
-		ListUtil.checkDuplicate(list);
+		ListUtil.checkDuplicate(list, o -> o.symbol);
 
 		return list;
 	}
 	public static List<Symbol> getList(String path) {
 		var list = ListUtil.getList(Symbol.class, path);
 		// sanity check
-		ListUtil.checkDuplicate(list);
+		ListUtil.checkDuplicate(list, o -> o.symbol);
 
 		return list;
 	}

@@ -39,9 +39,7 @@ public class Price implements Comparable<Price> {
 	public static Map<String, Price> getMap(String stockCode) {
 		//            date
 		var list = getList(stockCode);
-		ListUtil.checkDuplicate(list);
-		
-		return list.stream().collect(Collectors.toMap(o -> o.date, o -> o));
+		return ListUtil.checkDuplicate(list, o -> o.date);
 	}
 	
 	private static Map<String, Map<String, Price>> cacheMap = new TreeMap<>();

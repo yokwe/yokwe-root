@@ -20,8 +20,7 @@ public class StockInfo implements Comparable<StockInfo> {
 	public static Map<String, StockInfo> getMap() {
 		//             stockCode
 		var list = getList();
-		ListUtil.checkDuplicate(list);
-		return list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o));
+		return ListUtil.checkDuplicate(list, o -> o.stockCode);
 	}
 	private static Map<String, StockInfo> map = null;
 	public static StockInfo get(String stockCode) {

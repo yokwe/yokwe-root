@@ -9,37 +9,42 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
-public class SymbolInfo implements Comparable<SymbolInfo> {
+public final class SymbolInfo implements Comparable<SymbolInfo> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	public static Map<String, SymbolInfo> checkDuplicate(Collection<SymbolInfo> collection) {
+		return ListUtil.checkDuplicate(collection, SymbolInfo::getKey);
+	}
+	public static Map<String, SymbolInfo> checkDuplicate(List<SymbolInfo> list) {
+		return ListUtil.checkDuplicate(list, SymbolInfo::getKey);
+	}
 	
 	public static void save(Collection<SymbolInfo> collection, String path) {
 		// sanity check
-		ListUtil.checkDuplicate(collection, o -> o.symbol);
+		checkDuplicate(collection);
 		ListUtil.save(SymbolInfo.class, path, collection);
 	}
 	public static void save(List<SymbolInfo> list, String path) {
 		// sanity check
-		ListUtil.checkDuplicate(list, o -> o.symbol);
+		checkDuplicate(list);
 		ListUtil.save(SymbolInfo.class, path, list);
 	}
 	
 	public static List<SymbolInfo> load(String path) {
 		var list = ListUtil.load(SymbolInfo.class, path);
 		// sanity check
-		ListUtil.checkDuplicate(list);
-
+		checkDuplicate(list);
 		return list;
 	}
 	public static List<SymbolInfo> getList(String path) {
 		var list = ListUtil.getList(SymbolInfo.class, path);
 		// sanity check
-		ListUtil.checkDuplicate(list);
-
+		checkDuplicate(list);
 		return list;
 	}
 	public static Map<String, SymbolInfo> getMap(String path) {
 		var list = ListUtil.getList(SymbolInfo.class, path);
-		return ListUtil.checkDuplicate(list, o -> o.symbol);
+		return checkDuplicate(list);
 	}
 
 	public enum Type {
@@ -77,6 +82,10 @@ public class SymbolInfo implements Comparable<SymbolInfo> {
 		this("", Type.STOCK, "");
 	}
 	
+	public String getKey() {
+		return this.symbol;
+	}
+
 	@Override
 	public String toString() {
 		return StringUtil.toString(this);
@@ -84,12 +93,12 @@ public class SymbolInfo implements Comparable<SymbolInfo> {
 
 	@Override
 	public int compareTo(SymbolInfo that) {
-		return this.symbol.compareTo(that.symbol);
+		return this.getKey().compareTo(that.getKey());
 	}
 
 	@Override
 	public int hashCode() {
-		return symbol.hashCode();
+		return this.getKey().hashCode();
 	}
 	
 	@Override

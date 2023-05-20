@@ -29,8 +29,7 @@ public class Stock extends Sheet implements Comparable<Stock> {
 	public static Map<String, Stock> getMap() {
 		//            stockCode
 		var list = getList();
-		ListUtil.checkDuplicate(list);
-		return list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o));
+		return ListUtil.checkDuplicate(list, o -> o.stockCode);
 	}
 	public static void save(Collection<Stock> collection) {
 		ListUtil.save(Stock.class, getPath(), collection);
