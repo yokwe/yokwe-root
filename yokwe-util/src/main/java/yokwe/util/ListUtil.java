@@ -6,9 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.Function;
 
 public final class ListUtil {
@@ -32,24 +30,6 @@ public final class ListUtil {
 		}
 				
 		return map;
-	}
-	
-	// To support List and Set, use Collection here.
-	public static <E> SortedSet<E> checkDuplicate(Collection<E> collection) {
-		var set = new TreeSet<E>();
-		if (collection != null) {
-			for(var e: collection) {
-				if (set.add(e)) {
-					// new entry
-				} else {
-					// existing entry
-					logger.error("Duplicate value");
-					logger.error("  value {}", e.toString());
-					throw new UnexpectedException("Duplicate value");
-				}
-			}
-		}
-		return set;
 	}
 	
 	public static <E extends Comparable<E>, K> void save(Class<E> clazz, String path, Collection<E> collection) {
