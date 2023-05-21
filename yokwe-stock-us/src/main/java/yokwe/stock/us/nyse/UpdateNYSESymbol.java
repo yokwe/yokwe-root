@@ -3,64 +3,52 @@ package yokwe.stock.us.nyse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import yokwe.stock.us.nyse.Filter.Kind;
-import yokwe.stock.us.nyse.NYSESymbol.Data;
-import yokwe.stock.us.nyse.NYSESymbol.Symbol;
+import yokwe.stock.us.nyse.NYSESymbol.Market;
+import yokwe.stock.us.nyse.NYSESymbol.Type;
 import yokwe.util.ListUtil;
 
 public class UpdateNYSESymbol {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
-	public static void downloadStock() {
-		List<Data> list = Filter.download(Kind.STOCK);
-		List<Data> list2 = list.stream().filter(o -> !o.symbolTicker.startsWith("E:")).collect(Collectors.toList());
-		for(var e: list2) {
-			e.instrumentName = e.instrumentName.replace(",", "");
-		}
-		
-		logger.info("save  {}  {}", list2.size(), NYSESymbol.Stock.getPath());
-		NYSESymbol.Stock.save(list2);
-	}
-
-	public static void downloadETF() {
-		List<Data> list = Filter.download(Kind.ETF);
-		List<Data> list2 = list.stream().filter(o -> !o.symbolTicker.startsWith("E:")).collect(Collectors.toList());
-		for(var e: list2) {
-			e.instrumentName = e.instrumentName.replace(",", "");
-		}
-
-		logger.info("save  {}  {}", list2.size(), NYSESymbol.ETF.getPath());
-		NYSESymbol.ETF.save(list2);
-	}
 	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-//		downloadStock();
-//		downloadETF();
+		Filter.Stock.download();
+		Filter.ETF.download();
 		
-		{
-			List<Symbol> list = new ArrayList<>();
-			
-			for(var e: NYSESymbol.Stock.getList()) {
-				list.add(new Symbol(e.symbolTicker, e.micCode, e.instrumentType, e.instrumentName));
+		{			
+			List<Filter.Data> dataList = new ArrayList<>();
+			{
+				for(var e: Filter.Stock.getList()) {
+					dataList.add(e);
+				}
+				for(var e: Filter.ETF.getList()) {
+					dataList.add(e);
+				}
+				logger.info("dataList {}", dataList.size());
 			}
-			for(var e: NYSESymbol.ETF.getList()) {
-				list.add(new Symbol(e.symbolTicker, e.micCode, e.instrumentType, e.instrumentName));
-			}
-			logger.info("list   {}", list.size());
 			
-			List<Symbol> list2 = list.stream().filter(o -> o.type.stock || o.type.etf).collect(Collectors.toList());
-			logger.info("list2  {}", list2.size());
+			List<NYSESymbol> list = new ArrayList<>();
+			for(var data: dataList) {
+				if (data.symbolTicker.startsWith("E:")) continue;
+				
+				String symbol = data.symbolTicker;
+				Market market = data.micCode.market;
+				Type   type   = data.instrumentType.type;
+				String name   = data.instrumentName.replace(",", "");
+				
+				if (type.etf || type.stock) {
+					list.add(new NYSESymbol(symbol, market, type, name));
+				}
+			}
 			
 			// sanity check
-			ListUtil.checkDuplicate(list2, Symbol::getKey);
+			ListUtil.checkDuplicate(list, NYSESymbol::getKey);
 			
-			Collections.sort(list2);
-			logger.info("save  {}  {}", list2.size(), Symbol.getPath());
-			Symbol.save(list2);
+			Collections.sort(list);
+			logger.info("save  {}  {}", list.size(), NYSESymbol.getPath());
+			NYSESymbol.save(list);
 		}
 		logger.info("STOP");
 	}
