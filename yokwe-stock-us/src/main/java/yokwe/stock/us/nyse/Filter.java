@@ -26,62 +26,11 @@ public final class Filter {
 		}
 	}
 	
-	public static final class Data implements Comparable<Data> {
-		public enum Type {
-			CEF    ("CLOSED_END_FUND",              NYSESymbol.Type.CEF),
-			COMMON ("COMMON_STOCK",                 NYSESymbol.Type.COMMON),
-			ADR    ("DEPOSITORY_RECEIPT",           NYSESymbol.Type.ADR),
-			ETF    ("EXCHANGE_TRADED_FUND",         NYSESymbol.Type.ETF),
-			ETN    ("EXCHANGE_TRADED_NOTE",         NYSESymbol.Type.ETN),
-			LP     ("LIMITED_PARTNERSHIP",          NYSESymbol.Type.LP),
-			PREF   ("PREFERRED_STOCK",              NYSESymbol.Type.PREF),
-			REIT   ("REIT",                         NYSESymbol.Type.REIT),
-			TRUST  ("TRUST",                        NYSESymbol.Type.TRUST),
-			UNIT   ("UNIT",                         NYSESymbol.Type.UNIT),
-			UBI    ("UNITS_OF_BENEFICIAL_INTEREST", NYSESymbol.Type.UBI);
-			
-			public final String          value;
-			public final NYSESymbol.Type type;
-			
-			Type(String value, NYSESymbol.Type type) {
-				this.value = value;
-				this.type = type;
-			}
-			
-			@Override
-			public String toString() {
-				return value;
-			}
-		}
-		
-		// Market Identifier Code
-		public enum MIC {			
-			ARCX("ARCX", NYSESymbol.Market.NYSE),   // NYSE ARCA
-			BATS("BATS", NYSESymbol.Market.BATS),   // CBOE BZX U.S. EQUITIES EXCHANGE
-			XASE("XASE", NYSESymbol.Market.NYSE),   // NYSE MKT LLC
-			XNAS("XNAS", NYSESymbol.Market.NASDAQ), // NASDAQ ??
-			XNCM("XNCM", NYSESymbol.Market.NASDAQ), // NASDAQ CAPITAL MARKET
-			XNGS("XNGS", NYSESymbol.Market.NASDAQ), // NASDAQ/NGS (GLOBAL SELECT MARKET)
-			XNMS("XNMS", NYSESymbol.Market.NASDAQ), // NASDAQ/NMS (GLOBAL MARKET)
-			XNYS("XNYS", NYSESymbol.Market.NYSE);   // NEW YORK STOCK EXCHANGE, INC.
-
-			public final String            value;
-			public final NYSESymbol.Market market;
-			MIC(String value, NYSESymbol.Market market) {
-				this.value  = value;
-				this.market = market;
-			}
-			
-			@Override
-			public String toString() {
-				return value;
-			}
-		}
-		
+	public static final class RawData implements Comparable<RawData> {
 		public String exchangeId;
 		public String instrumentName;
-		public Type   instrumentType;
-		public MIC    micCode;
+		public String instrumentType;
+		public String micCode;
 		public String normalizedTicker;
 		public String symbolEsignalTicker;
 		public String symbolExchangeTicker;
@@ -89,7 +38,7 @@ public final class Filter {
 		public int    total;
 		public String url;
 		
-		public Data() {}
+		public RawData() {}
 		
 		@Override
 		public String toString() {
@@ -100,7 +49,7 @@ public final class Filter {
 			return normalizedTicker;
 		}
 		@Override
-		public int compareTo(Data that) {
+		public int compareTo(RawData that) {
 			return this.getKey().compareTo(that.getKey());
 		}
 		@Override
@@ -110,8 +59,8 @@ public final class Filter {
 		@Override
 		public boolean equals(Object o) {
 			if (o != null) {
-				if (o instanceof Data) {
-					Data that = (Data)o;
+				if (o instanceof RawData) {
+					RawData that = (RawData)o;
 					return this.compareTo(that) == 0;
 				} else {
 					return false;
@@ -127,7 +76,7 @@ public final class Filter {
 		public static final String BODY_FORMAT  = "{\"instrumentType\":\"%s\",\"pageNumber\":1,\"sortColumn\":\"NORMALIZED_TICKER\",\"sortOrder\":\"ASC\",\"maxResultsPerPage\":10000,\"filterToken\":\"\"}";
 		public static final String CONTENT_TYPE = "application/json";
 
-		public static List<Data> download(Context context) {
+		public static List<RawData> download(Context context) {
 			logger.info("download {}", context);
 			String body = String.format(BODY_FORMAT, context.instrumentType);
 			
@@ -141,7 +90,7 @@ public final class Filter {
 			}
 			
 			logger.info("result  {}", result.result.length());
-			List<Data> list = JSON.getList(Data.class, result.result);
+			List<RawData> list = JSON.getList(RawData.class, result.result);
 			logger.info("list  {}", list.size());
 			return list;
 		}
@@ -154,22 +103,22 @@ public final class Filter {
 		public String getPath() {
 			return context.path;
 		}
-		public void save(List<Data> list) {
+		public void save(List<RawData> list) {
 			Collections.sort(list);
-			ListUtil.save(Data.class, getPath(), list);
+			ListUtil.save(RawData.class, getPath(), list);
 		}
-		public List<Data> getList() {
-			return ListUtil.getList(Data.class, getPath());
+		public List<RawData> getList() {
+			return ListUtil.getList(RawData.class, getPath());
 		}
 		
 		public void download() {
-			List<Data> list = download(context);
+			List<RawData> list = download(context);
 			logger.info("save  {}  {}", list.size(), getPath());
 			save(list);
 		}
 	}
 	
-	public static final Impl Stock = new Impl(Context.STOCK);
+	public static final Impl STOCK = new Impl(Context.STOCK);
 	public static final Impl ETF   = new Impl(Context.ETF);
 	
 }
