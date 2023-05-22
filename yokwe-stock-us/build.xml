@@ -51,10 +51,18 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="nasdaq-update-nasdaq-stock">
+		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateNASDAQStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 	<!-- NYSE -->
-	<target name="nyse-update-nyse-symbol">
-		<java module="yokwe.stock.us/yokwe.stock.us.nyse.UpdateNYSESymbol" fork="true">
+	<target name="nyse-update-nyse-stock">
+		<java module="yokwe.stock.us/yokwe.stock.us.nyse.UpdateNYSEStock" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
