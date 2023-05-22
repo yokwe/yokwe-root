@@ -89,9 +89,9 @@ public final class Filter {
 				throw new UnexpectedException("result.result == null");
 			}
 			
-			logger.info("result  {}", result.result.length());
+//			logger.info("result  {}", result.result.length());
 			List<RawData> list = JSON.getList(RawData.class, result.result);
-			logger.info("list  {}", list.size());
+//			logger.info("list  {}", list.size());
 			return list;
 		}
 		
