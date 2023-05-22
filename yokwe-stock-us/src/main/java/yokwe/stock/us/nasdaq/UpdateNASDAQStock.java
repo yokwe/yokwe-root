@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import yokwe.stock.us.Stock;
 import yokwe.stock.us.Stock.Market;
 import yokwe.stock.us.Stock.Type;
+import yokwe.stock.us.nasdaq.symbolDirectory.DownloadUtil;
 import yokwe.stock.us.nasdaq.symbolDirectory.NASDAQListed;
 import yokwe.stock.us.nasdaq.symbolDirectory.OtherListed;
 import yokwe.stock.us.nyse.NYSEStock;
@@ -34,27 +35,28 @@ public class UpdateNASDAQStock {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-//		DownloadUtil.updateNASDAQListed();
-//		DownloadUtil.updateOtherListed();
+		DownloadUtil.updateNASDAQListed();
+		DownloadUtil.updateOtherListed();
 		
 		Map<String, Stock> nyseMap = NYSEStock.getMap();
 		logger.info("nyse {}", nyseMap.size());
 
-		
 		List<Stock> list = new ArrayList<>();
 		{
+			int countSkipNASDAQ = 0;
 			var nasdaqList = NASDAQListed.getList();
 			logger.info("nasdaq list {}", nasdaqList.size());
 			for(var e: nasdaqList) {
-				if (e.isTestIssue()) continue; // skip test issue
-				if (e.isRights())    continue; // skip right
-				if (e.isUnits())     continue; // skip unit
-				if (e.isWarrant())   continue; // skip warrant
-
+				// skip test issue right unit warrant
+				if (e.isTestIssue() || e.isRights() || e.isUnits() || e.isWarrant()) {
+					countSkipNASDAQ++;
+					continue;
+				}
+				
 				String symbol = e.symbol;
 				Market market = Market.NASDAQ;
 				Type   type;
-				String name = e.name.replace(",", "");
+				String name = e.name.replace(",", "").toUpperCase(); // use upper case
 				
 				// sanity check
 				if (nyseMap.containsKey(symbol)) {
@@ -72,28 +74,35 @@ public class UpdateNASDAQStock {
 						type = nyseStock.type;
 					}
 				} else {
-					if (name.toLowerCase().contains("warrant"))             continue; // skip warrant
-					if (name.toLowerCase().contains("beneficial interest")) continue; // skip beneficial interest
+					// skip warrant
+					// skip beneficial interest
+					if (name.contains("WARRANT") || name.contains("BENEFICIAL INTEREST")) {
+						countSkipNASDAQ++;
+						continue;
+					}
 					
 					logger.warn("nasdaq skip unknown  {}  {}", symbol, name);
+					countSkipNASDAQ++;
 					continue;
 				}
 
 				list.add(new Stock(symbol, market, type, name));
 			}
 			
+			int countSkipOther = 0;
 			var otherList = OtherListed.getList();
 			logger.info("other  list {}", otherList.size());
 			for(var e: otherList) {
-				if (e.isTestIssue()) continue; // skip test issue
-				if (e.isRights())    continue; // skip right
-				if (e.isUnits())     continue; // skip unit
-				if (e.isWarrant())   continue; // skip warrant
+				// skip test issue right unit warrant
+				if (e.isTestIssue() || e.isRights() || e.isUnits() || e.isWarrant()) {
+					countSkipOther++;
+					continue;
+				}
 				
 				String symbol = e.symbol;
 				Market market;
 				Type   type;
-				String name = e.name.replace(",", "");
+				String name = e.name.replace(",", "").toUpperCase(); // use upper case
 
 				if (marketMap.containsKey(e.exchange)) {
 					market = marketMap.get(e.exchange);
@@ -113,15 +122,23 @@ public class UpdateNASDAQStock {
 					// type
 					type = nyseStock.type;
 				} else {
-					if (name.toLowerCase().contains("unit")) continue; // skip unit
+					// skip unit
+					if (name.toLowerCase().contains("unit")) {
+						countSkipOther++;
+						continue;
+					}
 					
 					logger.warn("other skip unknown  {}  {}  {}", symbol, market, name);
+					countSkipOther++;
 					continue;
 				}
 
 				list.add(new Stock(symbol, market, type, name));
 			}
+			logger.info("countSkipNASDAQ {}", countSkipNASDAQ);
+			logger.info("countSkipOther  {}", countSkipOther);
 		}
+		
 		
 		logger.info("nasdaq {}", list.size());
 		

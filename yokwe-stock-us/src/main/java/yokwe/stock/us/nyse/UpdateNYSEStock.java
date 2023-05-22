@@ -63,14 +63,18 @@ public class UpdateNYSEStock {
 				logger.info("dataList {}", dataList.size());
 			}
 			
+			int countSkip = 0;
 			List<Stock> list = new ArrayList<>();
 			for(var data: dataList) {
-				if (data.symbolTicker.startsWith("E:")) continue;
+				if (data.symbolTicker.startsWith("E:")) {
+					countSkip++;
+					continue;
+				}
 				
 				String symbol = data.symbolTicker;
 				Market market;
 				Type   type;
-				String name   = data.instrumentName.replace(",", "");
+				String name   = data.instrumentName.replace(",", "").toUpperCase(); // use upper case
 				
 				if (marketMap.containsKey(data.micCode)) {
 					market = marketMap.get(data.micCode);
@@ -89,8 +93,12 @@ public class UpdateNYSEStock {
 				
 				if (type.simpleType == SimpleType.ETF || type.simpleType == SimpleType.STOCK) {
 					list.add(new Stock(symbol, market, type, name));
+				} else {
+					countSkip++;
 				}
 			}
+			logger.info("countSkip {}", countSkip);
+
 			
 			// sanity check
 			ListUtil.checkDuplicate(list, Stock::getKey);
