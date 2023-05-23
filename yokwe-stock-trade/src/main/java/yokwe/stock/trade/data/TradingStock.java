@@ -1,10 +1,8 @@
 package yokwe.stock.trade.data;
 
-import java.util.Collection;
 import java.util.List;
 
 import yokwe.stock.trade.Storage;
-import yokwe.stock.us.Stock;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
