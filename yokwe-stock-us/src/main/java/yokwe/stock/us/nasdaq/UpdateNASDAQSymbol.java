@@ -8,9 +8,9 @@ import java.util.TreeMap;
 import yokwe.stock.us.Symbol;
 import yokwe.stock.us.SymbolInfo;
 import yokwe.stock.us.SymbolInfo.Type;
-import yokwe.stock.us.nasdaq.symbolDirectory.DownloadUtil;
 import yokwe.stock.us.nasdaq.symbolDirectory.NASDAQListed;
 import yokwe.stock.us.nasdaq.symbolDirectory.OtherListed;
+import yokwe.util.FTPUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -19,7 +19,7 @@ public class UpdateNASDAQSymbol {
 
 	private static void updateNASDAQListed() {
 		{
-			byte[] data = DownloadUtil.download(NASDAQListed.URL);
+			byte[] data = FTPUtil.download(NASDAQListed.URL);
 			FileUtil.rawWrite().file(NASDAQListed.PATH_TXT_FILE, data);
 			logger.info("{} {}", data.length, NASDAQListed.PATH_TXT_FILE);
 		}
@@ -75,7 +75,7 @@ public class UpdateNASDAQSymbol {
 	
 	private static void updateOtherListed() {
 		{
-			byte[] data = DownloadUtil.download(OtherListed.URL);
+			byte[] data = FTPUtil.download(OtherListed.URL);
 			FileUtil.rawWrite().file(OtherListed.PATH_TXT_FILE, data);
 			logger.info("{} {}", data.length, OtherListed.PATH_TXT_FILE);
 		}
