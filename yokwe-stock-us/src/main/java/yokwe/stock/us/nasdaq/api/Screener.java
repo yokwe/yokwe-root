@@ -44,6 +44,7 @@ public class Screener {
 		}
 
 		public static class Data {
+			public String   asOf;
 			public Values   headers;
 			public Values[] rows;
 			
@@ -95,6 +96,7 @@ public class Screener {
 		}
 		
 		public static class Data {
+			public String   asOf;
 			public Values   headers;
 			public Values[] rows;
 			
