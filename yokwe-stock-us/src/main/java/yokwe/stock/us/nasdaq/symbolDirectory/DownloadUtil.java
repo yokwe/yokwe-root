@@ -1,13 +1,9 @@
 package yokwe.stock.us.nasdaq.symbolDirectory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import yokwe.util.FTPUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -16,7 +12,12 @@ public class DownloadUtil {
 	
 	public static void updateNASDAQListed() {
 		{
-			byte[] data = download(NASDAQListed.URL);
+			byte[] data = FTPUtil.download(NASDAQListed.URL);
+			if (data == null) {
+				logger.error("Download failed  {}", NASDAQListed.URL);
+				throw new UnexpectedException("Download failed");
+			}
+			
 			FileUtil.rawWrite().file(NASDAQListed.PATH_TXT_FILE, data);
 			logger.info("{} {}", data.length, NASDAQListed.PATH_TXT_FILE);
 		}
@@ -72,7 +73,12 @@ public class DownloadUtil {
 	
 	public static void updateOtherListed() {
 		{
-			byte[] data = download(OtherListed.URL);
+			byte[] data = FTPUtil.download(OtherListed.URL);
+			if (data == null) {
+				logger.error("Download failed  {}", OtherListed.URL);
+				throw new UnexpectedException("Download failed");
+			}
+
 			FileUtil.rawWrite().file(OtherListed.PATH_TXT_FILE, data);
 			logger.info("{} {}", data.length, OtherListed.PATH_TXT_FILE);
 		}
@@ -127,33 +133,5 @@ public class DownloadUtil {
 			logger.info("{} {}", list.size(), OtherListed.getPath());
 			OtherListed.save(list);
 		}
-	}
-	
-	public static URL toURL(String urlString) {
-		try {
-			URL url = new URL(urlString);
-			return url;
-		} catch (MalformedURLException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
-	}
-	
-	public static byte[] download(URL url) {
-		try {
-			URLConnection con = url.openConnection();
-			try (InputStream is = con.getInputStream()) {
-				byte[] ret = is.readAllBytes();
-				return ret;
-			}
-		} catch (IOException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
-	}
-	public static byte[] download(String urlString) {
-		return download(toURL(urlString));
 	}
 }
