@@ -32,12 +32,12 @@ public class UpdateNASDAQStock {
 		marketMap.put("V", Market.IEXG);   // Investors' Exchange, LLC (IEXG)
 	}
 
-	public static void main(String[] args) {
-		logger.info("START");
-		
+	public static void download() {
 		DownloadUtil.updateNASDAQListed();
 		DownloadUtil.updateOtherListed();
-		
+	}
+	
+	public static void update() {
 		Map<String, Stock> nyseMap = NYSEStock.getMap();
 		logger.info("nyse {}", nyseMap.size());
 
@@ -138,8 +138,16 @@ public class UpdateNASDAQStock {
 			logger.info("countSkipOther  {}", countSkipOther);
 		}
 		
-		logger.info("nasdaq {}", list.size());
+		logger.info("save  {}  {}", list.size(), NASDAQStock.getPath());
+		NASDAQStock.save(list);
+	}
+	
+	public static void main(String[] args) {
+		logger.info("START");
 		
+		download();
+		update();
+				
 		logger.info("STOP");
 	}
 }

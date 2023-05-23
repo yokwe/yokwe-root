@@ -20,15 +20,32 @@ import yokwe.util.UnexpectedException;
 public class UpdateBATSStock {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final String URL_PATTERN = "ftp://ftp.batstrading.com/bzx-equities/listed-securities/bzx_equities_listed_security_rpt_%d%02d%02d.txt";
-	public static final String PATH_FILE = Storage.BATS.getPath("listed-security-report.txt");
+	private static final String URL_PATTERN = "ftp://ftp.batstrading.com/bzx-equities/listed-securities/bzx_equities_listed_security_rpt_%d%02d%02d.txt";
+	private static final String PATH_FILE   = Storage.BATS.getPath("listed-security-report.txt");
+	
+	private static final LocalDate TARGET_DATE = MarketHoliday.US.getLastTradingDate();
+	
+	private static final Map<String, Type> typeMap = new TreeMap<>();
+	static {
+		typeMap.put("Commodity-Based Trust Shares",   Type.ETF);
+		typeMap.put("Exchange-Traded Fund Shares",    Type.ETF);
+		typeMap.put("Managed Portfolio Shares",       Type.ETF);
+		typeMap.put("Tracking Fund Shares",           Type.ETF);
+		typeMap.put("Trust Issued Receipts",          Type.ETF);
+		//
+		typeMap.put("Equity Index-Linked Securities", Type.ETN);
+		typeMap.put("Futures-Linked Securities",      Type.ETN);
+		//
+		typeMap.put("Primary Equity",                 Type.COMMON);
+
+	}
 	
 	private static String headerLine(LocalDate date, int lines) {
 		return String.format("Environment=PROD|Report Date=%s|Record Count=%d", date.toString(), lines);
 	}
 
-	public static void download(LocalDate date) {
-		String urlString = String.format(URL_PATTERN, date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+	private static void downloadTXT() {
+		String urlString = String.format(URL_PATTERN, TARGET_DATE.getYear(), TARGET_DATE.getMonthValue(), TARGET_DATE.getDayOfMonth());
 		logger.info("url {}", urlString);
 		
 		byte[] data = FTPUtil.download(urlString);
@@ -41,7 +58,7 @@ public class UpdateBATSStock {
 		logger.info("save {} {}", data.length, PATH_FILE);
 	}
 	
-	public static void update(LocalDate date) {
+	private static void updateCSV() {
 		String content = FileUtil.read().file(PATH_FILE);
 		String[] lines = content.split("[\r\n]+");
 		logger.info("lines {}", lines.length);
@@ -49,7 +66,7 @@ public class UpdateBATSStock {
 		// check line 0
 		{
 			// Environment=PROD|Report Date=2023-05-19|Record Count=619
-			String expect = headerLine(date, lines.length);
+			String expect = headerLine(TARGET_DATE, lines.length);
 			String actual = lines[0];
 			if (actual.compareTo(expect) != 0) {
 				logger.error("Unexpected line");
@@ -126,48 +143,34 @@ public class UpdateBATSStock {
 		ListedSecurityReport.save(list);
 	}
 	
-	private static boolean needsDownload(LocalDate date) {
+	private static boolean needsDownload() {
 		File txtFile = new File(PATH_FILE);
 		
 		if (txtFile.exists()) {
 			String   content = FileUtil.read().file(txtFile);
 			String[] lines   = content.split("[\r\n]+");
 
-			String headerLine = headerLine(date, lines.length);
+			String headerLine = headerLine(TARGET_DATE, lines.length);
 			if (lines[0].compareTo(headerLine) == 0) {
-				// file is already exists for date
+				// file is already exists for the date
 				return false;
 			}
 		}
 		return true;
 	}
-	private static boolean needsUpdate() {
-		File csvFile = new File(ListedSecurityReport.PATH_FILE);
-		return !csvFile.exists();
+		
+	public static void download() {
+		if (needsDownload()) downloadTXT();
+		updateCSV();
 	}
 	
-	private static final Map<String, Type> typeMap = new TreeMap<>();
-	static {
-		typeMap.put("Commodity-Based Trust Shares",   Type.ETF);
-		typeMap.put("Exchange-Traded Fund Shares",    Type.ETF);
-		typeMap.put("Managed Portfolio Shares",       Type.ETF);
-		typeMap.put("Tracking Fund Shares",           Type.ETF);
-		typeMap.put("Trust Issued Receipts",          Type.ETF);
-		//
-		typeMap.put("Equity Index-Linked Securities", Type.ETN);
-		typeMap.put("Futures-Linked Securities",      Type.ETN);
-		//
-		typeMap.put("Primary Equity",                 Type.COMMON);
-
-	}
-	
-	private static void updateStock() {
+	public static void update() {
 		Map<String, Stock> nyseMap = NYSEStock.getMap();
 		logger.info("nyse {}", nyseMap.size());
 		
 		List<Stock> list = new ArrayList<>();
 		List<ListedSecurityReport> reportList = ListedSecurityReport.getList();
-		logger.info("repo {}", reportList.size());
+		logger.info("bats {}", reportList.size());
 
 		int countTest = 0;
 		for(var e: reportList) {
@@ -223,16 +226,8 @@ public class UpdateBATSStock {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		LocalDate date = MarketHoliday.US.getLastTradingDate();
-
-		if (needsDownload(date)) {
-			download(date);
-		} else {
-			logger.info("no need to download");
-		}
-		
-		update(date);
-		updateStock();
+		download();
+		update();
 		
 		logger.info("STOP");
 	}

@@ -1,7 +1,6 @@
 package yokwe.stock.us.nyse;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -45,68 +44,73 @@ public class UpdateNYSEStock {
 		typeMap.put("UNITS_OF_BENEFICIAL_INTEREST", Type.UBI);
 	}
 
+	public static void download() {
+		Filter.STOCK.download();
+		Filter.ETF.download();
+	}
+	
+	public static void update() {
+		List<Filter.RawData> dataList = new ArrayList<>();
+		{
+			for(var e: Filter.STOCK.getList()) {
+				dataList.add(e);
+			}
+			for(var e: Filter.ETF.getList()) {
+				dataList.add(e);
+			}
+			logger.info("dataList {}", dataList.size());
+		}
+		
+		int countSkip = 0;
+		List<Stock> list = new ArrayList<>();
+		for(var data: dataList) {
+			if (data.symbolTicker.startsWith("E:")) {
+				countSkip++;
+				continue;
+			}
+			
+			String symbol = data.symbolTicker;
+			Market market;
+			Type   type;
+			String name   = data.instrumentName.replace(",", "").toUpperCase(); // use upper case
+			
+			if (marketMap.containsKey(data.micCode)) {
+				market = marketMap.get(data.micCode);
+			} else {
+				logger.error("Unpexpected micCode");
+				logger.error("  {}", data.micCode);
+				throw new UnexpectedException("Unpexpected micCode");
+			}
+			if (typeMap.containsKey(data.instrumentType)) {
+				type = typeMap.get(data.instrumentType);
+			} else {
+				logger.error("Unpexpected instrumentType");
+				logger.error("  {}", data.instrumentType);
+				throw new UnexpectedException("Unpexpected instrumentType");
+			}
+			
+			if (type.simpleType == SimpleType.ETF || type.simpleType == SimpleType.STOCK) {
+				list.add(new Stock(symbol, market, type, name));
+			} else {
+				countSkip++;
+			}
+		}
+		logger.info("countSkip {}", countSkip);
+
+		
+		// sanity check
+		ListUtil.checkDuplicate(list, Stock::getKey);
+		
+		logger.info("save  {}  {}", list.size(), NYSEStock.getPath());
+		NYSEStock.save(list);
+	}
+	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		Filter.STOCK.download();
-		Filter.ETF.download();
-		
-		{			
-			List<Filter.RawData> dataList = new ArrayList<>();
-			{
-				for(var e: Filter.STOCK.getList()) {
-					dataList.add(e);
-				}
-				for(var e: Filter.ETF.getList()) {
-					dataList.add(e);
-				}
-				logger.info("dataList {}", dataList.size());
-			}
-			
-			int countSkip = 0;
-			List<Stock> list = new ArrayList<>();
-			for(var data: dataList) {
-				if (data.symbolTicker.startsWith("E:")) {
-					countSkip++;
-					continue;
-				}
+		download();
+		update();
 				
-				String symbol = data.symbolTicker;
-				Market market;
-				Type   type;
-				String name   = data.instrumentName.replace(",", "").toUpperCase(); // use upper case
-				
-				if (marketMap.containsKey(data.micCode)) {
-					market = marketMap.get(data.micCode);
-				} else {
-					logger.error("Unpexpected micCode");
-					logger.error("  {}", data.micCode);
-					throw new UnexpectedException("Unpexpected micCode");
-				}
-				if (typeMap.containsKey(data.instrumentType)) {
-					type = typeMap.get(data.instrumentType);
-				} else {
-					logger.error("Unpexpected instrumentType");
-					logger.error("  {}", data.instrumentType);
-					throw new UnexpectedException("Unpexpected instrumentType");
-				}
-				
-				if (type.simpleType == SimpleType.ETF || type.simpleType == SimpleType.STOCK) {
-					list.add(new Stock(symbol, market, type, name));
-				} else {
-					countSkip++;
-				}
-			}
-			logger.info("countSkip {}", countSkip);
-
-			
-			// sanity check
-			ListUtil.checkDuplicate(list, Stock::getKey);
-			
-			Collections.sort(list);
-			logger.info("save  {}  {}", list.size(), NYSEStock.getPath());
-			NYSEStock.save(list);
-		}
 		logger.info("STOP");
 	}
 }
