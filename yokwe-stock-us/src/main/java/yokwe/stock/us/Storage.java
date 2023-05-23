@@ -14,6 +14,18 @@ public final class Storage {
 		return getPath(String.format("%s/%s", prefix, path));
 	}
 	
+	// bats
+	public static class BATS {
+		public static final String PREFIX = "bats";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 	// nasdaq
 	public static class NASDAQ {
 		public static final String PREFIX = "nasdaq";
@@ -24,7 +36,6 @@ public final class Storage {
 		public static String getPath(String prefix, String path) {
 			return getPath(String.format("%s/%s", prefix, path));
 		}
-
 	}
 	
 	// nyse
@@ -37,6 +48,5 @@ public final class Storage {
 		public static String getPath(String prefix, String path) {
 			return getPath(String.format("%s/%s", prefix, path));
 		}
-
 	}
 }
