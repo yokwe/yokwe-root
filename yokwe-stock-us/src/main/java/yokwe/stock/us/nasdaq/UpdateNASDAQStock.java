@@ -47,7 +47,7 @@ public class UpdateNASDAQStock {
 			var nasdaqList = NASDAQListed.getList();
 			logger.info("nasdaq list {}", nasdaqList.size());
 			for(var e: nasdaqList) {
-				// skip test issue right unit warrant
+				// skip test issue, right, unit and warrant
 				if (e.isTestIssue() || e.isRights() || e.isUnits() || e.isWarrant()) {
 					countSkipNASDAQ++;
 					continue;
@@ -74,8 +74,7 @@ public class UpdateNASDAQStock {
 						type = nyseStock.type;
 					}
 				} else {
-					// skip warrant
-					// skip beneficial interest
+					// skip warrant and beneficial interest
 					if (name.contains("WARRANT") || name.contains("BENEFICIAL INTEREST")) {
 						countSkipNASDAQ++;
 						continue;
@@ -93,7 +92,7 @@ public class UpdateNASDAQStock {
 			var otherList = OtherListed.getList();
 			logger.info("other  list {}", otherList.size());
 			for(var e: otherList) {
-				// skip test issue right unit warrant
+				// skip test issue, right, unit and warrant
 				if (e.isTestIssue() || e.isRights() || e.isUnits() || e.isWarrant()) {
 					countSkipOther++;
 					continue;
@@ -138,7 +137,6 @@ public class UpdateNASDAQStock {
 			logger.info("countSkipNASDAQ {}", countSkipNASDAQ);
 			logger.info("countSkipOther  {}", countSkipOther);
 		}
-		
 		
 		logger.info("nasdaq {}", list.size());
 		
