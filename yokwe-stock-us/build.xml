@@ -18,6 +18,16 @@
 		<pathelement location="${libreoffice.app.dir}" />
 	</path>
 
+	<!-- TOP -->
+	<target name="update-stock">
+		<java module="yokwe.stock.us/yokwe.stock.us.UpdateStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
 	<!-- NASDAQ -->
 	<target name="nasdaq-update-price">
 		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdatePrice" fork="true">
@@ -70,5 +80,14 @@
 		</java>
 	</target>
 	
+	<!-- BATS -->
+	<target name="bats-update-bats-stock">
+		<java module="yokwe.stock.us/yokwe.stock.us.bats.UpdateBATSStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>	
 
 </project>
