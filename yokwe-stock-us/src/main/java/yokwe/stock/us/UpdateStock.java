@@ -66,7 +66,7 @@ public class UpdateStock {
 		logger.info("stock   {}  {}", list.size(), Stock.getPath());
 		Stock.save(list);
 		
-		logger.info("nyas    {}", countNYSE);
+		logger.info("nyae    {}", countNYSE);
 		logger.info("nasdaq  {}", countNASDAQ);
 		logger.info("bats    {}", countBATS);
 
