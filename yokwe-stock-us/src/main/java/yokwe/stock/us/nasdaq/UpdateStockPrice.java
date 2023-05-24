@@ -112,7 +112,7 @@ public class UpdateStockPrice {
 			}
 		}
 
-		// save
+		// save Price of stock
 		Price.save(map.values());
 		
 		// update stockPriceMap
@@ -121,7 +121,7 @@ public class UpdateStockPrice {
 			Collections.sort(priceList);
 			updateStockPriceMap(stockPriceMap, symbol, priceList);
 			
-			// save stockPriceMap
+			// save StockPrice
 			StockPrice.save(stockPriceMap.values());
 		}
 	}
