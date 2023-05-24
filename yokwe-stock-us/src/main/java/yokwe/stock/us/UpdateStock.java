@@ -15,19 +15,17 @@ import yokwe.util.MarketHoliday;
 public class UpdateStock {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static void main(String[] args) {
-		logger.info("START");
-		
-		MarketHoliday.US.getLastTradingDate();
-		
+	private static void downloadFiles() {
 		UpdateNYSEStock.download();
 		UpdateNASDAQStock.download();
 		UpdateBATSStock.download();
-		
+	}
+	private static void updateFiles() {
 		UpdateNYSEStock.update();
 		UpdateNASDAQStock.update();
 		UpdateBATSStock.update();
-		
+	}
+	private static void updateStock() {
 		// load nyse
 		List<Stock> nyseList = NYSEStock.getList();
 		logger.info("nyse    {}", nyseList.size());
@@ -69,6 +67,20 @@ public class UpdateStock {
 		logger.info("nyae    {}", countNYSE);
 		logger.info("nasdaq  {}", countNASDAQ);
 		logger.info("bats    {}", countBATS);
+	}
+	
+	public static void update() {
+		downloadFiles();
+		updateFiles();
+		updateStock();
+	}
+	
+	public static void main(String[] args) {
+		logger.info("START");
+		
+		MarketHoliday.US.getLastTradingDate();
+		
+		update();
 
 		logger.info("STOP");
 	}
