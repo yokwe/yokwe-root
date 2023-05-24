@@ -65,7 +65,7 @@ public class UpdateTradingStock {
 				var tradingSymbol = new TradingStock(symbol, monex, sbi, rakuten, type, name);
 				list.add(tradingSymbol);
 			}
-			logger.info("trading {} {}", list.size(), TradingStock.getPath());
+			logger.info("save    {} {}", list.size(), TradingStock.getPath());
 			TradingStock.save(list);
 		}
 		
