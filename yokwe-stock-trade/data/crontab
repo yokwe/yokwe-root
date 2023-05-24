@@ -56,16 +56,30 @@ YOKWE_ROOT=/mnt/home/hasegawa/git/yokwe-root
 #m   h     dom mon dow   command
 30   16    *     * 1-5   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-sony-stats ) 1>>tmp/cron.log 2>&1
 
-# SYMBOL
-#m   h     dom mon dow   command
-03   7     *   *   1-5   cd $YOKWE_ROOT/yokwe-stock-trade; ( make update-symbol         ) 1>>tmp/cron.log 2>&1
-
 # MONEX
 #m   h     dom mon dow   command
 03   12    *   *   1-5   cd $YOKWE_ROOT/yokwe-stock-trade; ( make monex-update-fx-tax   ) 1>>tmp/cron.log 2>&1
 
+# SYMBOL
+#m   h     dom mon dow   command
+#03   7     *   *   1-5   cd $YOKWE_ROOT/yokwe-stock-trade; ( make update-symbol         ) 1>>tmp/cron.log 2>&1
+
 # NASDAQ
 #m   h     dom mon dow   command
-03   11-12 *   *   2-6   cd $YOKWE_ROOT/yokwe-stock-us;    ( make nasdaq-update-price    ) 1>>tmp/cron.log 2>&1
-03   15    *   *     6   cd $YOKWE_ROOT/yokwe-stock-us;    ( make nasdaq-update-dividend ) 1>>tmp/cron.log 2>&1
+#03   13-14 *   *   2-6   cd $YOKWE_ROOT/yokwe-stock-us;    ( make nasdaq-update-price    ) 1>>tmp/cron.log 2>&1
+#03   16    *   *     6   cd $YOKWE_ROOT/yokwe-stock-us;    ( make nasdaq-update-dividend ) 1>>tmp/cron.log 2>&1
+
+# update stock trading-stock nasdaq-update-stock-price nasdaq-update-stock-div nasdaq-update-stock-stats
+# STOCK
+#m   h     dom mon dow   command
+03   6     *   *   1-5   cd $YOKWE_ROOT/yokwe-stock-us   ; ( make update-stock                 ) 1>>tmp/cron.log 2>&1
+13   6     *   *   1-5   cd $YOKWE_ROOT/yokwe-stock-trade; ( make update-trading-stock         ) 1>>tmp/cron.log 2>&1
+03   11-12 *   *   2-6   cd $YOKWE_ROOT/yokwe-stock-us;    ( make nasdaq-update-stock-price    ) 1>>tmp/cron.log 2>&1
+03   15    *   *     6   cd $YOKWE_ROOT/yokwe-stock-us;    ( make nasdaq-update-stock-dividend ) 1>>tmp/cron.log 2>&1
+
+
+
+
+
+
 
