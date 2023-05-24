@@ -10,6 +10,8 @@ import yokwe.stock.trade.monex.MonexStock;
 import yokwe.stock.trade.rakuten.RakutenStock;
 import yokwe.stock.trade.sbi.SBIStock;
 import yokwe.stock.us.Stock;
+import yokwe.stock.us.Stock.Type;
+import yokwe.stock.us.TradingStock;
 
 public class UpdateTradingStock {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -47,7 +49,7 @@ public class UpdateTradingStock {
 				String monex   = "0";
 				String sbi     = "0";
 				String rakuten = "0";
-				String type    = stock.type.toString();
+				Type   type    = stock.type;
 				String name    = stock.name;
 
 				if (monexSet.contains(symbol)) {

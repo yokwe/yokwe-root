@@ -1,13 +1,14 @@
-package yokwe.stock.trade.data;
+package yokwe.stock.us;
 
 import java.util.List;
+import java.util.Map;
 
-import yokwe.stock.trade.Storage;
+import yokwe.stock.us.Stock.Type;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class TradingStock implements Comparable<TradingStock> {
-	private static final String PATH_FILE = Storage.Data.getPath("trading-stock.csv");
+	private static final String PATH_FILE = Storage.getPath("trading-stock.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}
@@ -20,12 +21,16 @@ public class TradingStock implements Comparable<TradingStock> {
 	public static List<TradingStock> getList() {
 		return ListUtil.getList(TradingStock.class, getPath());
 	}
+	public static Map<String, TradingStock> getMap() {
+		var list = getList();
+		return ListUtil.checkDuplicate(list, TradingStock::getKey);
+	}
 	
 	public String symbol;
 	public String monex;
 	public String sbi;
 	public String rakuten;
-	public String type;
+	public Type   type;
 	public String name;
 
 	public TradingStock (
@@ -33,7 +38,7 @@ public class TradingStock implements Comparable<TradingStock> {
 		String monex,
 		String sbi,
 		String rakuten,
-		String type,
+		Type   type,
 		String name
 		) {
 		this.symbol  = symbol;
