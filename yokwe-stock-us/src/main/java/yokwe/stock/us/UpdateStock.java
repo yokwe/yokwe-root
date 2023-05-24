@@ -60,13 +60,14 @@ public class UpdateStock {
 				countBATS++;
 			}
 		}
-		
-		logger.info("stock   {}  {}", list.size(), Stock.getPath());
+				
+		logger.info("save   {}  {}", list.size(), Stock.getPath());
 		Stock.save(list);
 		
-		logger.info("nyae    {}", countNYSE);
-		logger.info("nasdaq  {}", countNASDAQ);
-		logger.info("bats    {}", countBATS);
+		logger.info("contains");
+		logger.info("nyae   {}", countNYSE);
+		logger.info("nasdaq {}", countNASDAQ);
+		logger.info("bats   {}", countBATS);
 	}
 	
 	public static void update() {
