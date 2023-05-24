@@ -36,6 +36,10 @@ backup:
 	cp /mnt/stock/trade/activity/投資活動_firstrade.ods  /mnt/stock/trade/activity/backup/投資活動_firstrade_$$(date +%Y%m%d).ods
 	cp /mnt/stock/trade/activity/投資活動_ソニー銀行.ods /mnt/stock/trade/activity/backup/投資活動_ソニー銀行_$$(date +%Y%m%d).ods
 
+monex-update-fx-tax:
+	ant monex-update-fx-tax
+	ant update-fx
+
 update-symbol: update-symbol-info
 	ant update-symbol
 
@@ -44,6 +48,10 @@ update-symbol-info:
 	ant sbi-update-symbol-info
 	ant rakuten-update-symbol-info
 
-monex-update-fx-tax:
-	ant monex-update-fx-tax
-	ant update-fx
+update-trading-stock:
+	ant monex-update-monex-stock
+	ant sbi-update-sbi-stock
+	ant rakuten-update-rakuten-stock
+	ant update-trading-stock
+	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/trade_$$(date +%Y%m%d).taz nasdaq
+	
