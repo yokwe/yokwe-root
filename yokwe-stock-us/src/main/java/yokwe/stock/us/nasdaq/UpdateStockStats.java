@@ -21,8 +21,8 @@ import yokwe.util.stats.RSI;
 public class UpdateStockStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	private static List<Stats> getStatsList(Set<String> dateSet) {
-		List<Stats> statsList = new ArrayList<>();
+	private static List<StockStats> getStatsList(Set<String> dateSet) {
+		List<StockStats> statsList = new ArrayList<>();
 		Map<String, StockPrice> map = StockPrice.getMap();
 		
 		Map<String, StockDividend> stockDividendMap = StockDividend.getMap();
@@ -45,7 +45,7 @@ public class UpdateStockStats {
 			StockPrice stockPrice = map.get(symbol);
 			
 			Price price = priceList.get(pricec - 1);
-			Stats statsUS = new Stats();
+			StockStats statsUS = new StockStats();
 			
 			statsUS.stockCode = symbol;
 			statsUS.type      = e.type.toString();
@@ -64,15 +64,13 @@ public class UpdateStockStats {
 			if (2 <= pricec) {
 				Price last = priceList.get(pricec - 2);
 				if (DoubleUtil.isAlmostZero(last.close)) {
-					statsUS.last    = -1;
-					statsUS.lastPCT = -1;
+					statsUS.last = -1;
 				} else {
-					statsUS.last    = last.close;
-					statsUS.lastPCT = DoubleUtil.round((statsUS.price - statsUS.last) / statsUS.last, 3) ;
+					var lastClose = last.close;
+					statsUS.last = DoubleUtil.round((statsUS.price - lastClose) / lastClose, 3) ;
 				}
 			} else {
-				statsUS.last    = -1;
-				statsUS.lastPCT = -1;
+				statsUS.last = -1;
 			}
 			
 			// stats - sd hv rsi
@@ -103,22 +101,24 @@ public class UpdateStockStats {
 			}
 			
 			// min max
-			statsUS.min       = priceList.stream().mapToDouble(o -> o.low).min().getAsDouble();
-			statsUS.max       = priceList.stream().mapToDouble(o -> o.high).max().getAsDouble();
-			statsUS.minPCT    = DoubleUtil.round((statsUS.price - statsUS.min) / statsUS.price, 3);
-			statsUS.maxPCT    = DoubleUtil.round((statsUS.max - statsUS.price) / statsUS.price, 3);
+			{
+				var min = priceList.stream().mapToDouble(o -> o.low).min().getAsDouble();
+				var max = priceList.stream().mapToDouble(o -> o.high).max().getAsDouble();
+				statsUS.min = DoubleUtil.round((statsUS.price - min) / statsUS.price, 3);
+				statsUS.max = DoubleUtil.round((max - statsUS.price) / statsUS.price, 3);
+			}
 			
 			// dividend
 			{
 				StockDividend stockDividend = stockDividendMap.get(symbol);
 				if (stockDividend == null) {
-					statsUS.div   = 0;
 					statsUS.divc  = 0;
 					statsUS.yield = 0;
 				} else {
-					statsUS.div   = stockDividend.annual;
+					var div = stockDividend.annual;
+					
 					statsUS.divc  = stockDividend.count;
-					statsUS.yield = DoubleUtil.round(statsUS.div / statsUS.price, 3);
+					statsUS.yield = DoubleUtil.round(div / statsUS.price, 3);
 				}
 			}
 			
@@ -163,10 +163,10 @@ public class UpdateStockStats {
 		logger.info("date {}  {} - {}", dateSet.size(), dateSet.stream().min(String::compareTo).get(), dateSet.stream().max(String::compareTo).get());
 		
 //		int dateCount = dateSet.size();
-		List<Stats> statsList = getStatsList(dateSet);
+		List<StockStats> statsList = getStatsList(dateSet);
 		
-		logger.info("save {} {}", statsList.size(), Stats.getPath());
-		Stats.save(statsList);
+		logger.info("save {} {}", statsList.size(), StockStats.getPath());
+		StockStats.save(statsList);
 		
 		logger.info("STOP");
 	}
