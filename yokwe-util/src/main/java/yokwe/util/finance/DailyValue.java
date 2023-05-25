@@ -3,33 +3,39 @@ package yokwe.util.finance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import yokwe.util.StringUtil;
 
-public class DailyValue implements Comparable<DailyValue> {
-	public static BigDecimal[] toArray(List<DailyValue> list) {
-		List<BigDecimal> ret = new ArrayList<>(list.size());
-		for(var e: list) {
-			ret.add(e.value);
-		}
-		return ret.toArray(new BigDecimal[0]);
+public final class DailyValue implements Comparable<DailyValue> {
+	// filter
+	public static List<DailyValue> filter(List<DailyValue> list, LocalDate firstDate, LocalDate lastDate) {
+		return list.stream().filter(o -> !o.date.isBefore(firstDate) && !o.date.isAfter(lastDate)).collect(Collectors.toList());
 	}
-	public static BigDecimal[] toArray(List<DailyValue> list, LocalDate firstDate, LocalDate lastDate) {
-		// firstDate and lastDate is inclusive
-		LocalDate first = firstDate.minusDays(1);
-		LocalDate last  = lastDate.plusDays(1);
-		
-		List<BigDecimal> ret = new ArrayList<>(list.size());
-		for(var e: list) {
-			if (e.date.isAfter(first) && e.date.isBefore(last)) {
-				ret.add(e.value);
-			}
-		}
-		return ret.toArray(new BigDecimal[0]);
+	public static List<DailyValue> filterPreviousYear(List<DailyValue> list, LocalDate lastDate, int years) {
+		LocalDate firstDate = previousYear(lastDate, years);
+		return filter(list, firstDate, lastDate);
 	}
 	
+	// toValueArray
+	public static BigDecimal[] toValueArray(List<DailyValue> list, LocalDate firstDate, LocalDate lastDate) {
+		return list.stream().filter(o -> !o.date.isBefore(firstDate) && !o.date.isAfter(lastDate)).map(o -> o.value).toArray(BigDecimal[]::new);
+	}
+	public static BigDecimal[] toValueArrayPreviousYear(List<DailyValue> list, LocalDate lastDate, int years) {
+		LocalDate firstDate = previousYear(lastDate, years);
+		return toValueArray(list, firstDate, lastDate);
+	}
+	
+	// previous year
+	public static LocalDate previousYear(LocalDate date, int years) {
+		return date.plusDays(1).minusYears(years);
+	}
+	
+	// value array
+	public static BigDecimal[] toValueArray(List<DailyValue> list) {
+		return list.stream().map(o -> o.value).toArray(BigDecimal[]::new);
+	}
 	
 	public static DailyValue getInstance(LocalDate date, BigDecimal value) {
 		return new DailyValue(date, value);
