@@ -8,16 +8,41 @@ public final class BigDecimalUtil {
 	public static final int          DEFAULT_INTERNAL_SCALE = 15;
 	public static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_UP;
 	public static final MathContext  DEFAULT_MATH_CONTEXT   = new MathContext(DEFAULT_INTERNAL_SCALE, DEFAULT_ROUNDING_MODE);
-	public static BigDecimal sum(BigDecimal[] values, MathContext mathContext) {
+	
+	public static BigDecimal sum(BigDecimal[] values) {
 		BigDecimal ret = BigDecimal.ZERO;
 		for(var e: values) {
 			ret = ret.add(e);
 		}
-		return ret.round(mathContext);
+		return ret;
 	}
 	public static BigDecimal mean(BigDecimal[] values, MathContext mathContext) {
-		return sum(values, mathContext).divide(BigDecimal.valueOf(values.length), mathContext);
+		return sum(values).divide(BigDecimal.valueOf(values.length), mathContext);
 	}
+	
+	public static BigDecimal sd(BigDecimal[] values, BigDecimal mean, MathContext mathContext) {
+		BigDecimal var = BigDecimal.ZERO;
+		for(var e: values) {
+			BigDecimal diff = mean.subtract(e);
+			var = var.add(diff.multiply(diff, mathContext));
+		}
+		// variance
+		BigDecimal variance = var.divide(BigDecimal.valueOf(values.length), mathContext);
+		
+		// standard deviation
+		BigDecimal sd       = variance.sqrt(mathContext);
+		
+		return sd;
+	}
+	public static BigDecimal sd(BigDecimal[] values, MathContext mathContext) {
+		return sd(values, mean(values, mathContext), mathContext);
+	}
+
+	public static BigDecimal log(BigDecimal x, int scale) {
+		return BigFunctions.ln(x, scale);
+	}	
+	
+	
 	public static BigDecimal annualizedRetrun(BigDecimal first, BigDecimal last, int years) {
 		// annualized return = (((last / first) ^ (1 / years)) - 1
 		double power = 1.0 / years;
