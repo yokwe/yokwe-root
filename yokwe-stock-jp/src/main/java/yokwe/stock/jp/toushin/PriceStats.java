@@ -1,12 +1,10 @@
 package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.finance.BigDecimalUtil;
