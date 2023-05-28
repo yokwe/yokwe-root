@@ -7,9 +7,10 @@ import java.util.Arrays;
 import java.util.Map;
 
 import yokwe.util.UnexpectedException;
+import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.BigDecimalUtil;
 import yokwe.util.finance.DailyValue;
-import yokwe.util.finance.DailyValue.AnnualStats;
+import yokwe.util.finance.MonthlyStats;
 
 public final class T001 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -29,17 +30,18 @@ public final class T001 {
 	
 	private static void data(String isinCode, LocalDate targetDate, MathContext mathContext) {
 		Fund fund = getFund(isinCode);
-		var priceArray = PriceStats.getList(isinCode).stream().map(o -> new DailyValue(o.date, o.reinvestedPrice)).toArray(DailyValue[]::new);
-//		var priceArray = PriceStats.getList(isinCode).stream().map(o -> new DailyValue(o.date, o.price)).toArray(DailyValue[]::new);
+		
+		var priceStatslist = PriceStats.getList(isinCode);
+		
+		var priceArray = priceStatslist.stream().map(o -> new DailyValue(o.date, o.reinvestedPrice)).toArray(DailyValue[]::new);
+//		var priceArray = priceStatslist.stream().map(o -> new DailyValue(o.date, o.price)).toArray(DailyValue[]::new);
 		logger.info("fund        {}  {}", isinCode, fund.name);
 				
 		double duration   = DailyValue.duration(priceArray).doubleValue();
 		logger.info("            {} - {}  {}", priceArray[0].date, priceArray[priceArray.length - 1].date, String.format("%.2f", duration));
 		
-		DailyValue.MonthlyStats[] monthlyStatsArray = DailyValue.monthlyStatsArray(priceArray, 121, mathContext);
+		MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(priceArray, 121, mathContext);
 		logger.info("monthlyStatsArray0  {}", monthlyStatsArray[0].endDate);
-		
-		
 		
 		for(int e: Arrays.asList(12, 36, 60, 120)) {
 			int nMonth = e;
