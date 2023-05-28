@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import yokwe.util.finance.BigDecimalUtil;
+import yokwe.util.finance.ReinvestedPrice;
 
 public class UpdatePriceStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -18,10 +19,11 @@ public class UpdatePriceStats {
 		
 		int count = 0;
 		for(var fund: fundList) {
-//			if (fund.isinCode.compareTo("JP3046490003") != 0) continue;
-			
+//			if (fund.isinCode.compareTo("JP90C0008X42") != 0 &&         // JP90C0008X42 has monthly dividend
+//				fund.isinCode.compareTo("JP3046490003") != 0) continue; // JP3046490003 has no dividend
+
 			count++;
-			if ((count % 10) == 1) logger.info("{}", String.format("%4d / %4d", count, fundList.size()));
+			if ((count % 500) == 1) logger.info("{}", String.format("%4d / %4d", count, fundList.size()));
 			String isinCode = fund.isinCode;
 			
 			var priceList = Price.getList(isinCode);
@@ -29,11 +31,16 @@ public class UpdatePriceStats {
 			
 			var divMap    = Dividend.getMap(isinCode);
 			
-			BigDecimal previousPrice           = null;
-			BigDecimal previousReinvestedPrice = null;
-			BigDecimal previousLogPrice        = null;
-			BigDecimal totalDiv = BigDecimal.ZERO;
-
+			ReinvestedPrice reinvestedPrice = new ReinvestedPrice();
+			BigDecimal      totalDiv        = BigDecimal.ZERO;
+			BigDecimal      previousPrice;
+			BigDecimal      previousLogPrice;
+			{
+				Price first = priceList.get(0);
+				previousPrice    = first.price;
+				previousLogPrice = BigDecimalUtil.mathLog(previousPrice).round(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+			}
+			
 			List<PriceStats> statsList = new ArrayList<>();
 			for(var e: priceList) {
 				LocalDate  date  = e.date;
@@ -41,14 +48,10 @@ public class UpdatePriceStats {
 				BigDecimal price = e.price;
 				BigDecimal units = e.units;
 				
-				if (previousPrice == null) {
-					previousPrice           = price;
-					previousReinvestedPrice = price;
-					previousLogPrice        = BigDecimalUtil.log(price, BigDecimalUtil.DEFAULT_INTERNAL_SCALE);
-				}
-				
-				BigDecimal logPrice  = BigDecimalUtil.log(price, BigDecimalUtil.DEFAULT_INTERNAL_SCALE);
+				BigDecimal logPrice  = BigDecimalUtil.mathLog(price).round(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 				BigDecimal logReturn = logPrice.subtract(previousLogPrice);
+				
+				BigDecimal simpleReturn = price.divide(previousPrice, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
 
 				BigDecimal div;
 				if (divMap.containsKey(date)) {
@@ -58,19 +61,22 @@ public class UpdatePriceStats {
 					div      = BigDecimal.ZERO;
 				}
 				
-				// 分配金再投資基準価格 = 前営業日の分配金再投資基準価格 ×（基準価格＋分配金）÷ 前営業日の基準価格
-				BigDecimal reinvestedPrice;
-				if (div.compareTo(BigDecimal.ZERO) == 0 && previousPrice.compareTo(previousReinvestedPrice) == 0) {
-					reinvestedPrice = price;
-				} else {
-					reinvestedPrice = previousReinvestedPrice.multiply(price.add(div)).divide(previousPrice, BigDecimalUtil.DEFAULT_INTERNAL_SCALE - 1, BigDecimalUtil.DEFAULT_ROUNDING_MODE);
-				}
+				BigDecimal reinvestedPriceValue = reinvestedPrice.apply(price, div);
 				
-				statsList.add(new PriceStats(date, nav, price, units, totalDiv.stripTrailingZeros() , reinvestedPrice.stripTrailingZeros(), logReturn.stripTrailingZeros()));
+				statsList.add(
+					new PriceStats(
+						date,
+						nav,
+						price,
+						units,
+						
+						totalDiv.stripTrailingZeros(),
+						reinvestedPriceValue.stripTrailingZeros(),
+						logReturn.stripTrailingZeros(),
+						simpleReturn.stripTrailingZeros()));
 				
 				// update for next iteration
 				previousPrice           = price;
-				previousReinvestedPrice = reinvestedPrice;
 				previousLogPrice        = logPrice;
 			}
 			PriceStats.save(isinCode, statsList);
