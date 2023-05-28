@@ -13,9 +13,9 @@ public class MonthlyStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static MonthlyStats[] monthlyStatsArray(DailyValue[] array, int limit, MathContext mathContext) {
-		// array of index that point to endIndexPlusOne of each month
-		// endIndexPlusOneArray[0] contains endIndexPlusOne of newest month
-		int[] endIndexPlusOneArray;
+		// array of index that point to stopIndexPlusOne of each month
+		// stopIndexPlusOneArray[0] contains stopIndexPlusOne of newest month
+		int[] stopIndexPlusOneArray;
 		{			
 			List<Integer> list = new ArrayList<>((array.length / 12) + 1);
 			int lastMonthValue = array[0].date.getMonthValue();
@@ -24,8 +24,8 @@ public class MonthlyStats {
 				if (monthValue == lastMonthValue) continue;
 				
 				// monthValue has changed, add previous index date and index to list
-				int endIndexPlusOne = i;
-				list.add(endIndexPlusOne);
+				int stopIndexPlusOne = i;
+				list.add(stopIndexPlusOne);
 				// update lastMonthValue for next iteration
 				lastMonthValue = monthValue;
 			}
@@ -33,15 +33,15 @@ public class MonthlyStats {
 			// reverse order of list
 			Collections.reverse(list);
 			// list to array
-			endIndexPlusOneArray = list.stream().mapToInt(o -> o).toArray();
+			stopIndexPlusOneArray = list.stream().mapToInt(o -> o).toArray();
 		}
 		
 		List<MonthlyStats> list = new ArrayList<>();
-		for(int i = 0; i < endIndexPlusOneArray.length - 2; i++) {
-			int endIndexPlusOne = endIndexPlusOneArray[i];
-			int startIndex      = endIndexPlusOneArray[i + 1];
+		for(int i = 0; i < stopIndexPlusOneArray.length - 2; i++) {
+			int stopIndexPlusOne = stopIndexPlusOneArray[i];
+			int startIndex       = stopIndexPlusOneArray[i + 1];
 			
-			list.add(new MonthlyStats(array, startIndex, endIndexPlusOne, mathContext));
+			list.add(new MonthlyStats(array, startIndex, stopIndexPlusOne, mathContext));
 			// needs only limit entries
 			if (list.size() == limit) break;
 		}
@@ -49,45 +49,10 @@ public class MonthlyStats {
 		return list.toArray(MonthlyStats[]::new);
 	}
 	
-	//
-	// return array of index that point to endIndexPlusOne of each month
-	//
-	private static int[] monthlyEndIndexPlusOneArray(DailyValue[] array) {
-		if (array == null) {
-			logger.error("array == null");
-			throw new UnexpectedException("array == null");
-		}
-		if (array.length == 0) {
-			logger.error("array.length == 0");
-			throw new UnexpectedException("array.length == 0");
-		}
-		
-		List<Integer> list = new ArrayList<>((array.length / 12) + 1);
-		
-		int lastMonthValue = array[0].date.getMonthValue();
-		for(int i = 1; i < array.length; i++) {
-			int monthValue = array[i].date.getMonthValue();
-			if (monthValue == lastMonthValue) continue;
-			
-			// monthValue has changed, add previous index date and index to list
-			int endIndexPlusOne = i;
-			list.add(endIndexPlusOne);
-			// update lastMonthValue for next iteration
-			lastMonthValue = monthValue;
-		}
-		
-		// reverse order of list
-		Collections.reverse(list);
-		
-		//   list.get(0) contains endIndex of newest month
-		//   list.get(1) contains endIndex of before newest month
-		return list.stream().mapToInt(o -> o).toArray();
-	}
-	
 
 	public final DailyValue[] dailyValueArray;
 	public final int          startIndex;
-	public final int          endIndexPlusOne;
+	public final int          stopIndexPlusOne;
 	
 	public final LocalDate    startDate;
 	public final LocalDate    endDate;
@@ -99,22 +64,22 @@ public class MonthlyStats {
 	public final BigDecimal   mean;
 	public final BigDecimal   sd;
 	
-	public MonthlyStats(DailyValue[] dailyValueArray, int startIndex, int endIndexPlusOne, MathContext mathContext) {
+	public MonthlyStats(DailyValue[] dailyValueArray, int startIndex, int stopIndexPlusOne, MathContext mathContext) {
 		this.dailyValueArray = dailyValueArray;
 		this.startIndex      = startIndex;
-		this.endIndexPlusOne = endIndexPlusOne;
+		this.stopIndexPlusOne = stopIndexPlusOne;
 		
 		startDate = dailyValueArray[startIndex].date;
-		endDate   = dailyValueArray[endIndexPlusOne - 1].date;
+		endDate   = dailyValueArray[stopIndexPlusOne - 1].date;
 		
 		// startValue is price of startDate before trade
 		startValue = dailyValueArray[startIndex - 1].value;
-		endValue   = dailyValueArray[endIndexPlusOne - 1].value;
+		endValue   = dailyValueArray[stopIndexPlusOne - 1].value;
 		// percent change of startValue to endValue
 		returns    = endValue.divide(startValue, mathContext).subtract(BigDecimal.ONE);
 		
 		BigDecimal[] valueArray = DailyValue.toValueArray(dailyValueArray);
-		mean = BigDecimalArrays.mean(valueArray, startIndex, endIndexPlusOne, mathContext);
-		sd   = BigDecimalArrays.sd(valueArray, startIndex, endIndexPlusOne, mean, mathContext);
+		mean = BigDecimalArrays.mean(valueArray, startIndex, stopIndexPlusOne, mathContext);
+		sd   = BigDecimalArrays.sd(valueArray, startIndex, stopIndexPlusOne, mean, mathContext);
 	}
 }

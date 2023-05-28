@@ -11,7 +11,7 @@ public class AnnualStats {
 
 	public final DailyValue[] dailyValueArray;
 	public final int          startIndex;
-	public final int          endIndexPlusOne;
+	public final int          stopIndexPlusOne;
 
 	public final LocalDate    startDate;
 	public final LocalDate    endDate;
@@ -37,14 +37,14 @@ public class AnnualStats {
 		}
 		
 		int startIndex      = 0;
-		int endIndexPlusOne = nMonth;
+		int stopIndexPlusOne = nMonth;
 		
 		MonthlyStats startMonth = array[nMonth - 1];
 		MonthlyStats endMonth   = array[0];
 		
 		this.dailyValueArray = startMonth.dailyValueArray;
 		this.startIndex      = startMonth.startIndex;
-		this.endIndexPlusOne = endMonth.endIndexPlusOne;
+		this.stopIndexPlusOne = endMonth.stopIndexPlusOne;
 		
 		startDate  = startMonth.startDate;
 		endDate    = endMonth.endDate;
@@ -54,7 +54,7 @@ public class AnnualStats {
 		returns    = endValue.divide(startValue, mathContext).subtract(BigDecimal.ONE);
 		
 		{
-			BigDecimal[] returnsArray = BigDecimalArrays.toArray(array, startIndex, endIndexPlusOne, o -> o.returns);
+			BigDecimal[] returnsArray = BigDecimalArrays.toArray(array, startIndex, stopIndexPlusOne, o -> o.returns);
 			
 			{
 				BigDecimal value = BigDecimal.ONE;
@@ -66,7 +66,7 @@ public class AnnualStats {
 			}
 			
 			{
-				BigDecimal[] valueArray    = BigDecimalArrays.toArray(this.dailyValueArray, this.startIndex, this.endIndexPlusOne, o -> o.value);
+				BigDecimal[] valueArray    = BigDecimalArrays.toArray(this.dailyValueArray, this.startIndex, this.stopIndexPlusOne, o -> o.value);
 				mean        = BigDecimalArrays.mean(valueArray, mathContext);
 				var returnMean = BigDecimalArrays.mean(returnsArray, mathContext);
 				sd          = BigDecimalArrays.sd(returnsArray, returnMean, mathContext);

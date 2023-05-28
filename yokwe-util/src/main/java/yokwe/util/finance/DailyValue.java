@@ -12,8 +12,8 @@ public final class DailyValue implements Comparable<DailyValue> {
 	public static BigDecimal[] toValueArray(List<DailyValue> list) {
 		return list.stream().map(o -> o.value).toArray(BigDecimal[]::new);
 	}
-	public static BigDecimal[] toValueArray(DailyValue[] array, int startIndex, int endIndexPlusOne) {
-		return BigDecimalArrays.toArray(array, startIndex, endIndexPlusOne, o -> o.value);
+	public static BigDecimal[] toValueArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
+		return BigDecimalArrays.toArray(array, startIndex, stopIndexPlusOne, o -> o.value);
 	}
 	public static BigDecimal[] toValueArray(DailyValue[] array) {
 		return toValueArray(array, 0, array.length);
