@@ -6,6 +6,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import yokwe.util.finance.BigDecimalArrays;
 import yokwe.util.finance.BigDecimalUtil;
 
 public class UpdateStats {
@@ -29,10 +30,7 @@ private static MyStats getMyStats(List<PriceStats> priceStatsList, List<Dividend
 		final BigDecimal yield;
 		final BigDecimal reinvestedReturn;
 		
-		{
-			var priceStats = BigDecimalUtil.stats(logReturnArray, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-			sd = priceStats.sd(); // FIXME ANNUALIZE
-		}
+		sd = BigDecimalArrays.sd(logReturnArray, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		{
 			BigDecimal lastPrice = priceArray[priceArray.length - 1];
 			BigDecimal totalDiv = BigDecimal.ZERO;
