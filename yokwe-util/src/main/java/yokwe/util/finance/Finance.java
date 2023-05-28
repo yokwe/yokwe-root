@@ -1,10 +1,5 @@
 package yokwe.util.finance;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Map;
-
-
 //Morningstar
 //https://web.stanford.edu/~wfsharpe/art/stars/stars2.htm
 
@@ -18,6 +13,5 @@ import java.util.Map;
 //https://en.wikipedia.org/wiki/Modified_Dietz_method
 
 public interface Finance {
-	public Map<LocalDate, BigDecimal> monthlyRetrun(Map<LocalDate, BigDecimal> priceList, Map<LocalDate, BigDecimal> divList) ;
 	
 }
