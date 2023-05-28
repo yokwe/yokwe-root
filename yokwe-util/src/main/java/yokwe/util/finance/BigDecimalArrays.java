@@ -123,7 +123,15 @@ public final class BigDecimalArrays {
 	public static BigDecimal sd(BigDecimal[] array, int startIndex, int endIndexPlusOne, BigDecimal mean, MathContext mathContext) {
 		return variance(array, startIndex, endIndexPlusOne, mean, mathContext).sqrt(mathContext);
 	}
+	public static BigDecimal sd(BigDecimal[] array, int startIndex, int endIndexPlusOne, MathContext mathContext) {
+		BigDecimal mean = mean(array, startIndex, endIndexPlusOne, mathContext);
+		return variance(array, startIndex, endIndexPlusOne, mean, mathContext).sqrt(mathContext);
+	}
 	public static BigDecimal sd(BigDecimal[] array, BigDecimal mean, MathContext mathContext) {
+		return sd(array, 0, array.length, mean, mathContext);
+	}
+	public static BigDecimal sd(BigDecimal[] array, MathContext mathContext) {
+		BigDecimal mean = mean(array, mathContext);
 		return sd(array, 0, array.length, mean, mathContext);
 	}
 }
