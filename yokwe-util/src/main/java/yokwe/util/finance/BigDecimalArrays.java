@@ -9,76 +9,6 @@ public final class BigDecimalArrays {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	//
-	// create BigDecimal array from other type
-	//
-	public static <T> BigDecimal[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		checkIndex(array, startIndex, stopIndexPlusOne);
-		
-		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
-		int j = 0;
-		for(int i = startIndex; i < stopIndexPlusOne; i++, j++) {
-			ret[j] = function.apply(array[i]);
-		}
-		return ret;
-	}
-	public static <T> BigDecimal[] toArray(T[] array, Function<T, BigDecimal> function) {
-		return toArray(array, 0, array.length, function);
-	}
-	
-	
-	//
-	// create simple ratio array from array
-	//
-	public static <T> BigDecimal[] toSimpleRatio(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
-		
-		BigDecimal previous = function.apply(array[startIndex]);
-		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
-			BigDecimal value = function.apply(array[i]);
-			ret[j] = value.divide(previous, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
-			previous = value;
-		}
-		
-		return ret;
-	}
-	public static <T> BigDecimal[] toSimpleRatio(T[] array, Function<T, BigDecimal> function) {
-		return toSimpleRatio(array, 0, array.length, function);
-	}
-	public static BigDecimal[] toSimpleRatio(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
-		return toSimpleRatio(array, startIndex, stopIndexPlusOne, o -> o);
-	}
-	public static BigDecimal[] toSimpleRatio(BigDecimal[] array) {
-		return toSimpleRatio(array, 0, array.length, o -> o);
-	}
-
-	
-	//
-	// create log ratio array from array
-	//
-	public static <T> BigDecimal[] toLogRatio(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
-		
-		BigDecimal previous = BigDecimalUtil.mathLog(function.apply(array[startIndex]));
-		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
-			BigDecimal value = BigDecimalUtil.mathLog(function.apply(array[i]));
-			ret[j] = value.subtract(previous);
-			previous = value;
-		}
-		
-		return ret;
-	}
-	public static <T> BigDecimal[] toLogRatio(T[] array, Function<T, BigDecimal> function) {
-		return toLogRatio(array, 0, array.length, function);
-	}
-	public static BigDecimal[] toLogRatio(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
-		return toLogRatio(array, startIndex, stopIndexPlusOne, o -> o);
-	}
-	public static BigDecimal[] toLogRatio(BigDecimal[] array) {
-		return toLogRatio(array, 0, array.length, o -> o);
-	}
-	
-	
-	//
 	// check index consistency with array
 	//
 	public static <T> void checkIndex(T[] array, int startIndex, int stopIndexPlusOne) {
@@ -104,6 +34,77 @@ public final class BigDecimalArrays {
 	
 	
 	//
+	// create BigDecimal array from other type
+	//
+	public static <T> BigDecimal[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		
+		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
+		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
+			ret[j] = function.apply(array[i]);
+		}
+		return ret;
+	}
+	public static <T> BigDecimal[] toArray(T[] array, Function<T, BigDecimal> function) {
+		return toArray(array, 0, array.length, function);
+	}
+	
+	
+	//
+	// create simple ratio array from array
+	//
+	public static <T> BigDecimal[] toSimpleRatio(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		
+		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
+		BigDecimal previous = function.apply(array[startIndex]);
+		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
+			BigDecimal value = function.apply(array[i]);
+			ret[j] = value.divide(previous, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
+			previous = value;
+		}
+		
+		return ret;
+	}
+	public static <T> BigDecimal[] toSimpleRatio(T[] array, Function<T, BigDecimal> function) {
+		return toSimpleRatio(array, 0, array.length, function);
+	}
+	public static BigDecimal[] toSimpleRatio(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
+		return toSimpleRatio(array, startIndex, stopIndexPlusOne, o -> o);
+	}
+	public static BigDecimal[] toSimpleRatio(BigDecimal[] array) {
+		return toSimpleRatio(array, 0, array.length, o -> o);
+	}
+
+	
+	//
+	// create log ratio array from array
+	//
+	public static <T> BigDecimal[] toLogRatio(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		
+		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
+		BigDecimal previous = BigDecimalUtil.mathLog(function.apply(array[startIndex]));
+		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
+			BigDecimal value = BigDecimalUtil.mathLog(function.apply(array[i]));
+			ret[j] = value.subtract(previous);
+			previous = value;
+		}
+		
+		return ret;
+	}
+	public static <T> BigDecimal[] toLogRatio(T[] array, Function<T, BigDecimal> function) {
+		return toLogRatio(array, 0, array.length, function);
+	}
+	public static BigDecimal[] toLogRatio(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
+		return toLogRatio(array, startIndex, stopIndexPlusOne, o -> o);
+	}
+	public static BigDecimal[] toLogRatio(BigDecimal[] array) {
+		return toLogRatio(array, 0, array.length, o -> o);
+	}
+	
+	
+	//
 	// sum
 	//
 	public static <T> BigDecimal sum(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
@@ -113,6 +114,7 @@ public final class BigDecimalArrays {
 		for(int i = startIndex; i < stopIndexPlusOne; i++) {
 			ret = ret.add(function.apply(array[i]));
 		}
+		
 		return ret;
 	}
 	public static <T> BigDecimal sum(T[] array, Function<T, BigDecimal> function) {
@@ -151,6 +153,7 @@ public final class BigDecimalArrays {
 	//
 	public static <T> BigDecimal geometricMean(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
+		
 		BigDecimal value = BigDecimalArrays.sum(array, startIndex, stopIndexPlusOne, o -> BigDecimalUtil.mathLog(function.apply(o)));
 		return BigDecimalUtil.mathExp(value.divide(BigDecimal.valueOf(stopIndexPlusOne - startIndex), BigDecimalUtil.DEFAULT_MATH_CONTEXT));
 	}
@@ -176,7 +179,7 @@ public final class BigDecimalArrays {
 			BigDecimal diff = mean.subtract(function.apply(array[i]));
 			var = var.add(diff.multiply(diff, BigDecimalUtil.DEFAULT_MATH_CONTEXT));
 		}
-		// variance
+		
 		return var.divide(BigDecimal.valueOf(stopIndexPlusOne - startIndex), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 	}
 	public static <T> BigDecimal variance(T[] array, BigDecimal mean, Function<T, BigDecimal> function) {
@@ -194,6 +197,8 @@ public final class BigDecimalArrays {
 	// standard deviation
 	//
 	public static <T> BigDecimal sd(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> function) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		
 		return variance(array, startIndex, stopIndexPlusOne, mean, function).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 	}
 	public static <T> BigDecimal sd(T[] array, BigDecimal mean, Function<T, BigDecimal> function) {
@@ -211,15 +216,12 @@ public final class BigDecimalArrays {
 		return sd(array, startIndex, stopIndexPlusOne, mean, function);
 	}
 	public static <T> BigDecimal sd(T[] array, Function<T, BigDecimal> function) {
-		BigDecimal mean = mean(array, 0, array.length, function);
-		return sd(array, 0, array.length, mean, function);
+		return sd(array, 0, array.length, function);
 	}
 	public static BigDecimal sd(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
-		BigDecimal mean = mean(array, startIndex, stopIndexPlusOne);
-		return sd(array, startIndex, stopIndexPlusOne, mean, o -> o);
+		return sd(array, startIndex, stopIndexPlusOne, o -> o);
 	}
 	public static BigDecimal sd(BigDecimal[] array) {
-		BigDecimal mean = mean(array, 0, array.length);
-		return sd(array, 0, array.length, mean, o -> o);
+		return sd(array, 0, array.length, o -> o);
 	}
 }
