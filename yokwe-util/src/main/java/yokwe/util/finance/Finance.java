@@ -3,6 +3,9 @@ package yokwe.util.finance;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.function.Function;
+
+import yokwe.util.UnexpectedException;
 
 //Morningstar
 //https://web.stanford.edu/~wfsharpe/art/stars/stars2.htm
@@ -16,7 +19,9 @@ import java.util.Map;
 //Modified Dietz method
 //https://en.wikipedia.org/wiki/Modified_Dietz_method
 
-public interface Finance {
+public final class Finance {
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
 	//
 	// calculate reinvested price
 	//
@@ -76,6 +81,31 @@ public interface Finance {
 		}
 		
 		return ret;
+	}
+	
+	
+	//
+	// annualized return from monthly return
+	//
+	private static final BigDecimal N_MONTH_PER_YEAR = BigDecimal.valueOf(12);
+	
+	public static <T> BigDecimal annualizeMonthlyReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
+		int nMonth = stopIndexPlusOne - startIndex;
+		// sanity check
+		if ((nMonth % 12) != 0) {
+			logger.error("number of element must be multiple of 12");
+			logger.error("  array.length      {}", array.length);
+			throw new UnexpectedException("number of element must be multiple of 12");
+		}
+
+		BigDecimal nYear = BigDecimal.valueOf(nMonth).divide(N_MONTH_PER_YEAR, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+				
+		BigDecimal base = BigDecimal.ONE;
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			base = base.multiply(function.apply(array[i]).add(BigDecimal.ONE), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		}
+		BigDecimal exponent = BigDecimal.ONE.divide(nYear, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		return BigDecimalUtil.mathPow(base, exponent).subtract(BigDecimal.ONE);
 	}
 	
 }
