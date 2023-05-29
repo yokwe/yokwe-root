@@ -55,10 +55,9 @@ public final class T001 {
 			logger.info("nYear   {}", nYear);
 			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startValue.stripTrailingZeros(), aStats.endValue.stripTrailingZeros());
 			
-			logger.info("  returns  {}", aStats.returns.toPlainString());
-			logger.info("  aRetruns {}", aStats.annualReturn.toPlainString());
+			logger.info("  tReturn  {}", aStats.totalReturn.toPlainString());
+			logger.info("  aRetrun  {}", aStats.annualReturn.toPlainString());
 			logger.info("  mean     {}", aStats.mean.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
-//			logger.info("  monthlyMean     {}", aStats.monthlyMean.setScale(4, mathContext.getRoundingMode()));
 			logger.info("  sd       {}", aStats.sd.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
 			logger.info("  div      {}", aStats.div.stripTrailingZeros().toPlainString());
 			logger.info("  yield    {}", aStats.yield.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));

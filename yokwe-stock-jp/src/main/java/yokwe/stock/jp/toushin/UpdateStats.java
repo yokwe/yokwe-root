@@ -93,7 +93,7 @@ public class UpdateStats {
 				stats.sd1Y     = aStats.sd;
 				stats.div1Y    = aStats.div;
 				stats.yield1Y  = aStats.yield;
-				stats.return1Y = aStats.returns;
+				stats.return1Y = aStats.totalReturn;
 			} else {
 				stats.sd1Y     = minus1;
 				stats.div1Y    = minus1;
@@ -108,7 +108,7 @@ public class UpdateStats {
 				stats.sd3Y     = aStats.sd;
 				stats.div3Y    = aStats.div;
 				stats.yield3Y  = aStats.yield;
-				stats.return3Y = aStats.returns;
+				stats.return3Y = aStats.totalReturn;
 			} else {
 				stats.sd3Y     = minus1;
 				stats.div3Y    = minus1;
@@ -123,7 +123,7 @@ public class UpdateStats {
 				stats.sd5Y     = aStats.sd;
 				stats.div5Y    = aStats.div;
 				stats.yield5Y  = aStats.yield;
-				stats.return5Y = aStats.returns;
+				stats.return5Y = aStats.totalReturn;
 			} else {
 				stats.sd5Y     = minus1;
 				stats.div5Y    = minus1;
