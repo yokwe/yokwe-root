@@ -56,7 +56,7 @@ public class MonthlyStats {
 	
 	public final BigDecimal   startValue;
 	public final BigDecimal   endValue;
-	public final BigDecimal   returns;  // return ratio from previous period
+	public final BigDecimal   totalReturn;
 	
 	public final BigDecimal   div;
 	
@@ -80,7 +80,7 @@ public class MonthlyStats {
 			// To compare return of fund with and without dividend, use reinvestedStartValue
 			BigDecimal reinvestedStartValue = reinvestedPriceArray[startIndex - 1].value;
 			BigDecimal reinvestedEendValue  = reinvestedPriceArray[stopIndexPlusOne - 1].value;
-			returns    = reinvestedEendValue.divide(reinvestedStartValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
+			totalReturn = reinvestedEendValue.divide(reinvestedStartValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
 		}
 		
 		{
