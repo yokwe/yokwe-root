@@ -3,7 +3,8 @@ package yokwe.util.finance;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -33,10 +34,24 @@ public final class DailyValue implements Comparable<DailyValue> {
 	// filter array using firstDate and lastDate
 	//
 	public static DailyValue[] filter(DailyValue[] array, LocalDate firstDate, LocalDate lastDate) {
-		return Arrays.stream(array).filter(o -> o.date.isAfter(firstDate.minusDays(1)) && o.date.isBefore(lastDate.plusDays(1))).toArray(DailyValue[]::new);
+		LocalDate afterDate  = firstDate.minusDays(1);
+		LocalDate beforeDate = lastDate.plusDays(1);
+		
+		List<DailyValue> list = new ArrayList<>();
+		for(var e: array) {
+			if (e.date.isAfter(afterDate) && e.date.isBefore(beforeDate)) list.add(e);
+		}
+		return list.toArray(DailyValue[]::new);
 	}
 	public static BigDecimal[] filterValue(DailyValue[] array, LocalDate firstDate, LocalDate lastDate) {
-		return Arrays.stream(array).filter(o -> o.date.isAfter(firstDate.minusDays(1)) && o.date.isBefore(lastDate.plusDays(1))).map(o -> o.value).toArray(BigDecimal[]::new);
+		LocalDate afterDate  = firstDate.minusDays(1);
+		LocalDate beforeDate = lastDate.plusDays(1);
+		
+		List<BigDecimal> list = new ArrayList<>();
+		for(var e: array) {
+			if (e.date.isAfter(afterDate) && e.date.isBefore(beforeDate)) list.add(e.value);
+		}
+		return list.toArray(BigDecimal[]::new);
 	}
 	
 	
@@ -49,7 +64,6 @@ public final class DailyValue implements Comparable<DailyValue> {
 	public static BigDecimal[] toValueArray(DailyValue[] array) {
 		return toValueArray(array, 0, array.length);
 	}
-	
 	
 	
 	//
@@ -110,11 +124,13 @@ public final class DailyValue implements Comparable<DailyValue> {
 	
 	public final LocalDate  date;
 	public final BigDecimal value;
+	
 
 	public DailyValue(LocalDate date, BigDecimal value) {
 		this.date  = date;
 		this.value = value;
 	}
+	
 	
 	@Override
 	public String toString() {
