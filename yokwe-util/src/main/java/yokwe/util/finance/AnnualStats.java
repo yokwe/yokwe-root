@@ -18,7 +18,7 @@ public class AnnualStats {
 	public final BigDecimal   startValue;
 	public final BigDecimal   endValue;
 	
-	public final BigDecimal   returns;    // from statValue and endValue
+	public final BigDecimal   totalReturn;    // from statValue and endValue
 	public final BigDecimal   annualReturn;
 	
 	public final BigDecimal   mean;
@@ -55,17 +55,8 @@ public class AnnualStats {
 		startValue = startMonth.startValue;
 		endValue   = endMonth.endValue;
 		
-		returns    = endValue.divide(startValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
-		
-		{
-			BigDecimal[] array = BigDecimalArrays.toArray(monthlyStatsArray, 0, nMonth, o -> o.returns);
-			BigDecimal value = BigDecimal.ONE;
-			for(var e: array) {
-				value = value.multiply(e.add(BigDecimal.ONE), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-			}
-			BigDecimal k = BigDecimal.valueOf(12).divide(BigDecimal.valueOf(nMonth), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-			annualReturn = BigDecimalUtil.mathPow(value, k).subtract(BigDecimal.ONE);
-		}
+		totalReturn  = endValue.divide(startValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
+		annualReturn = Finance.annualizeMonthlyReturn(monthlyStatsArray, 0, nMonth, o -> o.totalReturn);
 		
 		mean  = BigDecimalArrays.geometricMean(monthlyStatsArray, o -> o.mean);
 		sd    = BigDecimalArrays.sd(monthlyStatsArray, o -> o.sd);
