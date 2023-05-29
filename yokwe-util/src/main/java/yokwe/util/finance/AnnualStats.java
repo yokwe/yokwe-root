@@ -1,7 +1,6 @@
 package yokwe.util.finance;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDate;
 
 import yokwe.util.UnexpectedException;
@@ -9,7 +8,8 @@ import yokwe.util.UnexpectedException;
 public class AnnualStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public final DailyValue[] dailyValueArray;
+	public final DailyValue[] reinvestedPriceArray;
+	public final DailyValue[] priceArray;
 	public final int          startIndex;
 	public final int          stopIndexPlusOne;
 
@@ -24,55 +24,52 @@ public class AnnualStats {
 	public final BigDecimal   mean;
 	public final BigDecimal   sd;
 	
-	public AnnualStats(MonthlyStats[] array, int nMonth, MathContext mathContext) {
-		if (array == null) {
+	public final BigDecimal   div;
+	public final BigDecimal   yield;
+	
+	
+	public AnnualStats(final MonthlyStats[] monthlyStatsArray, final int nYear) {
+		final int nMonth = nYear * 12;
+		
+		if (monthlyStatsArray == null) {
 			logger.error("array == null");
 			throw new UnexpectedException("array == null");
 		}
-		if (nMonth < 6 || array.length < nMonth) {
+		if (monthlyStatsArray.length < nMonth) {
 			logger.error("array.length < nMonth");
-			logger.error("  array.length {}", array.length);
+			logger.error("  array.length {}", monthlyStatsArray.length);
 			logger.error("  nMonth       {}", nMonth);
 			throw new UnexpectedException("array.length < nMonth");
 		}
+				
+		MonthlyStats startMonth = monthlyStatsArray[nMonth - 1];
+		MonthlyStats endMonth   = monthlyStatsArray[0];
 		
-		int startIndex      = 0;
-		int stopIndexPlusOne = nMonth;
-		
-		MonthlyStats startMonth = array[nMonth - 1];
-		MonthlyStats endMonth   = array[0];
-		
-		this.dailyValueArray = startMonth.dailyValueArray;
-		this.startIndex      = startMonth.startIndex;
-		this.stopIndexPlusOne = endMonth.stopIndexPlusOne;
+		reinvestedPriceArray = startMonth.reinvestedPriceArray;
+		priceArray           = startMonth.priceArray;
+		startIndex           = startMonth.startIndex;
+		stopIndexPlusOne     = endMonth.stopIndexPlusOne;
 		
 		startDate  = startMonth.startDate;
 		endDate    = endMonth.endDate;
 		startValue = startMonth.startValue;
 		endValue   = endMonth.endValue;
 		
-		returns    = endValue.divide(startValue, mathContext).subtract(BigDecimal.ONE);
+		returns    = endValue.divide(startValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
 		
 		{
-			BigDecimal[] returnsArray = BigDecimalArrays.toArray(array, startIndex, stopIndexPlusOne, o -> o.returns);
-			
-			{
-				BigDecimal value = BigDecimal.ONE;
-				for(var e: returnsArray) {
-					value = value.multiply(e.add(BigDecimal.ONE), mathContext);
-				}
-				BigDecimal k = BigDecimal.valueOf(12).divide(BigDecimal.valueOf(nMonth), mathContext);
-				annualReturn = BigDecimalUtil.mathPow(value, k).subtract(BigDecimal.ONE);
+			BigDecimal[] array = BigDecimalArrays.toArray(monthlyStatsArray, 0, nMonth, o -> o.returns);
+			BigDecimal value = BigDecimal.ONE;
+			for(var e: array) {
+				value = value.multiply(e.add(BigDecimal.ONE), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 			}
-			
-			{
-				BigDecimal[] valueArray    = BigDecimalArrays.toArray(this.dailyValueArray, this.startIndex, this.stopIndexPlusOne, o -> o.value);
-				mean        = BigDecimalArrays.mean(valueArray, mathContext);
-				var returnMean = BigDecimalArrays.mean(returnsArray, mathContext);
-				sd          = BigDecimalArrays.sd(returnsArray, returnMean, mathContext);
-
-			}
+			BigDecimal k = BigDecimal.valueOf(12).divide(BigDecimal.valueOf(nMonth), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+			annualReturn = BigDecimalUtil.mathPow(value, k).subtract(BigDecimal.ONE);
 		}
 		
+		mean  = BigDecimalArrays.geometricMean(monthlyStatsArray, o -> o.mean);
+		sd    = BigDecimalArrays.sd(monthlyStatsArray, o -> o.sd);
+		div   = BigDecimalArrays.sum(monthlyStatsArray, o -> o.div);
+		yield = div.divide(endValue.multiply(BigDecimal.valueOf(nYear))); // FIXME annualization		
 	}
 }
