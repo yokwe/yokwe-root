@@ -1,7 +1,6 @@
 package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
@@ -28,35 +27,41 @@ public final class T001 {
 		}
 	}
 	
-	private static void data(String isinCode, LocalDate targetDate, MathContext mathContext) {
+	private static void data(String isinCode, LocalDate targetDate) {
 		Fund fund = getFund(isinCode);
 		
-		var priceStatslist = PriceStats.getList(isinCode);
-		
-		var priceArray = priceStatslist.stream().map(o -> new DailyValue(o.date, o.reinvestedPrice)).toArray(DailyValue[]::new);
-//		var priceArray = priceStatslist.stream().map(o -> new DailyValue(o.date, o.price)).toArray(DailyValue[]::new);
 		logger.info("fund        {}  {}", isinCode, fund.name);
-				
-		double duration   = DailyValue.duration(priceArray).doubleValue();
-		logger.info("            {} - {}  {}", priceArray[0].date, priceArray[priceArray.length - 1].date, String.format("%.2f", duration));
 		
-		MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(priceArray, 121, mathContext);
+		DailyValue[] priceArray           = Price.getList(isinCode).stream().map(o ->new DailyValue(o.date, o.price)).toArray(DailyValue[]::new);
+		DailyValue[] divArray             = Dividend.getList(isinCode).stream().map(o -> new DailyValue(o.date, o.amount)).toArray(DailyValue[]::new);
+		
+		{
+			var startDate = priceArray[0].date;
+			var stopDate  = priceArray[priceArray.length - 1].date;
+			var duration  = DailyValue.duration(priceArray).doubleValue();
+			logger.info("            {} - {}  {}", startDate, stopDate, String.format("%.2f", duration));
+		}
+		
+		MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(priceArray, divArray, 121);
 		logger.info("monthlyStatsArray0  {}", monthlyStatsArray[0].endDate);
 		
-		for(int e: Arrays.asList(12, 36, 60, 120)) {
-			int nMonth = e;
+		for(int e: Arrays.asList(1, 3, 5, 10)) {
+			int nYear = e;
+			int nMonth = nYear * 12;
 			if (monthlyStatsArray.length <= nMonth) break;
 			
-			AnnualStats  aStats = new AnnualStats(monthlyStatsArray, nMonth, mathContext);
+			AnnualStats  aStats = new AnnualStats(monthlyStatsArray, nYear);
 			
-			logger.info("nMonth  {}", nMonth);
-			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startValue, aStats.endValue);
+			logger.info("nYear   {}", nYear);
+			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startValue.stripTrailingZeros(), aStats.endValue.stripTrailingZeros());
 			
 			logger.info("  returns  {}", aStats.returns.toPlainString());
 			logger.info("  aRetruns {}", aStats.annualReturn.toPlainString());
-			logger.info("  mean     {}", aStats.mean.setScale(4, mathContext.getRoundingMode()));
+			logger.info("  mean     {}", aStats.mean.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
 //			logger.info("  monthlyMean     {}", aStats.monthlyMean.setScale(4, mathContext.getRoundingMode()));
-			logger.info("  sd       {}", aStats.sd.setScale(4, mathContext.getRoundingMode()));
+			logger.info("  sd       {}", aStats.sd.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
+			logger.info("  div      {}", aStats.div.stripTrailingZeros().toPlainString());
+			logger.info("  yield    {}", aStats.yield.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
 		}
 
 	}
@@ -67,7 +72,8 @@ public final class T001 {
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 
-		data("JP3046490003", LocalDate.now(), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+//		data("JP90C0008X42", LocalDate.now());
+		data("JP3046490003", LocalDate.now());
 		
 		logger.info("STOP");
 	}
