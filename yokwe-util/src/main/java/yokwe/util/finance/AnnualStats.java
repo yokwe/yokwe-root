@@ -20,24 +20,27 @@ public final class AnnualStats {
 	
 	
 	public final String       isinCode;
-	public final DailyValue[] reinvestedPriceArray;
-	public final DailyValue[] priceArray;
+	public final DailyValue[] reinvestedPriceArray;         // 分配金再投資基準価格
+	public final DailyValue[] priceArray;                   // 基準価格
 	public final int          startIndex;
 	public final int          stopIndexPlusOne;
 
-	public final LocalDate    startDate;
-	public final LocalDate    endDate;
-	public final BigDecimal   startValue;
-	public final BigDecimal   endValue;
+	public final LocalDate    startDate;                    // この期間の取引初日
+	public final BigDecimal   startValue;                   // 取引初日開始前 基準価格
+	public final BigDecimal   startValueWithReinvest;       // 取引初日開始前 分配金再投資基準価格
 	
-	public final BigDecimal   div;
-	public final BigDecimal   yield;
+	public final LocalDate    endDate;                      // この期間の取引末日
+	public final BigDecimal   endValue;                     // 取引末日終了後 基準価格
+	public final BigDecimal   endValueWithReinvest;         // 取引末日終了後 分配金再投資基準価格
 	
-	public final BigDecimal   absoluteReturn;
-	public final BigDecimal   absoluteReturnWithReinvest;
+	public final BigDecimal   div;                          // 分配金累計
+	public final BigDecimal   yield;                        // 年率換算した分配金利率
 	
-	public final BigDecimal   annualizedReturn;
-	public final BigDecimal   annualizedReturnWithReinvest;
+	public final BigDecimal   absoluteReturn;               // 分配金受取ベースのリターン
+	public final BigDecimal   absoluteReturnWithReinvest;   // 分配金再投資ベースのリターン
+	
+	public final BigDecimal   annualizedReturn;             // 年率換算した分配金受取ベースのリターン
+	public final BigDecimal   annualizedReturnWithReinvest; // 年率換算した分配金再投資ベースのリターン
 	
 	public final BigDecimal   sd;
 	
@@ -54,10 +57,13 @@ public final class AnnualStats {
 		startIndex           = startMonth.startIndex;
 		stopIndexPlusOne     = endMonth.stopIndexPlusOne;
 		
-		startDate  = startMonth.startDate;
-		endDate    = endMonth.endDate;
-		startValue = startMonth.startValue;
-		endValue   = endMonth.endValue;
+		startDate              = startMonth.startDate;
+		startValue             = startMonth.startValue;
+		startValueWithReinvest = startMonth.startValueWithReinvest;
+		
+		endDate              = endMonth.endDate;
+		endValue             = endMonth.endValue;
+		endValueWithReinvest = endMonth.endValueWithReinvest;
 				
 		div   = BigDecimalArrays.sum(monthlyStatsArray, 0, nMonth, o -> o.div);
 		yield = div.divide(endValue.multiply(BigDecimal.valueOf(nYear)), BigDecimalUtil.DEFAULT_MATH_CONTEXT); // FIXME annualization
@@ -80,14 +86,9 @@ public final class AnnualStats {
 		// n=6,12,36,60,120
 		annualizedReturn = Finance.annualizeReturn(absoluteReturn, nYear);
 	
-		{
-			// To compare return of fund with and without dividend, use reinvested price
-			BigDecimal start = reinvestedPriceArray[startIndex - 1].value;
-			BigDecimal end   = reinvestedPriceArray[stopIndexPlusOne - 1].value;
-			absoluteReturnWithReinvest = BigDecimalArrays.toSimpleReturn(start, end);
-		}
+		absoluteReturnWithReinvest   = BigDecimalArrays.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
 		annualizedReturnWithReinvest = Finance.annualizeReturn(absoluteReturnWithReinvest, nYear);
-				
+		
 		// リスク・リスク(１年)・リスク(年率)
 		// 基準価格のブレ幅の大きさ表します。過去の基準価格の一定間隔（日次、週次、月次）のリターンを統計処理した標準偏差の数値です。この数値が大きな投資信託ほど大きく値上がりしたり、大きく値下がりしたりする可能性が高く、逆にリスクの小さい投信ほど値動きは緩やかになると推測できます。月次更新。6カ月は日次データ、1年は週次データ、3年超は月次データで算出しています。
 		// リスク(年率)は対象期間中のリスクを１年間に換算した年率で表示しています。
@@ -100,8 +101,10 @@ public final class AnnualStats {
 			// FIXME
 			// absoluteSD
 			// annualizedSD
-			BigDecimal[] simpleRatioArray = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
-			sd   = BigDecimalArrays.sd(simpleRatioArray);
+			BigDecimal[] simpleReturnArray = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
+//			BigDecimal[] logReturnArray = BigDecimalArrays.toLogReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
+
+			sd   = BigDecimalArrays.sd(simpleReturnArray);
 		}
 
 	}

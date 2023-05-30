@@ -47,23 +47,23 @@ public class MonthlyStats {
 	}
 	
 	public final String       isinCode;
-	public final DailyValue[] reinvestedPriceArray;
-	public final DailyValue[] priceArray;
+	public final DailyValue[] reinvestedPriceArray;         // 分配金再投資基準価格
+	public final DailyValue[] priceArray;                   // 基準価格
 	public final int          startIndex;
 	public final int          stopIndexPlusOne;
 	
-	public final LocalDate    startDate;
-	public final LocalDate    endDate;
+	public final LocalDate    startDate;                    // この期間の取引初日
+	public final BigDecimal   startValue;                   // 取引初日開始前 基準価格
+	public final BigDecimal   startValueWithReinvest;       // 取引初日開始前 分配金再投資基準価格
 	
-	public final BigDecimal   startValue;
-	public final BigDecimal   endValue;
-	
-	public final BigDecimal   absoluteReturn;
-	public final BigDecimal   absoluteReturnReinvest;
-	
-	public final BigDecimal   div;
-	
-	public final BigDecimal   absoluteSD;
+	public final LocalDate    endDate;                      // この期間の取引末日
+	public final BigDecimal   endValue;                     // 取引末日終了後 基準価格
+	public final BigDecimal   endValueWithReinvest;         // 取引末日終了後 分配金再投資基準価格
+
+	public final BigDecimal   div;                          // 分配金累計
+
+	public final BigDecimal   absoluteReturn;               // 分配金受取ベースのリターン
+	public final BigDecimal   absoluteReturnWithReinvest;   // 分配金再投資ベースのリターン
 	
 	public MonthlyStats(final String isinCode, final DailyValue[] reinvestedPriceArray, final DailyValue[] priceArray, final int startIndex, final int stopIndexPlusOne, final DailyValue[] divArray) {
 		this.isinCode             = isinCode;
@@ -72,37 +72,23 @@ public class MonthlyStats {
 		this.startIndex           = startIndex;
 		this.stopIndexPlusOne     = stopIndexPlusOne;
 		
-		startDate = priceArray[startIndex].date;
-		endDate   = priceArray[stopIndexPlusOne - 1].date;
+		startDate              = priceArray[startIndex].date;
+		// startValue is a price of startDate before trade
+		startValue             = priceArray[startIndex - 1].value;
+		startValueWithReinvest = reinvestedPriceArray[startIndex - 1].value;
 		
-		// startValue is price of startDate before trade
-		startValue = priceArray[startIndex - 1].value;
-		endValue   = priceArray[stopIndexPlusOne - 1].value;
-		{
-			BigDecimal[] divs = DailyValue.filterValue(divArray, startDate, endDate);
-			div = BigDecimalArrays.sum(divs);
-		}
-		
-		// https://www.nikkei.com/help/contents/markets/fund/
-		// 分配金受取基準価格
-		// 受け取った分配金の合計額を基準価格に足した値です。
-		// 【計算内容】
-		// <計算式>基準価格 + 分配金累計
-		// <例>基準価格が15000、分配金累計が100の場合、15000+100=15100。分配金は税引き前。
-		absoluteReturn = BigDecimalArrays.toSimpleReturn(startValue, endValue);
+		endDate              = priceArray[stopIndexPlusOne - 1].date;
+		// endValue is a price of endValue after trade
+		endValue             = priceArray[stopIndexPlusOne - 1].value;
+		endValueWithReinvest = reinvestedPriceArray[stopIndexPlusOne - 1].value;
 
-		// percent change of startValue to endValue
 		{
-			// To compare return of fund with and without dividend, use reinvestedStartValue
-			BigDecimal start = reinvestedPriceArray[startIndex - 1].value;
-			BigDecimal end   = reinvestedPriceArray[stopIndexPlusOne - 1].value;
-			absoluteReturnReinvest = BigDecimalArrays.toSimpleReturn(start, end);
+			BigDecimal[] array = DailyValue.filterValue(divArray, startDate, endDate);
+			div = BigDecimalArrays.sum(array);
 		}
 		
-		{
-			BigDecimal[] simpleRatioArray = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
-			absoluteSD = BigDecimalArrays.sd(simpleRatioArray);
-		}
-
+		absoluteReturn             = BigDecimalArrays.toSimpleReturn(startValue, endValue.add(div));
+		absoluteReturnWithReinvest = BigDecimalArrays.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
+		
 	}
 }
