@@ -1,6 +1,7 @@
 package yokwe.util.finance;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.function.Function;
 
 import yokwe.util.UnexpectedException;
@@ -53,34 +54,37 @@ public final class BigDecimalArrays {
 	//
 	// create simple ratio array from array
 	//
-	public static <T> BigDecimal[] toSimpleRatio(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
+	public static BigDecimal toSimpleReturn(BigDecimal startValue, BigDecimal endValue) {
+		return endValue.divide(startValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
+	}
+	public static <T> BigDecimal[] toSimpleReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		
 		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
 		BigDecimal previous = function.apply(array[startIndex]);
 		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
 			BigDecimal value = function.apply(array[i]);
-			ret[j] = value.divide(previous, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
+			ret[j] = toSimpleReturn(previous, value);
 			previous = value;
 		}
 		
 		return ret;
 	}
-	public static <T> BigDecimal[] toSimpleRatio(T[] array, Function<T, BigDecimal> function) {
-		return toSimpleRatio(array, 0, array.length, function);
+	public static <T> BigDecimal[] toSimpleReturn(T[] array, Function<T, BigDecimal> function) {
+		return toSimpleReturn(array, 0, array.length, function);
 	}
-	public static BigDecimal[] toSimpleRatio(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
-		return toSimpleRatio(array, startIndex, stopIndexPlusOne, o -> o);
+	public static BigDecimal[] toSimpleReturn(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
+		return toSimpleReturn(array, startIndex, stopIndexPlusOne, o -> o);
 	}
-	public static BigDecimal[] toSimpleRatio(BigDecimal[] array) {
-		return toSimpleRatio(array, 0, array.length, o -> o);
+	public static BigDecimal[] toSimpleReturn(BigDecimal[] array) {
+		return toSimpleReturn(array, 0, array.length, o -> o);
 	}
 
 	
 	//
 	// create log ratio array from array
 	//
-	public static <T> BigDecimal[] toLogRatio(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
+	public static <T> BigDecimal[] toLogReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		
 		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
@@ -93,14 +97,14 @@ public final class BigDecimalArrays {
 		
 		return ret;
 	}
-	public static <T> BigDecimal[] toLogRatio(T[] array, Function<T, BigDecimal> function) {
-		return toLogRatio(array, 0, array.length, function);
+	public static <T> BigDecimal[] toLogReturn(T[] array, Function<T, BigDecimal> function) {
+		return toLogReturn(array, 0, array.length, function);
 	}
-	public static BigDecimal[] toLogRatio(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
-		return toLogRatio(array, startIndex, stopIndexPlusOne, o -> o);
+	public static BigDecimal[] toLogReturn(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
+		return toLogReturn(array, startIndex, stopIndexPlusOne, o -> o);
 	}
-	public static BigDecimal[] toLogRatio(BigDecimal[] array) {
-		return toLogRatio(array, 0, array.length, o -> o);
+	public static BigDecimal[] toLogReturn(BigDecimal[] array) {
+		return toLogReturn(array, 0, array.length, o -> o);
 	}
 	
 	
@@ -192,7 +196,7 @@ public final class BigDecimalArrays {
 		return variance(array, 0, array.length, mean, o -> o);
 	}
 	
-	
+		
 	//
 	// standard deviation
 	//
@@ -223,5 +227,24 @@ public final class BigDecimalArrays {
 	}
 	public static BigDecimal sd(BigDecimal[] array) {
 		return sd(array, 0, array.length, o -> o);
+	}
+	
+	
+	private static void test(int[] values) {
+		BigDecimal[] array = Arrays.stream(values).mapToObj(o -> BigDecimal.valueOf(o)).toArray(BigDecimal[]::new);
+		
+		BigDecimal mean = BigDecimalArrays.mean(array);
+		BigDecimal var  = BigDecimalArrays.variance(array, mean);
+		BigDecimal sd = BigDecimalArrays.sd(array);
+		
+		logger.info("var {}", var);
+		logger.info("sd  {}", sd);
+	}
+	public static void main(String[] args) {
+		{
+			//             14　2　13　20　16
+			int array[] = {14, 2, 13, 20, 16};
+			test(array);
+		}
 	}
 }

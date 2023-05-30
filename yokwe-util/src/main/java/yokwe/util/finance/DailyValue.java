@@ -62,7 +62,7 @@ public final class DailyValue implements Comparable<DailyValue> {
 		return BigDecimalArrays.toArray(array, startIndex, stopIndexPlusOne, o -> o.value);
 	}
 	public static BigDecimal[] toValueArray(DailyValue[] array) {
-		return toValueArray(array, 0, array.length);
+		return BigDecimalArrays.toArray(array, o -> o.value);
 	}
 	
 	

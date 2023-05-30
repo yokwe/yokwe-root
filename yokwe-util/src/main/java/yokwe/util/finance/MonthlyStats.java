@@ -31,7 +31,7 @@ public class MonthlyStats {
 			stopIndexPlusOneArray = list.stream().mapToInt(o -> o).toArray();
 		}
 		
-		DailyValue[] reinvestedPriceArray = Finance.toReinvested(priceArray, divArray);
+		DailyValue[] reinvestedPriceArray = Finance.toReinvestedPrice(priceArray, divArray);
 		
 		List<MonthlyStats> list = new ArrayList<>();
 		for(int i = 0; i < stopIndexPlusOneArray.length - 2; i++) {
@@ -63,8 +63,7 @@ public class MonthlyStats {
 	
 	public final BigDecimal   div;
 	
-	public final BigDecimal   mean;
-	public final BigDecimal   sd;
+	public final BigDecimal   absoluteSD;
 	
 	public MonthlyStats(final String isinCode, final DailyValue[] reinvestedPriceArray, final DailyValue[] priceArray, final int startIndex, final int stopIndexPlusOne, final DailyValue[] divArray) {
 		this.isinCode             = isinCode;
@@ -84,32 +83,26 @@ public class MonthlyStats {
 			div = BigDecimalArrays.sum(divs);
 		}
 		
-		{
-			BigDecimal[] valueArray = DailyValue.toValueArray(priceArray, startIndex, stopIndexPlusOne);
-			mean = BigDecimalArrays.mean(valueArray);
-		}
-
-		{
-			BigDecimal[] valueArray = DailyValue.toValueArray(priceArray, startIndex, stopIndexPlusOne);
-			BigDecimal[] simpleRatioArray = BigDecimalArrays.toSimpleRatio(valueArray);
-			sd   = BigDecimalArrays.sd(simpleRatioArray);
-		}
-		
 		// https://www.nikkei.com/help/contents/markets/fund/
 		// 分配金受取基準価格
 		// 受け取った分配金の合計額を基準価格に足した値です。
 		// 【計算内容】
 		// <計算式>基準価格 + 分配金累計
 		// <例>基準価格が15000、分配金累計が100の場合、15000+100=15100。分配金は税引き前。
-		absoluteReturn = endValue.add(div).divide(startValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
+		absoluteReturn = BigDecimalArrays.toSimpleReturn(startValue, endValue);
 
 		// percent change of startValue to endValue
 		{
 			// To compare return of fund with and without dividend, use reinvestedStartValue
-			BigDecimal reinvestedStartValue = reinvestedPriceArray[startIndex - 1].value;
-			BigDecimal reinvestedEendValue  = reinvestedPriceArray[stopIndexPlusOne - 1].value;
-			absoluteReturnReinvest = reinvestedEendValue.divide(reinvestedStartValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
+			BigDecimal start = reinvestedPriceArray[startIndex - 1].value;
+			BigDecimal end   = reinvestedPriceArray[stopIndexPlusOne - 1].value;
+			absoluteReturnReinvest = BigDecimalArrays.toSimpleReturn(start, end);
 		}
 		
+		{
+			BigDecimal[] simpleRatioArray = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
+			absoluteSD = BigDecimalArrays.sd(simpleRatioArray);
+		}
+
 	}
 }
