@@ -87,25 +87,35 @@ public final class Finance {
 	//
 	// annualized return from monthly return
 	//
-	private static final BigDecimal N_MONTH_PER_YEAR = BigDecimal.valueOf(12);
+//	private static final BigDecimal N_MONTH_PER_YEAR = BigDecimal.valueOf(12);
+//	
+//	public static <T> BigDecimal annualizeMonthlyReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
+//		int nMonth = stopIndexPlusOne - startIndex;
+//		// sanity check
+//		if ((nMonth % 12) != 0) {
+//			logger.error("number of element must be multiple of 12");
+//			logger.error("  array.length      {}", array.length);
+//			throw new UnexpectedException("number of element must be multiple of 12");
+//		}
+//
+//		BigDecimal nYear = BigDecimal.valueOf(nMonth).divide(N_MONTH_PER_YEAR, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+//				
+//		BigDecimal base = BigDecimal.ONE;
+//		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+//			base = base.multiply(function.apply(array[i]).add(BigDecimal.ONE), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+//		}
+//		BigDecimal exponent = BigDecimal.ONE.divide(nYear, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+//		return BigDecimalUtil.mathPow(base, exponent).subtract(BigDecimal.ONE);
+//	}
 	
-	public static <T> BigDecimal annualizeMonthlyReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		int nMonth = stopIndexPlusOne - startIndex;
-		// sanity check
-		if ((nMonth % 12) != 0) {
-			logger.error("number of element must be multiple of 12");
-			logger.error("  array.length      {}", array.length);
-			throw new UnexpectedException("number of element must be multiple of 12");
-		}
-
-		BigDecimal nYear = BigDecimal.valueOf(nMonth).divide(N_MONTH_PER_YEAR, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-				
-		BigDecimal base = BigDecimal.ONE;
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			base = base.multiply(function.apply(array[i]).add(BigDecimal.ONE), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-		}
-		BigDecimal exponent = BigDecimal.ONE.divide(nYear, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+	
+	//
+	// annualized return
+	//
+	public static BigDecimal annualizeReturn(BigDecimal absoluteReturn, int nYear) {
+		BigDecimal base     = BigDecimal.ONE.add(absoluteReturn);
+		BigDecimal exponent = BigDecimal.ONE.divide(BigDecimal.valueOf(nYear), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		
 		return BigDecimalUtil.mathPow(base, exponent).subtract(BigDecimal.ONE);
 	}
-	
 }
