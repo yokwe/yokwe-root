@@ -61,7 +61,8 @@ public final class BigDecimalArrays {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		
 		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
-		BigDecimal previous = function.apply(array[startIndex]);
+		// use value of before startIndex if possible
+		BigDecimal previous = function.apply(array[startIndex == 0 ? 0 : startIndex - 1]);
 		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
 			BigDecimal value = function.apply(array[i]);
 			ret[j] = toSimpleReturn(previous, value);
@@ -88,7 +89,8 @@ public final class BigDecimalArrays {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		
 		BigDecimal[] ret = new BigDecimal[stopIndexPlusOne - startIndex];
-		BigDecimal previous = BigDecimalUtil.mathLog(function.apply(array[startIndex]));
+		// use value of before startIndex if possible
+		BigDecimal previous = BigDecimalUtil.mathLog(function.apply(array[startIndex == 0 ? 0 : startIndex - 1]));
 		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
 			BigDecimal value = BigDecimalUtil.mathLog(function.apply(array[i]));
 			ret[j] = value.subtract(previous);
