@@ -40,14 +40,6 @@ monex-update-fx-tax:
 	ant monex-update-fx-tax
 	ant update-fx
 
-update-symbol: update-symbol-info
-	ant update-symbol
-
-update-symbol-info:
-	ant monex-update-symbol-info
-	ant sbi-update-symbol-info
-	ant rakuten-update-symbol-info
-
 update-trading-stock:
 	ant monex-update-monex-stock
 	ant sbi-update-sbi-stock

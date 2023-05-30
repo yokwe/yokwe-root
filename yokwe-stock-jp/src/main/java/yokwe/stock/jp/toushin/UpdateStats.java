@@ -49,10 +49,8 @@ public class UpdateStats {
 			
 			DailyValue[] priceArray = Arrays.stream(rawPriceArray).map(o -> new DailyValue(o.date, o.price)).toArray(DailyValue[]::new);
 			DailyValue[] divArray   = Dividend.getList(isinCode).stream().map(o -> new DailyValue(o.date, o.amount)).toArray(DailyValue[]::new);
-			DailyValue[] reinvestedPriceArray = Finance.toReinvested(priceArray, divArray);
 			
-			MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(reinvestedPriceArray, divArray, 121);
-			logger.info("monthlyStatsArray0  {}", monthlyStatsArray[0].endDate);
+			MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, priceArray, divArray, 10 * 12 + 1);
 
 			var nikkei = nikkeiMap.get(isinCode);
 			if (nikkei == null) {
@@ -86,49 +84,52 @@ public class UpdateStats {
 			stats.divc  = fund.divFreq;
 
 			// 1 year
-			if (1.0 <= stats.age.doubleValue()) {
+			{
 				int nYear = 1;
-				AnnualStats  aStats = new AnnualStats(monthlyStatsArray, nYear);
-
-				stats.sd1Y     = aStats.sd;
-				stats.div1Y    = aStats.div;
-				stats.yield1Y  = aStats.yield;
-				stats.return1Y = aStats.totalReturn;
-			} else {
-				stats.sd1Y     = minus1;
-				stats.div1Y    = minus1;
-				stats.yield1Y  = minus1;
-				stats.return1Y = minus1;
+				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
+				if (aStats != null) {
+					stats.sd1Y     = aStats.sd;
+					stats.div1Y    = aStats.div;
+					stats.yield1Y  = aStats.yield;
+					stats.return1Y = aStats.annualizedReturnWithReinvest;
+				} else {
+					stats.sd1Y     = minus1;
+					stats.div1Y    = minus1;
+					stats.yield1Y  = minus1;
+					stats.return1Y = minus1;
+				}
 			}
 			// 3 year
-			if (3.0 <= stats.age.doubleValue()) {
+			{
 				int nYear = 3;
-				AnnualStats  aStats = new AnnualStats(monthlyStatsArray, nYear);
-				
-				stats.sd3Y     = aStats.sd;
-				stats.div3Y    = aStats.div;
-				stats.yield3Y  = aStats.yield;
-				stats.return3Y = aStats.totalReturn;
-			} else {
-				stats.sd3Y     = minus1;
-				stats.div3Y    = minus1;
-				stats.yield3Y  = minus1;
-				stats.return3Y = minus1;
+				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
+				if (aStats != null) {
+					stats.sd3Y     = aStats.sd;
+					stats.div3Y    = aStats.div;
+					stats.yield3Y  = aStats.yield;
+					stats.return3Y = aStats.annualizedReturnWithReinvest;
+				} else {
+					stats.sd3Y     = minus1;
+					stats.div3Y    = minus1;
+					stats.yield3Y  = minus1;
+					stats.return3Y = minus1;
+				}
 			}
 			// 5 year
-			if (5.0 <= stats.age.doubleValue()) {
+			{
 				int nYear = 5;
-				AnnualStats  aStats = new AnnualStats(monthlyStatsArray, nYear);
-				
-				stats.sd5Y     = aStats.sd;
-				stats.div5Y    = aStats.div;
-				stats.yield5Y  = aStats.yield;
-				stats.return5Y = aStats.totalReturn;
-			} else {
-				stats.sd5Y     = minus1;
-				stats.div5Y    = minus1;
-				stats.yield5Y  = minus1;
-				stats.return5Y = minus1;
+				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
+				if (aStats != null) {
+					stats.sd5Y     = aStats.sd;
+					stats.div5Y    = aStats.div;
+					stats.yield5Y  = aStats.yield;
+					stats.return5Y = aStats.annualizedReturnWithReinvest;
+				} else {
+					stats.sd5Y     = minus1;
+					stats.div5Y    = minus1;
+					stats.yield5Y  = minus1;
+					stats.return5Y = minus1;
+				}
 			}
 			
 			stats.divQ1Y   = nikkei.divScore1Y;

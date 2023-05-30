@@ -21,26 +21,12 @@ save:
 	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/nasdaq_$$(date +%Y%m%d).taz nasdaq
 
 
-# NASDAQ
-nasdaq-update-price:
-	ant nasdaq-update-price
-	ant nasdaq-update-stats
-	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/nasdaq_$$(date +%Y%m%d).taz nasdaq
-
-nasdaq-update-dividend:
-	ant nasdaq-update-dividend
-	ant nasdaq-update-stats
-	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/nasdaq_$$(date +%Y%m%d).taz nasdaq
-
-nasdaq-update-stats:
-	ant nasdaq-update-stats
-	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/nasdaq_$$(date +%Y%m%d).taz nasdaq
-
 # STOCK
 update-stock:
 	ant update-stock
 	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/nasdaq_$$(date +%Y%m%d).taz nasdaq
 
+# NASDAQ
 nasdaq-update-stock-price:
 	ant nasdaq-update-stock-price
 	ant nasdaq-update-stock-stats

@@ -29,38 +29,6 @@
 	</target>
 	
 	<!-- NASDAQ -->
-	<target name="nasdaq-update-price">
-		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdatePrice" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="nasdaq-update-dividend">
-		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateDividend" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="nasdaq-update-stats">
-		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateStats" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="nasdaq-update-nasdaq-symbol">
-		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateNASDAQSymbol" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
 	<target name="nasdaq-update-nasdaq-stock">
 		<java module="yokwe.stock.us/yokwe.stock.us.nasdaq.UpdateNASDAQStock" fork="true">
 			<modulepath refid="build.classpath" />
