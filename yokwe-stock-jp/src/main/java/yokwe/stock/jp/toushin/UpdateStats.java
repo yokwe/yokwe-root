@@ -88,7 +88,7 @@ public class UpdateStats {
 				int nYear = 1;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd1Y     = aStats.sd;
+					stats.sd1Y     = aStats.annualizedStandardDeviationA;
 					stats.div1Y    = aStats.div;
 					stats.yield1Y  = aStats.annualizedYield;
 					stats.return1Y = aStats.annualizedCumulativeReturn;
@@ -104,7 +104,7 @@ public class UpdateStats {
 				int nYear = 3;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd3Y     = aStats.sd;
+					stats.sd3Y     = aStats.annualizedStandardDeviationA;
 					stats.div3Y    = aStats.div;
 					stats.yield3Y  = aStats.annualizedYield;
 					stats.return3Y = aStats.annualizedCumulativeReturn;
@@ -120,7 +120,7 @@ public class UpdateStats {
 				int nYear = 5;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd5Y     = aStats.sd;
+					stats.sd5Y     = aStats.annualizedStandardDeviationA;
 					stats.div5Y    = aStats.div;
 					stats.yield5Y  = aStats.annualizedYield;
 					stats.return5Y = aStats.annualizedCumulativeReturn;
