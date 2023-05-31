@@ -90,8 +90,8 @@ public class UpdateStats {
 				if (aStats != null) {
 					stats.sd1Y     = aStats.sd;
 					stats.div1Y    = aStats.div;
-					stats.yield1Y  = aStats.yield;
-					stats.return1Y = aStats.annualizedReturnWithReinvest;
+					stats.yield1Y  = aStats.annualizedYield;
+					stats.return1Y = aStats.annualizedCumulativeReturn;
 				} else {
 					stats.sd1Y     = minus1;
 					stats.div1Y    = minus1;
@@ -106,8 +106,8 @@ public class UpdateStats {
 				if (aStats != null) {
 					stats.sd3Y     = aStats.sd;
 					stats.div3Y    = aStats.div;
-					stats.yield3Y  = aStats.yield;
-					stats.return3Y = aStats.annualizedReturnWithReinvest;
+					stats.yield3Y  = aStats.annualizedYield;
+					stats.return3Y = aStats.annualizedCumulativeReturn;
 				} else {
 					stats.sd3Y     = minus1;
 					stats.div3Y    = minus1;
@@ -122,8 +122,8 @@ public class UpdateStats {
 				if (aStats != null) {
 					stats.sd5Y     = aStats.sd;
 					stats.div5Y    = aStats.div;
-					stats.yield5Y  = aStats.yield;
-					stats.return5Y = aStats.annualizedReturnWithReinvest;
+					stats.yield5Y  = aStats.annualizedYield;
+					stats.return5Y = aStats.annualizedCumulativeReturn;
 				} else {
 					stats.sd5Y     = minus1;
 					stats.div5Y    = minus1;
