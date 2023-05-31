@@ -92,7 +92,16 @@ public final class BigDecimalArrays {
 		// use value of before startIndex if possible
 		BigDecimal previous = BigDecimalUtil.mathLog(function.apply(array[startIndex == 0 ? 0 : startIndex - 1]));
 		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
-			BigDecimal value = BigDecimalUtil.mathLog(function.apply(array[i]));
+			BigDecimal element = function.apply(array[i]);
+			if (element.signum() < 0) {
+				logger.error("netagive value");
+				logger.error("  {}  {}", i, element.toPlainString());
+				logger.error("  array.length      {}", array.length);
+				logger.error("  startIndex        {}", startIndex);
+				logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
+				throw new UnexpectedException("netagive value");
+			}
+			BigDecimal value = BigDecimalUtil.mathLog(element);
 			ret[j] = value.subtract(previous);
 			previous = value;
 		}
@@ -202,33 +211,33 @@ public final class BigDecimalArrays {
 	//
 	// standard deviation
 	//
-	public static <T> BigDecimal sd(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> function) {
+	public static <T> BigDecimal standardDeviation(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> function) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		
 		return variance(array, startIndex, stopIndexPlusOne, mean, function).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 	}
-	public static <T> BigDecimal sd(T[] array, BigDecimal mean, Function<T, BigDecimal> function) {
-		return sd(array, 0, array.length, mean, function);
+	public static <T> BigDecimal standardDeviation(T[] array, BigDecimal mean, Function<T, BigDecimal> function) {
+		return standardDeviation(array, 0, array.length, mean, function);
 	}
-	public static BigDecimal sd(BigDecimal[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean) {
-		return sd(array, startIndex, stopIndexPlusOne, mean, o -> o);
+	public static BigDecimal standardDeviation(BigDecimal[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean) {
+		return standardDeviation(array, startIndex, stopIndexPlusOne, mean, o -> o);
 	}
-	public static BigDecimal sd(BigDecimal[] array, BigDecimal mean) {
-		return sd(array, 0, array.length, mean, o -> o);
+	public static BigDecimal standardDeviation(BigDecimal[] array, BigDecimal mean) {
+		return standardDeviation(array, 0, array.length, mean, o -> o);
 	}
 	// without mean
-	public static <T> BigDecimal sd(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
+	public static <T> BigDecimal standardDeviation(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
 		BigDecimal mean = mean(array, startIndex, stopIndexPlusOne, function);
-		return sd(array, startIndex, stopIndexPlusOne, mean, function);
+		return standardDeviation(array, startIndex, stopIndexPlusOne, mean, function);
 	}
-	public static <T> BigDecimal sd(T[] array, Function<T, BigDecimal> function) {
-		return sd(array, 0, array.length, function);
+	public static <T> BigDecimal standardDeviation(T[] array, Function<T, BigDecimal> function) {
+		return standardDeviation(array, 0, array.length, function);
 	}
-	public static BigDecimal sd(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
-		return sd(array, startIndex, stopIndexPlusOne, o -> o);
+	public static BigDecimal standardDeviation(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
+		return standardDeviation(array, startIndex, stopIndexPlusOne, o -> o);
 	}
-	public static BigDecimal sd(BigDecimal[] array) {
-		return sd(array, 0, array.length, o -> o);
+	public static BigDecimal standardDeviation(BigDecimal[] array) {
+		return standardDeviation(array, 0, array.length, o -> o);
 	}
 	
 	
@@ -237,7 +246,7 @@ public final class BigDecimalArrays {
 		
 		BigDecimal mean = BigDecimalArrays.mean(array);
 		BigDecimal var  = BigDecimalArrays.variance(array, mean);
-		BigDecimal sd = BigDecimalArrays.sd(array);
+		BigDecimal sd = BigDecimalArrays.standardDeviation(array, mean);
 		
 		logger.info("var {}", var);
 		logger.info("sd  {}", sd);
