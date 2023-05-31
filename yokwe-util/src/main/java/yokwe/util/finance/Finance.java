@@ -103,6 +103,7 @@ public final class Finance {
 			value = value.multiply(BigDecimal.ONE.add(function.apply(array[i])), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		}
 		
+		// value - 1
 		return value.subtract(BigDecimal.ONE);
 	}
 	
@@ -111,10 +112,34 @@ public final class Finance {
 	// annualized return
 	//
 	public static BigDecimal annualizeReturn(BigDecimal absoluteReturn, int nYear) {
-		// ((1 + absoluteReturnWithReinvest) ^ (1 / nYear)) - 1
+		// ((1 + absoluteReturn) ^ (1 / nYear)) - 1
 		BigDecimal base     = BigDecimal.ONE.add(absoluteReturn);
 		BigDecimal exponent = BigDecimal.ONE.divide(BigDecimal.valueOf(nYear), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		
 		return BigDecimalUtil.mathPow(base, exponent).subtract(BigDecimal.ONE);
 	}
+	
+	
+	//
+	// annualized standard deviation
+	//
+	// https://www.nomura.co.jp/terms/japan/hi/A02397.html
+	// 標準偏差は求めた値を年率換算（年間での変化率を計算）して使うのが一般的だ。
+	// 具体的には、日次、週次、月次騰落率から計測した標準偏差について、
+	// 1年＝250（営業日）＝52（週）＝12（月）の各250、52、12の平方根を掛けた値が年率換算値になる。
+	public static final BigDecimal SQRT_12  = BigDecimal.valueOf(12).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+	public static final BigDecimal SQRT_250 = BigDecimal.valueOf(250).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+	public static BigDecimal annualizeDailyStandardDeviation(BigDecimal dailyStandardDeviation) {
+		// 1 year = 250 days
+		// dailyStandardDeviation x sqrt(250)
+		return dailyStandardDeviation.multiply(SQRT_250, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+	}
+
+	public static BigDecimal annualizeMonthlyStandardDeviation(BigDecimal montylyStandardDeviation) {
+		// 1 year = 12 month
+		// montylyStandardDeviation x sqrt(12)
+		return montylyStandardDeviation.multiply(SQRT_12, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+	}
+	
+	
 }
