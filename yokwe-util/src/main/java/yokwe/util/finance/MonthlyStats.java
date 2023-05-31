@@ -65,6 +65,9 @@ public class MonthlyStats {
 	public final BigDecimal   absoluteReturn;               // 分配金受取ベースのリターン
 	public final BigDecimal   absoluteReturnWithReinvest;   // 分配金再投資ベースのリターン
 	
+	public final BigDecimal   standardDeviation;
+	
+	
 	public MonthlyStats(final String isinCode, final DailyValue[] reinvestedPriceArray, final DailyValue[] priceArray, final int startIndex, final int stopIndexPlusOne, final DailyValue[] divArray) {
 		this.isinCode             = isinCode;
 		this.reinvestedPriceArray = reinvestedPriceArray;
@@ -90,5 +93,12 @@ public class MonthlyStats {
 		absoluteReturn             = BigDecimalArrays.toSimpleReturn(startValue, endValue.add(div));
 		absoluteReturnWithReinvest = BigDecimalArrays.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
 		
+		{
+			// NOTE using reinvestedPriceArray
+			// NOTE using daily value
+			BigDecimal[] array = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
+			BigDecimal   mean  = BigDecimalArrays.mean(array);
+			standardDeviation = BigDecimalArrays.standardDeviation(array, mean);
+		}
 	}
 }
