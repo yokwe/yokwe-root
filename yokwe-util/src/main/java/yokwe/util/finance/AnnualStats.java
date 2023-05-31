@@ -10,8 +10,8 @@ public final class AnnualStats {
 	
 	public static AnnualStats getInstance(final MonthlyStats[] monthlyStatsArray, final int nYear) {
 		if (monthlyStatsArray == null) {
-			logger.error("array == null");
-			throw new UnexpectedException("array == null");
+			logger.error("monthlyStatsArray == null");
+			throw new UnexpectedException("monthlyStatsArray == null");
 		}
 		
 		int nMonth = nYear * 12;
@@ -46,9 +46,9 @@ public final class AnnualStats {
 	public final BigDecimal   cumulativeReturn;             // 月統計の分配金再投資ベースのリターンより求めた累積リターン
 	public final BigDecimal   annualizedCumulativeReturn;   // 月統計の分配金再投資ベースのリターンより求めた累積リターン 年率換算
 
-	
-	
-	public final BigDecimal   sd;
+	public final BigDecimal   annualizedStandardDeviationA;
+	public final BigDecimal   annualizedStandardDeviationB;
+	public final BigDecimal   annualizedStandardDeviationC;
 	
 	private AnnualStats(final MonthlyStats[] monthlyStatsArray, final int nYear) {
 		final int nMonth = nYear * 12;
@@ -107,23 +107,34 @@ public final class AnnualStats {
 		annualizedCumulativeReturn   = Finance.annualizeReturn(cumulativeReturn, nYear);
 		
 		
-		
-		// リスク・リスク(１年)・リスク(年率)
-		// 基準価格のブレ幅の大きさ表します。過去の基準価格の一定間隔（日次、週次、月次）のリターンを統計処理した標準偏差の数値です。この数値が大きな投資信託ほど大きく値上がりしたり、大きく値下がりしたりする可能性が高く、逆にリスクの小さい投信ほど値動きは緩やかになると推測できます。月次更新。6カ月は日次データ、1年は週次データ、3年超は月次データで算出しています。
-		// リスク(年率)は対象期間中のリスクを１年間に換算した年率で表示しています。
-		// 【計算内容】
-		// ・リスク(1年)、リスク(年率)1年　（=年率標準偏差1年）
-		// √(nΣ週次リターン^2 - (Σ週次リターン)^2) / n(n-1) × √52　n=52
-		// ・リスク(年率)3年～設定来　（=年率標準偏差3年～設定来）
-		// √(nΣ月次リターン^2 - (Σ月次リターン)^2) / n(n-1) × √12　n=36,60,120,設定来月数
+		// FIXME which method is better?
 		{
-			// FIXME
-			// absoluteSD
-			// annualizedSD
-			BigDecimal[] simpleReturnArray = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
-//			BigDecimal[] logReturnArray = BigDecimalArrays.toLogReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
-
-			sd   = BigDecimalArrays.sd(simpleReturnArray);
+			// calculate standard deviation from reinvestedPriceArray
+			// NOTE using reinvestedPriceArray
+			// NOTE using daily value
+			BigDecimal[] array = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
+			BigDecimal   mean  = BigDecimalArrays.mean(array);
+			BigDecimal   sd    = BigDecimalArrays.standardDeviation(array, mean);
+			annualizedStandardDeviationA = Finance.annualizeDailyStandardDeviation(sd);
+			logger.info("## AA  {}  {}", nYear, sd.stripTrailingZeros().toPlainString());
+		}
+		{
+			// calculate standard deviation from endValueWithReinvest of monthlyStatsArray
+			// NOTE using reinvestedPriceArray
+			// NOTE using monthly value
+			BigDecimal[] array = BigDecimalArrays.toSimpleReturn(monthlyStatsArray, 0, nMonth, o -> o.endValueWithReinvest);
+			BigDecimal   mean  = BigDecimalArrays.mean(array);
+			BigDecimal   sd    = BigDecimalArrays.standardDeviation(array, mean);
+			annualizedStandardDeviationB = Finance.annualizeMonthlyStandardDeviation(sd);
+			logger.info("## BB  {}  {}", nYear, sd.stripTrailingZeros().toPlainString());
+		}
+		{
+			// calculate standard deviation from variance of monthlyStatsArray
+			// NOTE using reinvestedPriceArray
+			// NOTE using daily value
+			BigDecimal sd      = BigDecimalArrays.mean(monthlyStatsArray, 0, nMonth, o -> o.standardDeviation);
+			annualizedStandardDeviationC = Finance.annualizeDailyStandardDeviation(sd);
+			logger.info("## CC  {}  {}", nYear, sd.stripTrailingZeros().toPlainString());
 		}
 
 	}
