@@ -34,13 +34,19 @@ public final class AnnualStats {
 	public final BigDecimal   endValueWithReinvest;         // 取引末日終了後 分配金再投資基準価格
 	
 	public final BigDecimal   div;                          // 分配金累計
-	public final BigDecimal   yield;                        // 年率換算した分配金利率
+	public final BigDecimal   absoluteYield;                // 分配金利率
+	public final BigDecimal   annualizedYield;              // 年率換算した分配金利率
 	
 	public final BigDecimal   absoluteReturn;               // 分配金受取ベースのリターン
-	public final BigDecimal   absoluteReturnWithReinvest;   // 分配金再投資ベースのリターン
+	public final BigDecimal   annualizedReturn;             // 分配金受取ベースのリターン 年率換算
 	
-	public final BigDecimal   annualizedReturn;             // 年率換算した分配金受取ベースのリターン
-	public final BigDecimal   annualizedReturnWithReinvest; // 年率換算した分配金再投資ベースのリターン
+	public final BigDecimal   absoluteReturnWithReinvest;   // 分配金再投資ベースのリターン
+	public final BigDecimal   annualizedReturnWithReinvest; // 分配金再投資ベースのリターン 年率換算
+	
+	public final BigDecimal   cumulativeReturn;             // 月統計の分配金再投資ベースのリターンより求めた累積リターン
+	public final BigDecimal   annualizedCumulativeReturn;   // 月統計の分配金再投資ベースのリターンより求めた累積リターン 年率換算
+
+	
 	
 	public final BigDecimal   sd;
 	
@@ -65,8 +71,9 @@ public final class AnnualStats {
 		endValue             = endMonth.endValue;
 		endValueWithReinvest = endMonth.endValueWithReinvest;
 				
-		div   = BigDecimalArrays.sum(monthlyStatsArray, 0, nMonth, o -> o.div);
-		yield = div.divide(endValue.multiply(BigDecimal.valueOf(nYear)), BigDecimalUtil.DEFAULT_MATH_CONTEXT); // FIXME annualization
+		div             = BigDecimalArrays.sum(monthlyStatsArray, 0, nMonth, o -> o.div);
+		absoluteYield   = div.divide(endValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		annualizedYield = absoluteYield.divide(BigDecimal.valueOf(nYear), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		
 		// https://www.nikkei.com/help/contents/markets/fund/
 		// 分配金受取基準価格
@@ -84,10 +91,22 @@ public final class AnnualStats {
 		// 【計算内容】
 		// {(計算期末基準価格＋計算期間分配金合計)／計算期初基準価格} ^ (12／n) - 1
 		// n=6,12,36,60,120
-		annualizedReturn = Finance.annualizeReturn(absoluteReturn, nYear);
-	
-		absoluteReturnWithReinvest   = BigDecimalArrays.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
+		absoluteReturnWithReinvest = BigDecimalArrays.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
+		
+		// https://www.nikkei.com/help/contents/markets/fund/
+		// リターン(年率)は対象期間中のリターンを１年間に換算した年率で表示しています。
+		// 【計算内容】
+		// ・リターン　(＝累積リターン)
+		// {nΠ1(1+月次リターンn)} - 1 　n=6,12,36,60,120,設定来月数
+		// ・リターン(1年)、リターン(年率)　（＝年率累積リターン）
+		// (1+上記累積リターン)^(12/n) - 1 　n=6,12,36,60,120,設定来月数
+		cumulativeReturn = Finance.cumulativeReturn(monthlyStatsArray, 0, nMonth, o -> o.absoluteReturnWithReinvest);
+		
+		annualizedReturn             = Finance.annualizeReturn(absoluteReturn, nYear);
 		annualizedReturnWithReinvest = Finance.annualizeReturn(absoluteReturnWithReinvest, nYear);
+		annualizedCumulativeReturn   = Finance.annualizeReturn(cumulativeReturn, nYear);
+		
+		
 		
 		// リスク・リスク(１年)・リスク(年率)
 		// 基準価格のブレ幅の大きさ表します。過去の基準価格の一定間隔（日次、週次、月次）のリターンを統計処理した標準偏差の数値です。この数値が大きな投資信託ほど大きく値上がりしたり、大きく値下がりしたりする可能性が高く、逆にリスクの小さい投信ほど値動きは緩やかになると推測できます。月次更新。6カ月は日次データ、1年は週次データ、3年超は月次データで算出しています。
