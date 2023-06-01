@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Function;
 
+import yokwe.util.GenericArray;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
@@ -16,17 +16,24 @@ public final class DailyValue implements Comparable<DailyValue> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	//
-	// create DailyValue array from array of other type
+	// create value array from DailyValue array
 	//
-	public static <T> DailyValue[] toArray(T[] array, Function<T, LocalDate> toDate, Function<T, BigDecimal> toValue) {
-		DailyValue[] ret = new DailyValue[array.length];
-		
-		for(int i = 0; i < array.length; i++) {
-			T element = array[i];
-			ret[i] = new DailyValue(toDate.apply(element), toValue.apply(element));
-		}
-		
-		return ret;
+	public static BigDecimal[] toValueArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {		
+		return GenericArray.toArray(BigDecimal.class, array, startIndex, stopIndexPlusOne, o -> o.value);
+	}
+	public static BigDecimal[] toValueArray(DailyValue[] array) {
+		return toValueArray(array, 0, array.length);
+	}
+	
+	
+	//
+	// create date array from DailyValue array
+	//
+	public static LocalDate[] toDateArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
+		return GenericArray.toArray(LocalDate.class, array, startIndex, stopIndexPlusOne, o -> o.date);
+	}
+	public static LocalDate[] toDateArray(DailyValue[] array) {
+		return toDateArray(array, 0, array.length);
 	}
 	
 	
@@ -52,17 +59,6 @@ public final class DailyValue implements Comparable<DailyValue> {
 			if (e.date.isAfter(afterDate) && e.date.isBefore(beforeDate)) list.add(e.value);
 		}
 		return list.toArray(BigDecimal[]::new);
-	}
-	
-	
-	//
-	// create value array from DailyValue array
-	//
-	public static BigDecimal[] toValueArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
-		return BigDecimalArrays.toArray(array, startIndex, stopIndexPlusOne, o -> o.value);
-	}
-	public static BigDecimal[] toValueArray(DailyValue[] array) {
-		return BigDecimalArrays.toArray(array, o -> o.value);
 	}
 	
 	
