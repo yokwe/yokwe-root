@@ -90,13 +90,13 @@ public class MonthlyStats {
 			div = BigDecimalArrays.sum(array);
 		}
 		
-		absoluteReturn             = BigDecimalArrays.toSimpleReturn(startValue, endValue.add(div));
-		absoluteReturnWithReinvest = BigDecimalArrays.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
+		absoluteReturn             = BigDecimalUtil.toSimpleReturn(startValue, endValue.add(div));
+		absoluteReturnWithReinvest = BigDecimalUtil.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
 		
 		{
 			// NOTE using reinvestedPriceArray
 			// NOTE using daily value
-			BigDecimal[] array = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
+			BigDecimal[] array = BigDecimalUtil.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
 			BigDecimal   mean  = BigDecimalArrays.mean(array);
 			standardDeviation = BigDecimalArrays.standardDeviation(array, mean);
 		}

@@ -71,7 +71,7 @@ public final class AnnualStats {
 		endValue             = endMonth.endValue;
 		endValueWithReinvest = endMonth.endValueWithReinvest;
 				
-		div             = BigDecimalArrays.sum(monthlyStatsArray, 0, nMonth, o -> o.div);
+		div             = BigDecimalUtil.sum(monthlyStatsArray, 0, nMonth, o -> o.div);
 		absoluteYield   = div.divide(endValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		annualizedYield = absoluteYield.divide(BigDecimal.valueOf(nYear), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		
@@ -81,7 +81,7 @@ public final class AnnualStats {
 		// 【計算内容】
 		// <計算式>基準価格 + 分配金累計
 		// <例>基準価格が15000、分配金累計が100の場合、15000+100=15100。分配金は税引き前。
-		absoluteReturn = BigDecimalArrays.toSimpleReturn(startValue, endValue.add(div));
+		absoluteReturn = BigDecimalUtil.toSimpleReturn(startValue, endValue.add(div));
 	
 		// https://www.nikkei.com/help/contents/markets/fund/
 		// 分配金受取ベースのリターン(年率)
@@ -91,7 +91,7 @@ public final class AnnualStats {
 		// 【計算内容】
 		// {(計算期末基準価格＋計算期間分配金合計)／計算期初基準価格} ^ (12／n) - 1
 		// n=6,12,36,60,120
-		absoluteReturnWithReinvest = BigDecimalArrays.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
+		absoluteReturnWithReinvest = BigDecimalUtil.toSimpleReturn(startValueWithReinvest, endValueWithReinvest);
 		
 		// https://www.nikkei.com/help/contents/markets/fund/
 		// リターン(年率)は対象期間中のリターンを１年間に換算した年率で表示しています。
@@ -112,7 +112,7 @@ public final class AnnualStats {
 			// calculate standard deviation from reinvestedPriceArray
 			// NOTE using reinvestedPriceArray
 			// NOTE using daily value
-			BigDecimal[] array = BigDecimalArrays.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
+			BigDecimal[] array = BigDecimalUtil.toSimpleReturn(reinvestedPriceArray, startIndex, stopIndexPlusOne, o -> o.value);
 			BigDecimal   mean  = BigDecimalArrays.mean(array);
 			BigDecimal   sd    = BigDecimalArrays.standardDeviation(array, mean);
 			annualizedStandardDeviationA = Finance.annualizeDailyStandardDeviation(sd);
@@ -122,7 +122,7 @@ public final class AnnualStats {
 			// calculate standard deviation from endValueWithReinvest of monthlyStatsArray
 			// NOTE using reinvestedPriceArray
 			// NOTE using monthly value
-			BigDecimal[] array = BigDecimalArrays.toSimpleReturn(monthlyStatsArray, 0, nMonth, o -> o.endValueWithReinvest);
+			BigDecimal[] array = BigDecimalUtil.toSimpleReturn(monthlyStatsArray, 0, nMonth, o -> o.endValueWithReinvest);
 			BigDecimal   mean  = BigDecimalArrays.mean(array);
 			BigDecimal   sd    = BigDecimalArrays.standardDeviation(array, mean);
 			annualizedStandardDeviationB = Finance.annualizeMonthlyStandardDeviation(sd);
@@ -132,7 +132,7 @@ public final class AnnualStats {
 			// calculate standard deviation from variance of monthlyStatsArray
 			// NOTE using reinvestedPriceArray
 			// NOTE using daily value
-			BigDecimal sd      = BigDecimalArrays.mean(monthlyStatsArray, 0, nMonth, o -> o.standardDeviation);
+			BigDecimal sd      = BigDecimalUtil.mean(monthlyStatsArray, 0, nMonth, o -> o.standardDeviation);
 			annualizedStandardDeviationC = Finance.annualizeDailyStandardDeviation(sd);
 			logger.info("## CC  {}  {}", nYear, sd.stripTrailingZeros().toPlainString());
 		}
