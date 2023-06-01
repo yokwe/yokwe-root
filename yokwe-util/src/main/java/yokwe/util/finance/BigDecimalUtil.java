@@ -118,7 +118,7 @@ public final class BigDecimalUtil {
 		}
 	}
 	public static <T> BigDecimal[] toLogReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		Function<T, BigDecimal> impl = new LogReturnImpl<>(function, array[startIndex == 0 ? 0 : startIndex - 1]);
+		Function<T, BigDecimal> impl = new LogReturnImpl<>(function, array[Math.max(0, startIndex - 1)]);
 		return toArray(array, startIndex, stopIndexPlusOne, impl);
 	}
 	public static <T> BigDecimal[] toLogReturn(T[] array, Function<T, BigDecimal> function) {
@@ -155,7 +155,7 @@ public final class BigDecimalUtil {
 		}
 	}
 	public static <T> BigDecimal[] toSimpleReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		Function<T, BigDecimal> impl = new SimpleReturnImpl<>(function, array[startIndex == 0 ? 0 : startIndex - 1]);
+		Function<T, BigDecimal> impl = new SimpleReturnImpl<>(function, array[Math.max(0, startIndex - 1)]);
 		return toArray(array, startIndex, stopIndexPlusOne, impl);
 	}
 	public static <T> BigDecimal[] toSimpleReturn(T[] array, Function<T, BigDecimal> function) {
