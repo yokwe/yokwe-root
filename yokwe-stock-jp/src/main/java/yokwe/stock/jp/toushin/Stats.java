@@ -44,22 +44,18 @@ public class Stats implements Comparable<Stats> {
 	public BigDecimal sd3Y;
 	public BigDecimal sd5Y;
 
-	// reinvested return ratio -- annual
 	public BigDecimal return1Y;
 	public BigDecimal return3Y;
 	public BigDecimal return5Y;
-
-//	// sharpe ratio -- annual
-//	// FIXME how to calculate annual sharpe ratio
-//	public String sharpe1Y;
-//	public String sharpe3Y;
-//	public String sharpe5Y;
+	
+	public BigDecimal sharpe1Y;
+	public BigDecimal sharpe3Y;
+	public BigDecimal sharpe5Y;
 
 	public BigDecimal div1Y;
 	public BigDecimal div3Y;
 	public BigDecimal div5Y;
-//
-//	// yield -- annual
+	
 	public BigDecimal yield1Y;
 	public BigDecimal yield3Y;
 	public BigDecimal yield5Y;
