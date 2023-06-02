@@ -3,8 +3,6 @@ package yokwe.util.finance;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -19,9 +17,10 @@ public final class DailyValue implements Comparable<DailyValue> {
 	// create value array from DailyValue array
 	//
 	public static BigDecimal[] toValueArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {		
-		return GenericArray.toArray(BigDecimal.class, array, startIndex, stopIndexPlusOne, o -> o.value);
+		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, o -> o.value, BigDecimal.class);
 	}
 	public static BigDecimal[] toValueArray(DailyValue[] array) {
+		// call above method
 		return toValueArray(array, 0, array.length);
 	}
 	
@@ -30,35 +29,10 @@ public final class DailyValue implements Comparable<DailyValue> {
 	// create date array from DailyValue array
 	//
 	public static LocalDate[] toDateArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
-		return GenericArray.toArray(LocalDate.class, array, startIndex, stopIndexPlusOne, o -> o.date);
+		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, o -> o.date, LocalDate.class);
 	}
 	public static LocalDate[] toDateArray(DailyValue[] array) {
 		return toDateArray(array, 0, array.length);
-	}
-	
-	
-	//
-	// filter array using firstDate and lastDate
-	//
-	public static DailyValue[] filter(DailyValue[] array, LocalDate firstDate, LocalDate lastDate) {
-		LocalDate afterDate  = firstDate.minusDays(1);
-		LocalDate beforeDate = lastDate.plusDays(1);
-		
-		List<DailyValue> list = new ArrayList<>();
-		for(var e: array) {
-			if (e.date.isAfter(afterDate) && e.date.isBefore(beforeDate)) list.add(e);
-		}
-		return list.toArray(DailyValue[]::new);
-	}
-	public static BigDecimal[] filterValue(DailyValue[] array, LocalDate firstDate, LocalDate lastDate) {
-		LocalDate afterDate  = firstDate.minusDays(1);
-		LocalDate beforeDate = lastDate.plusDays(1);
-		
-		List<BigDecimal> list = new ArrayList<>();
-		for(var e: array) {
-			if (e.date.isAfter(afterDate) && e.date.isBefore(beforeDate)) list.add(e.value);
-		}
-		return list.toArray(BigDecimal[]::new);
 	}
 	
 	
@@ -83,18 +57,6 @@ public final class DailyValue implements Comparable<DailyValue> {
 	}
 	public static BigDecimal duration(DailyValue[] array) {
 		return duration(array, 0, array.length);
-	}
-	
-	
-	//
-	// reverse element of array
-	//
-	public static void reverse(DailyValue[] array) {
-		for(int i = 0, j = array.length - 1; i < array.length / 2; i++, j--) {
-			DailyValue save = array[j];
-			array[j] = array[i];
-			array[i] = save;
-		}
 	}
 	
 	
