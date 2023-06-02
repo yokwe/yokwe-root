@@ -52,11 +52,11 @@ public final class T001 {
 			logger.info("nYear   {}", nYear);
 			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startValue.stripTrailingZeros(), aStats.endValue.stripTrailingZeros());
 			
-			logger.info("  abReturn  {}", aStats.absoluteReturn.multiply(N_100).toPlainString());			
-			logger.info("  anRetrun  {}", aStats.annualizedReturn.multiply(N_100).toPlainString());
-			logger.info("  anSD      {}", aStats.annualizedStandardDeviation.stripTrailingZeros().toPlainString());
+			logger.info("  anRetrun  {}", aStats.returns.multiply(N_100).toPlainString());
+			logger.info("  anSD      {}", aStats.standardDeviation.stripTrailingZeros().toPlainString());
 			logger.info("  div       {}", aStats.dividend.stripTrailingZeros().toPlainString());
-			logger.info("  anYield   {}", aStats.annualizedYield.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
+			logger.info("  yield     {}", aStats.yield.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
+			logger.info("  sharpe    {}", aStats.sharpeRatio.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
 		}
 
 	}

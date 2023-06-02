@@ -77,7 +77,6 @@ public class UpdateStats {
 			
 			stats.date  = lastPrice.date;
 			stats.price = lastPrice.price;
-//			stats.price = lastPrice.reinvestedPrice;
 			stats.nav   = lastPrice.nav;
 			
 			stats.divc  = fund.divFreq;
@@ -87,15 +86,17 @@ public class UpdateStats {
 				int nYear = 1;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd1Y     = aStats.annualizedStandardDeviation;
+					stats.sd1Y     = aStats.standardDeviation;
 					stats.div1Y    = aStats.dividend;
-					stats.yield1Y  = aStats.annualizedYield;
-					stats.return1Y = aStats.annualizedReturn;
+					stats.yield1Y  = aStats.yield;
+					stats.return1Y = aStats.returns;
+					stats.sharpe1Y = aStats.sharpeRatio;
 				} else {
 					stats.sd1Y     = minus1;
 					stats.div1Y    = minus1;
 					stats.yield1Y  = minus1;
 					stats.return1Y = minus1;
+					stats.sharpe1Y = minus1;
 				}
 			}
 			// 3 year
@@ -103,15 +104,17 @@ public class UpdateStats {
 				int nYear = 3;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd3Y     = aStats.annualizedStandardDeviation;
+					stats.sd3Y     = aStats.standardDeviation;
 					stats.div3Y    = aStats.dividend;
-					stats.yield3Y  = aStats.annualizedYield;
-					stats.return3Y = aStats.annualizedReturn;
+					stats.yield3Y  = aStats.yield;
+					stats.return3Y = aStats.returns;
+					stats.sharpe3Y = aStats.sharpeRatio;
 				} else {
 					stats.sd3Y     = minus1;
 					stats.div3Y    = minus1;
 					stats.yield3Y  = minus1;
 					stats.return3Y = minus1;
+					stats.sharpe3Y = minus1;
 				}
 			}
 			// 5 year
@@ -119,15 +122,17 @@ public class UpdateStats {
 				int nYear = 5;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd5Y     = aStats.annualizedStandardDeviation;
+					stats.sd5Y     = aStats.standardDeviation;
 					stats.div5Y    = aStats.dividend;
-					stats.yield5Y  = aStats.annualizedYield;
-					stats.return5Y = aStats.annualizedReturn;
+					stats.yield5Y  = aStats.yield;
+					stats.return5Y = aStats.returns;
+					stats.sharpe5Y = aStats.sharpeRatio;
 				} else {
 					stats.sd5Y     = minus1;
 					stats.div5Y    = minus1;
 					stats.yield5Y  = minus1;
 					stats.return5Y = minus1;
+					stats.sharpe5Y = minus1;
 				}
 			}
 			
