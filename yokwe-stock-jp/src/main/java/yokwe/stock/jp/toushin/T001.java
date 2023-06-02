@@ -5,9 +5,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Map;
 
+import yokwe.util.BigDecimalUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.AnnualStats;
-import yokwe.util.finance.BigDecimalUtil;
 import yokwe.util.finance.DailyValue;
 import yokwe.util.finance.MonthlyStats;
 
@@ -52,19 +52,11 @@ public final class T001 {
 			logger.info("nYear   {}", nYear);
 			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startValue.stripTrailingZeros(), aStats.endValue.stripTrailingZeros());
 			
-			logger.info("  abReturn  {}", aStats.absoluteReturn.multiply(N_100).toPlainString());
-			logger.info("  abReturnW {}", aStats.absoluteReturnWithReinvest.multiply(N_100).toPlainString());
-			logger.info("  cReturnW  {}", aStats.cumulativeReturn.multiply(N_100).toPlainString());
-			
+			logger.info("  abReturn  {}", aStats.absoluteReturn.multiply(N_100).toPlainString());			
 			logger.info("  anRetrun  {}", aStats.annualizedReturn.multiply(N_100).toPlainString());
-			logger.info("  anRetrunW {}", aStats.annualizedReturnWithReinvest.multiply(N_100).toPlainString());
-			logger.info("  acRetrunW {}", aStats.annualizedCumulativeReturn.multiply(N_100).toPlainString());
-//			logger.info("  mean      {}", aStats.mean.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
-			logger.info("  sdA       {}", aStats.annualizedStandardDeviationA.stripTrailingZeros().toPlainString());
-			logger.info("  sdB       {}", aStats.annualizedStandardDeviationB.stripTrailingZeros().toPlainString());
-			logger.info("  sdc       {}", aStats.annualizedStandardDeviationC.stripTrailingZeros().toPlainString());
-//			logger.info("  div       {}", aStats.div.stripTrailingZeros().toPlainString());
-//			logger.info("  yield     {}", aStats.yield.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
+			logger.info("  anSD      {}", aStats.annualizedStandardDeviation.stripTrailingZeros().toPlainString());
+			logger.info("  div       {}", aStats.dividend.stripTrailingZeros().toPlainString());
+			logger.info("  anYield   {}", aStats.annualizedYield.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
 		}
 
 	}

@@ -9,7 +9,6 @@ import java.util.List;
 
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyValue;
-import yokwe.util.finance.Finance;
 import yokwe.util.finance.MonthlyStats;
 
 public class UpdateStats {
@@ -88,10 +87,10 @@ public class UpdateStats {
 				int nYear = 1;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd1Y     = aStats.annualizedStandardDeviationA;
-					stats.div1Y    = aStats.div;
+					stats.sd1Y     = aStats.annualizedStandardDeviation;
+					stats.div1Y    = aStats.dividend;
 					stats.yield1Y  = aStats.annualizedYield;
-					stats.return1Y = aStats.annualizedCumulativeReturn;
+					stats.return1Y = aStats.annualizedReturn;
 				} else {
 					stats.sd1Y     = minus1;
 					stats.div1Y    = minus1;
@@ -104,10 +103,10 @@ public class UpdateStats {
 				int nYear = 3;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd3Y     = aStats.annualizedStandardDeviationA;
-					stats.div3Y    = aStats.div;
+					stats.sd3Y     = aStats.annualizedStandardDeviation;
+					stats.div3Y    = aStats.dividend;
 					stats.yield3Y  = aStats.annualizedYield;
-					stats.return3Y = aStats.annualizedCumulativeReturn;
+					stats.return3Y = aStats.annualizedReturn;
 				} else {
 					stats.sd3Y     = minus1;
 					stats.div3Y    = minus1;
@@ -120,10 +119,10 @@ public class UpdateStats {
 				int nYear = 5;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 				if (aStats != null) {
-					stats.sd5Y     = aStats.annualizedStandardDeviationA;
-					stats.div5Y    = aStats.div;
+					stats.sd5Y     = aStats.annualizedStandardDeviation;
+					stats.div5Y    = aStats.dividend;
 					stats.yield5Y  = aStats.annualizedYield;
-					stats.return5Y = aStats.annualizedCumulativeReturn;
+					stats.return5Y = aStats.annualizedReturn;
 				} else {
 					stats.sd5Y     = minus1;
 					stats.div5Y    = minus1;
