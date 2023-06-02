@@ -5,13 +5,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class GenericArray {
+public final class GenericArray {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	//
 	// create array from another type of array using Function
 	//
-	public static <T, R> R[] toArray(Class<R> clazz, T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> function) {
+	public static <T, R> R[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> function, Class<R> clazz) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		
 		@SuppressWarnings("unchecked")
