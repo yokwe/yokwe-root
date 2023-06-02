@@ -23,26 +23,25 @@ public final class AnnualStats {
 	
 	public final String       isinCode;
 	public final LocalDate[]  dateArray;
-	public final BigDecimal[] priceArray;                   // 分配金再投資基準価格
-	public final BigDecimal[] dividendArray;                // 分配金
-	public final BigDecimal[] dailyReturnArray;             // 分配金再投資基準価格の日次リターン
+	public final BigDecimal[] priceArray;        // 分配金再投資基準価格
+	public final BigDecimal[] dividendArray;     // 分配金
+	public final BigDecimal[] dailyReturnArray;  // 分配金再投資基準価格の日次リターン
 
 	public final int          startIndex;
-	public final LocalDate    startDate;                    // この期間の取引初日
-	public final BigDecimal   startValue;                   // 取引初日開始前 分配金再投資基準価格
+	public final LocalDate    startDate;         // この期間の取引初日
+	public final BigDecimal   startValue;        // 取引初日開始前 分配金再投資基準価格
 	
 	public final int          stopIndexPlusOne;
-	public final LocalDate    endDate;                      // この期間の取引末日
-	public final BigDecimal   endValue;                     // 取引末日終了後 分配金再投資基準価格
+	public final LocalDate    endDate;           // この期間の取引末日
+	public final BigDecimal   endValue;          // 取引末日終了後 分配金再投資基準価格
 	
-	public final BigDecimal   dividend;                     // 分配金累計
-	public final BigDecimal   absoluteYield;                // 分配金利率
-	public final BigDecimal   annualizedYield;              // 年率換算した分配金利率
+	public final BigDecimal   dividend;          // 分配金累計
+	public final BigDecimal   yield;             // 分配金利率 ※年率換算
 	
-	public final BigDecimal   absoluteReturn;               // 分配金再投資ベースのリターン
-	public final BigDecimal   annualizedReturn;             // 分配金再投資ベースのリターン 年率換算
+	public final BigDecimal   returns;           // 分配金再投資基準価格のリターン ※年率換算
 	
-	public final BigDecimal   annualizedStandardDeviation;
+	public final BigDecimal   standardDeviation; // 分配金再投資基準価格の日次リターンの標準偏差 ※年率換算
+	public final BigDecimal   sharpeRatio;       // シャープレシオ ※年率換算
 	
 	private AnnualStats(final MonthlyStats[] monthlyStatsArray, final int nYear) {
 		final int nMonth = nYear * 12;
@@ -66,19 +65,18 @@ public final class AnnualStats {
 		endValue             = endMonth.endValue;
 				
 		dividend             = BigDecimalArray.sum(monthlyStatsArray, 0, nMonth, o -> o.dividend);
-		absoluteYield        = dividend.divide(endValue, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-		annualizedYield      = absoluteYield.divide(BigDecimal.valueOf(nYear), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		yield                = dividend.divide(endValue.multiply(BigDecimal.valueOf(nYear)), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		
-		absoluteReturn       = BigDecimalUtil.toSimpleReturn(startValue, endValue);
-		annualizedReturn     = Finance.annualizeReturn(absoluteReturn, nYear);
+		returns              = Finance.annualizeReturn(BigDecimalUtil.toSimpleReturn(startValue, endValue), nYear);
 		
-		// FIXME which method is better?
 		{
 			// calculate standard deviation from dailyReturnArray
-			BigDecimal   mean  = BigDecimalArray.mean(dailyReturnArray, startIndex, stopIndexPlusOne, o -> o);
-			BigDecimal   sd    = BigDecimalArray.standardDeviation(dailyReturnArray, startIndex, stopIndexPlusOne, mean, o -> o);
-			annualizedStandardDeviation = Finance.annualizeDailyStandardDeviation(sd);
+			BigDecimal mean   = BigDecimalArray.mean(dailyReturnArray, startIndex, stopIndexPlusOne, o -> o);
+			BigDecimal sd     = BigDecimalArray.standardDeviation(dailyReturnArray, startIndex, stopIndexPlusOne, mean, o -> o);
+			standardDeviation = Finance.annualizeDailyStandardDeviation(sd);
 		}
+		
+		sharpeRatio = returns.divide(standardDeviation, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 
 	}
 }
