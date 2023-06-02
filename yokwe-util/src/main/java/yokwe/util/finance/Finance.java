@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.function.Function;
 
+import yokwe.util.BigDecimalUtil;
+
 //Morningstar
 //https://web.stanford.edu/~wfsharpe/art/stars/stars2.htm
 
@@ -56,59 +58,6 @@ public final class Finance {
 	
 	
 	//
-	// create reinvested array from price and dividend array
-	//
-	public static DailyValue[] toReinvestedPrice(DailyValue[] priceArray, DailyValue[] divArray) {
-		DailyValue[] ret = new DailyValue[priceArray.length];
-		
-		Map<LocalDate, BigDecimal> divMap = DailyValue.toMap(divArray);
-		ReinvestedPrice reinvestedPrice = new ReinvestedPrice(priceArray[0].value);
-
-		for(int i = 0; i < priceArray.length; i++) {
-			LocalDate  date  = priceArray[i].date;
-			BigDecimal price = priceArray[i].value;
-			BigDecimal div   = divMap.getOrDefault(date, BigDecimal.ZERO);
-			
-			ret[i] = new DailyValue(date, reinvestedPrice.apply(price, div));
-		}
-		
-		return ret;
-	}
-	public static BigDecimal[] toReinvestedValue(DailyValue[] priceArray, DailyValue[] divArray) {
-		BigDecimal[] ret = new BigDecimal[priceArray.length];
-		
-		Map<LocalDate, BigDecimal> divMap = DailyValue.toMap(divArray);
-		ReinvestedPrice reinvestedPrice = new ReinvestedPrice(priceArray[0].value);
-
-		for(int i = 0; i < priceArray.length; i++) {
-			LocalDate  date  = priceArray[i].date;
-			BigDecimal price = priceArray[i].value;
-			BigDecimal div   = divMap.getOrDefault(date, BigDecimal.ZERO);
-			
-			ret[i] = reinvestedPrice.apply(price, div);
-		}
-		
-		return ret;
-	}
-	
-	
-	//
-	// annualized return from monthly return
-	//
-	public static <T> BigDecimal cumulativeReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		BigDecimal value = BigDecimal.ONE;
-		
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			// value = value * (1 + function.apply(array[i]))
-			value = value.multiply(BigDecimal.ONE.add(function.apply(array[i])), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-		}
-		
-		// value - 1
-		return value.subtract(BigDecimal.ONE);
-	}
-	
-	
-	//
 	// annualized return
 	//
 	public static BigDecimal annualizeReturn(BigDecimal absoluteReturn, int nYear) {
@@ -129,6 +78,7 @@ public final class Finance {
 	// 1年＝250（営業日）＝52（週）＝12（月）の各250、52、12の平方根を掛けた値が年率換算値になる。
 	public static final BigDecimal SQRT_12  = BigDecimal.valueOf(12).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 	public static final BigDecimal SQRT_250 = BigDecimal.valueOf(250).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+	
 	public static BigDecimal annualizeDailyStandardDeviation(BigDecimal dailyStandardDeviation) {
 		// 1 year = 250 days
 		// dailyStandardDeviation x sqrt(250)
@@ -140,6 +90,5 @@ public final class Finance {
 		// montylyStandardDeviation x sqrt(12)
 		return montylyStandardDeviation.multiply(SQRT_12, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 	}
-	
 	
 }
