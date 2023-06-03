@@ -54,7 +54,7 @@ public final class BigDecimalArray {
 	//
 	// create log ratio BigDecimal array from other type of array using function
 	//
-	private static final class LogReturnImpl implements UnaryOperator<BigDecimal> {
+	private static final class LogReturnOp implements UnaryOperator<BigDecimal> {
 		private boolean    firstTime = true;
 		private BigDecimal previousLog  = null;
 		
@@ -76,7 +76,7 @@ public final class BigDecimalArray {
 		}
 	}
 	public static <T> BigDecimal[] toLogReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
-		UnaryOperator<BigDecimal> op = new LogReturnImpl();
+		UnaryOperator<BigDecimal> op = new LogReturnOp();
 		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, map, op, BigDecimal.class);
 	}
 	public static <T> BigDecimal[] toLogReturn(T[] array, Function<T, BigDecimal> function) {
