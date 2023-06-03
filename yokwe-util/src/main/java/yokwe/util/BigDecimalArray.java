@@ -8,10 +8,10 @@ public final class BigDecimalArray {
 	//
 	// create BigDecimal array from other type of array using function
 	//
-	public static <T> BigDecimal[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map, UnaryOperator<BigDecimal> op) {
+	public static <T> BigDecimal[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map, Function<BigDecimal, BigDecimal> op) {
 		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, map, op, BigDecimal.class);
 	}
-	public static <T> BigDecimal[] toArray(T[] array, Function<T, BigDecimal> function, UnaryOperator<BigDecimal> op) {
+	public static <T> BigDecimal[] toArray(T[] array, Function<T, BigDecimal> function, Function<BigDecimal, BigDecimal> op) {
 		// call above method
 		return toArray(array, 0, array.length, function, op);
 	}
