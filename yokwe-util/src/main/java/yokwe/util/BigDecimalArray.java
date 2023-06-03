@@ -2,35 +2,35 @@ package yokwe.util;
 
 import java.math.BigDecimal;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public final class BigDecimalArray {
 	//
 	// create BigDecimal array from other type of array using function
 	//
-	public static <T> BigDecimal[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, function, BigDecimal.class);
+	public static <T> BigDecimal[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map, UnaryOperator<BigDecimal> op) {
+		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, map, op, BigDecimal.class);
 	}
-	public static <T> BigDecimal[] toArray(T[] array, Function<T, BigDecimal> function) {
+	public static <T> BigDecimal[] toArray(T[] array, Function<T, BigDecimal> function, UnaryOperator<BigDecimal> op) {
 		// call above method
-		return toArray(array, 0, array.length, function);
+		return toArray(array, 0, array.length, function, op);
 	}
 
 	
 	//
 	// create simple ratio BigDecimal array from other type of array using function
 	//
-	private static class SimpleReturnImpl<T> implements Function<T, BigDecimal> {
-		private Function<T, BigDecimal> function;
-		private BigDecimal              previous;
-		
-		SimpleReturnImpl(Function<T, BigDecimal> function, T previous) {
-			this.function = function;
-			this.previous = function.apply(previous);
-		}
+	private static class SimpleReturnOp implements UnaryOperator<BigDecimal> {
+		private boolean    firstTime = true;
+		private BigDecimal previous  = null;
 		
 		@Override
-		public BigDecimal apply(T t) {
-			BigDecimal value = function.apply(t);
+		public BigDecimal apply(BigDecimal value) {
+			if (firstTime) {
+				// use first value as previous
+				firstTime = false;
+				previous  = value;
+			}
 			
 			// ret = (value / previous) - 1
 			BigDecimal ret   = BigDecimalUtil.toSimpleReturn(previous, value);
@@ -41,9 +41,9 @@ public final class BigDecimalArray {
 			return ret;
 		}
 	}
-	public static <T> BigDecimal[] toSimpleReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		Function<T, BigDecimal> impl = new SimpleReturnImpl<>(function, array[Math.max(0, startIndex - 1)]);
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, impl, BigDecimal.class);
+	public static <T> BigDecimal[] toSimpleReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
+		UnaryOperator<BigDecimal> op = new SimpleReturnOp();
+		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, map, op, BigDecimal.class);
 	}
 	public static <T> BigDecimal[] toSimpleReturn(T[] array, Function<T, BigDecimal> function) {
 		// call above method
@@ -54,32 +54,30 @@ public final class BigDecimalArray {
 	//
 	// create log ratio BigDecimal array from other type of array using function
 	//
-	private static final class LogReturnImpl<T> implements Function<T, BigDecimal> {
-		private Function<T, BigDecimal> function;
-		private BigDecimal              previous;
-		
-		LogReturnImpl(Function<T, BigDecimal> function, T previous) {
-			this.function = function;
-			this.previous = BigDecimalUtil.mathLog(function.apply(previous));
-		}
+	private static final class LogReturnImpl implements UnaryOperator<BigDecimal> {
+		private boolean    firstTime = true;
+		private BigDecimal previousLog  = null;
 		
 		@Override
-		public BigDecimal apply(T t) {
-			// value = log(t)
-			BigDecimal value = BigDecimalUtil.mathLog(function.apply(t));
-			
-			// ret = value - previous
-			BigDecimal ret   = value.subtract(previous);
+		public BigDecimal apply(BigDecimal value) {
+			if (firstTime) {
+				// use first value as previous
+				firstTime   = false;
+				previousLog = BigDecimalUtil.mathLog(value);
+			}
+
+			BigDecimal valueLog = BigDecimalUtil.mathLog(value);
+			BigDecimal ret      = valueLog.subtract(previousLog);
 			
 			// update for next iteration
-			previous = value;
+			previousLog = valueLog;
 			
 			return ret;
 		}
 	}
-	public static <T> BigDecimal[] toLogReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		Function<T, BigDecimal> impl = new LogReturnImpl<>(function, array[Math.max(0, startIndex - 1)]);
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, impl, BigDecimal.class);
+	public static <T> BigDecimal[] toLogReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
+		UnaryOperator<BigDecimal> op = new LogReturnImpl();
+		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, map, op, BigDecimal.class);
 	}
 	public static <T> BigDecimal[] toLogReturn(T[] array, Function<T, BigDecimal> function) {
 		// call above method
