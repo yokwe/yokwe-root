@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import yokwe.util.GenericArray;
 import yokwe.util.StringUtil;
@@ -17,7 +18,7 @@ public final class DailyValue implements Comparable<DailyValue> {
 	// create value array from DailyValue array
 	//
 	public static BigDecimal[] toValueArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {		
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, o -> o.value, BigDecimal.class);
+		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, DailyValue::getValue, Function.identity(), BigDecimal.class);
 	}
 	public static BigDecimal[] toValueArray(DailyValue[] array) {
 		// call above method
@@ -29,7 +30,7 @@ public final class DailyValue implements Comparable<DailyValue> {
 	// create date array from DailyValue array
 	//
 	public static LocalDate[] toDateArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, o -> o.date, LocalDate.class);
+		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, DailyValue::getDate, Function.identity(), LocalDate.class);
 	}
 	public static LocalDate[] toDateArray(DailyValue[] array) {
 		return toDateArray(array, 0, array.length);
@@ -89,6 +90,12 @@ public final class DailyValue implements Comparable<DailyValue> {
 		this.value = value;
 	}
 	
+	public LocalDate getDate() {
+		return date;
+	}
+	public BigDecimal getValue() {
+		return value;
+	}
 	
 	@Override
 	public String toString() {
