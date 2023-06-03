@@ -85,7 +85,7 @@ public final class GenericArray {
 		}
 		private static final Set<Characteristics> characteristics = Set.of();
 	}
-	public static <T,U> U collect(T[] array, int startIndex, int stopIndexPlusOne, Function<T, U> map, Collect<U> collector) {
+	public static <T,R> R collect(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> map, Collect<R> collector) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).collect(collector);
 	}
