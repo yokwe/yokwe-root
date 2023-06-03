@@ -1,8 +1,10 @@
 package yokwe.util;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
 public final class GenericArray {
@@ -11,16 +13,23 @@ public final class GenericArray {
 	//
 	// create array from another type of array using Function
 	//
-	public static <T, R> R[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> function, Class<R> clazz) {
-		checkIndex(array, startIndex, stopIndexPlusOne);
+	public static final class Generator<R> implements IntFunction<R[]> {
+		private final Class<R> clazz;
 		
-		@SuppressWarnings("unchecked")
-		R[] ret = (R[]) Array.newInstance(clazz, stopIndexPlusOne - startIndex);
-		
-		for(int i = startIndex, j = 0; i < stopIndexPlusOne; i++, j++) {
-			ret[j] = function.apply(array[i]);
+		public Generator(Class<R> clazz) {
+			this.clazz = clazz;
 		}
-		return ret;
+		
+		@Override
+		@SuppressWarnings("unchecked")
+		public R[] apply(int value) {
+			return (R[]) Array.newInstance(clazz, value);
+		}
+	}
+	public static <T, R> R[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> map, Function<R, R> op, Class<R> clazz) {
+		IntFunction<R[]> generator = new Generator<R>(clazz);
+		
+		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).map(op).toArray(generator);
 	}
 	
 	
@@ -64,7 +73,23 @@ public final class GenericArray {
 		
 		return impl.get();
 	}
-	
+	public interface ConsumerSupplier<T> extends Consumer<T>, Supplier<T> {
+		@Override
+	    public void accept(T value);
+
+		@Override
+		public T get();
+	}
+	public static <T, R> R toValue(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> map, ConsumerSupplier<R> consumerSupplier) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			consumerSupplier.accept(map.apply(array[i]));
+		}
+		
+		return consumerSupplier.get();
+	}
+
 	
 	//
 	// check index consistency with array
