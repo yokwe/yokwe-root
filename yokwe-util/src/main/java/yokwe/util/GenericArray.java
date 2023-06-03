@@ -48,7 +48,7 @@ public final class GenericArray {
 		public abstract BigDecimal get();
 	}
 	public static class Collect implements Collector<BigDecimal, CollectImpl, BigDecimal> {
-		private Supplier<CollectImpl> builder;
+		private final Supplier<CollectImpl> builder;
 		
 		public Collect(Supplier<CollectImpl> builder) {
 			this.builder = builder;
@@ -59,33 +59,32 @@ public final class GenericArray {
 			return builder;
 		}
 		
-		private static final BiConsumer<CollectImpl, BigDecimal> accumulator = (c, v) -> c.accept(v);
 		@Override
 		public BiConsumer<CollectImpl, BigDecimal> accumulator() {
 			return accumulator;
 		}
-
-		private static final BinaryOperator<CollectImpl> combiner = (a, b) -> {
-			logger.error("Unexpected");
-			throw new UnexpectedException("Unexpected");
-		};
+		private static final BiConsumer<CollectImpl, BigDecimal> accumulator = (c, v) -> c.accept(v);
 		
 		@Override
 		public BinaryOperator<CollectImpl> combiner() {
 			return combiner;
 		}
+		private static final BinaryOperator<CollectImpl> combiner = (a, b) -> {
+			logger.error("Unexpected");
+			throw new UnexpectedException("Unexpected");
+		};
 
-		private static final Function<CollectImpl, BigDecimal> finisher = c -> c.get();
 		@Override
 		public Function<CollectImpl, BigDecimal> finisher() {
 			return finisher;
 		}
+		private static final Function<CollectImpl, BigDecimal> finisher = c -> c.get();
 
-		private static final Set<Characteristics> characteristics = Set.of();
 		@Override
 		public Set<Characteristics> characteristics() {
 			return characteristics;
 		}
+		private static final Set<Characteristics> characteristics = Set.of();
 	}
 	public static <T> BigDecimal collect(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map, Collect collector) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
