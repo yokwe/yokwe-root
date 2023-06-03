@@ -43,7 +43,7 @@ public final class BigDecimalArray {
 	}
 	public static <T> BigDecimal[] toSimpleReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
 		UnaryOperator<BigDecimal> op = new SimpleReturnOp();
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, map, op, BigDecimal.class);
+		return toArray(array, startIndex, stopIndexPlusOne, map, op);
 	}
 	public static <T> BigDecimal[] toSimpleReturn(T[] array, Function<T, BigDecimal> function) {
 		// call above method
@@ -77,7 +77,7 @@ public final class BigDecimalArray {
 	}
 	public static <T> BigDecimal[] toLogReturn(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
 		UnaryOperator<BigDecimal> op = new LogReturnOp();
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, map, op, BigDecimal.class);
+		return toArray(array, startIndex, stopIndexPlusOne, map, op);
 	}
 	public static <T> BigDecimal[] toLogReturn(T[] array, Function<T, BigDecimal> function) {
 		// call above method
