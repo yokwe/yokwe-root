@@ -101,7 +101,7 @@ public final class BigDecimalArray {
 	//
 	// calculate BigDecimal sum from other type of array using map
 	//
-	private static class SumImpl implements CollectImpl {
+	private static class SumImpl implements CollectImpl<BigDecimal> {
 		private BigDecimal sum = BigDecimal.ZERO;
 		@Override
 		public void accept(BigDecimal value) {
@@ -113,7 +113,7 @@ public final class BigDecimalArray {
 		}
 	}
 	public static <T> BigDecimal sum(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
-		Collect collector = new Collect(SumImpl::new);
+		var collector = new Collect<>(SumImpl::new);
 		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
 	}
 
@@ -126,7 +126,7 @@ public final class BigDecimalArray {
 	//
 	// calculate BigDecimal arithmetic mean from other type of array using map
 	//
-	private static class MeanImpl implements CollectImpl {
+	private static class MeanImpl implements CollectImpl<BigDecimal> {
 		private int        count = 0;
 		private BigDecimal total   = BigDecimal.ZERO;
 		@Override
@@ -140,7 +140,7 @@ public final class BigDecimalArray {
 		}
 	}
 	public static <T> BigDecimal mean(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
-		Collect collector = new Collect(MeanImpl::new);
+		var collector = new Collect<>(MeanImpl::new);
 		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
 
 	}
@@ -153,7 +153,7 @@ public final class BigDecimalArray {
 	//
 	// calculate BigDecimal geometric mean from other type of array using map
 	//
-	private static final class GeometricMeanImpl implements CollectImpl {
+	private static final class GeometricMeanImpl implements CollectImpl<BigDecimal> {
 		private int        count = 0;
 		private BigDecimal total = BigDecimal.ZERO;
 		
@@ -170,7 +170,7 @@ public final class BigDecimalArray {
 		}
 	}
 	public static <T> BigDecimal geometricMean(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
-		Collect collector = new Collect(GeometricMeanImpl::new);
+		var collector = new Collect<>(GeometricMeanImpl::new);
 		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
 	}
 	public static <T> BigDecimal geometricMean(T[] array, Function<T, BigDecimal> map) {
@@ -182,7 +182,7 @@ public final class BigDecimalArray {
 	//
 	// calculate BigDecimal variance from other type of array using map
 	//
-	private static final class VarianceImpl implements CollectImpl {
+	private static final class VarianceImpl implements CollectImpl<BigDecimal> {
 		private int        count = 0;
 		private BigDecimal total = BigDecimal.ZERO;
 		private BigDecimal mean;
@@ -204,7 +204,7 @@ public final class BigDecimalArray {
 		}
 	}
 	public static <T> BigDecimal variance(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> map) {
-		Collect collector = new Collect(() -> new VarianceImpl(mean));
+		var collector = new Collect<>(() -> new VarianceImpl(mean));
 		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
 	}
 	public static <T> BigDecimal variance(T[] array, BigDecimal mean, Function<T, BigDecimal> map) {
