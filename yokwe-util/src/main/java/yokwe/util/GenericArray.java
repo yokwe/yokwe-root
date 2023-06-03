@@ -40,44 +40,44 @@ public final class GenericArray {
 	//
 	// create single value from array using collect
 	//
-	public interface CollectImpl<T> extends Consumer<T>, Supplier<T> {
+	public interface CollectImpl<R> extends Consumer<R>, Supplier<R> {
 		@Override
-		public abstract void accept(T value);
+		public abstract void accept(R value);
 		@Override
-		public abstract T get();
+		public abstract R get();
 	}
-	public static class Collect<T> implements Collector<T, CollectImpl<T>, T> {
-		private final Supplier<CollectImpl<T>> builder;
+	public static class Collect<R> implements Collector<R, CollectImpl<R>, R> {
+		private final Supplier<CollectImpl<R>> builder;
 		
-		public Collect(Supplier<CollectImpl<T>> builder) {
+		public Collect(Supplier<CollectImpl<R>> builder) {
 			this.builder = builder;
 		}
 		
 		@Override
-		public Supplier<CollectImpl<T>> supplier() {
+		public Supplier<CollectImpl<R>> supplier() {
 			return builder;
 		}
 		
 		@Override
-		public BiConsumer<CollectImpl<T>, T> accumulator() {
+		public BiConsumer<CollectImpl<R>, R> accumulator() {
 			return accumulator;
 		}
-		private final BiConsumer<CollectImpl<T>, T> accumulator = (c, v) -> c.accept(v);
+		private final BiConsumer<CollectImpl<R>, R> accumulator = (c, v) -> c.accept(v);
 		
 		@Override
-		public BinaryOperator<CollectImpl<T>> combiner() {
+		public BinaryOperator<CollectImpl<R>> combiner() {
 			return combiner;
 		}
-		private final BinaryOperator<CollectImpl<T>> combiner = (a, b) -> {
+		private final BinaryOperator<CollectImpl<R>> combiner = (a, b) -> {
 			logger.error("Unexpected");
 			throw new UnexpectedException("Unexpected");
 		};
 
 		@Override
-		public Function<CollectImpl<T>, T> finisher() {
+		public Function<CollectImpl<R>, R> finisher() {
 			return finisher;
 		}
-		private final Function<CollectImpl<T>, T> finisher = c -> c.get();
+		private final Function<CollectImpl<R>, R> finisher = c -> c.get();
 
 		@Override
 		public Set<Characteristics> characteristics() {
