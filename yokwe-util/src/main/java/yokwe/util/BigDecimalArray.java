@@ -4,9 +4,17 @@ import java.math.BigDecimal;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+import yokwe.util.GenericArray.Collect;
+import yokwe.util.GenericArray.CollectImpl;
+
 public final class BigDecimalArray {
 	//
-	// create BigDecimal array from other type of array using function
+	// GenericArray.toArray
+	//
+	
+	
+	//
+	// create BigDecimal array from other type of array using map and op
 	//
 	public static <T> BigDecimal[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map, Function<BigDecimal, BigDecimal> op) {
 		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, map, op, BigDecimal.class);
@@ -18,7 +26,7 @@ public final class BigDecimalArray {
 
 	
 	//
-	// create simple ratio BigDecimal array from other type of array using function
+	// create simple ratio BigDecimal array from other type of array using map
 	//
 	private static class SimpleReturnOp implements UnaryOperator<BigDecimal> {
 		private boolean    firstTime = true;
@@ -52,7 +60,7 @@ public final class BigDecimalArray {
 	
 	
 	//
-	// create log ratio BigDecimal array from other type of array using function
+	// create log ratio BigDecimal array from other type of array using map
 	//
 	private static final class LogReturnOp implements UnaryOperator<BigDecimal> {
 		private boolean    firstTime = true;
@@ -86,75 +94,66 @@ public final class BigDecimalArray {
 	
 	
 	//
-	// calculate BigDecimal sum from other type of array using function
+	// GenericArray.collect
 	//
-	private static final class SumImpl<T> extends GenericArray.ToValueBase<T, BigDecimal> {
-		SumImpl(Function<T, BigDecimal> function) {
-			super(function);
-		}
-		
-		private BigDecimal total = BigDecimal.ZERO;
-		
+	
+	
+	//
+	// calculate BigDecimal sum from other type of array using map
+	//
+	private static class SumImpl implements CollectImpl {
+		private BigDecimal sum = BigDecimal.ZERO;
 		@Override
 		public void accept(BigDecimal value) {
-			total = total.add(value);
+			sum  = sum.add(value);
 		}
-
 		@Override
 		public BigDecimal get() {
-			return total;
+			return sum;
 		}
 	}
-	public static <T> BigDecimal sum(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		GenericArray.ToValueImpl<T, BigDecimal> impl = new SumImpl<>(function);
-		return GenericArray.toValue(array, startIndex, stopIndexPlusOne, impl);
+	public static <T> BigDecimal sum(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
+		Collect collector = new Collect(SumImpl::new);
+		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
 	}
-	public static <T> BigDecimal sum(T[] array, Function<T, BigDecimal> function) {
+
+	public static <T> BigDecimal sum(T[] array, Function<T, BigDecimal> map) {
 		// call above method
-		return sum(array, 0, array.length, function);
+		return sum(array, 0, array.length, map);
 	}
 	
 	
 	//
-	// calculate BigDecimal arithmetic mean from other type of array using function
+	// calculate BigDecimal arithmetic mean from other type of array using map
 	//
-	private static final class MeanImpl<T> extends GenericArray.ToValueBase<T, BigDecimal> {
-		MeanImpl(Function<T, BigDecimal> function) {
-			super(function);
-		}
-		
+	private static class MeanImpl implements CollectImpl {
 		private int        count = 0;
-		private BigDecimal total = BigDecimal.ZERO;
-		
+		private BigDecimal total   = BigDecimal.ZERO;
 		@Override
 		public void accept(BigDecimal value) {
 			count++;
-			total = total.add(value);
+			total  = total.add(value);
 		}
-
 		@Override
 		public BigDecimal get() {
 			return total.divide(BigDecimal.valueOf(count), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		}
 	}
-	public static <T> BigDecimal mean(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		GenericArray.ToValueImpl<T, BigDecimal> impl = new MeanImpl<>(function);
-		return GenericArray.toValue(array, startIndex, stopIndexPlusOne, impl);
+	public static <T> BigDecimal mean(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
+		Collect collector = new Collect(MeanImpl::new);
+		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
+
 	}
-	public static <T> BigDecimal mean(T[] array, Function<T, BigDecimal> function) {
+	public static <T> BigDecimal mean(T[] array, Function<T, BigDecimal> map) {
 		// call above method
-		return mean(array, 0, array.length, function);
+		return mean(array, 0, array.length, map);
 	}
 	
 	
 	//
-	// calculate BigDecimal geometric mean from other type of array using function
+	// calculate BigDecimal geometric mean from other type of array using map
 	//
-	private static final class GeometricMeanImpl<T> extends GenericArray.ToValueBase<T, BigDecimal> {
-		GeometricMeanImpl(Function<T, BigDecimal> function) {
-			super(function);
-		}
-		
+	private static final class GeometricMeanImpl implements CollectImpl {
 		private int        count = 0;
 		private BigDecimal total = BigDecimal.ZERO;
 		
@@ -170,29 +169,27 @@ public final class BigDecimalArray {
 			return BigDecimalUtil.mathExp(value);
 		}
 	}
-	public static <T> BigDecimal geometricMean(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> function) {
-		GenericArray.ToValueImpl<T, BigDecimal> impl = new GeometricMeanImpl<>(function);
-		return GenericArray.toValue(array, startIndex, stopIndexPlusOne, impl);
+	public static <T> BigDecimal geometricMean(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
+		Collect collector = new Collect(GeometricMeanImpl::new);
+		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
 	}
-	public static <T> BigDecimal geometricMean(T[] array, Function<T, BigDecimal> function) {
+	public static <T> BigDecimal geometricMean(T[] array, Function<T, BigDecimal> map) {
 		// call above method
-		return geometricMean(array, 0, array.length, function);
+		return geometricMean(array, 0, array.length, map);
 	}
 	
 	
 	//
-	// calculate BigDecimal variance from other type of array using function
+	// calculate BigDecimal variance from other type of array using map
 	//
-	private static final class VarianceImpl<T> extends GenericArray.ToValueBase<T, BigDecimal> {
-		VarianceImpl(Function<T, BigDecimal> function, BigDecimal mean) {
-			super(function);
-			this.mean = mean;
-		}
-		
+	private static final class VarianceImpl implements CollectImpl {
 		private int        count = 0;
 		private BigDecimal total = BigDecimal.ZERO;
 		private BigDecimal mean;
 		
+		VarianceImpl(BigDecimal mean) {
+			this.mean = mean;
+		}
 		@Override
 		public void accept(BigDecimal value) {
 			count++;
@@ -206,25 +203,25 @@ public final class BigDecimalArray {
 			return total.divide(BigDecimal.valueOf(count), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 		}
 	}
-	public static <T> BigDecimal variance(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> function) {
-		GenericArray.ToValueImpl<T, BigDecimal> impl = new VarianceImpl<>(function, mean);
-		return GenericArray.toValue(array, startIndex, stopIndexPlusOne, impl);
+	public static <T> BigDecimal variance(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> map) {
+		Collect collector = new Collect(() -> new VarianceImpl(mean));
+		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
 	}
-	public static <T> BigDecimal variance(T[] array, BigDecimal mean, Function<T, BigDecimal> function) {
+	public static <T> BigDecimal variance(T[] array, BigDecimal mean, Function<T, BigDecimal> map) {
 		// call above method
-		return variance(array, 0, array.length, mean, function);
+		return variance(array, 0, array.length, mean, map);
 	}
 	
 	
 	//
-	// calculate BigDecimal standard deviation from other type of array using function
+	// calculate BigDecimal standard deviation from other type of array using map
 	//
-	public static <T> BigDecimal standardDeviation(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> function) {
-		return variance(array, startIndex, stopIndexPlusOne, mean, function).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+	public static <T> BigDecimal standardDeviation(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> map) {
+		return variance(array, startIndex, stopIndexPlusOne, mean, map).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
 	}
-	public static <T> BigDecimal standardDeviation(T[] array, BigDecimal mean, Function<T, BigDecimal> function) {
+	public static <T> BigDecimal standardDeviation(T[] array, BigDecimal mean, Function<T, BigDecimal> map) {
 		// call above method
-		return standardDeviation(array, 0, array.length, mean, function);
+		return standardDeviation(array, 0, array.length, mean, map);
 	}
 
 }
