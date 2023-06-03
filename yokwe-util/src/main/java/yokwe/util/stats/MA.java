@@ -251,6 +251,9 @@ public abstract class MA implements DoubleUnaryOperator, DoubleConsumer {
 		}
 	}
 	private static void testTable53() {
+		// See Table 5.3 of page 82
+		//   https://www.msci.com/documents/10199/5915b101-4206-4ba0-aee2-3449d5c7e95a
+		//   https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1546&context=ypfs-documents
 		double alpha = getAlphaFromDecayFactor(DEFAULT_DECAY_FACTOR);
 		double[] data = {
 			 0.633,
