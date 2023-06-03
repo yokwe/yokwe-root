@@ -1,17 +1,22 @@
 package yokwe.util;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 public final class GenericArray {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	//
-	// create array from another type of array using Function
+	// create array from another type of array using map and op
 	//
 	public static final class Generator<R> implements IntFunction<R[]> {
 		private final Class<R> clazz;
@@ -27,67 +32,64 @@ public final class GenericArray {
 		}
 	}
 	public static <T, R> R[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> map, Function<R, R> op, Class<R> clazz) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
 		IntFunction<R[]> generator = new Generator<R>(clazz);
-		
 		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).map(op).toArray(generator);
 	}
 	
 	
 	//
-	// create single value from array
+	// create single value from array using collect
 	//
-	public interface ToValueImpl<T, R> extends Function<T,R>, Consumer<R>, Supplier<R> {
+	public interface CollectImpl extends Consumer<BigDecimal>, Supplier<BigDecimal> {
 		@Override
-	    public R apply(T value);
-
+		public abstract void accept(BigDecimal value);
 		@Override
-	    public void accept(R value);
-
-		@Override
-		public R get();
+		public abstract BigDecimal get();
 	}
-	public static abstract class ToValueBase<T, R> implements ToValueImpl<T, R> {
-		private Function<T,R> function;
+	public static class Collect implements Collector<BigDecimal, CollectImpl, BigDecimal> {
+		private Supplier<CollectImpl> builder;
 		
-		public ToValueBase(Function<T,R> function) {
-			this.function = function;
+		public Collect(Supplier<CollectImpl> builder) {
+			this.builder = builder;
 		}
 		
 		@Override
-		public R apply(T value) {
-			return function.apply(value);
+		public Supplier<CollectImpl> supplier() {
+			return builder;
 		}
 		
+		private static final BiConsumer<CollectImpl, BigDecimal> accumulator = (c, v) -> c.accept(v);
 		@Override
-		public abstract void accept(R value);
+		public BiConsumer<CollectImpl, BigDecimal> accumulator() {
+			return accumulator;
+		}
+
+		private static final BinaryOperator<CollectImpl> combiner = (a, b) -> {
+			logger.error("Unexpected");
+			throw new UnexpectedException("Unexpected");
+		};
 		
 		@Override
-		public abstract R get();
+		public BinaryOperator<CollectImpl> combiner() {
+			return combiner;
+		}
+
+		private static final Function<CollectImpl, BigDecimal> finisher = c -> c.get();
+		@Override
+		public Function<CollectImpl, BigDecimal> finisher() {
+			return finisher;
+		}
+
+		private static final Set<Characteristics> characteristics = Set.of();
+		@Override
+		public Set<Characteristics> characteristics() {
+			return characteristics;
+		}
 	}
-	public static <T, R> R toValue(T[] array, int startIndex, int stopIndexPlusOne, ToValueImpl<T, R> impl) {
+	public static <T> BigDecimal collect(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map, Collect collector) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
-		
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			impl.accept(impl.apply(array[i]));
-		}
-		
-		return impl.get();
-	}
-	public interface ConsumerSupplier<T> extends Consumer<T>, Supplier<T> {
-		@Override
-	    public void accept(T value);
-
-		@Override
-		public T get();
-	}
-	public static <T, R> R toValue(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> map, ConsumerSupplier<R> consumerSupplier) {
-		checkIndex(array, startIndex, stopIndexPlusOne);
-		
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			consumerSupplier.accept(map.apply(array[i]));
-		}
-		
-		return consumerSupplier.get();
+		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).collect(collector);
 	}
 
 	
