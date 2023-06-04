@@ -46,7 +46,7 @@ public final class GenericArray {
 		@Override
 		public abstract R get();
 	}
-	public static class Collect<R> implements Collector<R, CollectImpl<R>, R> {
+	public static final class Collect<R> implements Collector<R, CollectImpl<R>, R> {
 		private final Supplier<CollectImpl<R>> builder;
 		
 		public Collect(Supplier<CollectImpl<R>> builder) {

@@ -28,7 +28,7 @@ public final class BigDecimalArray {
 	//
 	// create simple ratio BigDecimal array from other type of array using map
 	//
-	private static class SimpleReturnOp implements UnaryOperator<BigDecimal> {
+	private static final class SimpleReturnOp implements UnaryOperator<BigDecimal> {
 		private boolean    firstTime = true;
 		private BigDecimal previous  = null;
 		
@@ -101,7 +101,7 @@ public final class BigDecimalArray {
 	//
 	// calculate BigDecimal sum from other type of array using map
 	//
-	private static class SumImpl implements CollectImpl<BigDecimal> {
+	private static final class SumImpl implements CollectImpl<BigDecimal> {
 		private BigDecimal sum = BigDecimal.ZERO;
 		@Override
 		public void accept(BigDecimal value) {
@@ -126,7 +126,7 @@ public final class BigDecimalArray {
 	//
 	// calculate BigDecimal arithmetic mean from other type of array using map
 	//
-	private static class MeanImpl implements CollectImpl<BigDecimal> {
+	private static final class MeanImpl implements CollectImpl<BigDecimal> {
 		private int        count = 0;
 		private BigDecimal total   = BigDecimal.ZERO;
 		@Override
