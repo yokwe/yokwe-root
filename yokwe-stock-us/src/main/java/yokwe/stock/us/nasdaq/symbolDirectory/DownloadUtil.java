@@ -25,7 +25,7 @@ public class DownloadUtil {
 		List<NASDAQListed> list = new ArrayList<>();
 		{
 			String string = FileUtil.read().file(NASDAQListed.PATH_TXT_FILE);
-			String[] lines = string.split("\r\n");
+			String[] lines = string.split("[\r\n]+");
 			
 			// sanity check
 			{
@@ -87,7 +87,7 @@ public class DownloadUtil {
 		
 		{
 			String string = FileUtil.read().file(OtherListed.PATH_TXT_FILE);
-			String[] lines = string.split("\r\n");
+			String[] lines = string.split("[\r\n]+");
 			
 			// sanity check
 			{
