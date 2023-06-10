@@ -8,6 +8,7 @@ open module yokwe.util {
 	exports yokwe.util.finance;
 
 	requires commons.math3;
+	requires org.apache.commons.net;
 	
 	requires httpclient;
 	requires httpcore;
