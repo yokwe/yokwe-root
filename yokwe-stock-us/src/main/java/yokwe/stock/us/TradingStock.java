@@ -30,6 +30,7 @@ public class TradingStock implements Comparable<TradingStock> {
 	public String monex;
 	public String sbi;
 	public String rakuten;
+	public String nikko;
 	public Type   type;
 	public String name;
 
@@ -38,6 +39,7 @@ public class TradingStock implements Comparable<TradingStock> {
 		String monex,
 		String sbi,
 		String rakuten,
+		String nikko,
 		Type   type,
 		String name
 		) {
@@ -45,6 +47,7 @@ public class TradingStock implements Comparable<TradingStock> {
 		this.monex   = monex;
 		this.sbi     = sbi;
 		this.rakuten = rakuten;
+		this.nikko   = nikko;
 		this.type    = type;
 		this.name    = name;
 	}

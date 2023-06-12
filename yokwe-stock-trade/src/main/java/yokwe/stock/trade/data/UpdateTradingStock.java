@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import yokwe.stock.trade.monex.MonexStock;
+import yokwe.stock.trade.nikko.NikkoStock;
 import yokwe.stock.trade.rakuten.RakutenStock;
 import yokwe.stock.trade.sbi.SBIStock;
 import yokwe.stock.us.Stock;
@@ -23,15 +24,18 @@ public class UpdateTradingStock {
 		var monexSet   = MonexStock.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
 		var sbiSet     = SBIStock.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
 		var rakutenSet = RakutenStock.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
+		var nikkoSet   = NikkoStock.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
 		
 		Set<String> allSet = new TreeSet<>();
 		allSet.addAll(monexSet);
 		allSet.addAll(sbiSet);
 		allSet.addAll(rakutenSet);
+		allSet.addAll(nikkoSet);
 		logger.info("stock   {}", stockMap.size());
 		logger.info("monex   {}", monexSet.size());
 		logger.info("sbi     {}", sbiSet.size());
 		logger.info("rakuten {}", rakutenSet.size());
+		logger.info("nikko   {}", nikkoSet.size());
 		logger.info("all     {}", allSet.size());
 		
 		// trading symbol
@@ -49,6 +53,7 @@ public class UpdateTradingStock {
 				String monex   = "0";
 				String sbi     = "0";
 				String rakuten = "0";
+				String nikko   = "0";
 				Type   type    = stock.type;
 				String name    = stock.name;
 
@@ -61,8 +66,11 @@ public class UpdateTradingStock {
 				if (rakutenSet.contains(symbol)) {
 					rakuten = "1";
 				}
+				if (nikkoSet.contains(symbol)) {
+					nikko = "1";
+				}
 
-				var tradingSymbol = new TradingStock(symbol, monex, sbi, rakuten, type, name);
+				var tradingSymbol = new TradingStock(symbol, monex, sbi, rakuten, nikko, type, name);
 				list.add(tradingSymbol);
 			}
 			logger.info("save    {} {}", list.size(), TradingStock.getPath());
