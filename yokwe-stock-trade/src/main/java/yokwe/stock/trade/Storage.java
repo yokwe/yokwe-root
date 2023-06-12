@@ -97,4 +97,16 @@ public final class Storage {
 		}
 	}
 
+	// nikko
+	public static final class Nikko {
+		public static final String PREFIX = "nikko";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+
 }
