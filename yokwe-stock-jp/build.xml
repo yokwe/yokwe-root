@@ -49,6 +49,14 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="toushin-update-stats-sony">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateStatsSony" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	<!-- JPX -->
 	<target name="jpx-update-stock">
