@@ -30,6 +30,7 @@ update-jasdec:
 update-toushin:
 	ant toushin-update-fund
 	ant toushin-update-report
+	ant toushin-update-stats
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/toushin_$$(date +%Y%m%d).taz toushin
 
 # JPX
