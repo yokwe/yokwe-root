@@ -17,6 +17,12 @@ public final class StockStats implements Comparable<StockStats> {
 	}
 
 	public String stockCode;
+	
+	public String monex;
+	public String sbi;
+	public String rakuten;
+	public String nikko;
+
 	public String type;
 	public String name;
 	public String date;
@@ -53,6 +59,12 @@ public final class StockStats implements Comparable<StockStats> {
 
 	public StockStats() {
 		stockCode = null;
+		
+		monex     = null;
+		sbi       = null;
+		rakuten   = null;
+		nikko     = null;
+
 		type      = null;
 		name      = null;
 		date      = null;

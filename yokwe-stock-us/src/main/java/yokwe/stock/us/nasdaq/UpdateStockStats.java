@@ -29,7 +29,6 @@ public class UpdateStockStats {
 		
 		for(var e: TradingStock.getList()) {
 			String     symbol     = e.symbol;
-			String     name       = e.name;
 			
 			List<Price> priceList = Price.getList(symbol).stream().filter(o -> dateSet.contains(o.date)).collect(Collectors.toList());
 			// skip if priceList is empty
@@ -47,9 +46,15 @@ public class UpdateStockStats {
 			Price price = priceList.get(pricec - 1);
 			StockStats statsUS = new StockStats();
 			
-			statsUS.stockCode = symbol;
+			statsUS.stockCode = e.symbol;
+			
+			statsUS.monex     = e.monex;
+			statsUS.sbi       = e.sbi;
+			statsUS.rakuten   = e.rakuten;
+			statsUS.nikko     = e.nikko;
+			
 			statsUS.type      = e.type.toString();
-			statsUS.name      = name;
+			statsUS.name      = e.name;
 			statsUS.date      = stockPrice.dateLast;
 			
 			statsUS.pricec    = pricec;
