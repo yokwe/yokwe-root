@@ -186,9 +186,9 @@ public class UpdateFund {
 		}
 		
 		// for debug
-		if (file.exists()) {
-			return FileUtil.read().file(file);
-		}
+//		if (file.exists()) {
+//			return FileUtil.read().file(file);
+//		}
 		
 		String url = getURL(before);
 		HttpUtil.Result result = HttpUtil.getInstance().withCharset(SHIFT_JIS.name()).download(url);
