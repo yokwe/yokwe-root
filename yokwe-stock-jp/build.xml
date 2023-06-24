@@ -57,6 +57,14 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="toushin-update-stats-nikko">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateStatsNikko" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	<!-- JPX -->
 	<target name="jpx-update-stock">
@@ -309,6 +317,16 @@
 	</target>
 	<target name="nikkei-download-file">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.nikkei.DownloadFile" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
+	<!-- NIKKO -->
+	<target name="nikko-update-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.nikko.UpdateFund" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
