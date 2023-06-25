@@ -1,9 +1,9 @@
-package yokwe.stock.trade.nikko;
+package yokwe.stock.us.nikko;
 
 import java.util.stream.Collectors;
 
-import yokwe.stock.trade.Storage;
 import yokwe.stock.us.Stock;
+import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
 
 public class UpdateNikkoStock {

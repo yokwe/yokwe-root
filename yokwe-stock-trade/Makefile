@@ -39,11 +39,3 @@ backup:
 monex-update-fx-tax:
 	ant monex-update-fx-tax
 	ant update-fx
-
-update-trading-stock:
-	ant monex-update-monex-stock
-	ant sbi-update-sbi-stock
-	ant rakuten-update-rakuten-stock
-	ant update-trading-stock
-	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/trade_$$(date +%Y%m%d).taz nasdaq
-	

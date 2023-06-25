@@ -1,14 +1,14 @@
-package yokwe.stock.trade.rakuten;
+package yokwe.stock.us.sbi;
 
 import java.util.Collection;
 import java.util.List;
 
-import yokwe.stock.trade.Storage;
+import yokwe.stock.us.Storage;
 import yokwe.stock.us.Stock;
 import yokwe.util.ListUtil;
 
-public class RakutenStock {
-	private static final String PATH_FILE = Storage.Rakuten.getPath("rakuten-stock.csv");
+public class SBIStock {
+	private static final String PATH_FILE = Storage.SBI.getPath("sbi-stock.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

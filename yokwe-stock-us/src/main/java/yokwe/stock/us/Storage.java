@@ -49,4 +49,53 @@ public final class Storage {
 			return getPath(String.format("%s/%s", prefix, path));
 		}
 	}
+	
+	// monex
+	public static class Monex {
+		public static final String PREFIX = "monex";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
+	// nikko
+	public static class Nikko {
+		public static final String PREFIX = "nikko";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
+	// rakuten
+	public static class Rakuten {
+		public static final String PREFIX = "rakuten";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
+	// sbi
+	public static class SBI {
+		public static final String PREFIX = "sbi";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 }

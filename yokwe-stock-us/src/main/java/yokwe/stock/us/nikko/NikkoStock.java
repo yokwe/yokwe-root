@@ -1,14 +1,14 @@
-package yokwe.stock.trade.sbi;
+package yokwe.stock.us.nikko;
 
 import java.util.Collection;
 import java.util.List;
 
-import yokwe.stock.trade.Storage;
 import yokwe.stock.us.Stock;
+import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
 
-public class SBIStock {
-	private static final String PATH_FILE = Storage.SBI.getPath("sbi-stock.csv");
+public class NikkoStock {
+	private static final String PATH_FILE = Storage.Nikko.getPath("nikko-stock.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

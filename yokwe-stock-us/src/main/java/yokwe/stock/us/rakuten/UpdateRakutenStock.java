@@ -1,4 +1,4 @@
-package yokwe.stock.trade.rakuten;
+package yokwe.stock.us.rakuten;
 
 import java.io.Reader;
 import java.io.StringReader;

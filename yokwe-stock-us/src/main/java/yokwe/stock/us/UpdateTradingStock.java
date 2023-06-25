@@ -1,4 +1,4 @@
-package yokwe.stock.trade.data;
+package yokwe.stock.us;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,13 +6,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import yokwe.stock.trade.monex.MonexStock;
-import yokwe.stock.trade.nikko.NikkoStock;
-import yokwe.stock.trade.rakuten.RakutenStock;
-import yokwe.stock.trade.sbi.SBIStock;
-import yokwe.stock.us.Stock;
 import yokwe.stock.us.Stock.Type;
-import yokwe.stock.us.TradingStock;
+import yokwe.stock.us.monex.MonexStock;
+import yokwe.stock.us.nikko.NikkoStock;
+import yokwe.stock.us.rakuten.RakutenStock;
+import yokwe.stock.us.sbi.SBIStock;
 
 public class UpdateTradingStock {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();

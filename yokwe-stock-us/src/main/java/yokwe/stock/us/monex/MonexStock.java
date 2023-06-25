@@ -1,14 +1,14 @@
-package yokwe.stock.trade.nikko;
+package yokwe.stock.us.monex;
 
 import java.util.Collection;
 import java.util.List;
 
-import yokwe.stock.trade.Storage;
 import yokwe.stock.us.Stock;
+import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
 
-public class NikkoStock {
-	private static final String PATH_FILE = Storage.Nikko.getPath("nikko-stock.csv");
+public class MonexStock {
+	private static final String PATH_FILE = Storage.Monex.getPath("monex-stock.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}
