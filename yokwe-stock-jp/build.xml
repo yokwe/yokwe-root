@@ -325,8 +325,16 @@
 	</target>
 
 	<!-- NIKKO -->
-	<target name="nikko-update-fund">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.nikko.UpdateFund" fork="true">
+	<target name="nikko-update-nikko-fund-info">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.nikko.UpdateNikkoFundInfo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="nikko-update-nikko-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.nikko.UpdateNikkoFund" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
