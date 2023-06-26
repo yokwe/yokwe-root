@@ -17,7 +17,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateFund {
+public class UpdateNikkoFundInfo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	// https://fund2.smbcnikko.co.jp/smbc_nikko_fund/qsearch.exe?F=list_kokunai&
@@ -37,12 +37,14 @@ public class UpdateFund {
 	// F=gaikammf     日興外貨MMF
 	// F=mrf          日興MRF
 	// F=kousha       公社債投信
-
+	
+	
+	private static final boolean DEBUG_USE_FILE = false;
 	
 	private static final int     MAX_DISP  = 50;
 	private static final Charset SHIFT_JIS = Charset.forName("SHIFT_JIS");
 	
-	public static class FundInfo {
+	public static class FundData {
 		private static final Pattern PAT = Pattern.compile(
 			"<tr>\\s+" +
 			"<td .+?><p>(?:<!--)?<a href=\"qsearch\\.exe\\?F=detail_kokunai1&KEY1=(?<fundCode>[0-9A-Z]+)\">(?:-->)?(?:<!--)?<a .+?>(?:-->)?(?<name>.+?)</a></p></td>\\s+" +
@@ -51,25 +53,27 @@ public class UpdateFund {
 			"<td .+?>.+?</td>\\s+" +
 			"<td .+?>.+?</td>\\s+" +
 			"<td .+?>.+?</td>\\s+" +
-			"<td .+?>.+?</td>\\s+" +
+			"<td .+?>.+?<a .+?/doc-pdf/(?<nikkoCode>[0-9A-Z]+)_[0-9]{3}\\.pdf\".+?><img .+? alt=\"目論見書\".+?></a>.+?</td>\\s+" +
 			"<td .+?>\\s+<p>(?<tradeSougou>.*?)</p>\\s+<p>(?<tradeDirect>.*?)</p>\\s+</td>\\s+" +
 			"<td .+?>.+?</td>\\s+" +
 			"</tr>",
 			Pattern.DOTALL
 		);
-		public static List<FundInfo> getInstance(String page) {
-			return ScrapeUtil.getList(FundInfo.class, PAT, page);
+		public static List<FundData> getInstance(String page) {
+			return ScrapeUtil.getList(FundData.class, PAT, page);
 		}
 		
 		public String fundCode;
+		public String nikkoCode;
 		
 		public String tradeDirect;
 		public String tradeSougou;
 		
 		public String name;
 		
-		public FundInfo(String fundCode, String tradeDirect, String tradeSougou, String name) {
+		public FundData(String fundCode, String nikkoCode, String tradeDirect, String tradeSougou, String name) {
 			this.fundCode    = fundCode;
+			this.nikkoCode   = nikkoCode;
 			this.tradeDirect = tradeDirect;
 			this.tradeSougou = tradeSougou;
 			this.name        = name;
@@ -164,10 +168,10 @@ public class UpdateFund {
 		return String.format("https://fund2.smbcnikko.co.jp/smbc_nikko_fund/qsearch.exe?%s", string);
 	}
 	
-	public static void addFund(Map<String, String> fundMap, List<Fund> fundList, List<FundInfo> list) {
+	public static void addFund(Map<String, String> fundMap, List<NikkoFundInfo> fundList, List<FundData> list) {
 		for(var e: list) {
 			if (fundMap.containsKey(e.fundCode)) {
-				Fund fund = new Fund(fundMap.get(e.fundCode), e.fundCode, e.tradeDirect.isEmpty() ? "0" : "1", e.tradeSougou.isEmpty() ? "0" : "1", e.name);
+				NikkoFundInfo fund = new NikkoFundInfo(fundMap.get(e.fundCode), e.fundCode, e.nikkoCode, e.tradeDirect.isEmpty() ? "0" : "1", e.tradeSougou.isEmpty() ? "0" : "1", e.name);
 				fundList.add(fund);
 			} else {
 				logger.error("Unexpected fundCode");
@@ -185,10 +189,9 @@ public class UpdateFund {
 			file = new File(path);
 		}
 		
-		// for debug
-//		if (file.exists()) {
-//			return FileUtil.read().file(file);
-//		}
+		if (DEBUG_USE_FILE) {
+			if (file.exists()) return FileUtil.read().file(file);
+		}
 		
 		String url = getURL(before);
 		HttpUtil.Result result = HttpUtil.getInstance().withCharset(SHIFT_JIS.name()).download(url);
@@ -217,7 +220,7 @@ public class UpdateFund {
 		Map<String, String> fundMap = yokwe.stock.jp.toushin.Fund.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
 		// fundCode isinCode
 		
-		List<Fund> fundList = new ArrayList<>();
+		List<NikkoFundInfo> fundList = new ArrayList<>();
 		
 		final HitCount hitCount;
 		{
@@ -226,7 +229,7 @@ public class UpdateFund {
 			hitCount = HitCount.getInstance(page);
 			logger.info("hitCount  {}", hitCount.value);
 			
-			var list = FundInfo.getInstance(page);
+			var list = FundData.getInstance(page);
 			logger.info("list      {}  {}", list.size(), 0);
 			if (list.size() != MAX_DISP) {
 				logger.error("Unexpected list size");
@@ -242,7 +245,7 @@ public class UpdateFund {
 			if (i == 0) continue;
 			
 			String page = getPage(i);
-			var    list = FundInfo.getInstance(page);
+			var    list = FundData.getInstance(page);
 			logger.info("list      {}  {}", list.size(), i);
 			if (list.size() != MAX_DISP && (i + list.size() != hitCount.value)) {
 				logger.error("Unexpected list size");
@@ -262,8 +265,8 @@ public class UpdateFund {
 			throw new UnexpectedException("Unexpected fundLis size");
 		}
 
-		logger.info("save  {}  {}", fundList.size(), Fund.getPath());
-		Fund.save(fundList);
+		logger.info("save  {}  {}", fundList.size(), NikkoFundInfo.getPath());
+		NikkoFundInfo.save(fundList);
 		
 		logger.info("STOP");		
 	}
