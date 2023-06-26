@@ -31,7 +31,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -172,7 +171,7 @@ public class CSVUtil {
 		}
 	}
 	
-	public static String[] parseLine(BufferedReader br) {
+	public static String[] parseLine(BufferedReader br, char separator) {
 		try {			
 			// Peek one char to check end of stream
 			{
@@ -215,7 +214,7 @@ public class CSVUtil {
 					field.setLength(0);
 					list.add("");
 					break;
-				} else if (fieldFirstChar == ',') {
+				} else if (fieldFirstChar == separator) {
 					// end of field -- empty field
 					field.setLength(0);
 					list.add("");
@@ -238,7 +237,7 @@ public class CSVUtil {
 								// Special handling of last record with no \n
 								endOfRecord = true;
 								break;
-							} else if (c2 == ',') {
+							} else if (c2 == separator) {
 								// end of field
 								break;
 							} else if (c2 == '\r') {
@@ -307,7 +306,7 @@ public class CSVUtil {
 							// Special handling of last record with no \n
 							endOfRecord = true;
 							break;
-						} else if (c == ',') {
+						} else if (c == separator) {
 							// end of field
 							break;
 						} else if (c == '\r') {
@@ -351,15 +350,16 @@ public class CSVUtil {
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
-	public static String[] parseLine(String string) {
+	public static String[] parseLine(String string, char separator) {
 		StringReader   sr = new StringReader(string);
 		BufferedReader br = new BufferedReader(sr);
-		return parseLine(br);
+		return parseLine(br, separator);
 	}
 	
 	
 	private static class Context {
 		private boolean withHeader = true;
+		private char    separator  = ',';
 	}
 	
 	public static <E> Read<E> read(Class<E> clazz) {
@@ -377,6 +377,10 @@ public class CSVUtil {
 			context.withHeader = newValue;
 			return this;
 		}
+		public Read<E> withSeparator(char newValue) {
+			context.separator = newValue;
+			return this;
+		}
 		
 		public static String toStringAsHexChar(String string) {
 			StringBuilder sb = new StringBuilder();
@@ -389,8 +393,8 @@ public class CSVUtil {
 		}
 
 
-		private void readHeader(BufferedReader br) {
-			String[] names = parseLine(br);
+		private void readHeader(BufferedReader br, char separator) {
+			String[] names = parseLine(br, separator);
 			if (names == null) {
 				logger.error("Unexpected EOF");
 				throw new UnexpectedException("Unexpected EOF");
@@ -484,7 +488,7 @@ public class CSVUtil {
 		
 		private E read(BufferedReader br) {
 			try {
-				String[] values = parseLine(br);
+				String[] values = parseLine(br, context.separator);
 				if (values == null) return null;
 				
 				FieldInfo[] fieldInfos = classInfo.fieldInfos;
@@ -534,7 +538,7 @@ public class CSVUtil {
 				}
 
 				if (context.withHeader) {
-					readHeader(br);
+					readHeader(br, context.separator);
 				}
 				
 				List<E> ret = new ArrayList<>();
