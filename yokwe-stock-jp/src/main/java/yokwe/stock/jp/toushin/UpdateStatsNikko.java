@@ -21,7 +21,7 @@ public class UpdateStatsNikko {
 		ArrayList<Stats> statsList = new ArrayList<>(Stats.load());
 		logger.info("statsList  {}", statsList.size());
 		
-		Set<String>nikkoSet = yokwe.stock.jp.nikko.Fund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		Set<String>nikkoSet = yokwe.stock.jp.nikko.NikkoFundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		logger.info("nikkoSet   {}", nikkoSet.size());
 		
 		statsList.removeIf(o -> !nikkoSet.contains(o.isinCode));
