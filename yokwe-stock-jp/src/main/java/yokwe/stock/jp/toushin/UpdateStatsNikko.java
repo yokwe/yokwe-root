@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
+import yokwe.stock.jp.nikko.NikkoFund;
 import yokwe.util.ListUtil;
 
 public class UpdateStatsNikko {
@@ -21,7 +22,7 @@ public class UpdateStatsNikko {
 		ArrayList<Stats> statsList = new ArrayList<>(Stats.load());
 		logger.info("statsList  {}", statsList.size());
 		
-		Set<String>nikkoSet = yokwe.stock.jp.nikko.NikkoFundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		Set<String>nikkoSet = NikkoFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		logger.info("nikkoSet   {}", nikkoSet.size());
 		
 		statsList.removeIf(o -> !nikkoSet.contains(o.isinCode));
