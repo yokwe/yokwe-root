@@ -41,7 +41,6 @@ public class FundInfo implements Comparable<FundInfo> {
 	
 	// from Fund
 	public String   isinCode;
-	public Company  company;
 	public String   fundName;
 	public Currency currency;
 	

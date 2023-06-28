@@ -68,7 +68,7 @@ public class UpdateFund {
 //        ret.marketCap          = raw.jyunsisanEn.equals("-") ? "" : raw.jyunsisanEn;
 //      ret.jyunsisanEnFM      = raw.jyunsisanEnFM;
 //      ret.jyunsisanRank      = raw.jyunsisanRank;
-        ret.company            = Company.get(raw.kanaCode);
+//        ret.company            = Company.get(raw.kanaCode);
 //        ret.divFreq            = raw.kessanHindo.equals("-") ? "" : toString(new BigDecimal(raw.kessanHindo));
         ret.divFreq            = raw.kessanHindo.equals("-") ? "" : raw.kessanHindo;
 //      ret.kessanHindoFM      = raw.kessanHindoFM;

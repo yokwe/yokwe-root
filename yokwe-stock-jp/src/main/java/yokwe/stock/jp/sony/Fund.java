@@ -103,7 +103,6 @@ public class Fund implements Comparable<Fund> {
 	//
 	public String        category; // 国際REIT型
 	public String        fundName; // ワールド・リート・オープン（毎月決算型）
-    public Company       company;  // 081
     public String        divFreq;  // 12
     public String        rating;   // - 1 2 3 4 5
     public Region        region;   // 01
@@ -116,7 +115,6 @@ public class Fund implements Comparable<Fund> {
 		//
 	    this.category = null;
 	    this.fundName = null;
-	    this.company  = null;
 	    this.divFreq  = null;
 	    this.region   = null;
 	    this.target   = null;

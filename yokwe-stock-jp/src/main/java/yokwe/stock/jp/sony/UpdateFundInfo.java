@@ -491,7 +491,6 @@ public class UpdateFundInfo {
 		fundInfo.isinCode          = fund.isinCode;
 		fundInfo.fundName          = fund.fundName;
 		fundInfo.currency          = fund.currency;
-		fundInfo.company           = fund.company;
 		
 		fundInfo.msFundCode        = (msFundCode == null) ? "" : msFundCode.value;
 		fundInfo.description       = description.value;
