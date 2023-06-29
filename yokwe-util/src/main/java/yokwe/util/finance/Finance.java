@@ -42,8 +42,8 @@ public final class Finance {
 		}
 		
 		public BigDecimal apply(BigDecimal price, BigDecimal div) {
-			BigDecimal dailyReturn     = price.add(div).divide(previousPrice, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-			BigDecimal reinvestedPrice = previousReinvestedPrice.multiply(dailyReturn).round(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+			BigDecimal dailyReturn     = BigDecimalUtil.divide(price.add(div), previousPrice);
+			BigDecimal reinvestedPrice = BigDecimalUtil.multiply(previousReinvestedPrice, dailyReturn);
 			
 			// update for next iteration
 			previousPrice           = price;
@@ -60,7 +60,7 @@ public final class Finance {
 	public static BigDecimal annualizeReturn(BigDecimal absoluteReturn, int nYear) {
 		// ((1 + absoluteReturn) ^ (1 / nYear)) - 1
 		BigDecimal base     = BigDecimal.ONE.add(absoluteReturn);
-		BigDecimal exponent = BigDecimal.ONE.divide(BigDecimal.valueOf(nYear), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		BigDecimal exponent = BigDecimalUtil.divide(BigDecimal.ONE, BigDecimal.valueOf(nYear));
 		
 		return BigDecimalUtil.mathPow(base, exponent).subtract(BigDecimal.ONE);
 	}
@@ -73,19 +73,19 @@ public final class Finance {
 	// 標準偏差は求めた値を年率換算（年間での変化率を計算）して使うのが一般的だ。
 	// 具体的には、日次、週次、月次騰落率から計測した標準偏差について、
 	// 1年＝250（営業日）＝52（週）＝12（月）の各250、52、12の平方根を掛けた値が年率換算値になる。
-	public static final BigDecimal SQRT_12  = BigDecimal.valueOf(12).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-	public static final BigDecimal SQRT_250 = BigDecimal.valueOf(250).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+	public static final BigDecimal SQRT_12  = BigDecimalUtil.mathSqrt(BigDecimal.valueOf(12));
+	public static final BigDecimal SQRT_250 = BigDecimalUtil.mathSqrt(BigDecimal.valueOf(250));
 	
 	public static BigDecimal annualizeDailyStandardDeviation(BigDecimal dailyStandardDeviation) {
 		// 1 year = 250 days
 		// dailyStandardDeviation x sqrt(250)
-		return dailyStandardDeviation.multiply(SQRT_250, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		return BigDecimalUtil.multiply(dailyStandardDeviation, SQRT_250);
 	}
 
 	public static BigDecimal annualizeMonthlyStandardDeviation(BigDecimal montylyStandardDeviation) {
 		// 1 year = 12 month
 		// montylyStandardDeviation x sqrt(12)
-		return montylyStandardDeviation.multiply(SQRT_12, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		return BigDecimalUtil.multiply(montylyStandardDeviation, SQRT_12);
 	}
 	
 }

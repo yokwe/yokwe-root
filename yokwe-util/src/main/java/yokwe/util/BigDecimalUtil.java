@@ -13,10 +13,10 @@ import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.MA;
 
 public final class BigDecimalUtil {
-	public static final int          DOUBLE_PRECISION       = 15; // precision of double type
-	public static final int          DEFAULT_PRECISION      = DOUBLE_PRECISION;
-	public static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_EVEN;
-	public static final MathContext  DEFAULT_MATH_CONTEXT   = new MathContext(DEFAULT_PRECISION, DEFAULT_ROUNDING_MODE);
+	private static final int          DOUBLE_PRECISION       = 15; // precision of double type
+	private static final int          DEFAULT_PRECISION      = DOUBLE_PRECISION;
+	private static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_EVEN;
+	private static final MathContext  DEFAULT_MATH_CONTEXT   = new MathContext(DEFAULT_PRECISION, DEFAULT_ROUNDING_MODE);
 	
 	
 	// 
@@ -62,14 +62,45 @@ public final class BigDecimalUtil {
 	// convenience method
 	// ------------------
 	//
-
+	
+	//
+	// setScale
+	//
+	public static BigDecimal setScale(BigDecimal value, int newScale) {
+		return value.setScale(newScale, DEFAULT_ROUNDING_MODE);
+	}
+	
+	
+	//
+	// round
+	//
+	public static BigDecimal round(BigDecimal value) {
+		return value.round(DEFAULT_MATH_CONTEXT);
+	}
+	
+	
+	//
+	// return a / b
+	//
+	public static BigDecimal divide(BigDecimal a, BigDecimal b) {
+		return a.divide(b, DEFAULT_MATH_CONTEXT);
+	}
+	
+	
+	//
+	// return a * b
+	//
+	public static BigDecimal multiply(BigDecimal a, BigDecimal b) {
+		return a.multiply(b, DEFAULT_MATH_CONTEXT);
+	}
+	
 	
 	//
 	// return simple return from previous and price
 	//
 	public static BigDecimal toSimpleReturn(BigDecimal previous, BigDecimal value) {
 		// return (value / previous) - 1
-		return value.divide(previous, DEFAULT_MATH_CONTEXT).subtract(BigDecimal.ONE);
+		return divide(value, previous).subtract(BigDecimal.ONE);
 	}
 	
 	
@@ -110,7 +141,7 @@ public final class BigDecimalUtil {
 		public void accept(BigDecimal value) {
 			if (average == null) average = value;
 			// average = average + alpha * (value - average);
-			average = average.add(alpha.multiply(value.subtract(average)), DEFAULT_MATH_CONTEXT);
+			average = average.add(multiply(alpha, value.subtract(average)));
 		}
 		@Override
 		public BigDecimal get( ) {
@@ -146,7 +177,7 @@ public final class BigDecimalUtil {
 		public HV(BigDecimal alpha, BigDecimal confidence, BigDecimal timeHorizon) {
 			ema = new EMA(alpha);
 			// k = confidence x sqrt(timeHorizon)
-			k = confidence.multiply(mathSqrt(timeHorizon), DEFAULT_MATH_CONTEXT);
+			k = multiply(confidence, mathSqrt(timeHorizon));
 		}
 		public HV(BigDecimal timeHorizon) {
 			this(DEFAULT_ALPHA, CONFIDENCE_95_PERCENT, timeHorizon);

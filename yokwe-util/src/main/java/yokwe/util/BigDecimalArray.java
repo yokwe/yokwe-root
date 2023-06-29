@@ -136,7 +136,7 @@ public final class BigDecimalArray {
 		}
 		@Override
 		public BigDecimal get() {
-			return total.divide(BigDecimal.valueOf(count), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+			return BigDecimalUtil.divide(total, BigDecimal.valueOf(count));
 		}
 	}
 	public static <T> BigDecimal mean(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
@@ -165,7 +165,7 @@ public final class BigDecimalArray {
 
 		@Override
 		public BigDecimal get() {
-			BigDecimal value = total.divide(BigDecimal.valueOf(count), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+			BigDecimal value = BigDecimalUtil.divide(total, BigDecimal.valueOf(count));;
 			return BigDecimalUtil.mathExp(value);
 		}
 	}
@@ -200,7 +200,7 @@ public final class BigDecimalArray {
 		@Override
 		public BigDecimal get() {
 			// return total / count;
-			return total.divide(BigDecimal.valueOf(count), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+			return BigDecimalUtil.divide(total, BigDecimal.valueOf(count));
 		}
 	}
 	public static <T> BigDecimal variance(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> map) {
@@ -217,7 +217,7 @@ public final class BigDecimalArray {
 	// calculate BigDecimal standard deviation from other type of array using map
 	//
 	public static <T> BigDecimal standardDeviation(T[] array, int startIndex, int stopIndexPlusOne, BigDecimal mean, Function<T, BigDecimal> map) {
-		return variance(array, startIndex, stopIndexPlusOne, mean, map).sqrt(BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		return BigDecimalUtil.mathSqrt(variance(array, startIndex, stopIndexPlusOne, mean, map));
 	}
 	public static <T> BigDecimal standardDeviation(T[] array, BigDecimal mean, Function<T, BigDecimal> map) {
 		// call above method

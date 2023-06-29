@@ -55,8 +55,8 @@ public final class T001 {
 			logger.info("  anRetrun  {}", aStats.returns.multiply(N_100).toPlainString());
 			logger.info("  anSD      {}", aStats.standardDeviation.stripTrailingZeros().toPlainString());
 			logger.info("  div       {}", aStats.dividend.stripTrailingZeros().toPlainString());
-			logger.info("  yield     {}", aStats.yield.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
-			logger.info("  sharpe    {}", aStats.sharpeRatio.setScale(4, BigDecimalUtil.DEFAULT_ROUNDING_MODE));
+			logger.info("  yield     {}", BigDecimalUtil.setScale(aStats.yield, 4));
+			logger.info("  sharpe    {}", BigDecimalUtil.setScale(aStats.sharpeRatio, 4));
 		}
 
 	}

@@ -65,7 +65,7 @@ public final class AnnualStats {
 		endValue             = endMonth.endValue;
 				
 		dividend             = BigDecimalArray.sum(monthlyStatsArray, 0, nMonth, o -> o.dividend);
-		yield                = dividend.divide(endValue.multiply(BigDecimal.valueOf(nYear)), BigDecimalUtil.DEFAULT_MATH_CONTEXT);
+		yield                = BigDecimalUtil.divide(dividend, endValue.multiply(BigDecimal.valueOf(nYear)));
 		
 		returns              = Finance.annualizeReturn(BigDecimalUtil.toSimpleReturn(startValue, endValue), nYear);
 		
@@ -76,7 +76,6 @@ public final class AnnualStats {
 			standardDeviation = Finance.annualizeDailyStandardDeviation(sd);
 		}
 		
-		sharpeRatio = returns.divide(standardDeviation, BigDecimalUtil.DEFAULT_MATH_CONTEXT);
-
+		sharpeRatio = BigDecimalUtil.divide(returns, standardDeviation);
 	}
 }
