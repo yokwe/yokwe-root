@@ -48,10 +48,6 @@ public class Stats implements Comparable<Stats> {
 	public BigDecimal return3Y;
 	public BigDecimal return5Y;
 	
-	public BigDecimal sharpe1Y;
-	public BigDecimal sharpe3Y;
-	public BigDecimal sharpe5Y;
-
 	public BigDecimal div1Y;
 	public BigDecimal div3Y;
 	public BigDecimal div5Y;

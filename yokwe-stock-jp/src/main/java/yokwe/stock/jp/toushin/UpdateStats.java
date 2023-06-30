@@ -90,13 +90,11 @@ public class UpdateStats {
 					stats.div1Y    = aStats.dividend;
 					stats.yield1Y  = aStats.yield;
 					stats.return1Y = aStats.returns;
-					stats.sharpe1Y = aStats.sharpeRatio;
 				} else {
 					stats.sd1Y     = minus1;
 					stats.div1Y    = minus1;
 					stats.yield1Y  = minus1;
 					stats.return1Y = minus1;
-					stats.sharpe1Y = minus1;
 				}
 			}
 			// 3 year
@@ -108,13 +106,11 @@ public class UpdateStats {
 					stats.div3Y    = aStats.dividend;
 					stats.yield3Y  = aStats.yield;
 					stats.return3Y = aStats.returns;
-					stats.sharpe3Y = aStats.sharpeRatio;
 				} else {
 					stats.sd3Y     = minus1;
 					stats.div3Y    = minus1;
 					stats.yield3Y  = minus1;
 					stats.return3Y = minus1;
-					stats.sharpe3Y = minus1;
 				}
 			}
 			// 5 year
@@ -126,13 +122,11 @@ public class UpdateStats {
 					stats.div5Y    = aStats.dividend;
 					stats.yield5Y  = aStats.yield;
 					stats.return5Y = aStats.returns;
-					stats.sharpe5Y = aStats.sharpeRatio;
 				} else {
 					stats.sd5Y     = minus1;
 					stats.div5Y    = minus1;
 					stats.yield5Y  = minus1;
 					stats.return5Y = minus1;
-					stats.sharpe5Y = minus1;
 				}
 			}
 			
