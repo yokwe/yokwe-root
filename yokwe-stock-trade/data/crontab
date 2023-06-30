@@ -54,7 +54,7 @@ YOKWE_ROOT=/mnt/home/hasegawa/git/yokwe-root
 
 # SONY - every week day
 #m   h     dom mon dow   command
-30   16    *     * 1-5   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-sony-stats ) 1>>tmp/cron.log 2>&1
+30   16    *     * 1-5   cd $YOKWE_ROOT/yokwe-stock-jp; ( make update-sony ) 1>>tmp/cron.log 2>&1
 
 # MONEX
 #m   h     dom mon dow   command
