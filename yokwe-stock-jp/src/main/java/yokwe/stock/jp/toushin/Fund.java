@@ -32,12 +32,19 @@ public final class Fund implements Comparable<Fund> {
 		return ListUtil.checkDuplicate(list, o -> o.isinCode);
 	}
 	
-	public static final LocalDate NO_REDEMPTION_DATE = LocalDate.of(2999, 1, 1);
+	public static final LocalDate NO_REDEMPTION_DATE        = LocalDate.of(2999, 1, 1);
+	public static final String    NO_REDEMPTION_DATE_STRING = "99999999";
+	
+	public static final String    NO_STOCK_CODE      = "00000";
 
 	// "isinCd" : "JP90C000DJ15",
     public String            isinCode;
     // "associFundCd" : "AE313167",
     public String            fundCode;
+    
+    // for ETF  stock code or NO_STOCK_CODE
+    public String            stockCode;
+    
     // "establishedDate" : "2016-07-29 00:00:00",
     public LocalDate         inceptionDate;
 	//  "redemptionDate" : "99999999",
@@ -70,12 +77,13 @@ public final class Fund implements Comparable<Fund> {
 	
 	
 	public Fund(
-		String isinCode, String fundCode, LocalDate inceptionDate, LocalDate redemptionDate, int divFreq, String name,
+		String isinCode, String fundCode, String stockCode, LocalDate inceptionDate, LocalDate redemptionDate, int divFreq, String name,
 		BigDecimal expenseRatio, BigDecimal buyFeeMax,
 		String fundType, String investingArea, String investingAsset, String indexFundType, String settlementDate
 		) {
 		this.isinCode       = isinCode;
 		this.fundCode       = fundCode;
+		this.stockCode      = stockCode;
 		this.inceptionDate  = inceptionDate;
 		this.redemptionDate = redemptionDate;
 		this.divFreq        = divFreq;
@@ -95,7 +103,7 @@ public final class Fund implements Comparable<Fund> {
 	}
 	public Fund() {
 		this(
-			"", null, null, null, 0, null,
+			"", null, null, null, null, 0, null,
 			null, null,
 			null, null, null, null, null
 			);

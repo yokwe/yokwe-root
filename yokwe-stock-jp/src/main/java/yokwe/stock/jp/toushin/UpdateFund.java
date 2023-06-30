@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
+import yokwe.stock.jp.jpx.StockInfo;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
@@ -30,6 +32,9 @@ import yokwe.util.json.JSON;
 public class UpdateFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
+	private static final Map<String, String> isinCodeMap = StockInfo.getList().stream().collect(Collectors.toMap(o -> o.isinCode, o -> o.stockCode));
+	//                       isinCode stockCode
+	
 	//
 	// Fund Seller
 	//
@@ -38,6 +43,8 @@ public class UpdateFund {
 	private static Fund toFund(FundDataSearch.ResultInfo resultInfo) {
 		String    isinCode       = resultInfo.isinCd;
 		String    fundCode       = resultInfo.associFundCd;
+		
+		String    stockCode      = isinCodeMap.getOrDefault(isinCode, Fund.NO_STOCK_CODE);
 		
 		LocalDate listingDate;
 		{
@@ -58,7 +65,7 @@ public class UpdateFund {
 		
 		LocalDate redemptionDate;
 		{
-			if (resultInfo.redemptionDate.equals("99999999")) {
+			if (resultInfo.redemptionDate.equals(Fund.NO_REDEMPTION_DATE_STRING)) {
 				redemptionDate = Fund.NO_REDEMPTION_DATE;
 			} else {
 				Matcher m = PAT_REDEMPTION_DATE.matcher(resultInfo.redemptionDate);
@@ -106,7 +113,7 @@ public class UpdateFund {
 		String settlementDate = resultInfo.setlDate;
 		
 		Fund fund = new Fund(
-				isinCode, fundCode, listingDate, redemptionDate, divFreq, name,
+				isinCode, fundCode, stockCode, listingDate, redemptionDate, divFreq, name,
 				expenseRatio, buyFreeMax,
 				fundType, investingArea, investingAsset, indexFundType, settlementDate
 				);
