@@ -91,8 +91,7 @@ public final class FundDataSearch {
 	
 	// supplementKindCd
 	public enum IndexFundType {
-		NOT_APPLICABLE(0, "該当なし"), ALL(1, "すべて"), INDEX_FUND(2, "インデックスファンド"), ETF(3, "ETF"),
-		NOT_INDEX_FUND(4, "インデックスファンドを除く");
+		NOT_INDEX(0, "該当なし"), INDEX(1, "インデックス型"), SPECIAL(2, "特殊型");
 		
 		public static IndexFundType getInstance(String string) {
 			return EnumUtil.getInstance(IndexFundType.class, string);
