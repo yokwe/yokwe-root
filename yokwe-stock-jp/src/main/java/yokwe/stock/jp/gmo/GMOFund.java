@@ -40,9 +40,13 @@ public class GMOFund implements Comparable<GMOFund> {
 	}
 	
 	public String isinCode;
+	public String fundCode;
+	public String name;
 	
-	public GMOFund(String isinCode) {
+	public GMOFund(String isinCode, String fundCode, String name) {
 		this.isinCode = isinCode;
+		this.fundCode = fundCode;
+		this.name     = name;
 	}
 	
 	@Override

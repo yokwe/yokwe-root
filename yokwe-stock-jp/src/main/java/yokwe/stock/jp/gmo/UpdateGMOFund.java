@@ -2,8 +2,12 @@ package yokwe.stock.jp.gmo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import yokwe.stock.jp.toushin.Fund;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
@@ -54,11 +58,22 @@ public class UpdateGMOFund {
 				throw new UnexpectedException("result.result == null");
 			}
 			
+			Map<String, Fund> fundMap = Fund.getList().stream().collect(Collectors.toMap(o -> o.isinCode, Function.identity()));
 			String page = result.result;
 			List<FundData> list = FundData.getInstance(page);
 			logger.info("list  {}", list.size());
 			for(var e: list) {
-				fundList.add(new GMOFund(e.isinCode));
+				String isinCode = e.isinCode;
+				if (fundMap.containsKey(isinCode)) {
+					Fund   fund     = fundMap.get(isinCode);
+					String fundCode = fund.fundCode;
+					String name     = fund.name;
+					
+					fundList.add(new GMOFund(isinCode, fundCode, name));
+				} else {
+					logger.warn("Unpexpected isinCode");
+					logger.warn("  isinCode  {}", isinCode);
+				}
 			}
 		}
 
