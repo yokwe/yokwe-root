@@ -3,7 +3,6 @@ package yokwe.stock.jp.jpx;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
@@ -37,13 +36,13 @@ public class StockInfo implements Comparable<StockInfo> {
 	}
 
 	public String stockCode; // コード 4 or 5 digits
-	public String isin;      // ISINコード
+	public String isinCode;  // ISINコード
 	public int    tradeUnit; // 売買単位
 	public long   issued;    // 発行済株式数
 	
-	public StockInfo(String stockCode, String isin, int tradeUnit, long issued) {
+	public StockInfo(String stockCode, String isinCode, int tradeUnit, long issued) {
 		this.stockCode = stockCode;
-		this.isin      = isin;
+		this.isinCode  = isinCode;
 		this.tradeUnit = tradeUnit;
 		this.issued    = issued;
 	}
@@ -53,7 +52,7 @@ public class StockInfo implements Comparable<StockInfo> {
 	
 	@Override
 	public String toString() {
-		return String.format("{%s %s %d %d %s}", stockCode, isin, tradeUnit, issued);
+		return String.format("{%s %s %d %d %s}", stockCode, isinCode, tradeUnit, issued);
 	}
 	
 	@Override
