@@ -209,4 +209,19 @@ public final class Storage {
 		}
 	}
 	
+	// Nomura
+	public static final class Nomura {
+		public static final String PREFIX = "nomura";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 }
