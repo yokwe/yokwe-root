@@ -65,6 +65,14 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="toushin-update-stats-nomura">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.UpdateStatsNomura" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	<!-- JPX -->
 	<target name="jpx-update-stock">
@@ -325,6 +333,16 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+
+	<!-- Nomura -->
+	<target name="nouma-fupdate-nomura-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.nomura.UpdateNomuraFund" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>	
 
 	<!-- T001 -->
 	<target name="T001">
