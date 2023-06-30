@@ -9,22 +9,22 @@ import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
-public class FundInfo implements Comparable<FundInfo> {
-	private static final String PATH_FILE = Storage.Sony.getPath("fund-info.csv");
+public class SonyFundInfo implements Comparable<SonyFundInfo> {
+	private static final String PATH_FILE = Storage.Sony.getPath("sony-fund-info.csv");
 	public static final String getPath() {
 		return PATH_FILE;
 	}
 
-	private static List<FundInfo> list = null;
-	public static List<FundInfo> getList() {
+	private static List<SonyFundInfo> list = null;
+	public static List<SonyFundInfo> getList() {
 		if (list == null) {
-			list = ListUtil.getList(FundInfo.class, getPath());
+			list = ListUtil.getList(SonyFundInfo.class, getPath());
 		}
 		return list;
 	}
 	
-	private static Map<String, FundInfo> map = null;
-	public static Map<String, FundInfo> getMap() {
+	private static Map<String, SonyFundInfo> map = null;
+	public static Map<String, SonyFundInfo> getMap() {
 		if (map == null) {
 			var list = getList();
 			map = list.stream().collect(Collectors.toMap(o -> o.isinCode, o -> o));
@@ -32,11 +32,11 @@ public class FundInfo implements Comparable<FundInfo> {
 		return map;
 	}
 
-	public static void save(Collection<FundInfo> collection) {
-		ListUtil.save(FundInfo.class, getPath(), collection);
+	public static void save(Collection<SonyFundInfo> collection) {
+		ListUtil.save(SonyFundInfo.class, getPath(), collection);
 	}
-	public static void save(List<FundInfo> list) {
-		ListUtil.save(FundInfo.class, getPath(), list);
+	public static void save(List<SonyFundInfo> list) {
+		ListUtil.save(SonyFundInfo.class, getPath(), list);
 	}
 	
 	// from Fund
@@ -96,7 +96,7 @@ public class FundInfo implements Comparable<FundInfo> {
 	
 	
 	@Override
-	public int compareTo(FundInfo that) {
+	public int compareTo(SonyFundInfo that) {
 		int ret = this.isinCode.compareTo(that.isinCode);
 		return ret;
 	}

@@ -21,7 +21,7 @@ public class UpdateStatsSony {
 		ArrayList<Stats> statsList = new ArrayList<>(Stats.load());
 		logger.info("statsList  {}", statsList.size());
 		
-		Set<String> sonySet = yokwe.stock.jp.sony.Fund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		Set<String> sonySet = yokwe.stock.jp.sony.SonyFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		logger.info("sonySet    {}", sonySet.size());
 		
 		statsList.removeIf(o -> !sonySet.contains(o.isinCode));

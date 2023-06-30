@@ -255,16 +255,16 @@
 	</target>
 
 	<!-- SONY -->
-	<target name="sony-update-fund">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdateFund" fork="true">
+	<target name="sony-update-sony-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdateSonyFund" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="sony-update-fund-info">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdateFundInfo" fork="true">
+	<target name="sony-update-sony-fund-info">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdateSonyFundInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
@@ -279,23 +279,7 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="sony-update-fund-stats">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.UpdateFundStats" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="sony-gen-source-file">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.sony.GenSourceFile" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-
+	
 	<!-- REIT -->
 	<target name="japanreit-update-reit">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.japanreit.UpdateREIT" fork="true">

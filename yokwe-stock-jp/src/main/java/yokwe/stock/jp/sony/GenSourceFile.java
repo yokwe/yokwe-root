@@ -18,7 +18,7 @@ public class GenSourceFile {
 //    	GenearateJSONStub.generate("yokwe.security.japan.sony.json", "Dividend", new File("tmp/F000000MU9-div.json"));
     	
     	{
-    		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(UpdateFund.URL_FUND_LIST);
+    		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(UpdateSonyFund.URL_FUND_LIST);
 			logger.info("result {} {} {} {}", result.code, result.reasonPhrase, result.version, result.rawData.length);
 			
     		String jsonString;

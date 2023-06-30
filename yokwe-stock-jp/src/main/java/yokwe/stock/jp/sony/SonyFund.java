@@ -10,24 +10,24 @@ import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
-public class Fund implements Comparable<Fund> {
+public class SonyFund implements Comparable<SonyFund> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	private static final String PATH_FILE = Storage.Sony.getPath("fund.csv");
+	private static final String PATH_FILE = Storage.Sony.getPath("sony-fund.csv");
 	public static final String getPath() {
 		return PATH_FILE;
 	}
 
-	private static List<Fund> list = null;
-	public static List<Fund> getList() {
+	private static List<SonyFund> list = null;
+	public static List<SonyFund> getList() {
 		if (list == null) {
-			list = ListUtil.getList(Fund.class, getPath());
+			list = ListUtil.getList(SonyFund.class, getPath());
 		}
 		return list;
 	}
 
-	private static Map<String, Fund> map = null;
-	public static Map<String, Fund> getMap() {
+	private static Map<String, SonyFund> map = null;
+	public static Map<String, SonyFund> getMap() {
 		if (map == null) {
 			var list = getList();
 			map = list.stream().collect(Collectors.toMap(o -> o.isinCode, o -> o));
@@ -35,11 +35,11 @@ public class Fund implements Comparable<Fund> {
 		return map;
 	}
 
-	public static void save(Collection<Fund> collection) {
-		ListUtil.save(Fund.class, getPath(), collection);
+	public static void save(Collection<SonyFund> collection) {
+		ListUtil.save(SonyFund.class, getPath(), collection);
 	}
-	public static void save(List<Fund> list) {
-		ListUtil.save(Fund.class, getPath(), list);
+	public static void save(List<SonyFund> list) {
+		ListUtil.save(SonyFund.class, getPath(), list);
 	}
 
 	public static enum Region {
@@ -109,7 +109,7 @@ public class Fund implements Comparable<Fund> {
     public Target        target;   // 20
     public Currency      currency; // JPY
 
-	public Fund() {
+	public SonyFund() {
 		this.dateTime = null;
 		this.isinCode = null;
 		//
@@ -122,7 +122,7 @@ public class Fund implements Comparable<Fund> {
 	}
 	
 	@Override
-	public int compareTo(Fund that) {
+	public int compareTo(SonyFund that) {
 		int ret = this.dateTime.compareTo(that.dateTime);
 		if (ret == 0) ret = this.isinCode.compareTo(that.isinCode);
 		return ret;

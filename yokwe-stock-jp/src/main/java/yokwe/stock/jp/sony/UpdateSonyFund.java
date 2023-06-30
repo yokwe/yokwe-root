@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import yokwe.stock.jp.sony.Fund.Region;
-import yokwe.stock.jp.sony.Fund.Target;
+import yokwe.stock.jp.sony.SonyFund.Region;
+import yokwe.stock.jp.sony.SonyFund.Target;
 import yokwe.stock.jp.sony.json.FundData;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
-public class UpdateFund {
+public class UpdateSonyFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// To get msFundCode from isinCode, fetch page using above getURL() and find line like "var msFundCode = '2013121001';"
@@ -42,8 +42,8 @@ public class UpdateFund {
 //		return value.compareTo(BigDecimal.ZERO) == 0 ? "0" : value.toPlainString();
 //	}
 	
-	public static Fund getInstance(LocalDateTime dateTime, String isinCode, FundData.JP90C00002U0 raw) {
-		Fund ret = new Fund();
+	public static SonyFund getInstance(LocalDateTime dateTime, String isinCode, FundData.JP90C00002U0 raw) {
+		SonyFund ret = new SonyFund();
         ret.dateTime           = dateTime;
         ret.isinCode           = isinCode;
         //
@@ -99,7 +99,7 @@ public class UpdateFund {
         return ret;
 	}
 
-	public static List<Fund> updateList() {
+	public static List<SonyFund> updateList() {
 		HttpUtil.Result result = HttpUtil.getInstance().withCharset("MS932").download(URL_FUND_LIST);
 		
 		String string = result.result;
@@ -133,7 +133,7 @@ public class UpdateFund {
 		}
 		RawData rawData = JSON.unmarshal(RawData.class, jsonString);
 
-		List<Fund> list = new ArrayList<>();
+		List<SonyFund> list = new ArrayList<>();
 		for(Map.Entry<String, FundData.JP90C00002U0> entry: rawData.map.entrySet()) {
 			String                isinCode = entry.getKey();
 			FundData.JP90C00002U0 fundData = entry.getValue();
@@ -147,14 +147,14 @@ public class UpdateFund {
 		logger.info("START");
 
 		{
-			List<Fund> list = updateList();
+			List<SonyFund> list = updateList();
 			
-			logger.info("save {} {}", list.size(), Fund.getPath());
-			Fund.save(list);
+			logger.info("save {} {}", list.size(), SonyFund.getPath());
+			SonyFund.save(list);
 		}
 		
 		{
-			List<Fund> list = Fund.getList();
+			List<SonyFund> list = SonyFund.getList();
 			logger.info("list {}", list.size());
 		}
 		

@@ -14,7 +14,7 @@ import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateFundInfo {
+public class UpdateSonyFundInfo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	// 現在値
@@ -467,7 +467,7 @@ public class UpdateFundInfo {
 	}
 
 	
-	private static void updateList(List<FundInfo> infoList, List<Dividend> divList, Fund fund, String page) {
+	private static void updateList(List<SonyFundInfo> infoList, List<Dividend> divList, SonyFund fund, String page) {
 		MSFundCode        msFundCode        = MSFundCode.getInstance(page);
 		Description       description       = Description.getInstance(page);
 		InceptionDate     inceptionDate     = InceptionDate.getInstance(page);
@@ -486,7 +486,7 @@ public class UpdateFundInfo {
 		CancelFee         cancelFee         = CancelFee.getInstance(page);
 		List<DivHistory>  divHistoryList    = DivHistory.getInstance(page);
 		
-		FundInfo fundInfo = new FundInfo();
+		SonyFundInfo fundInfo = new SonyFundInfo();
 		
 		fundInfo.isinCode          = fund.isinCode;
 		fundInfo.fundName          = fund.fundName;
@@ -533,11 +533,11 @@ public class UpdateFundInfo {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<FundInfo> infoList = new ArrayList<>();
+		List<SonyFundInfo> infoList = new ArrayList<>();
 		List<Dividend> divList  = new ArrayList<>();
 		
 		// Build infoLsit and divList
-		for(Fund e: Fund.getList()) {
+		for(SonyFund e: SonyFund.getList()) {
 			String isinCode = e.isinCode;
 			logger.info("{} {}", isinCode, e.fundName);
 			
@@ -549,8 +549,8 @@ public class UpdateFundInfo {
 		}
 		
 		// Save infoList
-		logger.info("save {} {}", infoList.size(), FundInfo.getPath());
-		FundInfo.save(infoList);
+		logger.info("save {} {}", infoList.size(), SonyFundInfo.getPath());
+		SonyFundInfo.save(infoList);
 		
 		// Save divList
 		{
