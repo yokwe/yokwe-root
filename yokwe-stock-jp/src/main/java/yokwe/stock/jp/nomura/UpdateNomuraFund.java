@@ -21,7 +21,7 @@ import yokwe.util.http.HttpUtil;
 public class UpdateNomuraFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE = true;
+	private static final boolean DEBUG_USE_FILE = false;
 
 	private static final int     MAX_DISP  = 50;
 	private static final Charset UTF_8     = StandardCharsets.UTF_8;
