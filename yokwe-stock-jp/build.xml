@@ -344,6 +344,16 @@
 		</java>
 	</target>	
 
+	<!-- GMO -->
+	<target name="gmo-fupdate-gmo-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.gmo.UpdateGMOFund" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>	
+
 	<!-- T001 -->
 	<target name="T001">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.toushin.T001" fork="true">
