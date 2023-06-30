@@ -787,6 +787,13 @@ public final class JSON {
 				} else {
 					gen.write(name, (String)o);
 				}
+			} else if (clazz.equals(BigDecimal.class)) {
+				BigDecimal value = (BigDecimal)o;
+				if (name == null) {
+					gen.write(value.toPlainString());
+				} else {
+					gen.write(name, value.toPlainString());
+				}
 			} else if (clazz.isEnum()) {
 				if (name == null) {
 					gen.write(o.toString());
