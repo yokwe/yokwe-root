@@ -52,16 +52,12 @@ public class UpdateStats {
 			MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, priceArray, divArray, 10 * 12 + 1);
 
 			var nikkei = nikkeiMap.get(isinCode);
-			if (nikkei == null) {
-				//logger.warn("{}  No Nikkei  --  {}", isinCode, fund.name);
-				countNoNikkei++;
-				continue;
-			}
 			
 			Stats stats = new Stats();
 			
-			stats.isinCode = fund.isinCode;
-			stats.fundCode = fund.fundCode;
+			stats.isinCode  = fund.isinCode;
+			stats.fundCode  = fund.fundCode;
+			stats.stockCode = fund.stockCode;
 			
 			stats.inception  = fund.inceptionDate;
 			stats.redemption = fund.redemptionDate;
@@ -70,17 +66,16 @@ public class UpdateStats {
 				Period period = stats.inception.until(today);
 				stats.age = new BigDecimal(String.format("%d.%02d", period.getYears(), period.getMonths()));
 			}
-			stats.qCat1  = nikkei.category1;
-			stats.qCat2  = nikkei.category2;
-			stats.forex  = nikkei.category3.replace("為替リスク", "");
-			stats.type   = nikkei.fundType.compareTo("アクティブ型") == 0 ? "ACTIVE" : "INDEX"; // アクティブ型 or インデックス型
 			
-			stats.date  = lastPrice.date;
-			stats.price = lastPrice.price;
-			stats.nav   = lastPrice.nav;
+			stats.qCat1  = (nikkei != null) ? nikkei.category1 : fund.investingAsset;
+			stats.qCat2  = (nikkei != null) ? nikkei.category2 : fund.investingArea;
+			stats.forex  = (nikkei != null) ? nikkei.category3.replace("為替リスク", "") : "?FX?";
 			
-			stats.divc  = fund.divFreq;
-
+			stats.type         = fund.indexFundType;
+			stats.date         = lastPrice.date;
+			stats.expenseRatio = fund.expenseRatio;
+			stats.nav          = lastPrice.nav;
+			
 			// 1 year
 			{
 				int nYear = 1;
@@ -130,9 +125,9 @@ public class UpdateStats {
 				}
 			}
 			
-			stats.divQ1Y   = nikkei.divScore1Y;
-			stats.divQ3Y   = nikkei.divScore3Y;
-			stats.divQ5Y   = nikkei.divScore5Y;
+			stats.divQ1Y   = (nikkei != null) ? nikkei.divScore1Y : BigDecimal.ONE.negate();
+			stats.divQ3Y   = (nikkei != null) ? nikkei.divScore3Y : BigDecimal.ONE.negate();
+			stats.divQ5Y   = (nikkei != null) ? nikkei.divScore5Y : BigDecimal.ONE.negate();
 			
 			stats.name     = fund.name;
 			stats.seller   = Seller.getSellerName(sellerList, stats.isinCode);

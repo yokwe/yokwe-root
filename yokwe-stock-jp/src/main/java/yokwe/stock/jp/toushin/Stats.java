@@ -20,26 +20,25 @@ public class Stats implements Comparable<Stats> {
 		return ListUtil.load(Stats.class, getPath());
 	}
 	
-	public String isinCode;             // isinCode
+	public String isinCode;         // isinCode
 	public String fundCode;         // fundCode
+	public String stockCode;        // stockCode
 	
 	public LocalDate inception;
 	public LocalDate redemption;
 	
 	public BigDecimal age; // yy.mm
-
+	
 	public String qCat1 = null;
 	public String qCat2 = null;
 	public String forex = null; // forex risk
 	
-	public String type; // index or active
-	
+	public String     type; // index or active
 	public LocalDate  date;
-	public BigDecimal price;
+	public BigDecimal expenseRatio;
 	public BigDecimal nav;
-
-	public int divc;
-
+	public int        divc;
+	
 	public BigDecimal sd1Y;
 	public BigDecimal sd3Y;
 	public BigDecimal sd5Y;
@@ -63,9 +62,6 @@ public class Stats implements Comparable<Stats> {
 	//
 	public String name;
 	public String seller;
-//	public String description;
-	
-	
 	
 	
     @Override
