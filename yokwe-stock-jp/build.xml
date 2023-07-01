@@ -335,7 +335,7 @@
 	</target>
 
 	<!-- Nomura -->
-	<target name="nouma-fupdate-nomura-fund">
+	<target name="nouma-update-nomura-fund">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.nomura.UpdateNomuraFund" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
@@ -345,8 +345,18 @@
 	</target>	
 
 	<!-- GMO -->
-	<target name="gmo-fupdate-gmo-fund">
+	<target name="gmo-update-gmo-fund">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.gmo.UpdateGMOFund" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>	
+
+	<!-- Rakuten -->
+	<target name="rakuten-update-rakuten-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.rakuten.UpdateRakutenFund" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
