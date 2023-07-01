@@ -650,6 +650,40 @@ public final class JSON {
 					setValue(array[i], jsonValue.asJsonObject());
 				}
 					break;
+				case ARRAY:
+				{
+					JsonArray jsonValueArray     = jsonValue.asJsonArray();
+					int       jsonValueArraySize = jsonValueArray.size();
+					
+					if (componentType.isArray()) {
+						Class<?> arrayComponetType     = componentType.componentType();
+						String   arrayComponetTypeName = arrayComponetType.getName();
+
+						Object[] arrayElement = (Object[])Array.newInstance(arrayComponetType, jsonValueArraySize);
+						array[i] = arrayElement;
+						for(int j = 0; j < jsonValueArraySize; j++) {
+							// ARRAY OF ARRAY OF STRING
+							switch(arrayComponetTypeName) {
+							case "java.lang.String":
+								arrayElement[j] = jsonValueArray.getString(j);
+								break;
+							default:
+								logger.error("Unexpected arrayComponetType");
+								logger.error("  classInfo          {}", classInfo.clazzName);
+								logger.error("  componentType      {}", componentType.getName());
+								logger.error("  arrayComponetType  {}", arrayComponetType.getName());
+								throw new UnexpectedException("Unexpected arrayComponetType");
+							}
+						}
+					} else {
+						logger.error("Unexpected componentType type");
+						logger.error("  component type is not array");
+						logger.error("  classInfo          {}", classInfo.clazzName);
+						logger.error("  componentType      {}", componentType.getName());
+						throw new UnexpectedException("Unexpected componentType type");
+					}
+				}
+					break;
 				default:
 					logger.error("Unexpected json array element type {} {}", jsonValue.getValueType().toString(), classInfo.clazzName);
 					throw new UnexpectedException("Unexpected json array element type");
