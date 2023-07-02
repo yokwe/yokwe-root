@@ -1,5 +1,6 @@
 package yokwe.stock.jp.gmo;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,8 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class GMOFund implements Comparable<GMOFund> {
+	public static final String SELLER_NAME = "ＧＭＯクリック証券";
+	
 	private static final String PATH_FILE = Storage.GMO.getPath("gmo-fund.csv");
 	public static final String getPath() {
 		return PATH_FILE;
@@ -39,14 +42,20 @@ public class GMOFund implements Comparable<GMOFund> {
 		ListUtil.save(GMOFund.class, getPath(), list);
 	}
 	
-	public String isinCode;
-	public String fundCode;
-	public String name;
+	public String     isinCode;
+	public String     fundCode;
 	
-	public GMOFund(String isinCode, String fundCode, String name) {
-		this.isinCode = isinCode;
-		this.fundCode = fundCode;
-		this.name     = name;
+    public BigDecimal salesFeeRatio;
+    public BigDecimal expenseRatio;
+	
+	public String     name;
+	
+	public GMOFund(String isinCode, String fundCode, BigDecimal salesFeeRatio, BigDecimal expenseRatio, String name) {
+		this.isinCode      = isinCode;
+		this.fundCode      = fundCode;
+		this.salesFeeRatio = salesFeeRatio;
+		this.expenseRatio  = expenseRatio;
+		this.name          = name;
 	}
 	
 	@Override
