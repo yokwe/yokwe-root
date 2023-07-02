@@ -27,7 +27,7 @@ public final class Fund implements Comparable<Fund> {
 		return ListUtil.getList(Fund.class, getPath());
 	}
 	public static Map<String, Fund> getMap() {
-		//            stockCode
+		//            isinCode
 		var list = ListUtil.getList(Fund.class, getPath());
 		return ListUtil.checkDuplicate(list, o -> o.isinCode);
 	}
