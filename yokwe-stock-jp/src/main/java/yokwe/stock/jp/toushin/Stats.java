@@ -29,12 +29,10 @@ public class Stats implements Comparable<Stats> {
 	
 	public BigDecimal age; // yy.mm
 	
-	public String qCat1 = null;
-	public String qCat2 = null;
-	public String forex = null; // forex risk
+	public String investingAsset;
+	public String investingArea;
+	public String indexFundType;
 	
-	public String     type; // index or active
-	public LocalDate  date;
 	public BigDecimal expenseRatio;
 	public BigDecimal nav;
 	public int        divc;
@@ -42,26 +40,36 @@ public class Stats implements Comparable<Stats> {
 	public BigDecimal sd1Y;
 	public BigDecimal sd3Y;
 	public BigDecimal sd5Y;
+	public BigDecimal sd10Y;
 
 	public BigDecimal return1Y;
 	public BigDecimal return3Y;
 	public BigDecimal return5Y;
+	public BigDecimal return10Y;
 	
 	public BigDecimal div1Y;
 	public BigDecimal div3Y;
 	public BigDecimal div5Y;
+	public BigDecimal div10Y;
 	
 	public BigDecimal yield1Y;
 	public BigDecimal yield3Y;
 	public BigDecimal yield5Y;
+	public BigDecimal yield10Y;
 	
 	public BigDecimal divQ1Y;
 	public BigDecimal divQ3Y;
 	public BigDecimal divQ5Y;
+	public BigDecimal divQ10Y;
 	
 	//
 	public String name;
-	public String seller;
+	
+	public String gmo;
+	public String nikko;
+	public String nomura;
+	public String rakuten;
+	public String sony;
 	
 	
     @Override

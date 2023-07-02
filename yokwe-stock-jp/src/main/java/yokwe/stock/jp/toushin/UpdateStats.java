@@ -6,7 +6,13 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import yokwe.stock.jp.gmo.GMOFund;
+import yokwe.stock.jp.nikko.NikkoFund;
+import yokwe.stock.jp.nomura.NomuraFund;
+import yokwe.stock.jp.rakuten.RakutenFund;
+import yokwe.stock.jp.sony.SonyFund;
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyValue;
 import yokwe.util.finance.MonthlyStats;
@@ -14,19 +20,30 @@ import yokwe.util.finance.MonthlyStats;
 public class UpdateStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	private static final BigDecimal MINUS_1   = BigDecimal.ONE.negate();
+	private static final int        MAX_YEARS = 10;
+
 	public static void main(String[] args) {
 		logger.info("START");
-		
-		final BigDecimal minus1 = BigDecimal.ONE.negate();
 		
 		List<Stats> statsList = new ArrayList<>();
 		
 		List<Fund> fundList = Fund.getList();
-		logger.info("fundList  {}", fundList.size());
+		logger.info("fundList   {}", fundList.size());
+		
 		var nikkeiMap = yokwe.stock.jp.nikkei.Fund.getMap();
-		logger.info("nikkeiMap {}", nikkeiMap.size());
-		var sellerList = Seller.getList();
-		logger.info("sellerList {}", sellerList.size());
+		logger.info("nikkeiMap  {}", nikkeiMap.size());
+		
+		var gmoSet     = GMOFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		var nikkoSet   = NikkoFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		var nomuraSet  = NomuraFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		var rakutenSet = RakutenFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		var sonySet    = SonyFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		logger.info("gmoSet     {}", gmoSet.size());
+		logger.info("nikkoSet   {}", nikkoSet.size());
+		logger.info("nomuraSet  {}", nomuraSet.size());
+		logger.info("rakutenSet {}", rakutenSet.size());
+		logger.info("sonySet    {}", sonySet.size());
 
 		int countNoPrice = 0;
 		int countNoNikkei = 0;
@@ -40,7 +57,6 @@ public class UpdateStats {
 			
 			Price[] rawPriceArray = Price.getList(isinCode).stream().toArray(Price[]::new);
 			if (rawPriceArray.length == 0) {
-//				logger.warn("{}  rawPriceArray is empty", isinCode);
 				countNoPrice++;
 				continue;
 			}
@@ -49,9 +65,12 @@ public class UpdateStats {
 			DailyValue[] priceArray = Arrays.stream(rawPriceArray).map(o -> new DailyValue(o.date, o.price)).toArray(DailyValue[]::new);
 			DailyValue[] divArray   = Dividend.getList(isinCode).stream().map(o -> new DailyValue(o.date, o.amount)).toArray(DailyValue[]::new);
 			
-			MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, priceArray, divArray, 10 * 12 + 1);
+			MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, priceArray, divArray, MAX_YEARS * 12 + 1);
 
 			var nikkei = nikkeiMap.get(isinCode);
+			if (nikkei == null) {
+				countNoNikkei++;
+			}
 			
 			Stats stats = new Stats();
 			
@@ -67,70 +86,64 @@ public class UpdateStats {
 				stats.age = new BigDecimal(String.format("%d.%02d", period.getYears(), period.getMonths()));
 			}
 			
-			stats.qCat1  = (nikkei != null) ? nikkei.category1 : fund.investingAsset;
-			stats.qCat2  = (nikkei != null) ? nikkei.category2 : fund.investingArea;
-			stats.forex  = (nikkei != null) ? nikkei.category3.replace("為替リスク", "") : "?FX?";
+			// Use toushin category
+			stats.investingAsset = fund.investingAsset;
+			stats.investingArea  = fund.investingArea;
+			stats.indexFundType  = fund.indexFundType;
 			
-			stats.type         = fund.indexFundType;
-			stats.date         = lastPrice.date;
 			stats.expenseRatio = fund.expenseRatio;
 			stats.nav          = lastPrice.nav;
+			stats.divc         = fund.divFreq;
 			
 			// 1 year
 			{
 				int nYear = 1;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				if (aStats != null) {
-					stats.sd1Y     = aStats.standardDeviation;
-					stats.div1Y    = aStats.dividend;
-					stats.yield1Y  = aStats.yield;
-					stats.return1Y = aStats.returns;
-				} else {
-					stats.sd1Y     = minus1;
-					stats.div1Y    = minus1;
-					stats.yield1Y  = minus1;
-					stats.return1Y = minus1;
-				}
+				stats.sd1Y     = aStats == null ? MINUS_1 : aStats.standardDeviation;
+				stats.div1Y    = aStats == null ? MINUS_1 : aStats.dividend;
+				stats.yield1Y  = aStats == null ? MINUS_1 : aStats.yield;
+				stats.return1Y = aStats == null ? MINUS_1 : aStats.returns;
 			}
 			// 3 year
 			{
 				int nYear = 3;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				if (aStats != null) {
-					stats.sd3Y     = aStats.standardDeviation;
-					stats.div3Y    = aStats.dividend;
-					stats.yield3Y  = aStats.yield;
-					stats.return3Y = aStats.returns;
-				} else {
-					stats.sd3Y     = minus1;
-					stats.div3Y    = minus1;
-					stats.yield3Y  = minus1;
-					stats.return3Y = minus1;
-				}
+				stats.sd3Y     = aStats == null ? MINUS_1 : aStats.standardDeviation;
+				stats.div3Y    = aStats == null ? MINUS_1 : aStats.dividend;
+				stats.yield3Y  = aStats == null ? MINUS_1 : aStats.yield;
+				stats.return3Y = aStats == null ? MINUS_1 : aStats.returns;
 			}
 			// 5 year
 			{
 				int nYear = 5;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				if (aStats != null) {
-					stats.sd5Y     = aStats.standardDeviation;
-					stats.div5Y    = aStats.dividend;
-					stats.yield5Y  = aStats.yield;
-					stats.return5Y = aStats.returns;
-				} else {
-					stats.sd5Y     = minus1;
-					stats.div5Y    = minus1;
-					stats.yield5Y  = minus1;
-					stats.return5Y = minus1;
-				}
+				stats.sd5Y     = aStats == null ? MINUS_1 : aStats.standardDeviation;
+				stats.div5Y    = aStats == null ? MINUS_1 : aStats.dividend;
+				stats.yield5Y  = aStats == null ? MINUS_1 : aStats.yield;
+				stats.return5Y = aStats == null ? MINUS_1 : aStats.returns;
+			}
+			// 10 year
+			{
+				int nYear = 10;
+				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
+				stats.sd10Y     = aStats == null ? MINUS_1 : aStats.standardDeviation;
+				stats.div10Y    = aStats == null ? MINUS_1 : aStats.dividend;
+				stats.yield10Y  = aStats == null ? MINUS_1 : aStats.yield;
+				stats.return10Y = aStats == null ? MINUS_1 : aStats.returns;
 			}
 			
-			stats.divQ1Y   = (nikkei != null) ? nikkei.divScore1Y : BigDecimal.ONE.negate();
-			stats.divQ3Y   = (nikkei != null) ? nikkei.divScore3Y : BigDecimal.ONE.negate();
-			stats.divQ5Y   = (nikkei != null) ? nikkei.divScore5Y : BigDecimal.ONE.negate();
+			stats.divQ1Y   = nikkei == null ? MINUS_1 : nikkei.divScore1Y;
+			stats.divQ3Y   = nikkei == null ? MINUS_1 : nikkei.divScore3Y;
+			stats.divQ5Y   = nikkei == null ? MINUS_1 : nikkei.divScore5Y;
+			stats.divQ10Y  = nikkei == null ? MINUS_1 : nikkei.divScore10Y;
 			
 			stats.name     = fund.name;
-			stats.seller   = Seller.getSellerName(sellerList, stats.isinCode);
+			
+			stats.gmo      = gmoSet.contains(fund.isinCode) ? "1" : "0";
+			stats.nikko    = nikkoSet.contains(fund.isinCode) ? "1" : "0";
+			stats.nomura   = nomuraSet.contains(fund.isinCode) ? "1" : "0";
+			stats.rakuten  = rakutenSet.contains(fund.isinCode) ? "1" : "0";
+			stats.sony     = sonySet.contains(fund.isinCode) ? "1" : "0";
 			
 			statsList.add(stats);
 		}
