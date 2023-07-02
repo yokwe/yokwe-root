@@ -44,7 +44,7 @@ public class UpdateFund {
 		String    isinCode       = resultInfo.isinCd;
 		String    fundCode       = resultInfo.associFundCd;
 		
-		String    stockCode      = isinCodeMap.getOrDefault(isinCode, Fund.NO_STOCK_CODE);
+		String    stockCode      = isinCodeMap.getOrDefault(isinCode, "");
 		
 		LocalDate listingDate;
 		{
@@ -110,7 +110,7 @@ public class UpdateFund {
 		
 		String investingAsset = FundDataSearch.InvestingAsset.getInstance(resultInfo.investAssetKindCd).getName();
 		String indexFundType  = FundDataSearch.IndexFundType.getInstance(resultInfo.supplementKindCd).getName();
-		String settlementDate = resultInfo.setlDate;
+		String settlementDate = resultInfo.setlDate.replace(",", "");
 		
 		Fund fund = new Fund(
 				isinCode, fundCode, stockCode, listingDate, redemptionDate, divFreq, name,

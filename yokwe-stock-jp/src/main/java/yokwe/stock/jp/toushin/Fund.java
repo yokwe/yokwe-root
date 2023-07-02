@@ -35,8 +35,6 @@ public final class Fund implements Comparable<Fund> {
 	public static final LocalDate NO_REDEMPTION_DATE        = LocalDate.of(2999, 1, 1);
 	public static final String    NO_REDEMPTION_DATE_STRING = "99999999";
 	
-	public static final String    NO_STOCK_CODE      = "00000";
-
 	// "isinCd" : "JP90C000DJ15",
     public String            isinCode;
     // "associFundCd" : "AE313167",
