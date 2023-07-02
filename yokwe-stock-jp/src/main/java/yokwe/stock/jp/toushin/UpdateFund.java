@@ -105,7 +105,7 @@ public class UpdateFund {
 			if (resultInfo.investArea10kindCd8.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("9").getName());
 			if (resultInfo.investArea10kindCd10.equals("1")) areaList.add(FundDataSearch.InvestingArea.getInstance("10").getName());
 			
-			investingArea = String.join(", ", areaList);
+			investingArea = String.join(" ", areaList);
 		}
 		
 		String investingAsset = FundDataSearch.InvestingAsset.getInstance(resultInfo.investAssetKindCd).getName();
