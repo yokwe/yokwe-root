@@ -196,14 +196,14 @@ public class UpdateFund {
 	
 	private static final BigDecimal MINUS_ONE = BigDecimal.ONE.negate();
 	
-	private static BigDecimal fromPercentString(String string) {
+	private static String fromPercentString(String string) {
 		String numericString = string.trim().replace("%", "");
-		return numericString.compareTo("--") == 0 ? MINUS_ONE : new BigDecimal(numericString).movePointLeft(2);
+		return numericString.compareTo("--") == 0 ? "" : new BigDecimal(numericString).movePointLeft(2).toPlainString();
 	}
 	
-	private static BigDecimal fromCurrencyString(String string) {
+	private static String fromCurrencyString(String string) {
 		String currencyString = string.trim().replace(",", "").replace("円", "");
-		return currencyString.compareTo("--") == 0 ? MINUS_ONE : new BigDecimal(currencyString).movePointLeft(2);
+		return currencyString.compareTo("--") == 0 ? "" : new BigDecimal(currencyString).movePointLeft(2).toPlainString();
 	}
 	
 	private static Pattern pat_DATE  = Pattern.compile("(19[6-9][0-9]|20[0-9]{2})年([012]?[0-9])月([123]?[0-9])日");

@@ -50,16 +50,16 @@ public class Fund implements Comparable<Fund> {
     public String name;
     
     // FundInfo
-	public String category1;
-	public String category2;
-	public String category3;
-	public String settlementFrequency;
+	public String    category1;
+	public String    category2;
+	public String    category3;
+	public String    settlementFrequency;
 	public LocalDate initiationDate;
 	public LocalDate redemptionDate;
-	public String salesType;
-	public String fundType;
-	public BigDecimal initialFee;
-	public BigDecimal trustFee;
+	public String    salesType;
+	public String    fundType;
+	public String    initialFee;
+	public String    trustFee;
 	
 	// PerfScore
 	public String scoreAsOf;
@@ -72,16 +72,16 @@ public class Fund implements Comparable<Fund> {
 	
 	// PerfValues
 	public String valueAsOf;
-	public BigDecimal return6m;
-	public BigDecimal return1y;
-	public BigDecimal return3y;
-	public BigDecimal return5y;
-	public BigDecimal return10y;
-	public BigDecimal risk6m;
-	public BigDecimal risk1y;
-	public BigDecimal risk3y;
-	public BigDecimal risk5y;
-	public BigDecimal risk10y;
+	public String return6m;
+	public String return1y;
+	public String return3y;
+	public String return5y;
+	public String return10y;
+	public String risk6m;
+	public String risk1y;
+	public String risk3y;
+	public String risk5y;
+	public String risk10y;
 	public String sharpRatio6m;
 	public String sharpRatio1y;
 	public String sharpRatio3y;
@@ -89,16 +89,16 @@ public class Fund implements Comparable<Fund> {
 	public String sharpRatio10y;
 	
 	// DivScore
-	public BigDecimal divScore1Y;
-	public BigDecimal divScore3Y;
-	public BigDecimal divScore5Y;
-	public BigDecimal divScore10Y;
+	public String divScore1Y;
+	public String divScore3Y;
+	public String divScore5Y;
+	public String divScore10Y;
 	
 	// DivLast
-	public LocalDate  divLastDate;
-	public BigDecimal divLastAmount;
-	public BigDecimal divLastRate;
-	public BigDecimal divLastPrice;
+	public LocalDate divLastDate;
+	public String    divLastAmount;
+	public String    divLastRate;
+	public String    divLastPrice;
 
 	// FundPolicy
 	public String policy;
