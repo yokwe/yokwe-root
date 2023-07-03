@@ -134,10 +134,10 @@ public class UpdateStats {
 				stats.return10Y = aStats == null ? "" : aStats.returns.toPlainString();
 			}
 			
-			stats.divQ1Y   = nikkei == null ? "" : nikkei.divScore1Y.toPlainString();
-			stats.divQ3Y   = nikkei == null ? "" : nikkei.divScore3Y.toPlainString();
-			stats.divQ5Y   = nikkei == null ? "" : nikkei.divScore5Y.toPlainString();
-			stats.divQ10Y  = nikkei == null ? "" : nikkei.divScore10Y.toPlainString();
+			stats.divQ1Y   = nikkei == null ? "" : nikkei.divScore1Y;
+			stats.divQ3Y   = nikkei == null ? "" : nikkei.divScore3Y;
+			stats.divQ5Y   = nikkei == null ? "" : nikkei.divScore5Y;
+			stats.divQ10Y  = nikkei == null ? "" : nikkei.divScore10Y;
 			
 			stats.name     = fund.name;
 			
