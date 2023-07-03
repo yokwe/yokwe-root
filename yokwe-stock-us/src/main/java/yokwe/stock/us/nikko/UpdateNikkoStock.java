@@ -1,52 +1,173 @@
 package yokwe.stock.us.nikko;
 
+import java.io.File;
+import java.io.StringReader;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import yokwe.stock.us.Stock;
 import yokwe.stock.us.Storage;
-import yokwe.util.ListUtil;
+import yokwe.util.FileUtil;
+import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
+import yokwe.util.http.HttpUtil;
+import yokwe.util.json.JSON;
 
 public class UpdateNikkoStock {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static class Info implements Comparable<Info> {
-		private static final String PATH_FILE = Storage.Nikko.getPath("stock-info.csv");
-		private static String getPath() {
-			return PATH_FILE;
+	private static final boolean DEBUG_USE_FILE  = false;
+	
+	private static final Charset UTF_8           = StandardCharsets.UTF_8;
+	private static final String  URL             = "https://fstock.smbcnikko.co.jp/smbcnikko/searchresultdata";
+	private static final String  CONTENT_TYPE    = "application/x-www-form-urlencoded; charset=UTF-8";
+	private static final String  REFERER         = "https://fstock.smbcnikko.co.jp/smbcnikko/search?pop=";
+	
+	public static String getPostBody(int pageNo) {
+		LinkedHashMap<String, String> map = new LinkedHashMap<>();
+		map.put("namecode", "");
+		map.put("keyword",  "");
+		map.put("exchange", "");
+		map.put("sector",   "");
+		map.put("etf",      "");
+		map.put("page",     String.valueOf(pageNo));
+		map.put("type",     "0");
+		map.put("asc",      "1");
+		map.put("c",        "0");
+		
+		String string = map.entrySet().stream().map(o -> o.getKey() + "=" + URLEncoder.encode(o.getValue(), UTF_8)).collect(Collectors.joining("&"));
+		return string;
+	}
+	
+	public static String getPage(int pageNo) {
+		final File file;
+		{
+			String name = String.format("searchresultdata-%d.json", pageNo);;
+			String path = Storage.Nikko.getPath("page", name);
+			file = new File(path);
+		}
+		
+		if (DEBUG_USE_FILE) {
+			if (file.exists()) return FileUtil.read().file(file);
 		}
 
-		public String symbol;
-		public String nameJP;
-		public String exchange;
-		public String industry;
-		public String flag;     // 売買禁止, 買禁止 or -
+		String postBody = getPostBody(pageNo);
+		String url      = URL;
+		HttpUtil.Result result = HttpUtil.getInstance().withReferer(REFERER).withPost(postBody, CONTENT_TYPE).download(url);
+				
+		if (result == null) {
+			logger.error("result == null");
+			logger.error("  url {}!", url);
+			throw new UnexpectedException("result == null");
+		}
+		if (result.result == null) {
+			logger.error("result.result == null");
+			logger.error("  url       {}!", url);
+			logger.error("  response  {}  {}", result.code, result.reasonPhrase);
+			throw new UnexpectedException("result.result == null");
+		}
+		
+		String page = result.result;
+		
+		// for debug
+		FileUtil.write().file(file, page);
+
+		return page;
+	}
+	
+	public static class SearchResultData {
+		public static class Stock {
+			public String asset_category;
+			public String exch;
+			public String nm;
+			public String ric;
+			public String smbc_nikko_ticker;
+			public String sym;
+			public String trbc_nm;
+			
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+		
+		@JSON.Name("datalist")
+		Map<String, Stock> stockMap;
+		
+		public String  decoder_nc;
+		public String  endidx;
+		public String  endpage;
+		public boolean hasnext;
+		public String  lastpage;
+		public String  pageno;
+		public String  startidx;
+		public String  startpage;
+		public String  totalrec;
 		
 		@Override
-		public int compareTo(Info that) {
-			return this.symbol.compareTo(that.symbol);
+		public String toString() {
+			return StringUtil.toString(this);
 		}
 	}
+	
 	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		var symbolSet = ListUtil.getList(Info.class, Info.getPath()).stream().filter(o -> o.flag.equals("-")).map(o -> o.symbol.replace("/", ".")).collect(Collectors.toSet());
-		logger.info("tickerSet  {}", symbolSet.size());
+		List<SearchResultData.Stock> list = new ArrayList<>();
 		
-		var stockList = Stock.getList();
-		logger.info("stockList  {}", stockList.size());
-		
-		// sanity check of symbolSet
+		int lastPage;
+		int totalRecord;
 		{
-			var stockSymbolSet = stockList.stream().map(o -> o.symbol).collect(Collectors.toSet());
-			for(var e: symbolSet) {
-				if (stockSymbolSet.contains(e)) continue;
-				logger.info("unexpected symbol  {}", e);
+			logger.info("pageNo  {}", 1);
+			String page = getPage(1);
+			SearchResultData searchResultData = JSON.unmarshal(SearchResultData.class, new StringReader(page));
+			
+			lastPage    = Integer.valueOf(searchResultData.lastpage);
+			totalRecord = Integer.valueOf(searchResultData.totalrec);
+						
+			for(var e: searchResultData.stockMap.values()) {
+				list.add(e);
 			}
 		}
+		logger.info("lastPage    {}", lastPage);
+		logger.info("totalRecord {}", totalRecord);
 		
-		// remove stock that symbol not in symbolSet
-		stockList.removeIf(o -> !symbolSet.contains(o.symbol));
+		for(int i = 2; i <= lastPage; i++) {
+			if ((i % 50) == 0) logger.info("pageNo  {}", i);
+			
+			String page = getPage(i);
+			SearchResultData searchResultData = JSON.unmarshal(SearchResultData.class, new StringReader(page));
+			
+			for(var e: searchResultData.stockMap.values()) {
+				list.add(e);
+			}
+		}
+		logger.info("list   {}", list.size());
+		if (list.size() != totalRecord) {
+			logger.warn("list.size() != totalRecord");
+		}
+		
+		List<Stock> stockList = new ArrayList<>();
+		
+		Map<String, Stock> stockMap = Stock.getMap();
+		for(var e: list) {
+			if (e.smbc_nikko_ticker.isEmpty()) continue;
+			String symbol = e.sym.replace("/", ".");
+			
+			if (stockMap.containsKey(symbol)) {
+				Stock stock = stockMap.get(symbol);
+				stockList.add(stock);
+			} else {
+				logger.warn("Unexpected symbol  {}", e);
+			}
+		}
 		
 		logger.info("save   {}  {}", stockList.size(), NikkoStock.getPath());
 		NikkoStock.save(stockList);
