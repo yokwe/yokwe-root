@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import yokwe.stock.us.Stock;
 import yokwe.stock.us.Storage;
 import yokwe.util.FileUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -82,7 +83,7 @@ public class UpdateNikkoStock {
 	}
 	
 	public static class SearchResultData {
-		public static class Stock {
+		public static class Stock implements Comparable<Stock> {
 			public String asset_category;
 			public String exch;
 			public String nm;
@@ -94,6 +95,11 @@ public class UpdateNikkoStock {
 			@Override
 			public String toString() {
 				return StringUtil.toString(this);
+			}
+
+			@Override
+			public int compareTo(Stock that) {
+				return this.sym.compareTo(that.sym);
 			}
 		}
 		
@@ -149,7 +155,11 @@ public class UpdateNikkoStock {
 				list.add(e);
 			}
 		}
-		logger.info("list   {}", list.size());
+		{
+			String path = Storage.Nikko.getPath("stock-info.csv");
+			logger.info("save   {}  {}", list.size(), path);
+			ListUtil.save(SearchResultData.Stock.class, path, list);
+		}
 		if (list.size() != totalRecord) {
 			logger.warn("list.size() != totalRecord");
 		}
