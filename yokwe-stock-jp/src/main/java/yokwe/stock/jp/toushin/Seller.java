@@ -2,13 +2,17 @@ package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.TreeMap;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 
 public class Seller implements Comparable<Seller> {
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
 	private static final String PATH = Storage.Toushin.getPath("seller.csv");
 	public static String getPath() {
 		return PATH;
@@ -26,8 +30,42 @@ public class Seller implements Comparable<Seller> {
 		return ListUtil.getList(Seller.class, getPath());
 	}
 
-	public static String getSellerName(List<Seller> list, String isinCode) {
-		return list.stream().filter(o -> o.isinCode.compareTo(isinCode) == 0).map(o -> o.sellerName).collect(Collectors.joining(" "));
+	private static Map<String, Map<String, BigDecimal>> salesFeeMap = null;
+	//                 isinCode    sellerName
+	private static void initSellerMap() {
+		salesFeeMap = new TreeMap<>();
+		for(var e: getList()) {
+			Map<String, BigDecimal> map;
+			if (salesFeeMap.containsKey(e.isinCode)) {
+				map = salesFeeMap.get(e.isinCode);
+			} else {
+				map = new TreeMap<>();
+				salesFeeMap.put(e.isinCode, map);
+			}
+			if (map.containsKey(e.sellerName)) {
+				logger.error("Unexpected sellerName");
+				logger.error("  seller  {}", e.toString());
+				throw new UnexpectedException("Unexpected sellerNamed");
+			}
+			map.put(e.sellerName, e.salesFee);
+		}
+	}
+	
+	public static BigDecimal getSalesFee(String isinCode, String sellerName) {
+		if (salesFeeMap == null) initSellerMap();
+		
+		if (salesFeeMap.containsKey(isinCode)) {
+			var map = salesFeeMap.get(isinCode);
+			if (map.containsKey(sellerName)) {
+				return map.get(sellerName);
+			} else {
+				logger.warn("Unexpected sellerName  {}  {}", isinCode, sellerName);
+				return null;
+			}
+		} else {
+			logger.warn("Unexpected sellerName  {}  {}", isinCode, sellerName);
+			return null;
+		}
 	}
 	
 	public String     isinCode;
