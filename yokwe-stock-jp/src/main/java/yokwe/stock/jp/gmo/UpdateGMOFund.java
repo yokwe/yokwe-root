@@ -2,7 +2,6 @@ package yokwe.stock.jp.gmo;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -129,19 +128,9 @@ public class UpdateGMOFund {
 	
 	private static void addFund(List<GMOFund> fundList, CallFunds callFunds) {
 		for(var e: callFunds.fundList) {
-			String     isinCode       = e.isinCode;
-			BigDecimal salesFeeRatio = new BigDecimal(e.commission).movePointLeft(2).stripTrailingZeros();
+			String     isinCode      = e.isinCode;
+			BigDecimal salesFee      = new BigDecimal(e.commission).movePointLeft(2).stripTrailingZeros();
 			BigDecimal expenseRatio  = new BigDecimal(e.mgtfee).movePointLeft(2).stripTrailingZeros();
-			
-			{
-				BigDecimal comsumptionTaxRatio = new BigDecimal("1.1");
-				if (!salesFeeRatio.equals(BigDecimal.ZERO)) {
-					salesFeeRatio = salesFeeRatio.divide(comsumptionTaxRatio, 8, RoundingMode.HALF_EVEN).stripTrailingZeros();
-				}
-				if (!expenseRatio.equals(BigDecimal.ZERO)) {
-					expenseRatio = expenseRatio.divide(comsumptionTaxRatio, 8, RoundingMode.HALF_EVEN).stripTrailingZeros();
-				}
-			}
 			
 			if (fundMap.containsKey(isinCode)) {
 				Fund fund = fundMap.get(isinCode);
@@ -149,7 +138,7 @@ public class UpdateGMOFund {
 				String fundCode = fund.fundCode;
 				String name     = fund.name;
 								
-				GMOFund gmoFund = new GMOFund(isinCode, fundCode, salesFeeRatio, expenseRatio, name);
+				GMOFund gmoFund = new GMOFund(isinCode, fundCode, salesFee, expenseRatio, name);
 				fundList.add(gmoFund);
 			} else {
 				logger.warn("Unexpecetd fundCode");

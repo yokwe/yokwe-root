@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
@@ -11,8 +12,6 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class GMOFund implements Comparable<GMOFund> {
-	public static final String SELLER_NAME = "ＧＭＯクリック証券";
-	
 	private static final String PATH_FILE = Storage.GMO.getPath("gmo-fund.csv");
 	public static final String getPath() {
 		return PATH_FILE;
@@ -42,18 +41,35 @@ public class GMOFund implements Comparable<GMOFund> {
 		ListUtil.save(GMOFund.class, getPath(), list);
 	}
 	
+	private static Map<String, BigDecimal> salesFeeMap = null;
+	private static void initSalesFeeMap() {
+		salesFeeMap = new TreeMap<>();
+		for(var e: getList()) {
+			salesFeeMap.put(e.isinCode, e.salesFee);
+		}
+	}
+	public static String getSalesFee(String isinCode, String defaultValue) {
+		if (salesFeeMap == null) initSalesFeeMap();
+		if (salesFeeMap.containsKey(isinCode)) {
+			return salesFeeMap.get(isinCode).toPlainString();
+		} else {
+			return defaultValue;
+		}
+	}
+	
+	
 	public String     isinCode;
 	public String     fundCode;
 	
-    public BigDecimal salesFeeRatio;
-    public BigDecimal expenseRatio;
+    public BigDecimal salesFee;      // value contains consumption tax
+    public BigDecimal expenseRatio;  // value contains consumption tax
 	
 	public String     name;
 	
-	public GMOFund(String isinCode, String fundCode, BigDecimal salesFeeRatio, BigDecimal expenseRatio, String name) {
+	public GMOFund(String isinCode, String fundCode, BigDecimal salesFee, BigDecimal expenseRatio, String name) {
 		this.isinCode      = isinCode;
 		this.fundCode      = fundCode;
-		this.salesFeeRatio = salesFeeRatio;
+		this.salesFee      = salesFee;
 		this.expenseRatio  = expenseRatio;
 		this.name          = name;
 	}

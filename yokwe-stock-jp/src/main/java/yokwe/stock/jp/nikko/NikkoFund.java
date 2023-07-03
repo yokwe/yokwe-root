@@ -1,7 +1,10 @@
 package yokwe.stock.jp.nikko;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
@@ -23,26 +26,39 @@ public class NikkoFund implements Comparable<NikkoFund>  {
 		ListUtil.save(NikkoFund.class, getPath(), list);
 	}
 
-	public String isinCode;
-	public String fundCode;
-	public String nikkoCode;
+	private static Map<String, BigDecimal> salesFeeMap = null;
+	private static void initSalesFeeMap() {
+		salesFeeMap = new TreeMap<>();
+		for(var e: getList()) {
+			salesFeeMap.put(e.isinCode, e.salesFee);
+		}
+	}
+	public static String getSalesFee(String isinCode, String defaultValue) {
+		if (salesFeeMap == null) initSalesFeeMap();
+		if (salesFeeMap.containsKey(isinCode)) {
+			return salesFeeMap.get(isinCode).toPlainString();
+		} else {
+			return defaultValue;
+		}
+	}
 	
-	public String fee;
+
+	public String     isinCode;
+	public String     fundCode;
+	public String     nikkoCode;
 	
-	public String name;
+    public BigDecimal salesFee;      // value contains consumption tax
+    public BigDecimal expenseRatio;  // value contains consumption tax
 	
-	public NikkoFund(
-		String isinCode,
-		String fundCode,
-		String nikkoCode,
-		String fee,
-		String name
-		) {
-		this.isinCode    = isinCode;
-		this.fundCode    = fundCode;
-		this.nikkoCode   = nikkoCode;
-		this.fee         = fee;
-		this.name        = name;
+	public String     name;
+	
+	public NikkoFund(String isinCode, String fundCode, String nikkoCode, BigDecimal salesFee, BigDecimal expenseRatio, String name) {
+		this.isinCode     = isinCode;
+		this.fundCode     = fundCode;
+		this.nikkoCode    = nikkoCode;
+		this.salesFee     = salesFee;
+		this.expenseRatio = expenseRatio;
+		this.name         = name;
 	}
 	
 	

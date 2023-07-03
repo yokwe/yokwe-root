@@ -1,6 +1,7 @@
 package yokwe.stock.jp.rakuten;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.toushin.Fund;
+import yokwe.stock.jp.toushin.UpdateStats;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -24,8 +26,8 @@ import yokwe.util.json.JSON.Name;
 public class UpdateRakutenFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE  = true;
-
+	private static final boolean DEBUG_USE_FILE  = false;
+	
 	private static final Charset UTF_8           = StandardCharsets.UTF_8;
 	private static final String  URL             = "https://www.rakuten-sec.co.jp/web/fund/scr/find/search/reloadscreener.asp";
 	private static final String  CONTENT_TYPE    = "application/x-www-form-urlencoded;charset=UTF-8";
@@ -35,7 +37,7 @@ public class UpdateRakutenFund {
 	
 	public static String getPostBody() {
 		LinkedHashMap<String, String> map = new LinkedHashMap<>();
-		map.put("result", "ファンド名称");
+		map.put("result", "ファンド名称,actual_charge");
 		map.put("pg", "0");
 		map.put("count", "9999");
 		map.put("sortnull", "コード=up");
@@ -78,6 +80,33 @@ public class UpdateRakutenFund {
 		FileUtil.write().file(file, page);
 
 		return page;
+	}
+	
+	public static List<RakutenFund> getFundList() {
+		List<RakutenFund> fundList = new ArrayList<>();
+		
+		{
+			String page = getPage();
+			PageData pageData = JSON.unmarshal(PageData.class, page);
+			logger.info("page  {}", pageData.toString());
+			for(int i = 0; i < pageData.data.length; i++) {
+				String[] data = pageData.data[i];
+				String isinCode      = data[0];
+				String name          = data[1];
+				String actual_charge = data[2];
+				
+				BigDecimal salesFee     = BigDecimal.ZERO;
+				BigDecimal expenseRatio = new BigDecimal(actual_charge).movePointLeft(2);
+				
+				if (fundMap.containsKey(isinCode)) {
+					Fund fund = fundMap.get(isinCode);
+					fundList.add(new RakutenFund(fund.isinCode, fund.fundCode, salesFee, expenseRatio, fund.name));
+				} else {
+					logger.warn("Bogus isinCode  {}  {}", isinCode, name);
+				}				
+			}
+		}
+		return fundList;
 	}
 	
 	private static class PageData {
@@ -123,31 +152,11 @@ public class UpdateRakutenFund {
 		}
 	}
 	
-	
+	// https://www.rakuten-sec.co.jp/web/fund/detail/?ID=JP90C0000W25
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<RakutenFund> fundList = new ArrayList<>();
-		
-		{
-			String page = getPage();
-			PageData pageData = JSON.unmarshal(PageData.class, page);
-			logger.info("page  {}", pageData.toString());
-			for(int i = 0; i < pageData.data.length; i++) {
-				String[] data = pageData.data[i];
-				String isinCode = data[0];
-				String name     = data[1];
-				
-				if (fundMap.containsKey(isinCode)) {
-					Fund fund = fundMap.get(isinCode);
-					fundList.add(new RakutenFund(fund.isinCode, fund.fundCode, fund.name));
-				} else {
-					logger.warn("Unexptected isinCode");
-					logger.warn("  {}  {}", isinCode, name);
-				}				
-			}
-		}
-		
+		List<RakutenFund> fundList = getFundList();		
 		logger.info("save  {}  {}", fundList.size(), RakutenFund.getPath());
 		RakutenFund.save(fundList);
 		

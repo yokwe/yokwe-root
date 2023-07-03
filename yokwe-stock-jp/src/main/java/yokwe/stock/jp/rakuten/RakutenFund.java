@@ -1,5 +1,6 @@
 package yokwe.stock.jp.rakuten;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -39,14 +40,20 @@ public class RakutenFund implements Comparable<RakutenFund> {
 		ListUtil.save(RakutenFund.class, getPath(), list);
 	}
 	
-	public String isinCode; // IE0030804631
-	public String fundCode;
-	public String name;
+	public String     isinCode;
+	public String     fundCode;
 	
-	public RakutenFund(String isinCode, String fundCode, String name) {
-		this.isinCode = isinCode;
-		this.fundCode = fundCode;
-		this.name     = name;
+    public BigDecimal salesFee;      // value contains consumption tax
+    public BigDecimal expenseRatio;  // value contains consumption tax
+    
+	public String     name;
+	
+	public RakutenFund(String isinCode, String fundCode, BigDecimal salesFee, BigDecimal expenseRatio, String name) {
+			this.isinCode     = isinCode;
+			this.fundCode     = fundCode;
+			this.salesFee     = salesFee;
+			this.expenseRatio = expenseRatio;
+			this.name         = name;
 	}
 	
 	@Override

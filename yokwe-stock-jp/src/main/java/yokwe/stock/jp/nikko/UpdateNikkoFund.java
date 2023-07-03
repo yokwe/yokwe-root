@@ -7,13 +7,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
+import yokwe.stock.jp.toushin.Fund;
+import yokwe.stock.jp.toushin.UpdateStats;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
@@ -24,7 +25,7 @@ public final class UpdateNikkoFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final boolean DEBUG_USE_FILE = false;
-
+		
 	// https://www.smbcnikko.co.jp/products/inv/direct_fee/csv/coursedata.csv
 	// 0905|インデックスファンドＴＳＰ|日興アセットマネジメント|国内株式|ノーロード|02311862|1
 	// nikkoCode, name, company, type, fee, fundCode, flag
@@ -34,13 +35,13 @@ public final class UpdateNikkoFund {
 		return URL;
 	}
 	
-	public static class CSVData {
+	public static class CourseData {
 		public String nikkoCode;
 		public String name;
 		public String company;
 		public String type;
-		public String fee;
-		public String fundCode;
+		public String salesFee;
+		public String fundCode; // Do not use this fundCode. Instead get fundCode from nikkoCode using NikkoFundInfo
 		public String flag;
 		
 		@Override
@@ -49,7 +50,7 @@ public final class UpdateNikkoFund {
 		}
 	}
 	
-	private static String downloadCSVData() {
+	private static String downloadCourseData() {
 		String path = Storage.Nikko.getPath("coursedata.csv");
 		File   file = new File(path);
 		
@@ -81,53 +82,62 @@ public final class UpdateNikkoFund {
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		Map<String, Fund> fundMap = Fund.getList().stream().collect(Collectors.toMap(o -> o.isinCode, Function.identity()));
+		//  isinCode
 		Map<String, NikkoFundInfo> fundInfoMap = NikkoFundInfo.getList().stream().collect(Collectors.toMap(o -> o.nikkoCode, Function.identity()));
 		//  nikkoCode
 		
 		List<NikkoFund> fundList = new ArrayList<>();
 		
-		List<CSVData> list;
+		List<CourseData> list;
 		{
-			String csvData = downloadCSVData();
-			Reader reader  = new StringReader(csvData);
-			list = CSVUtil.read(CSVData.class).withHeader(false).withSeparator('|').file(reader);
+			String string = downloadCourseData();
+			Reader reader  = new StringReader(string);
+			list = CSVUtil.read(CourseData.class).withHeader(false).withSeparator('|').file(reader);
 			logger.info("list  {}", list.size());
 		}
 		
 		Pattern pat = Pattern.compile("([0-9\\.]+)％");
 		
 		for(var e: list) {
+			if (e.salesFee.contains("投信つみたてプラン専用銘柄")) continue;
+			
+			BigDecimal salesFee;
+			if (e.salesFee.equals("ノーロード")) {
+				salesFee = BigDecimal.ZERO;
+			} else {
+				Matcher m = pat.matcher(e.salesFee);
+				if (m.find()) {
+					salesFee = new BigDecimal(m.group(1)).movePointLeft(2).stripTrailingZeros();
+				} else {
+					logger.error("Unexpected fee");
+					logger.error("  fund  {}", e);
+					throw new UnexpectedException("Unexpected fee");
+				}
+			}
+//			logger.debug("fee  {}  -  {}", fee, e.fee);
+
 			if (fundInfoMap.containsKey(e.nikkoCode)) {
 				NikkoFundInfo fundInfo = fundInfoMap.get(e.nikkoCode);
 				
 				String isinCode = fundInfo.isinCode;
 				String fundCode = fundInfo.fundCode;
 				
-				if (e.fee.contains("投信つみたてプラン専用銘柄")) {
-//					logger.warn("投信つみたてプラン専用銘柄  {}", e);
+				// sanity check
+				if (!fundMap.containsKey(isinCode)) {
+					logger.warn("Bogus isinCode  {}  {}  {}  {}", isinCode, fundCode, e.nikkoCode, e.name);
 					continue;
 				}
-				
-				String fee;
-				if (e.fee.equals("ノーロード")) {
-					fee = "0";
-				} else {
-					Matcher m = pat.matcher(e.fee);
-					if (m.find()) {
-						BigDecimal value = new BigDecimal(m.group(1)).movePointLeft(2);
-						fee = value.toPlainString();
-					} else {
-						logger.warn("Unexpected fee");
-						logger.warn("  fund  {}", e);
-						fee = "-1";
-					}
+				BigDecimal expenseRatio;
+				{
+					Fund fund = fundMap.get(isinCode);
+					expenseRatio = fund.expenseRatio.multiply(UpdateStats.CONSUMPTION_TAX_RATE);
 				}
-//				logger.debug("fee  {}  -  {}", fee, e.fee);
 				
-				NikkoFund fund = new NikkoFund(isinCode, fundCode, e.nikkoCode, fee, e.name);
+				NikkoFund  fund = new NikkoFund(isinCode, fundCode, e.nikkoCode, salesFee, expenseRatio, e.name);
 				fundList.add(fund);
 			} else {
-				logger.warn("Unexpected nikkoCode  {}  {}  {}", e.nikkoCode, e.fundCode, e.name);
+				logger.warn("Bogus nikkoCode  {}  {}  {}", e.nikkoCode, e.fundCode, e.name);
 			}
 		}
 
