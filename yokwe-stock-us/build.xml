@@ -103,7 +103,7 @@
 	</target>
 	
 	<!-- NIKKO -->
-	<target name="monex-update-nikko-stock">
+	<target name="nikko-update-nikko-stock">
 		<java module="yokwe.stock.us/yokwe.stock.us.nikko.UpdateNikkoStock" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
