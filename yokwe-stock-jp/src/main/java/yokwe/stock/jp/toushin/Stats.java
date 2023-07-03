@@ -34,33 +34,34 @@ public class Stats implements Comparable<Stats> {
 	public String indexFundType;
 	
 	public BigDecimal expenseRatio;
+    public BigDecimal buyFeeMax;
 	public BigDecimal nav;
 	public int        divc;
 	
-	public BigDecimal sd1Y;
-	public BigDecimal sd3Y;
-	public BigDecimal sd5Y;
-	public BigDecimal sd10Y;
+	public String sd1Y;
+	public String sd3Y;
+	public String sd5Y;
+	public String sd10Y;
 
-	public BigDecimal return1Y;
-	public BigDecimal return3Y;
-	public BigDecimal return5Y;
-	public BigDecimal return10Y;
+	public String return1Y;
+	public String return3Y;
+	public String return5Y;
+	public String return10Y;
 	
-	public BigDecimal div1Y;
-	public BigDecimal div3Y;
-	public BigDecimal div5Y;
-	public BigDecimal div10Y;
+	public String div1Y;
+	public String div3Y;
+	public String div5Y;
+	public String div10Y;
 	
-	public BigDecimal yield1Y;
-	public BigDecimal yield3Y;
-	public BigDecimal yield5Y;
-	public BigDecimal yield10Y;
+	public String yield1Y;
+	public String yield3Y;
+	public String yield5Y;
+	public String yield10Y;
 	
-	public BigDecimal divQ1Y;
-	public BigDecimal divQ3Y;
-	public BigDecimal divQ5Y;
-	public BigDecimal divQ10Y;
+	public String divQ1Y;
+	public String divQ3Y;
+	public String divQ5Y;
+	public String divQ10Y;
 	
 	//
 	public String name;
