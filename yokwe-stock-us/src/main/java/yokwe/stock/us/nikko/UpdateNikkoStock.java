@@ -83,7 +83,7 @@ public class UpdateNikkoStock {
 	}
 	
 	public static class SearchResultData {
-		public static class Stock implements Comparable<Stock> {
+		public static class StockInfo implements Comparable<StockInfo> {
 			public String asset_category;
 			public String exch;
 			public String nm;
@@ -98,13 +98,13 @@ public class UpdateNikkoStock {
 			}
 
 			@Override
-			public int compareTo(Stock that) {
+			public int compareTo(StockInfo that) {
 				return this.sym.compareTo(that.sym);
 			}
 		}
 		
 		@JSON.Name("datalist")
-		Map<String, Stock> stockMap;
+		Map<String, StockInfo> stockInfoMap;
 		
 		public String  decoder_nc;
 		public String  endidx;
@@ -126,56 +126,59 @@ public class UpdateNikkoStock {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<SearchResultData.Stock> list = new ArrayList<>();
-		
-		int lastPage;
-		int totalRecord;
+		List<SearchResultData.StockInfo> list = new ArrayList<>();
 		{
-			logger.info("pageNo  {}", 1);
-			String page = getPage(1);
-			SearchResultData searchResultData = JSON.unmarshal(SearchResultData.class, new StringReader(page));
+			int lastPage;
+			int totalRecord;
 			
-			lastPage    = Integer.valueOf(searchResultData.lastpage);
-			totalRecord = Integer.valueOf(searchResultData.totalrec);
-						
-			for(var e: searchResultData.stockMap.values()) {
-				list.add(e);
+			for(int pageNo = 1; pageNo <= 9999; pageNo++) {
+				if ((pageNo % 50) == 1) logger.info("pageNo  {}", pageNo);
+				
+				String page = getPage(pageNo);
+				SearchResultData searchResultData = JSON.unmarshal(SearchResultData.class, new StringReader(page));
+				
+				for(var e: searchResultData.stockInfoMap.values()) {
+					list.add(e);
+				}
+
+				lastPage    = Integer.valueOf(searchResultData.lastpage);
+				totalRecord = Integer.valueOf(searchResultData.totalrec);
+				
+				if (pageNo == 1) {
+					logger.info("lastPage    {}", lastPage);
+					logger.info("totalRecord {}", totalRecord);
+				}
+				
+				if (!searchResultData.hasnext) {
+					if (pageNo != lastPage)         logger.warn("Unexpected pageNo  {}  {}", pageNo, lastPage);
+					if (list.size() != totalRecord) logger.warn("Unexpected list size  {}  {}", list.size(), totalRecord);
+					break;
+				};
 			}
-		}
-		logger.info("lastPage    {}", lastPage);
-		logger.info("totalRecord {}", totalRecord);
-		
-		for(int i = 2; i <= lastPage; i++) {
-			if ((i % 50) == 0) logger.info("pageNo  {}", i);
 			
-			String page = getPage(i);
-			SearchResultData searchResultData = JSON.unmarshal(SearchResultData.class, new StringReader(page));
-			
-			for(var e: searchResultData.stockMap.values()) {
-				list.add(e);
+			// save list as stock-inf.csv
+			{
+				String path = Storage.Nikko.getPath("stock-info.csv");
+				logger.info("save   {}  {}", list.size(), path);
+				ListUtil.save(SearchResultData.StockInfo.class, path, list);
 			}
-		}
-		{
-			String path = Storage.Nikko.getPath("stock-info.csv");
-			logger.info("save   {}  {}", list.size(), path);
-			ListUtil.save(SearchResultData.Stock.class, path, list);
-		}
-		if (list.size() != totalRecord) {
-			logger.warn("list.size() != totalRecord");
 		}
 		
 		List<Stock> stockList = new ArrayList<>();
-		
-		Map<String, Stock> stockMap = Stock.getMap();
-		for(var e: list) {
-			if (e.smbc_nikko_ticker.isEmpty()) continue;
-			String symbol = e.sym.replace("/", ".");
+		{
+			Map<String, Stock> stockMap = Stock.getMap();
+			//  symbol
 			
-			if (stockMap.containsKey(symbol)) {
-				Stock stock = stockMap.get(symbol);
-				stockList.add(stock);
-			} else {
-				logger.warn("Unexpected symbol  {}", e);
+			for(var e: list) {
+				if (e.smbc_nikko_ticker.isEmpty()) continue;
+				String symbol = e.sym.replace("/", ".");
+				
+				if (stockMap.containsKey(symbol)) {
+					Stock stock = stockMap.get(symbol);
+					stockList.add(stock);
+				} else {
+					logger.warn("Unexpected symbol  {}", e);
+				}
 			}
 		}
 		
