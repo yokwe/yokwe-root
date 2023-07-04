@@ -239,9 +239,24 @@ public final class Storage {
 		}
 	}
 	
-	// GMO
+	// Rakuten
 	public static final class Rakuten {
 		public static final String PREFIX = "rakuten";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
+	// SBI
+	public static final class SBI {
+		public static final String PREFIX = "sbi";
 		
 		public static String getPath() {
 			return Storage.getPath(PREFIX);
