@@ -70,6 +70,7 @@ public class Stats implements Comparable<Stats> {
 	public String nikko;
 	public String nomura;
 	public String rakuten;
+	public String sbi;
 	public String sony;
 	
 	

@@ -12,6 +12,7 @@ import yokwe.stock.jp.gmo.GMOFund;
 import yokwe.stock.jp.nikko.NikkoFund;
 import yokwe.stock.jp.nomura.NomuraFund;
 import yokwe.stock.jp.rakuten.RakutenFund;
+import yokwe.stock.jp.sbi.SBIFund;
 import yokwe.stock.jp.sony.SonyFund;
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyValue;
@@ -39,11 +40,13 @@ public class UpdateStats {
 		var nikkoSet   = NikkoFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		var nomuraSet  = NomuraFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		var rakutenSet = RakutenFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		var sbiSet     = SBIFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		var sonySet    = SonyFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		logger.info("gmoSet     {}", gmoSet.size());
 		logger.info("nikkoSet   {}", nikkoSet.size());
 		logger.info("nomuraSet  {}", nomuraSet.size());
 		logger.info("rakutenSet {}", rakutenSet.size());
+		logger.info("sbiSet     {}", sbiSet.size());
 		logger.info("sonySet    {}", sonySet.size());
 
 		int countNoPrice = 0;
@@ -141,11 +144,21 @@ public class UpdateStats {
 			
 			stats.name     = fund.name;
 			
-			stats.gmo      = gmoSet.contains(fund.isinCode)     ? GMOFund.getSalesFee(isinCode, "?")     : "";
-			stats.nikko    = nikkoSet.contains(fund.isinCode)   ? NikkoFund.getSalesFee(isinCode, "?")   : "";
-			stats.nomura   = nomuraSet.contains(fund.isinCode)  ? NomuraFund.getSalesFee(isinCode, "?")  : "";
-			stats.rakuten  = rakutenSet.contains(fund.isinCode) ? "0" : "";
-			stats.sony     = sonySet.contains(fund.isinCode)    ? "0" : "";
+			if (stats.stockCode.isEmpty()) {
+				stats.gmo      = gmoSet.contains(fund.isinCode)     ? GMOFund.getSalesFee(isinCode, "?")     : "";
+				stats.nikko    = nikkoSet.contains(fund.isinCode)   ? NikkoFund.getSalesFee(isinCode, "?")   : "";
+				stats.nomura   = nomuraSet.contains(fund.isinCode)  ? NomuraFund.getSalesFee(isinCode, "?")  : "";
+				stats.rakuten  = rakutenSet.contains(fund.isinCode) ? "0" : "";
+				stats.sbi      = sbiSet.contains(fund.isinCode)     ? "0" : "";
+				stats.sony     = sonySet.contains(fund.isinCode)    ? "0" : "";
+			} else {
+				stats.gmo      = "0";
+				stats.nikko    = "0";
+				stats.nomura   = "0";
+				stats.rakuten  = "0";
+				stats.sbi      = "0";
+				stats.sony     = "";
+			}
 			
 			statsList.add(stats);
 		}
