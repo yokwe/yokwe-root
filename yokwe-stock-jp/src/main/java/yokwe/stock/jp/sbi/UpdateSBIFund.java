@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,21 @@ public final class UpdateSBIFund {
 	private static final String  URL             = "https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch/search.do";
 	private static final String  REFERER         = "https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch.do";
 	private static final String  CONTENT_TYPE    = "application/x-www-form-urlencoded; charset=UTF-8";
+	
+	private static final Map<String, String> fundCodeMap = new TreeMap<>();
+	//                       old     new
+	static {
+		//JP90C0006MC9,7231109B,ＮＮインドネシア株式ファンド
+		//JP90C000AHA9,72311146,ＮＮ欧州リート・ファンド（毎月決算コース／為替ヘッジなし）
+		//JP90C000AHB7,72312146,ＮＮ欧州リート・ファンド（資産形成コース／為替ヘッジなし）
+		//JP90C000B8E4,72312151,ＮＮ欧州リート・ファンド（資産形成コース／為替ヘッジあり）
+		//JP90C000B8F1,72311151,ＮＮ欧州リート・ファンド（毎月決算コース／為替ヘッジあり）
+		fundCodeMap.put("3531209B", "7231109B");  // 3531209B  ＧＳ－ＮＮインドネシア株式ファンド
+		fundCodeMap.put("35313151", "72312151");  // 35313151  ＧＳ－ＮＮ欧州リート・ファンド（資産形成コース／為替ヘッジあり）
+		fundCodeMap.put("35313146", "72312146");  // 35313146  ＧＳ－ＮＮ欧州リート・ファンド（資産形成コース／為替ヘッジなし）
+		fundCodeMap.put("35312151", "72311151");  // 35312151  ＧＳ－ＮＮ欧州リート・ファンド（毎月決算コース／為替ヘッジあり）
+		fundCodeMap.put("35312146", "72311146");  // 35312146  ＧＳ－ＮＮ欧州リート・ファンド（毎月決算コース／為替ヘッジなし）
+	}
 
 	private static final Map<String, Fund> fundMap = Fund.getList().stream().collect(Collectors.toMap(o -> o.fundCode, Function.identity()));
 	//                       fundCode
@@ -219,6 +235,19 @@ public final class UpdateSBIFund {
 			String     fundCode     = e.fundCode;
 			BigDecimal salesFee     = BigDecimal.ZERO;
 			BigDecimal expenseRatio = e.fdTrustChargeNum;
+			
+			if (fundCodeMap.containsKey(fundCode)) {
+				fundCode = fundCodeMap.get(fundCode);
+				
+				if (fundMap.containsKey(fundCode)) {
+					Fund fund = fundMap.get(fundCode);
+					logger.info("fundCodeMap  old  {}  {}", e.fundCode, e.mfName);
+					logger.info("             new  {}  {}", fund.fundCode, fund.name);
+				} else {
+					logger.warn("Unexpected fundCode  {}  {}  {}", fundCode, e.fundCode,  e.mfName);
+					continue;
+				}
+			}
 			
 			if (fundMap.containsKey(fundCode)) {
 				Fund fund = fundMap.get(fundCode);
