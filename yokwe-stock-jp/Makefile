@@ -18,6 +18,10 @@ clear-log-file:
 	echo -n >tmp/yokwe-stock-jp.log
 	echo -n >tmp/cron.log
 
+backup:
+	cp /mnt/stock/jp/jpx/TEMPLATE_JPX_STATS.ods          /mnt/stock/jp/backup/TEMPLATE_JPX_STATS_$$(date +%Y%m%d).ods
+	cp /mnt/stock/jp/toushin/TEMPLATE_TOUSHIN_STATS.ods  /mnt/stock/jp/backup/TEMPLATE_TOUSHIN_STATS_$$(date +%Y%m%d).ods
+
 # JASDEC
 clear-jasdec:
 	rm -rf /mnt/stock/jp/jasdec/download/page/*
@@ -29,7 +33,6 @@ update-jasdec:
 # TOUSHIN
 update-toushin:
 	ant toushin-update-fund
-	ant toushin-update-report
 	ant toushin-update-stats
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/toushin_$$(date +%Y%m%d).taz toushin
 
