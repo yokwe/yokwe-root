@@ -7,8 +7,13 @@ import java.util.List;
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.libreoffice.Sheet;
+import yokwe.util.libreoffice.SpreadSheet;
 
-public class Stats implements Comparable<Stats> {
+@Sheet.SheetName("stats")
+@Sheet.HeaderRow(0)
+@Sheet.DataRow(1)
+public class Stats extends Sheet implements Comparable<Stats> {
 	private static final String PATH_FILE = Storage.Toushin.getPath("stats.csv");
 	public static final String getPath() {
 		return PATH_FILE;
@@ -20,58 +25,88 @@ public class Stats implements Comparable<Stats> {
 		return ListUtil.load(Stats.class, getPath());
 	}
 	
-	public String isinCode;         // isinCode
-	public String fundCode;         // fundCode
-	public String stockCode;        // stockCode
+	@Sheet.ColumnName("isinコード")      public String isinCode;
+	@Sheet.ColumnName("ファンドコード")  public String fundCode;
+	@Sheet.ColumnName("銘柄コード")      public String stockCode;
 	
-	public LocalDate inception;
-	public LocalDate redemption;
+	@Sheet.ColumnName("設定日")  public LocalDate inception;
+	@Sheet.ColumnName("償還日")  public LocalDate redemption;
 	
-	public BigDecimal age; // yy.mm
+	@Sheet.ColumnName("年月") public BigDecimal age; // yy.mm
 	
-	public String investingAsset;
-	public String investingArea;
-	public String indexFundType;
+	@Sheet.ColumnName("投資対象")    public String investingAsset;
+	@Sheet.ColumnName("投資地域")    public String investingArea;
+	@Sheet.ColumnName("ファンド型")  public String indexFundType;
 	
-	public BigDecimal expenseRatio;
-    public BigDecimal buyFeeMax;
-	public BigDecimal nav;
-	public int        divc;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
+	@Sheet.ColumnName("管理費")      public BigDecimal expenseRatio;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT)
+	@Sheet.ColumnName("購入費最大")  public BigDecimal buyFeeMax;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER_MILLION)
+	@Sheet.ColumnName("資産総額")    public BigDecimal nav;
+	@Sheet.ColumnName("配当回数")    public int        divc;
 	
-	public String sd1Y;
-	public String sd3Y;
-	public String sd5Y;
-	public String sd10Y;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER3)
+	@Sheet.ColumnName("sd1年")  public BigDecimal sd1Y;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER3)
+	@Sheet.ColumnName("sd3年")  public BigDecimal sd3Y;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER3)
+	@Sheet.ColumnName("sd5年")  public BigDecimal sd5Y;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER3)
+	@Sheet.ColumnName("sd10年") public BigDecimal sd10Y;
 
-	public String return1Y;
-	public String return3Y;
-	public String return5Y;
-	public String return10Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("ret1年")  public BigDecimal return1Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("ret3年")  public BigDecimal return3Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("ret5年")  public BigDecimal return5Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("ret10年") public BigDecimal return10Y;
 	
-	public String div1Y;
-	public String div3Y;
-	public String div5Y;
-	public String div10Y;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER0)
+	@Sheet.ColumnName("配当1年")  public BigDecimal div1Y;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER0)
+	@Sheet.ColumnName("配当3年")  public BigDecimal div3Y;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER0)
+	@Sheet.ColumnName("配当5年")  public BigDecimal div5Y;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER0)
+	@Sheet.ColumnName("配当10年") public BigDecimal div10Y;
 	
-	public String yield1Y;
-	public String yield3Y;
-	public String yield5Y;
-	public String yield10Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("利回り1年")  public BigDecimal yield1Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("利回り3年")  public BigDecimal yield3Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("利回り5年")  public BigDecimal yield5Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("利回り10年") public BigDecimal yield10Y;
 	
-	public String divQ1Y;
-	public String divQ3Y;
-	public String divQ5Y;
-	public String divQ10Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT0)
+	@Sheet.ColumnName("配当品質1年")  public BigDecimal divQ1Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT0)
+	@Sheet.ColumnName("配当品質3年")  public BigDecimal divQ3Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT0)
+	@Sheet.ColumnName("配当品質5年")  public BigDecimal divQ5Y;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT0)
+	@Sheet.ColumnName("配当品質10年") public BigDecimal divQ10Y;
 	
 	//
-	public String name;
+	@Sheet.ColumnName("名前")     public String name;
+	@Sheet.ColumnName("|")        public String bar = "|";
 	
-	public String gmo;
-	public String nikko;
-	public String nomura;
-	public String rakuten;
-	public String sbi;
-	public String sony;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("GMO")     public BigDecimal gmo;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("日興")   public BigDecimal nikko;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("野村")   public BigDecimal nomura;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("楽天") public BigDecimal rakuten;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("SBI")     public BigDecimal sbi;
+	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("ソニー")    public BigDecimal sony;
 	
 	
     @Override

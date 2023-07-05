@@ -44,9 +44,9 @@ public class NomuraFund implements Comparable<NomuraFund> {
 		ListUtil.save(NomuraFund.class, getPath(), list);
 	}
 	
-	public static String getSalesFee(String isinCode, String defaultValue) {
+	public static BigDecimal getSalesFee(String isinCode, BigDecimal defaultValue) {
 		BigDecimal salesFee = Seller.getSalesFee(isinCode, SELLER_NAME);
-		return salesFee == null ? defaultValue : salesFee.multiply(UpdateStats.CONSUMPTION_TAX_RATE).stripTrailingZeros().toPlainString();
+		return salesFee == null ? defaultValue : salesFee.multiply(UpdateStats.CONSUMPTION_TAX_RATE);
 	}
 
 	public String isinCode; // IE0030804631

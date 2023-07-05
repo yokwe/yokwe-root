@@ -33,13 +33,9 @@ public class NikkoFund implements Comparable<NikkoFund>  {
 			salesFeeMap.put(e.isinCode, e.salesFee);
 		}
 	}
-	public static String getSalesFee(String isinCode, String defaultValue) {
+	public static BigDecimal getSalesFee(String isinCode, BigDecimal defaultValue) {
 		if (salesFeeMap == null) initSalesFeeMap();
-		if (salesFeeMap.containsKey(isinCode)) {
-			return salesFeeMap.get(isinCode).toPlainString();
-		} else {
-			return defaultValue;
-		}
+		return salesFeeMap.getOrDefault(isinCode, defaultValue);
 	}
 	
 
