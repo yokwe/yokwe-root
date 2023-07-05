@@ -40,10 +40,20 @@ public class SpreadSheet extends LibreOffice {
 	public static final String FORMAT_STRING  = "@";
 	public static final String FORMAT_DATE    = "YYYY-MM-DD";
 	
-	public static final String FORMAT_INTEGER = "#,##0.#####;[RED]-#,##0.#####";
 	public static final String FORMAT_PERCENT = "#,##0.0%;[RED]-#,##0.0%";
+	
+	public static final String FORMAT_PERCENT0 = "#,##0%;[RED]-#,##0%";
+	public static final String FORMAT_PERCENT2 = "#,##0.00%;[RED]-#,##0.00%";
+
+	public static final String FORMAT_INTEGER = "#,##0.#####;[RED]-#,##0.#####";
+	
+	public static final String FORMAT_NUMBER0 = "#,##0;[RED]-#,##0";
 	public static final String FORMAT_NUMBER2 = "#,##0.00;[RED]-#,##0.00";
+	public static final String FORMAT_NUMBER3 = "#,##0.000;[RED]-#,##0.000";
+	public static final String FORMAT_NUMBER4 = "#,##0.0000;[RED]-#,##0.0000";
 	public static final String FORMAT_NUMBER5 = "#,##0.00000;[RED]-#,##0.00000";
+	
+	public static final String FORMAT_NUMBER_MILLION = "#,##0,,;[RED]-#,##0,,";
 	
 	public static final String FORMAT_NUMBER2_BLANK = "#,##0.00;[RED]-#,##0.00;\"\";@";
 	
