@@ -365,7 +365,7 @@ public class UpdateStats {
 	}
 
 	private static final String PREFIX_REPORT = "report";
-	private static final String URL_TEMPLATE  = StringUtil.toURLString(Storage.JPX.getPath("TEMPLATE_STATS.ods"));
+	private static final String URL_TEMPLATE  = StringUtil.toURLString(Storage.JPX.getPath("TEMPLATE_JPX_STATS.ods"));
 
 	private static void generateReport(List<Stats> statsList) {
 		String urlReport;
