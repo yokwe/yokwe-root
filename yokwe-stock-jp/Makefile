@@ -48,7 +48,6 @@ update-jpx-stock-price:
 
 # STOCK ETF REIT
 update-stock-etf-reit:
-	ant jpx-update-stock
 	ant moneybujpx-update-etf
 	ant japanreit-update-reit
 	ant jpx-update-stats
