@@ -542,6 +542,8 @@ public class Sheet {
 
 					for(int i = 0; i < rowSize; i++) {
 						E data = clazz.getDeclaredConstructor().newInstance();
+						boolean dataHasError = false;
+						
 						for(ColumnInfo columnInfo: columnInfoList) {
 							Field   field     = columnInfo.field;
 							int     fieldType = columnInfo.fieldType;
@@ -551,6 +553,13 @@ public class Sheet {
 							String extractMapKey = (rowBegin + i) + "-" + columnInfo.index;
 							Object o = extractMap.get(extractMapKey);
 							int    oType = o.getClass().hashCode();
+							
+							// skip unknown type and set true to dataHasError
+							if (o.getClass().getName().equals("com.sun.star.uno.Any")) {
+								dataHasError = true;
+								continue;
+							}
+							
 							if (oType == HASHCODE_CLASS_STRING) {
 								String value = (String)o;
 								boolean isEmpty = value.length() == 0;
@@ -653,7 +662,11 @@ public class Sheet {
 								throw new UnexpectedException("Unexpected");
 							}
 						}
-						dataList.add(data);
+						if (dataHasError) {
+							logger.warn("hasError  at row  {}", rowBegin + i + 1);
+						} else {
+							dataList.add(data);
+						}
 					}
 				}
 				
