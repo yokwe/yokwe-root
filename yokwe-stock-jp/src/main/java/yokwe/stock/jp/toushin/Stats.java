@@ -45,6 +45,8 @@ public class Stats extends Sheet implements Comparable<Stats> {
 	@NumberFormat(SpreadSheet.FORMAT_NUMBER_MILLION)
 	@Sheet.ColumnName("資産総額")    public BigDecimal nav;
 	@Sheet.ColumnName("配当回数")    public int        divc;
+	@NumberFormat(SpreadSheet.FORMAT_NUMBER0)
+	@Sheet.ColumnName("RSI")    public BigDecimal rsi;
 	
 	@NumberFormat(SpreadSheet.FORMAT_NUMBER3)
 	@Sheet.ColumnName("sd1年")  public BigDecimal sd1Y;

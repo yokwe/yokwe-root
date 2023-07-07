@@ -107,6 +107,11 @@ public class UpdateStats {
 			stats.nav          = lastPrice.nav;
 			stats.divc         = fund.divFreq;
 			
+			{
+				// calculate latest RSI using rawPriceArray
+				stats.rsi = null;
+			}
+			
 			// 1 year
 			{
 				int nYear = 1;
