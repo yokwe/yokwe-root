@@ -46,18 +46,83 @@ public final class DailyValue implements Comparable<DailyValue> {
 		return new BigDecimal(string);
 	}
 	public static BigDecimal duration(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
+		// assume array is not ordered by date
 		LocalDate startDate = array[startIndex].date;
-		LocalDate endDate  = startDate;
+		LocalDate endDate   = startDate;
 		for(int i = startIndex + 1; i < stopIndexPlusOne; i++) {
 			LocalDate date = array[i].date;
-			if (date.isBefore(startDate)) startDate = date;
-			if (date.isAfter(endDate))   endDate = date;
+			if (date.isBefore(startDate)) startDate = date; // find youngest date
+			if (date.isAfter(endDate))    endDate   = date; // find oldest date
 		}
 		
 		return duration(startDate, endDate);
 	}
 	public static BigDecimal duration(DailyValue[] array) {
 		return duration(array, 0, array.length);
+	}
+	
+	
+	//
+	// IndexRange and indexRange
+	//
+	public static final class IndexRange {
+		public final int startIndex;
+		public final int stopIndexPlusOne;
+		
+		public IndexRange(int startIndex, int stopIndexPlusOne) {
+			this.startIndex       = startIndex;
+			this.stopIndexPlusOne = stopIndexPlusOne;
+		}
+		
+		public boolean isValid() {
+			return 0 <= startIndex && 0 <= stopIndexPlusOne && startIndex < stopIndexPlusOne;
+		}
+		
+		public int size() {
+			return stopIndexPlusOne - startIndex;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%d  %d}", startIndex, stopIndexPlusOne);
+		}
+	}
+	public static IndexRange indexRange(DailyValue[] array, LocalDate startDate, LocalDate endDate) {
+		// return index of array between startDaten inclusive and endDate inclusive
+		
+		// sanity check
+		{
+			if (startDate.isAfter(endDate)) {
+				logger.error("Unexpeced date");
+				logger.error("  startDate         {}", startDate);
+				logger.error("  endDate           {}", endDate);
+				throw new UnexpectedException("Unexpeced date");
+			}
+		}
+		
+		int       startIndex           = -1;		
+		int       stopIndexPlusOne     = -1;
+		LocalDate startIndexDate       = null;
+		LocalDate stopIndexPlusOneDate = null;
+		
+		for(int i = 0; i < array.length; i++) {
+			LocalDate date = array[i].date;
+			if (date.isEqual(startDate) || date.isAfter(startDate)) {
+				// youngest date equals to startDate or after startDate
+				if (startIndexDate == null || date.isBefore(startIndexDate)) {
+					startIndex     = i;
+					startIndexDate = date;
+				}
+			}
+			if (date.isEqual(endDate) || date.isAfter(endDate)) {
+				// youngest date equals to endDate or after endDate
+				if (stopIndexPlusOneDate == null || date.isBefore(stopIndexPlusOneDate)) {
+					stopIndexPlusOne     = i + 1; // plus one for PluOne
+					stopIndexPlusOneDate = date;
+				}
+			}
+		}
+		return new IndexRange(startIndex, stopIndexPlusOne);
 	}
 	
 	
