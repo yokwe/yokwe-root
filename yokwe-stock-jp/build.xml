@@ -275,16 +275,8 @@
 	</target>
 	
 	<!-- NIKKEI -->
-	<target name="nikkei-update-fund">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.nikkei.UpdateFund" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="nikkei-download-file">
-		<java module="yokwe.stock.jp/yokwe.stock.jp.nikkei.DownloadFile" fork="true">
+	<target name="nikkei-update-nikkei-fund">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.nikkei.UpdateNikkeiFund" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />

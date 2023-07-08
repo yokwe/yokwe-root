@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.gmo.GMOFund;
+import yokwe.stock.jp.nikkei.NikkeiFund;
 import yokwe.stock.jp.nikko.NikkoFund;
 import yokwe.stock.jp.nomura.NomuraFund;
 import yokwe.stock.jp.rakuten.RakutenFund;
@@ -42,7 +43,7 @@ public class UpdateStats {
 		List<Fund> fundList = Fund.getList();
 		logger.info("fundList   {}", fundList.size());
 		
-		var nikkeiMap = yokwe.stock.jp.nikkei.Fund.getMap();
+		var nikkeiMap = NikkeiFund.getMap();
 		logger.info("nikkeiMap  {}", nikkeiMap.size());
 		
 		var gmoSet     = GMOFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
