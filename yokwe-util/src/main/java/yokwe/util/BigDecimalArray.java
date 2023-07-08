@@ -301,8 +301,9 @@ public final class BigDecimalArray {
 			}
 		}
 	}
+	public static final int RSI_PERIOD = 14;
 	public static <T> BigDecimal[] toRSI(T[] array, int startIndex, int stopIndexPlusOne, Function<T, BigDecimal> map) {
-		UnaryOperator<BigDecimal> op = new RSI_Wilder(14);
+		UnaryOperator<BigDecimal> op = new RSI_Wilder(RSI_PERIOD);
 		return toArray(array, startIndex, stopIndexPlusOne, map, op);
 	}
 	public static <T> BigDecimal[] toRSI(T[] array, Function<T, BigDecimal> function) {
