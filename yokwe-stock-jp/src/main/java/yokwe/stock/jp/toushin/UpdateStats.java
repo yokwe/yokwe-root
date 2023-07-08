@@ -17,6 +17,7 @@ import yokwe.stock.jp.nomura.NomuraFund;
 import yokwe.stock.jp.rakuten.RakutenFund;
 import yokwe.stock.jp.sbi.SBIFund;
 import yokwe.stock.jp.sony.SonyFund;
+import yokwe.util.BigDecimalArray;
 import yokwe.util.StringUtil;
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyValue;
@@ -57,7 +58,7 @@ public class UpdateStats {
 		logger.info("sbiSet     {}", sbiSet.size());
 		logger.info("sonySet    {}", sonySet.size());
 
-		int countNoPrice = 0;
+		int countNoPrice  = 0;
 		int countNoNikkei = 0;
 		
 		int count = 0;
@@ -108,8 +109,17 @@ public class UpdateStats {
 			stats.divc         = fund.divFreq;
 			
 			{
-				// calculate latest RSI using rawPriceArray
-				stats.rsi = null;
+				// calculate latest RSI using priceArray
+				LocalDate endDate    = lastPrice.date;
+				LocalDate startDate  = endDate.minusYears(1).plusDays(1);
+				var       indexRange = DailyValue.indexRange(priceArray, startDate, endDate);
+				if (indexRange.isValid() && BigDecimalArray.RSI_PERIOD <= indexRange.size()) {
+					BigDecimal[] rsiArray = BigDecimalArray.toRSI(priceArray, indexRange.startIndex, indexRange.stopIndexPlusOne, o -> o.value);
+					stats.rsi = rsiArray[rsiArray.length - 1];
+				} else {
+					logger.info("rsi  !  {}  {}  {}  {}  {}", isinCode, startDate, endDate, indexRange, indexRange.size());
+					stats.rsi = null;
+				}
 			}
 			
 			// 1 year
