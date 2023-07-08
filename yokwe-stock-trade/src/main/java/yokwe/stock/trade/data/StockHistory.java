@@ -269,6 +269,14 @@ public class StockHistory extends Sheet implements Comparable<StockHistory> {
 //			logger.info("{}", String.format("sellQuantity = %8.2f  sell = %8.2f  sellFee = %8.2f", sellQuantity, sell, sellFee));
 			StockHistory stock = getStock(date, symbol);
 			
+			// sanity check
+			if (stock.totalQuantity <= 0) {
+				logger.error("Unexpected totalQuantity");
+				logger.error("  {}", stock.totalQuantity);
+				logger.error("  {}  {}  {}  {}", date, symbol, sellQuantity, fee);
+				throw new UnexpectedException("Unexpected totalQuantity");
+			}
+			
 			double sellCost   = DoubleUtil.roundPrice((stock.totalCost / stock.totalQuantity) * sellQuantity);
 			double sellProfit = DoubleUtil.roundPrice(credit - sellCost);
 //			logger.info("{}", String.format("sellCost = %8.2f  sellProfit = %8.2f", sellCost, sellProfit));
