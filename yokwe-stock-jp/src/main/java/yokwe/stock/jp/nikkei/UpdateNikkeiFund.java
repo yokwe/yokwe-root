@@ -44,7 +44,7 @@ public class UpdateNikkeiFund {
 		int processed = 0;
 		for(var fundCode: processList) {
 			count++;
-			if ((count % 10) == 1) logger.info("{}", String.format("%4d / %4d", count, processList.size()));
+			if ((count % 100) == 1) logger.info("{}", String.format("%4d / %4d", count, processList.size()));
 			
 			// already processed
 			if (nikkeiSet.contains(fundCode)) continue;
@@ -54,38 +54,39 @@ public class UpdateNikkeiFund {
 			Fund fund = fundMap.get(fundCode);
 			
 			NikkeiFund nikkeiFund = new NikkeiFund();
-			nikkeiFund.isinCode = fund.isinCode;
-			nikkeiFund.fundCode = fund.fundCode;
-			nikkeiFund.name     = fund.name;
-			
-			final String page;
+			nikkeiFund.isinCode    = fund.isinCode;
+			nikkeiFund.fundCode    = fund.fundCode;
+			nikkeiFund.name        = fund.name;
+			nikkeiFund.divScore1Y  = "";
+			nikkeiFund.divScore3Y  = "";
+			nikkeiFund.divScore5Y  = "";
+			nikkeiFund.divScore10Y = "";
+
 			{
 				String url = getURL(fundCode);
 				HttpUtil.Result result = HttpUtil.getInstance().download(url);
 				if (result == null) {
 					logger.warn("{}  {}  result is null", fundCode, count);
-					skipList.add(fundCode);
-					continue;
 				} else if (result.result == null) {
 					logger.warn("{}  {}  result.result is null  {}  {}", fundCode, count, result.code, result.reasonPhrase);
 					retryList.add(fundCode);
 					continue;
 				} else {
-					page = result.result;
+					final String page = result.result;
+					
+					var divScore = DivScore.getInstance(page);
+					if (divScore == null) {
+						logger.warn("{}  divScore is null", fundCode);
+						retryList.add(fundCode);
+						continue;
+					}
+					
+					nikkeiFund.divScore1Y  = fromPercentString(divScore.score1Y);
+					nikkeiFund.divScore3Y  = fromPercentString(divScore.score3Y);
+					nikkeiFund.divScore5Y  = fromPercentString(divScore.score5Y);
+					nikkeiFund.divScore10Y = fromPercentString(divScore.score10Y);
 				}
 			}
-			
-			var divScore = DivScore.getInstance(page);
-			if (divScore == null) {
-				logger.warn("{}  divScore is null", fundCode);
-				retryList.add(fundCode);
-				continue;
-			}
-			
-			nikkeiFund.divScore1Y  = fromPercentString(divScore.score1Y);
-			nikkeiFund.divScore3Y  = fromPercentString(divScore.score3Y);
-			nikkeiFund.divScore5Y  = fromPercentString(divScore.score5Y);
-			nikkeiFund.divScore10Y = fromPercentString(divScore.score10Y);
 			
 			nikkeiFundList.add(nikkeiFund);
 			processed++;
