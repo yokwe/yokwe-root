@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import yokwe.util.BigDecimalArray;
 import yokwe.util.UnexpectedException;
-import yokwe.util.finance.Finance.ReinvestedPrice;
 
 public final class MonthlyStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
