@@ -18,6 +18,8 @@ public final class BigDecimalUtil {
 	private static final RoundingMode DEFAULT_ROUNDING_MODE  = RoundingMode.HALF_EVEN;
 	private static final MathContext  DEFAULT_MATH_CONTEXT   = new MathContext(DEFAULT_PRECISION, DEFAULT_ROUNDING_MODE);
 	
+	public static final BigDecimal MINUS_1  = BigDecimal.valueOf(-1);
+	public static final BigDecimal PLUS_100 = BigDecimal.valueOf(100);
 	
 	// 
 	// ----------------------------
@@ -109,7 +111,7 @@ public final class BigDecimalUtil {
 	//
 	public static BigDecimal square(BigDecimal value) {
 		// return value * value
-		return value.multiply(value, DEFAULT_MATH_CONTEXT);
+		return multiply(value, value);
 	}
 	
 	
@@ -123,7 +125,7 @@ public final class BigDecimalUtil {
 		private static final BigDecimal N_2 = BigDecimal.valueOf(2);
 		public static BigDecimal getAlphaDataSize(int dataSize) {
 			// From alpha = 2 / (N + 1)
-			return N_2.divide(BigDecimal.valueOf(dataSize + 1), DEFAULT_MATH_CONTEXT);
+			return divide(N_2, BigDecimal.valueOf(dataSize + 1));
 		}
 		public static BigDecimal getAlphaFromDecayFactor(BigDecimal decayFactor) {
 			// 1 - decayFactor
@@ -185,7 +187,7 @@ public final class BigDecimalUtil {
 		
 		@Override
 		public BigDecimal get() {
-			return mathSqrt(ema.get()).multiply(k, DEFAULT_MATH_CONTEXT);
+			return mathSqrt(multiply(ema.get(), k));
 		}
 		@Override
 		public void accept(BigDecimal value) {
