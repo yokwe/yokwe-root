@@ -43,14 +43,14 @@ update-jpx-stock:
 
 update-jpx-stock-price:
 	ant jpx-update-stock-price
-	ant jpx-update-stats
+	ant jpx-update-stock-stats
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz jpx
 
 # STOCK ETF REIT
 update-stock-etf-reit:
 	ant moneybujpx-update-etf
 	ant japanreit-update-reit
-	ant jpx-update-stats
+	ant jpx-update-stock-stats
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz jpx
 
 # EDINET
