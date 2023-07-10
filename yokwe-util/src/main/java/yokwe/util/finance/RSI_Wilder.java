@@ -40,12 +40,11 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 	
 	@Override
 	public BigDecimal apply(BigDecimal value) {
-		final BigDecimal change;
 		final BigDecimal changeGain;
 		final BigDecimal changeLoss;
 		{
-			change = lastValue == null ? ZERO : value.subtract(lastValue);
-			int compare = change.compareTo(ZERO);
+			BigDecimal change  = lastValue == null ? ZERO : value.subtract(lastValue);
+			int        compare = change.compareTo(ZERO);
 			
 			changeGain = 0 < compare ? change : ZERO;
 			changeLoss = compare < 0 ? change.negate() : ZERO;
@@ -58,6 +57,7 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 			sumGain = add(sumGain, changeGain);
 			sumLoss = add(sumLoss, changeLoss);
 			
+			// alpha == 1 / size
 			avgGain = multiply(sumGain, alpha);
 			avgLoss = multiply(sumLoss, alpha);
 			sumGain = null;
@@ -86,7 +86,7 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 				BigDecimal a = multiply(avgGain, PLUS_100);
 				// b = avgGain + avgLoss
 				BigDecimal b = add(avgGain, avgLoss);
-				
+				// rsi = a / b
 				rsi = b.equals(ZERO) ? MINUS_1 : divide(a, b);
 			}
 		}
