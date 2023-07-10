@@ -98,6 +98,22 @@ public final class BigDecimalUtil {
 	
 	
 	//
+	// return a + b
+	//
+	public static BigDecimal add(BigDecimal a, BigDecimal b) {
+		return a.add(b, DEFAULT_MATH_CONTEXT);
+	}
+	
+	
+	//
+	// return a - b
+	//
+	public static BigDecimal subtract(BigDecimal a, BigDecimal b) {
+		return a.subtract(b, DEFAULT_MATH_CONTEXT);
+	}
+	
+	
+	//
 	// return simple return from previous and price
 	//
 	public static BigDecimal toSimpleReturn(BigDecimal previous, BigDecimal value) {
