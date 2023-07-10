@@ -87,12 +87,7 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 				// b = avgGain + avgLoss
 				BigDecimal b = add(avgGain, avgLoss);
 				
-				if (b.equals(BigDecimal.ZERO)) {
-					rsi = MINUS_1;
-				} else {
-					// rsi = a / b
-					rsi = divide(a, b);
-				}
+				rsi = b.equals(ZERO) ? MINUS_1 : divide(a, b);
 			}
 		}
 		
