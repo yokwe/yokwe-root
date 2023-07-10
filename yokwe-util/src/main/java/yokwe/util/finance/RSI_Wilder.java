@@ -1,9 +1,16 @@
 package yokwe.util.finance;
 
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.ZERO;
+import static yokwe.util.BigDecimalUtil.MINUS_1;
+import static yokwe.util.BigDecimalUtil.PLUS_100;
+import static yokwe.util.BigDecimalUtil.divide;
+import static yokwe.util.BigDecimalUtil.multiply;
+import static yokwe.util.BigDecimalUtil.add;
+import static yokwe.util.BigDecimalUtil.subtract;
+
 import java.math.BigDecimal;
 import java.util.function.UnaryOperator;
-
-import yokwe.util.BigDecimalUtil;
 
 // Calculate RSI using Wilder methods
 //   See https://school.stockcharts.com/doku.php?id=technical_indicators:relative_strength_index_rsi
@@ -13,14 +20,12 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 	public static final int DEFAULT_SIZE = 14;
 	
 	private final int          size;
-	
-	private final BigDecimal   bdSize;
-	private final BigDecimal   bdSizeMinusOne;
+	private final BigDecimal   alpha;
 	
 	private int        count = 0;
 	private BigDecimal lastValue = null;
-	private BigDecimal sumGain   = BigDecimal.ZERO;
-	private BigDecimal sumLoss   = BigDecimal.ZERO;
+	private BigDecimal sumGain   = ZERO;
+	private BigDecimal sumLoss   = ZERO;
 	private BigDecimal avgGain   = null;
 	private BigDecimal avgLoss   = null;
 	
@@ -28,9 +33,9 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 		this(DEFAULT_SIZE);
 	}
 	public RSI_Wilder(int size_) {
-		size           = size_;			
-		bdSize         = BigDecimal.valueOf(size);
-		bdSizeMinusOne = BigDecimal.valueOf(size - 1);
+		size  = size_;
+		// alpha = 1 / size
+		alpha = divide(ONE, BigDecimal.valueOf(size));
 	}
 	
 	@Override
@@ -39,29 +44,33 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 		final BigDecimal changeGain;
 		final BigDecimal changeLoss;
 		{
-			change = lastValue == null ? BigDecimal.ZERO : value.subtract(lastValue);
-			int compare = change.compareTo(BigDecimal.ZERO);
+			change = lastValue == null ? ZERO : value.subtract(lastValue);
+			int compare = change.compareTo(ZERO);
 			
-			changeGain = 0 < compare ? change : BigDecimal.ZERO;
-			changeLoss = compare < 0 ? change.negate() : BigDecimal.ZERO;
+			changeGain = 0 < compare ? change : ZERO;
+			changeLoss = compare < 0 ? change.negate() : ZERO;
 		}
 		
 		if (count < size) {
-			sumGain = sumGain.add(changeGain);
-			sumLoss = sumLoss.add(changeLoss);
+			sumGain = add(sumGain, changeGain);
+			sumLoss = add(sumLoss, changeLoss);
 		} else if (count == size) {
-			sumGain = sumGain.add(changeGain);
-			sumLoss = sumLoss.add(changeLoss);
+			sumGain = add(sumGain, changeGain);
+			sumLoss = add(sumLoss, changeLoss);
 			
-			avgGain = BigDecimalUtil.divide(sumGain, bdSize);
-			avgLoss = BigDecimalUtil.divide(sumLoss, bdSize);
+			avgGain = multiply(sumGain, alpha);
+			avgLoss = multiply(sumLoss, alpha);
 			sumGain = null;
 			sumLoss = null;
 		} else {
-			// avgGain = (avgGain * (size - 1) + changeGain) / size
-			// avgLoss = (avgLoss * (size - 1) + changeGain) / size
-			avgGain = BigDecimalUtil.divide(BigDecimalUtil.multiply(avgGain, bdSizeMinusOne).add(changeGain), bdSize);
-			avgLoss = BigDecimalUtil.divide(BigDecimalUtil.multiply(avgLoss, bdSizeMinusOne).add(changeLoss), bdSize);
+			// avg = value * alpha + avg * (1 - alpha)
+			//     = avg * (1 - alpha) + value * alpha
+			//     = avg - avg * alpha + value * alpha
+			//     = avg + alpha * (value - avg)
+			// number of multiply is reduced
+			
+			avgGain = add(avgGain, multiply(alpha, subtract(changeGain, avgGain)));
+			avgLoss = add(avgLoss, multiply(alpha, subtract(changeLoss, avgLoss)));
 		}
 		
 		// update for next iteration
@@ -70,14 +79,20 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 		
 		final BigDecimal rsi;
 		{
-			// avoid null or divide by zero
-			if (avgLoss == null || avgLoss.equals(BigDecimal.ZERO)) {
-				rsi = BigDecimalUtil.MINUS_1;
+			if (avgLoss == null) {
+				rsi = MINUS_1;
 			} else {
-				// RS = average gain / average loss
-				BigDecimal rs  = BigDecimalUtil.divide(avgGain, avgLoss);
-				// RSI = 100 - (100 / (1 + RS))
-				rsi = BigDecimalUtil.PLUS_100.subtract(BigDecimalUtil.divide(BigDecimalUtil.PLUS_100,  BigDecimal.ONE.add(rs)));
+				// a = avgGain * 100
+				BigDecimal a = multiply(avgGain, PLUS_100);
+				// b = avgGain + avgLoss
+				BigDecimal b = add(avgGain, avgLoss);
+				
+				if (b.equals(BigDecimal.ZERO)) {
+					rsi = MINUS_1;
+				} else {
+					// rsi = a / b
+					rsi = divide(a, b);
+				}
 			}
 		}
 		
