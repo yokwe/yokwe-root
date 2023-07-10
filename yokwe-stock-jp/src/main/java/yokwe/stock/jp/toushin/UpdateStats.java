@@ -23,6 +23,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyValue;
 import yokwe.util.finance.MonthlyStats;
+import yokwe.util.finance.RSI_Wilder;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -114,7 +115,7 @@ public class UpdateStats {
 				LocalDate endDate    = lastPrice.date;
 				LocalDate startDate  = endDate.minusYears(1).plusDays(1);
 				var       indexRange = DailyValue.indexRange(priceArray, startDate, endDate);
-				if (indexRange.isValid() && BigDecimalArray.RSI_PERIOD <= indexRange.size()) {
+				if (indexRange.isValid() && RSI_Wilder.DEFAULT_SIZE <= indexRange.size()) {
 					BigDecimal[] rsiArray = BigDecimalArray.toRSI(priceArray, indexRange.startIndex, indexRange.stopIndexPlusOne, o -> o.value);
 					stats.rsi = rsiArray[rsiArray.length - 1];
 				} else {
