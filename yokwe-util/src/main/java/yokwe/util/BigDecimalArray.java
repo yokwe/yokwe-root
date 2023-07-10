@@ -116,7 +116,6 @@ public final class BigDecimalArray {
 		var collector = new Collect<>(SumImpl::new);
 		return GenericArray.collect(array, startIndex, stopIndexPlusOne, map, collector);
 	}
-
 	public static <T> BigDecimal sum(T[] array, Function<T, BigDecimal> map) {
 		// call above method
 		return sum(array, 0, array.length, map);
@@ -230,8 +229,6 @@ public final class BigDecimalArray {
 	//
 	private static final class RSI_Wilder implements UnaryOperator<BigDecimal> {
 		// See https://school.stockcharts.com/doku.php?id=technical_indicators:relative_strength_index_rsi
-		private static final BigDecimal N_100 = BigDecimal.valueOf(100);
-		
 		private final int          size;
 		
 		private final BigDecimal   bdSize;
@@ -280,15 +277,15 @@ public final class BigDecimalArray {
 			}
 			
 			// update for next iteration
-			lastValue  = value;
+			lastValue = value;
 			count++;
 			
 			if (avgLoss == null) {
-				return BigDecimal.ONE.negate();
+				return BigDecimalUtil.MINUS_1;
 			} else {
 				if (avgLoss.equals(BigDecimal.ZERO)) return BigDecimal.ONE.negate(); // avoid divide by zero
-				BigDecimal rs  = BigDecimalUtil.divide(avgGain, avgLoss);                               // RS = average gain / average loss
-				BigDecimal rsi = N_100.subtract(BigDecimalUtil.divide(N_100,  BigDecimal.ONE.add(rs))); // 100 - (100 / (1 + RS))
+				BigDecimal rs  = BigDecimalUtil.divide(avgGain, avgLoss); // RS = average gain / average loss
+				BigDecimal rsi = BigDecimalUtil.PLUS_100.subtract(BigDecimalUtil.divide(BigDecimalUtil.PLUS_100,  BigDecimal.ONE.add(rs))); // 100 - (100 / (1 + RS))
 				
 //				logger.info("accept {}",
 //					String.format("%2d  %8.2f  %8.2f  %8.2f  %8.2f  %8.2f  %8.2f  %8.2f  %8.2f",
