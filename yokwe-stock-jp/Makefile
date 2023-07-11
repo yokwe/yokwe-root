@@ -77,5 +77,6 @@ update-tdnet:
 
 # SONY
 update-sony:
-	ant sony-update-fund
-	ant sony-update-fund-info
+	ant sony-update-sony-fund
+	ant sony-update-sony-fund-info
+	cd /mnt/stock/jp; tar cfz /mnt/stock/jp/save/sony_$$(date +%Y%m%d).taz sony
