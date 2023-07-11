@@ -4,9 +4,9 @@ import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 import static yokwe.util.BigDecimalUtil.MINUS_1;
 import static yokwe.util.BigDecimalUtil.PLUS_100;
+import static yokwe.util.BigDecimalUtil.add;
 import static yokwe.util.BigDecimalUtil.divide;
 import static yokwe.util.BigDecimalUtil.multiply;
-import static yokwe.util.BigDecimalUtil.add;
 
 import java.math.BigDecimal;
 import java.util.function.UnaryOperator;
@@ -86,8 +86,8 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 				BigDecimal a = multiply(avgGain, PLUS_100);
 				// b = avgGain + avgLoss
 				BigDecimal b = add(avgGain, avgLoss);
-				// rsi = a / b
-				rsi = b.equals(ZERO) ? MINUS_1 : divide(a, b);
+				// rsi = a / b  and avoid divide by zero
+				rsi = (b.compareTo(ZERO) == 0) ? MINUS_1 : divide(a, b);
 			}
 		}
 		
