@@ -7,7 +7,6 @@ import static yokwe.util.BigDecimalUtil.PLUS_100;
 import static yokwe.util.BigDecimalUtil.divide;
 import static yokwe.util.BigDecimalUtil.multiply;
 import static yokwe.util.BigDecimalUtil.add;
-import static yokwe.util.BigDecimalUtil.subtract;
 
 import java.math.BigDecimal;
 import java.util.function.UnaryOperator;
@@ -21,6 +20,8 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 	
 	private final int          size;
 	private final BigDecimal   alpha;
+	private final EMA          emaGain;
+	private final EMA          emaLoss;
 	
 	private int        count = 0;
 	private BigDecimal lastValue = null;
@@ -36,6 +37,9 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 		size  = size_;
 		// alpha = 1 / size
 		alpha = divide(ONE, BigDecimal.valueOf(size));
+		
+		emaGain = new EMA(alpha);
+		emaLoss = new EMA(alpha);
 	}
 	
 	@Override
@@ -58,8 +62,8 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 			sumLoss = add(sumLoss, changeLoss);
 			
 			// alpha == 1 / size
-			avgGain = multiply(sumGain, alpha);
-			avgLoss = multiply(sumLoss, alpha);
+			avgGain = emaGain.apply(multiply(sumGain, alpha));
+			avgLoss = emaLoss.apply(multiply(sumLoss, alpha));
 			sumGain = null;
 			sumLoss = null;
 		} else {
@@ -69,17 +73,13 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 			//     = avg + alpha * (value - avg)
 			// number of multiply is reduced
 			
-			avgGain = add(avgGain, multiply(alpha, subtract(changeGain, avgGain)));
-			avgLoss = add(avgLoss, multiply(alpha, subtract(changeLoss, avgLoss)));
+			avgGain = emaGain.apply(changeGain);
+			avgLoss = emaLoss.apply(changeLoss);
 		}
-		
-		// update for next iteration
-		lastValue = value;
-		count++;
 		
 		final BigDecimal rsi;
 		{
-			if (avgLoss == null) {
+			if (avgGain == null) {
 				rsi = MINUS_1;
 			} else {
 				// a = avgGain * 100
@@ -90,6 +90,10 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 				rsi = b.equals(ZERO) ? MINUS_1 : divide(a, b);
 			}
 		}
+		
+		// update for next iteration
+		lastValue = value;
+		count++;
 		
 		return rsi;
 	}
