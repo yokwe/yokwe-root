@@ -1,15 +1,17 @@
 package yokwe.util.finance;
 
+import static yokwe.util.BigDecimalUtil.multiply;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-
-import static yokwe.util.BigDecimalUtil.*;
 
 //
 // return exponential moving average
 //
-public final class EMA implements UnaryOperator<BigDecimal>  {
+public final class EMA implements UnaryOperator<BigDecimal>, Supplier<BigDecimal>, Consumer<BigDecimal>  {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private final BigDecimal alpha;
@@ -19,9 +21,14 @@ public final class EMA implements UnaryOperator<BigDecimal>  {
 	public EMA(BigDecimal alpha) {
 		this.alpha = alpha;
 	}
+	
+	public void clear() {
+		average = null;
+	}
 
+	// Consumer<BigDecimal> for forEach()
 	@Override
-	public BigDecimal apply(BigDecimal value) {
+	public void accept(BigDecimal value) {
 		if (average == null) average = value;
 		
 		// average = value * alpha + average * (1 - alpha)
@@ -30,7 +37,17 @@ public final class EMA implements UnaryOperator<BigDecimal>  {
 		//         = average + alpha * (value - average)
 		// number of multiply is reduced
 		average = average.add(multiply(alpha, value.subtract(average)));
+	}
+	// Supplier<BigDecimal> for get result after forEach
+	@Override
+	public BigDecimal get() {
 		return average;
+	}
+	// UnaryOperator<BigDecimal> for map()
+	@Override
+	public BigDecimal apply(BigDecimal value) {
+		accept(value);
+		return get();
 	}
 	
 	private static void testTable53() {
