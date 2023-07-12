@@ -250,44 +250,7 @@ public abstract class MA implements DoubleUnaryOperator, DoubleConsumer {
 			}
 		}
 	}
-	private static void testTable53() {
-		// See Table 5.3 of page 82
-		//   https://www.msci.com/documents/10199/5915b101-4206-4ba0-aee2-3449d5c7e95a
-		//   https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1546&context=ypfs-documents
-		double alpha = getAlphaFromDecayFactor(DEFAULT_DECAY_FACTOR);
-		double[] data = {
-			 0.633,
-			 0.115,
-			-0.459,
-			 0.093,
-			 0.176,
-			-0.087,
-			-0.142,
-			 0.324,
-			-0.943,
-			-0.528,
-			-0.107,
-			-0.159,
-			-0.445,
-		 	 0.053,
-			 0.152,
-			-0.318,
-			 0.424,
-			-0.708,
-			-0.105,
-			-0.257,
-			};
-
-		double var_r[] = Arrays.stream(DoubleArray.multiply(data, data)).map(ema(alpha)).toArray();
-		double var_s[] = Arrays.stream(DoubleArray.multiply(data, data)).map(ema_nr(alpha)).toArray();
-		
-		logger.info("");
-		for(int i = 0; i < var_s.length; i++) {
-			logger.info("Table 5.3 {}", String.format("%8.3f  %8.3f  %8.3f", data[i], var_r[i], var_s[i]));
-		}
-	}
 	public static void main(String[] args) {
 		testSimple();
-		testTable53();
 	}
 }
