@@ -1,6 +1,13 @@
 package yokwe.util.stats;
 
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleFunction;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntFunction;
+import java.util.function.ToDoubleFunction;
 
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
@@ -11,14 +18,379 @@ import yokwe.util.UnexpectedException;
 
 public final class DoubleArray {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
-	public static double sum(double values[]) {
-		double ret = 0;
-		for(double value: values) ret += value;
-		return ret;
+	
+	//
+	// check index consistency with array
+	//
+	private static <T> void checkIndex(T[] array, int startIndex, int stopIndexPlusOne) {
+		if (array == null) {
+			logger.error("array == null");
+			throw new UnexpectedException("array == null");
+		}
+		if (array.length == 0 && startIndex == 0 && stopIndexPlusOne == 0) return;
+		
+		if (!(0 <= startIndex && startIndex < array.length)) {
+			logger.error("  array.length      {}", array.length);
+			logger.error("  startIndex        {}", startIndex);
+			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
+			throw new UnexpectedException("offset is out of range");
+		}
+		if (!(startIndex < stopIndexPlusOne && stopIndexPlusOne <= array.length)) {
+			logger.error("  array.length      {}", array.length);
+			logger.error("  startIndex        {}", startIndex);
+			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
+			throw new UnexpectedException("offset is out of range");
+		}
+	}
+	private static void checkIndex(double[] array, int startIndex, int stopIndexPlusOne) {
+		if (array == null) {
+			logger.error("array == null");
+			throw new UnexpectedException("array == null");
+		}
+		if (array.length == 0 && startIndex == 0 && stopIndexPlusOne == 0) return;
+		
+		if (!(0 <= startIndex && startIndex < array.length)) {
+			logger.error("  array.length      {}", array.length);
+			logger.error("  startIndex        {}", startIndex);
+			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
+			throw new UnexpectedException("offset is out of range");
+		}
+		if (!(startIndex < stopIndexPlusOne && stopIndexPlusOne <= array.length)) {
+			logger.error("  array.length      {}", array.length);
+			logger.error("  startIndex        {}", startIndex);
+			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
+			throw new UnexpectedException("offset is out of range");
+		}
 	}
 	
-	public static double[] multiply(double a[], double b[]) {
+	
+	
+	//
+	// T[] to double[]
+	//
+	private static <T> double[] toDoubleArray(T[] array, int startIndex, int stopIndexPlusOne, ToDoubleFunction<T> map) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		return Arrays.stream(array, startIndex, stopIndexPlusOne).mapToDouble(map).toArray();
+	}
+	//
+	// BigDecima[] to double[]
+	//
+	public static double[] toDoubleArray(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
+		return toDoubleArray(array, startIndex, stopIndexPlusOne, o -> o.doubleValue());
+	}
+	public static double[] toDoubleArray(BigDecimal[] array) {
+		return toDoubleArray(array, 0, array.length);
+	}
+	
+	
+	
+	//
+	// double[] to R[]
+	//
+	private static final class Generator<R> implements IntFunction<R[]> {
+		private final Class<R> clazz;
+		
+		public Generator(Class<R> clazz) {
+			this.clazz = clazz;
+		}
+		
+		@Override
+		@SuppressWarnings("unchecked")
+		public R[] apply(int value) {
+			return (R[]) Array.newInstance(clazz, value);
+		}
+	}
+	private static <R> R[] toArray(double[] array, int startIndex, int stopIndexPlusOne, DoubleFunction<R> map, Class<R> clazz) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		IntFunction<R[]> generator = new Generator<R>(clazz);
+		return Arrays.stream(array, startIndex, stopIndexPlusOne).mapToObj(map).toArray(generator);
+	}
+	//
+	// double[] to BigDecima[]
+	//
+	public static BigDecimal[] toArray(double[] array, int startIndex, int stopIndexPlusOne) {
+		return toArray(array, startIndex, stopIndexPlusOne, o -> BigDecimal.valueOf(o), BigDecimal.class);
+	}
+	public static BigDecimal[] toArray(double[] array) {
+		return toArray(array, 0, array.length);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// toArray - double[] to double[]
+	///////////////////////////////////////////////////////////////////////////
+	private static double[] toArray(double[] array, int startIndex, int stopIndexPlusOne, DoubleUnaryOperator op) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		//return Arrays.stream(array, startIndex, stopIndexPlusOne).map(op).toArray();
+
+		int length = stopIndexPlusOne - startIndex;
+		double[] result = new double[length];
+		for(int i = 0; i < length; i++) {
+			result[i] = op.applyAsDouble(array[i + startIndex]);
+		}
+		return result;
+	}
+	
+	
+		
+	//
+	// simple return
+	//
+	private static class SimpleReturn implements DoubleUnaryOperator {
+		private boolean firstTime = true;
+		private double  lastValue = Double.NaN;
+		
+		@Override
+		public double applyAsDouble(double value) {
+			// sanity check
+			if (Double.isInfinite(value)) {
+				logger.error("value is infinite");
+				logger.error("  value {}", Double.toString(value));
+				throw new UnexpectedException("value is infinite");
+			}
+			
+			final double result;
+			if (firstTime) {
+				firstTime = false;
+				result    = 0;
+			} else {
+				result    = (value / lastValue) - 1.0;
+			}
+			lastValue = value;
+			return result;
+		}
+	}
+	public static double[] simpleReturn(double[] array, int startIndex, int stopIndexPlusOne) {
+		DoubleUnaryOperator op = new SimpleReturn();
+		return toArray(array, startIndex, stopIndexPlusOne, op);
+	}
+	public static double[] simpleReturn(double[] array) {
+		return simpleReturn(array, 0, array.length);
+	}
+
+	
+	
+	//
+	// log return
+	//
+	private static class LogReturn implements DoubleUnaryOperator {
+		private boolean firstTime    = true;
+		private double  lastLogValue = Double.NaN;
+		
+		@Override
+		public double applyAsDouble(double value) {
+			// sanity check
+			if (Double.isInfinite(value)) {
+				logger.error("value is infinite");
+				logger.error("  value {}", Double.toString(value));
+				throw new UnexpectedException("value is infinite");
+			}
+			
+			double logValue = Math.log(value);
+			
+			final double result;
+			if (firstTime) {
+				firstTime = false;
+				result    = 0;
+			} else {
+				result    = logValue - lastLogValue;
+			}
+			
+			lastLogValue = logValue;
+			return result;
+		}
+	}
+	public static double[] logReturn(double[] array, int startIndex, int stopIndexPlusOne) {
+		DoubleUnaryOperator op = new LogReturn();
+		return toArray(array, startIndex, stopIndexPlusOne, op);
+	}
+	public static double[] logReturn(double[] array) {
+		return logReturn(array, 0, array.length);
+	}
+
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// reduces - double[] to double
+	///////////////////////////////////////////////////////////////////////////
+	public static interface ReduceImpl extends DoubleConsumer {
+		// extends DoubleConsumer for forEach() of DoubleStream
+		public double get();
+	}
+	public static double reduce(double[] array, int startIndex, int stopIndexPlusOne, ReduceImpl reduce) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		// Arrays.stream(array, startIndex, stopIndexPlusOne).forEach(reduce);
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			reduce.accept(array[i]);
+		}
+		return reduce.get();
+	}
+	
+	
+	
+	//
+	// sum
+	//
+	private static class SumImpl implements ReduceImpl {
+		private int    count  = 0;
+		private double result = 0;
+		
+		@Override
+		public void accept(double value) {
+			// sanity check
+			if (Double.isInfinite(value)) {
+				logger.error("value is infinite");
+				logger.error("  value {}", Double.toString(value));
+				throw new UnexpectedException("value is infinite");
+			}
+			
+			count++;
+			result += value;
+		}
+
+		@Override
+		public double get() {
+			return count == 0 ? Double.NaN : result;
+		}
+	}
+	public static double sum(double array[], int startIndex, int stopIndexPlusOne) {
+		ReduceImpl reduce = new SumImpl();
+		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+	}
+	public static double sum(double[] array) {
+		return sum(array, 0, array.length);
+	}
+	
+	
+	
+	//
+	// mean -- arithmetic mean
+	//
+	private static class MeanImpl implements ReduceImpl {
+		private int    count  = 0;
+		private double result = 0;
+		
+		@Override
+		public void accept(double value) {
+			// sanity check
+			if (Double.isInfinite(value)) {
+				logger.error("value is infinite");
+				logger.error("  value {}", Double.toString(value));
+				throw new UnexpectedException("value is infinite");
+			}
+			
+			count++;
+			result += value;
+		}
+
+		@Override
+		public double get() {
+			return count == 0 ? Double.NaN : result / count;
+		}
+	}
+	public static double mean(double array[], int startIndex, int stopIndexPlusOne) {
+		ReduceImpl reduce = new MeanImpl();
+		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+	}
+	public static double mean(double[] array) {
+		return mean(array, 0, array.length);
+	}
+	
+	
+	
+	//
+	// GeometricMeanImpl
+	//
+	private static class GeometricMeanImpl implements ReduceImpl {
+		private int    count  = 0;
+		private double result = 0;
+		
+		@Override
+		public void accept(double value) {
+			// sanity check
+			if (Double.isInfinite(value)) {
+				logger.error("value is infinite");
+				logger.error("  value {}", Double.toString(value));
+				throw new UnexpectedException("value is infinite");
+			}
+			
+			count++;
+			result += Math.log(value);
+		}
+
+		@Override
+		public double get() {
+			return count == 0 ? Double.NaN : Math.exp(result / count);
+		}
+	}
+	public static double geometricMean(double array[], int startIndex, int stopIndexPlusOne) {
+		ReduceImpl reduce = new GeometricMeanImpl();
+		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+	}
+	public static double geometricMean(double[] array) {
+		return geometricMean(array, 0, array.length);
+	}
+
+	
+	
+	//
+	// variance
+	//
+	private static class VarianceImpl implements ReduceImpl {
+		private int    count  = 0;
+		private double sum    = 0;
+		private double sum2   = 0;
+		
+		@Override
+		public void accept(double value) {
+			// sanity check
+			if (Double.isInfinite(value)) {
+				logger.error("value is infinite");
+				logger.error("  value {}", Double.toString(value));
+				throw new UnexpectedException("value is infinite");
+			}
+			
+			count++;
+			
+			sum  += value;
+			sum2 += value * value;
+		}
+
+		@Override
+		public double get() {
+			if (count == 0) return Double.NaN;
+			double ex  = sum  / count;
+			double ex2 = sum2 / count;
+			// variance = E(X ^ 2) - E(X) ^ 2
+			return ex2 - (ex * ex);
+		}
+	}
+	public static double variance(double array[], int startIndex, int stopIndexPlusOne) {
+		ReduceImpl reduce = new VarianceImpl();
+		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+	}
+	public static double variance(double[] array) {
+		return variance(array, 0, array.length);
+	}
+	//
+	// standard deviation
+	//
+	public static double standardDeviation(double array[], int startIndex, int stopIndexPlusOne) {
+		// Math.sqrt(Double.Nan) == Double.NaN
+		return Math.sqrt(variance(array, startIndex, stopIndexPlusOne));
+	}
+	public static double standardDeviation(double[] array) {
+		return standardDeviation(array, 0, array.length);
+	}
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Legacy part start from here to end
+	///////////////////////////////////////////////////////////////////////////
+	
+	private static double[] multiply(double a[], double b[]) {
 		if (a.length != b.length) {
 			logger.error("a.length = {}  b.length = {}", a.length, b.length);
 			throw new UnexpectedException("a.length != b.length");
@@ -29,18 +401,18 @@ public final class DoubleArray {
 		}
 		return ret;
 	}
-	public static double multiplyAndAdd(double a[], double b[]) {
-		if (a.length != b.length) {
-			logger.error("a.length = {}  b.length = {}", a.length, b.length);
-			throw new UnexpectedException("a.length != b.length");
-		}
-		double ret = 0;
-		for(int i = 0; i < a.length; i++) {
-			ret += a[i] * b[i];
-		}
-		return ret;
-	}
-	public static double[] divide(double a[], double b[]) {
+//	public static double multiplyAndAdd(double a[], double b[]) {
+//		if (a.length != b.length) {
+//			logger.error("a.length = {}  b.length = {}", a.length, b.length);
+//			throw new UnexpectedException("a.length != b.length");
+//		}
+//		double ret = 0;
+//		for(int i = 0; i < a.length; i++) {
+//			ret += a[i] * b[i];
+//		}
+//		return ret;
+//	}
+	private static double[] divide(double a[], double b[]) {
 		if (a.length != b.length) {
 			logger.error("a.length = {}  b.length = {}", a.length, b.length);
 			throw new UnexpectedException("a.length != b.length");
@@ -52,64 +424,57 @@ public final class DoubleArray {
 		return ret;
 	}
 	
-	public static void multiply(double a[], double b) {
-		for(int i = 0; i < a.length; i++) {
-			a[i] *= b;
-		}
-	}
-	public static void sqrt(double a[]) {
+//	public static void multiply(double a[], double b) {
+//		for(int i = 0; i < a.length; i++) {
+//			a[i] *= b;
+//		}
+//	}
+	private static void sqrt(double a[]) {
 		for(int i = 0; i < a.length; i++) {
 			a[i] = Math.sqrt(a[i]);
 		}
 	}
-	public static void square(double a[]) {
-		for(int i = 0; i < a.length; i++) {
-			a[i] *= a[i];
-		}
-	}
+//	public static void square(double a[]) {
+//		for(int i = 0; i < a.length; i++) {
+//			a[i] *= a[i];
+//		}
+//	}
+//	
+//	public static double[] logReturn(double data[]) {
+//		double ret[] = new double[data.length - 1];
+//		double lastValue = Double.NaN;
+//		boolean firstTime = true;
+//		int index = 0;
+//		for(double value: data) {
+//			if (firstTime) {
+//				lastValue = value;
+//				firstTime = false;
+//			} else {
+//				ret[index++] = Math.log(value / lastValue);
+//				lastValue = value;
+//			}
+//		}
+//		return ret;
+//	}
+//	
+//	public static double[] simpleReturn(double data[]) {
+//		double ret[] = new double[data.length - 1];
+//		double lastValue = Double.NaN;
+//		boolean firstTime = true;
+//		int index = 0;
+//		for(double value: data) {
+//			if (firstTime) {
+//				lastValue = value;
+//				firstTime = false;
+//			} else {
+//				ret[index++] = (value / lastValue) - 1.0;
+//				lastValue = value;
+//			}
+//		}
+//		return ret;
+//	}
 	
-	public static double[] logReturn(double data[]) {
-		double ret[] = new double[data.length - 1];
-		double lastValue = Double.NaN;
-		boolean firstTime = true;
-		int index = 0;
-		for(double value: data) {
-			if (firstTime) {
-				lastValue = value;
-				firstTime = false;
-			} else {
-				ret[index++] = Math.log(value / lastValue);
-				lastValue = value;
-			}
-		}
-		return ret;
-	}
-	
-	public static double[] simpleReturn(double data[]) {
-		double ret[] = new double[data.length - 1];
-		double lastValue = Double.NaN;
-		boolean firstTime = true;
-		int index = 0;
-		for(double value: data) {
-			if (firstTime) {
-				lastValue = value;
-				firstTime = false;
-			} else {
-				ret[index++] = (value / lastValue) - 1.0;
-				lastValue = value;
-			}
-		}
-		return ret;
-	}
-	
-	public static double mean(double[] data) {
-		if (data.length == 0) return Double.NaN;
-		double ret = 0;
-		for(double value: data) ret += value;
-		return ret / data.length;
-	}
-	
-	public static double cov(double[] data1, double data2[]) {
+	private static double cov(double[] data1, double data2[]) {
 		if (data1.length != data2.length) {
 			logger.error("data1.length = {}  data2.length = {}", data1.length, data2.length);
 			throw new UnexpectedException("data1.length != data2.length");
@@ -127,47 +492,47 @@ public final class DoubleArray {
 		return ret / size;
 	}
 	
-	public static class AlphaBeta {
-		public final double alpha;
-		public final double beta;
-		public final double corr;
-		
-		public AlphaBeta(UniStats index, UniStats target) {
-			BiStats biStats = new BiStats(index, target);
-			beta  = biStats.covariance / index.variance;
-			alpha = target.mean - beta * index.mean;
-			corr  = biStats.correlation;
-		}
-	}
-	
-	public static BiStats[][] getMatrix(UniStats stats[]) {
-		final int size = stats.length;
-		if (stats.length == 0) {
-			logger.error("stats.length == 0");
-			throw new UnexpectedException("stats.length == 0");
-		}
-		{
-			final int statsSize = stats[0].size;
-			for(int i = 0; i < stats.length; i++) {
-				if (stats[i].size != statsSize) {
-					logger.error("stats[i].size != statsSize");
-					logger.error("stats[{}].size = {}  statsSize = {}", i, stats[i], statsSize);
-					throw new UnexpectedException("stats[i].size != size");
-				}
-			}
-		}
-		BiStats ret[][] = new BiStats[size][size];
-		for(int i = 0; i < size; i++) {
-			for(int j = 0; j < size; j++) {
-				ret[i][j] = ret[j][i] = new BiStats(stats[i], stats[j]);
-				if (i == j) break;
-			}
-		}
-		
-		return ret;
-	}
-
-	public static double cor(double[] data1, double data2[]) {
+//	public static class AlphaBeta {
+//		public final double alpha;
+//		public final double beta;
+//		public final double corr;
+//		
+//		public AlphaBeta(UniStats index, UniStats target) {
+//			BiStats biStats = new BiStats(index, target);
+//			beta  = biStats.covariance / index.variance;
+//			alpha = target.mean - beta * index.mean;
+//			corr  = biStats.correlation;
+//		}
+//	}
+//	
+//	public static BiStats[][] getMatrix(UniStats stats[]) {
+//		final int size = stats.length;
+//		if (stats.length == 0) {
+//			logger.error("stats.length == 0");
+//			throw new UnexpectedException("stats.length == 0");
+//		}
+//		{
+//			final int statsSize = stats[0].size;
+//			for(int i = 0; i < stats.length; i++) {
+//				if (stats[i].size != statsSize) {
+//					logger.error("stats[i].size != statsSize");
+//					logger.error("stats[{}].size = {}  statsSize = {}", i, stats[i], statsSize);
+//					throw new UnexpectedException("stats[i].size != size");
+//				}
+//			}
+//		}
+//		BiStats ret[][] = new BiStats[size][size];
+//		for(int i = 0; i < size; i++) {
+//			for(int j = 0; j < size; j++) {
+//				ret[i][j] = ret[j][i] = new BiStats(stats[i], stats[j]);
+//				if (i == j) break;
+//			}
+//		}
+//		
+//		return ret;
+//	}
+//
+	private static double cor(double[] data1, double data2[]) {
 		if (data1.length != data2.length) {
 			logger.error("data1.length = {}  data2.length = {}", data1.length, data2.length);
 			throw new UnexpectedException("data1.length != data2.length");
@@ -189,55 +554,57 @@ public final class DoubleArray {
 		return cov / (Math.sqrt(var1) * Math.sqrt(var2));
 	}
 	
-	public static double var(double[] data, double mean) {
-		final int size = data.length;
-		if (size == 0) return Double.NaN;
-		double ret = 0;
-		for(double value: data) {
-			double diff = mean - value;
-			ret += diff * diff;
-		}
-		return ret / size;
+//	private static double var(double[] data, double mean) {
+//		final int size = data.length;
+//		if (size == 0) return Double.NaN;
+//		double ret = 0;
+//		for(double value: data) {
+//			double diff = mean - value;
+//			ret += diff * diff;
+//		}
+//		return ret / size;
+//	}
+	private static double var(double[] data) {
+//		return var(data, mean(data));
+		return variance(data);
 	}
-	public static double var(double[] data) {
-		return var(data, mean(data));
+	private static double sd(double[] data) {
+//		return sd(data, mean(data));
+		return standardDeviation(data);
 	}
-	public static double sd(double[] data) {
-		return sd(data, mean(data));
-	}
-	public static double sd(double[] data, double mean) {
-		if (data.length == 0) return Double.NaN;
-		return Math.sqrt(var(data, mean));
-	}
+//	private static double sd(double[] data, double mean) {
+//		if (data.length == 0) return Double.NaN;
+//		return Math.sqrt(var(data, mean));
+//	}
 	
-	public static double[] var_sma(double lr[], final int dataSize) {
-		final MA.SMA sma = MA.sma(dataSize);
-		int pos = 0;
-		double save[] = new double[dataSize];
-		double sum = lr[0] * dataSize;
-		Arrays.fill(save, lr[0]);
-		
-		double ret[] = new double[lr.length];
-		for(int i = 0; i < lr.length; i++) {
-			double data = lr[i];
-			
-			sum += data - save[pos];
-			save[pos++] = data;
-			if (pos == dataSize) pos = 0;
-			
-			double sd = var(save, sum / dataSize);
-
-			ret[i] = sma.applyAsDouble(sd);
-		}
-		return ret;
-	}
-	public static double[] sd_sma(double lr[], final int dataSize) {
-		double ret[] = var_sma(lr, dataSize);
-		sqrt(ret);
-		return ret;
-	}
+//	public static double[] var_sma(double lr[], final int dataSize) {
+//		final MA.SMA sma = MA.sma(dataSize);
+//		int pos = 0;
+//		double save[] = new double[dataSize];
+//		double sum = lr[0] * dataSize;
+//		Arrays.fill(save, lr[0]);
+//		
+//		double ret[] = new double[lr.length];
+//		for(int i = 0; i < lr.length; i++) {
+//			double data = lr[i];
+//			
+//			sum += data - save[pos];
+//			save[pos++] = data;
+//			if (pos == dataSize) pos = 0;
+//			
+//			double sd = var(save, sum / dataSize);
+//
+//			ret[i] = sma.applyAsDouble(sd);
+//		}
+//		return ret;
+//	}
+//	public static double[] sd_sma(double lr[], final int dataSize) {
+//		double ret[] = var_sma(lr, dataSize);
+//		sqrt(ret);
+//		return ret;
+//	}
 	
-	public static double[] ema(double data[], double alpha) {
+	private static double[] ema(double data[], double alpha) {
 		MA.EMA ema = MA.ema(alpha);
 		double ret[] = new double[data.length];
 		for(int i = 0; i < data.length; i++) {
@@ -246,29 +613,31 @@ public final class DoubleArray {
 		return ret;
 	}
 
-	public static double[] var_ema(double lr[], double alpha) {
+	private static double[] var_ema(double lr[], double alpha) {
 		return ema(multiply(lr, lr), alpha);
 	}
 	
-	public static double[] sd_ema(double lr[], double alpha) {
+	private static double[] sd_ema(double lr[], double alpha) {
 		double ret[] = var_ema(lr, alpha);
 		sqrt(ret);
 		return ret;
 	}
 
-	public static double[] cov_ema(double data1[], double data2[], double alpha) {
+	private static double[] cov_ema(double data1[], double data2[], double alpha) {
 		return ema(multiply(data1, data2), alpha);
 	}
 	
-	public static double[] cor_ema(double data1[], double data2[], double alpha) {
+	private static double[] cor_ema(double data1[], double data2[], double alpha) {
 		double sd1[] = sd_ema(data1, alpha);
 		double sd2[] = sd_ema(data2, alpha);
 		double cov[] = cov_ema(data1, data2, alpha);
 		return divide(cov, multiply(sd1, sd2));
 	}
 
-	
 	private static void testTable53() {
+		// See Table 5.3 of page 82
+		//   https://www.msci.com/documents/10199/5915b101-4206-4ba0-aee2-3449d5c7e95a
+		//   https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1546&context=ypfs-documents
 		double[] data = {
 			 0.633,
 			 0.115,
@@ -302,6 +671,9 @@ public final class DoubleArray {
 	}
 
 	private static void testTable55() {
+		// See Table 5.4 of page 84
+		//   https://www.msci.com/documents/10199/5915b101-4206-4ba0-aee2-3449d5c7e95a
+		//   https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1546&context=ypfs-documents
 		// Calculation of variance, covariance and correlation
 		double[] data_a = {
 			 0.634,
@@ -361,7 +733,7 @@ public final class DoubleArray {
 		}
 	}
 	
-	static void testVarCovCor() {
+	private static void testVarCovCor() {
 		double[] data_a = {
 			 0.634,
 			 0.115,
@@ -441,8 +813,8 @@ public final class DoubleArray {
 			BiStats  statsab = new BiStats(data_a, data_b);
 			double avga = statsa.mean;
 			double avgb = statsb.mean;
-			double vara = statsa.variance;
-			double varb = statsb.variance;
+			double vara = statsa.variance; // UniStats
+			double varb = statsb.variance; // UniStats
 			double sda  = Math.sqrt(vara);
 			double sdb  = Math.sqrt(varb);
 			double cov  = statsab.covariance;
@@ -456,23 +828,8 @@ public final class DoubleArray {
 			BiStats  statsab = new BiStats(data_a, data_b);
 			double avga = statsa.mean;
 			double avgb = statsb.mean;
-			double vara = statsab.stats1.variance;
-			double varb = statsab.stats2.variance;
-			double sda  = Math.sqrt(vara);
-			double sdb  = Math.sqrt(varb);
-			double cov  = statsab.covariance;
-			double cor  = statsab.correlation;
-			
-			logger.info("bi    {}", String.format("%8.5f  %8.5f  %8.5f  %8.5f  %8.5f  %8.5f  %8.5f  %8.5f", avga, avgb, vara, varb, sda, sdb, cov, cor));
-		}
-		{
-			UniStats statsa  = new UniStats(data_a);
-			UniStats statsb  = new UniStats(data_b);
-			BiStats  statsab = new BiStats(statsa, statsb);
-			double avga = statsa.mean;
-			double avgb = statsb.mean;
-			double vara = statsab.stats1.variance;
-			double varb = statsab.stats2.variance;
+			double vara = statsab.stats1.variance; // BiStats
+			double varb = statsab.stats2.variance; // BiStats
 			double sda  = Math.sqrt(vara);
 			double sdb  = Math.sqrt(varb);
 			double cov  = statsab.covariance;
