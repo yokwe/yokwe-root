@@ -120,7 +120,7 @@ public final class DoubleArray {
 	///////////////////////////////////////////////////////////////////////////
 	// toArray - double[] to double[]
 	///////////////////////////////////////////////////////////////////////////
-	private static double[] toArray(double[] array, int startIndex, int stopIndexPlusOne, DoubleUnaryOperator op) {
+	public static double[] toArray(double[] array, int startIndex, int stopIndexPlusOne, DoubleUnaryOperator op) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		//return Arrays.stream(array, startIndex, stopIndexPlusOne).map(op).toArray();
 
@@ -130,6 +130,9 @@ public final class DoubleArray {
 			result[i] = op.applyAsDouble(array[i + startIndex]);
 		}
 		return result;
+	}
+	public static double[] toArray(double[] array, DoubleUnaryOperator op) {
+		return toArray(array, 0, array.length, op);
 	}
 	
 	
@@ -168,7 +171,7 @@ public final class DoubleArray {
 	public static double[] simpleReturn(double[] array) {
 		return simpleReturn(array, 0, array.length);
 	}
-
+	
 	
 	
 	//
@@ -209,6 +212,68 @@ public final class DoubleArray {
 		return logReturn(array, 0, array.length);
 	}
 
+	
+	
+	//
+	// simple moving average
+	//
+	private static class SMA implements DoubleUnaryOperator {
+		private final int      size;
+		private final double[] data;
+
+		private int      count = 0;
+		private int      index = 0;
+		private double   sum   = 0;
+		
+		public SMA(int size_) {
+			size = size_;
+			data = new double[size];
+		}
+		
+		@Override
+		public double applyAsDouble(double value) {
+			// sanity check
+			if (Double.isInfinite(value)) {
+				logger.error("value is infinite");
+				logger.error("  value {}", Double.toString(value));
+				throw new UnexpectedException("value is infinite");
+			}
+			
+			final double result;
+			if (count < size) {
+				// write data
+				data[index] = value;
+				// update sum
+				sum += value;
+				// set result
+				result = sum / (index + 1);
+			} else {
+				// adjust sum
+				sum -= data[index];
+				// overwrite data
+				data[index] = value;
+				// update sum
+				sum += value;
+				// set result
+				result = sum / size;
+			}
+			
+			// update for next iteration
+			count++;
+			index++;
+			if (index == size) index = 0;
+			
+			return result;
+		}
+	}
+	public static double[] sma(double[] array, int startIndex, int stopIndexPlusOne, int size) {
+		DoubleUnaryOperator op = new SMA(size);
+		return toArray(array, startIndex, stopIndexPlusOne, op);
+	}
+	public static double[] sma(double[] array, int size) {
+		return sma(array, 0, array.length, size);
+	}
+	
 	
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -374,6 +439,46 @@ public final class DoubleArray {
 		return variance(array, 0, array.length);
 	}
 	//
+	// variance - using precalculated mean
+	//
+	private static class Variance2Impl implements ReduceImpl {
+		private final double mean;
+		
+		private int    count  = 0;
+		private double sum    = 0;
+		
+		Variance2Impl(double mean_) {
+			mean = mean_;
+		}
+		
+		@Override
+		public void accept(double value) {
+			// sanity check
+			if (Double.isInfinite(value)) {
+				logger.error("value is infinite");
+				logger.error("  value {}", Double.toString(value));
+				throw new UnexpectedException("value is infinite");
+			}
+			
+			count++;
+			
+			double t = value - mean;
+			sum  += (t * t);
+		}
+
+		@Override
+		public double get() {
+			return count == 0 ? Double.NaN : (sum / count);
+		}
+	}
+	public static double variance(double array[], int startIndex, int stopIndexPlusOne, double mean) {
+		ReduceImpl reduce = new Variance2Impl(mean);
+		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+	}
+	public static double variance(double[] array, double mean) {
+		return variance(array, 0, array.length, mean);
+	}
+	//
 	// standard deviation
 	//
 	public static double standardDeviation(double array[], int startIndex, int stopIndexPlusOne) {
@@ -382,6 +487,16 @@ public final class DoubleArray {
 	}
 	public static double standardDeviation(double[] array) {
 		return standardDeviation(array, 0, array.length);
+	}
+	//
+	// standardDeviation - using precalculated mean
+	//
+	public static double standardDeviation(double array[], int startIndex, int stopIndexPlusOne, double mean) {
+		// Math.sqrt(Double.Nan) == Double.NaN
+		return Math.sqrt(variance(array, startIndex, stopIndexPlusOne, mean));
+	}
+	public static double standardDeviation(double[] array, double mean) {
+		return standardDeviation(array, 0, array.length, mean);
 	}
 	
 	
@@ -604,7 +719,7 @@ public final class DoubleArray {
 //		return ret;
 //	}
 	
-	private static double[] ema(double data[], double alpha) {
+	private static double[] ema_Legacy(double data[], double alpha) {
 		MA.EMA ema = MA.ema(alpha);
 		double ret[] = new double[data.length];
 		for(int i = 0; i < data.length; i++) {
@@ -614,7 +729,7 @@ public final class DoubleArray {
 	}
 
 	private static double[] var_ema(double lr[], double alpha) {
-		return ema(multiply(lr, lr), alpha);
+		return ema_Legacy(multiply(lr, lr), alpha);
 	}
 	
 	private static double[] sd_ema(double lr[], double alpha) {
@@ -624,7 +739,7 @@ public final class DoubleArray {
 	}
 
 	private static double[] cov_ema(double data1[], double data2[], double alpha) {
-		return ema(multiply(data1, data2), alpha);
+		return ema_Legacy(multiply(data1, data2), alpha);
 	}
 	
 	private static double[] cor_ema(double data1[], double data2[], double alpha) {
