@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.jupiter.api.Test;
 
-import yokwe.util.stats.DoubleArray;
+import yokwe.util.finance.DoubleArray;
 
 class TestDoubleArray {
 //	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
