@@ -59,30 +59,31 @@ public class DoubleArray {
 		}
 	}
 	private static void checkIndex(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
-		checkIndex(a, startIndex, stopIndexPlusOne);
-		checkIndex(b, startIndex, stopIndexPlusOne);
-		
-		if (a.length != b.length) {
+		// length of array a and b must be same
+		if (a != null && b != null && a.length != b.length) {
 			logger.error("  a.length          {}", a.length);
 			logger.error("  b.length          {}", b.length);
 			logger.error("  startIndex        {}", startIndex);
 			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
 			throw new UnexpectedException("array length is different");
 		}
+		
+		checkIndex(a, startIndex, stopIndexPlusOne);
+		checkIndex(b, startIndex, stopIndexPlusOne);
 	}
 	
 	
 	
-	//
+	///////////////////////////////////////////////////////////////////////////
 	// T[] to double[]
-	//
+	///////////////////////////////////////////////////////////////////////////
 	private static <T> double[] toDoubleArray(T[] array, int startIndex, int stopIndexPlusOne, ToDoubleFunction<T> map) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		return Arrays.stream(array, startIndex, stopIndexPlusOne).mapToDouble(map).toArray();
 	}
-	//
+	///////////////////////////////////////////////////////////////////////////
 	// BigDecima[] to double[]
-	//
+	///////////////////////////////////////////////////////////////////////////
 	public static double[] toDoubleArray(BigDecimal[] array, int startIndex, int stopIndexPlusOne) {
 		return toDoubleArray(array, startIndex, stopIndexPlusOne, o -> o.doubleValue());
 	}
@@ -92,9 +93,9 @@ public class DoubleArray {
 	
 	
 	
-	//
+	///////////////////////////////////////////////////////////////////////////
 	// double[] to R[]
-	//
+	///////////////////////////////////////////////////////////////////////////
 	private static final class Generator<R> implements IntFunction<R[]> {
 		private final Class<R> clazz;
 		
@@ -113,9 +114,9 @@ public class DoubleArray {
 		IntFunction<R[]> generator = new Generator<R>(clazz);
 		return Arrays.stream(array, startIndex, stopIndexPlusOne).mapToObj(map).toArray(generator);
 	}
-	//
+	///////////////////////////////////////////////////////////////////////////
 	// double[] to BigDecima[]
-	//
+	///////////////////////////////////////////////////////////////////////////
 	public static BigDecimal[] toArray(double[] array, int startIndex, int stopIndexPlusOne) {
 		return toArray(array, startIndex, stopIndexPlusOne, o -> BigDecimal.valueOf(o), BigDecimal.class);
 	}
@@ -126,9 +127,9 @@ public class DoubleArray {
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// toArray - double[] to double[]
+	// double[] to double[]
 	///////////////////////////////////////////////////////////////////////////
-	public static double[] toArray(double[] array, int startIndex, int stopIndexPlusOne, DoubleUnaryOperator op) {
+	public static double[] toDoubleArray(double[] array, int startIndex, int stopIndexPlusOne, DoubleUnaryOperator op) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		//return Arrays.stream(array, startIndex, stopIndexPlusOne).map(op).toArray();
 
@@ -139,12 +140,9 @@ public class DoubleArray {
 		}
 		return result;
 	}
-	public static double[] toArray(double[] array, DoubleUnaryOperator op) {
-		return toArray(array, 0, array.length, op);
+	public static double[] toDoubleArray(double[] array, DoubleUnaryOperator op) {
+		return toDoubleArray(array, 0, array.length, op);
 	}
-	
-	
-		
 	//
 	// simple return
 	//
@@ -174,14 +172,11 @@ public class DoubleArray {
 	}
 	public static double[] simpleReturn(double[] array, int startIndex, int stopIndexPlusOne) {
 		DoubleUnaryOperator op = new SimpleReturn();
-		return toArray(array, startIndex, stopIndexPlusOne, op);
+		return toDoubleArray(array, startIndex, stopIndexPlusOne, op);
 	}
 	public static double[] simpleReturn(double[] array) {
 		return simpleReturn(array, 0, array.length);
 	}
-	
-	
-	
 	//
 	// log return
 	//
@@ -214,14 +209,11 @@ public class DoubleArray {
 	}
 	public static double[] logReturn(double[] array, int startIndex, int stopIndexPlusOne) {
 		DoubleUnaryOperator op = new LogReturn();
-		return toArray(array, startIndex, stopIndexPlusOne, op);
+		return toDoubleArray(array, startIndex, stopIndexPlusOne, op);
 	}
 	public static double[] logReturn(double[] array) {
 		return logReturn(array, 0, array.length);
 	}
-
-	
-	
 	//
 	// simple moving average
 	//
@@ -276,21 +268,16 @@ public class DoubleArray {
 	}
 	public static double[] sma(double[] array, int startIndex, int stopIndexPlusOne, int size) {
 		DoubleUnaryOperator op = new SMA(size);
-		return toArray(array, startIndex, stopIndexPlusOne, op);
+		return toDoubleArray(array, startIndex, stopIndexPlusOne, op);
 	}
 	public static double[] sma(double[] array, int size) {
 		return sma(array, 0, array.length, size);
 	}
-	
-	
-	
 	//
 	// FIXME exponential moving average
 	//
 	// public static double[] ema(double[] array, double alpha)
 	// public static double[] ema(double[] array, int    size)
-	
-	
 	//
 	// FIXME RIS_Wilder
 	//
@@ -299,9 +286,9 @@ public class DoubleArray {
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// toArray - double[] double[] to double[]
+	// double[] double[] to double[]
 	///////////////////////////////////////////////////////////////////////////
-	public static double[] toArray(double[] a, double[] b, int startIndex, int stopIndexPlusOne, DoubleBinaryOperator op) {
+	public static double[] toDoubleArray(double[] a, double[] b, int startIndex, int stopIndexPlusOne, DoubleBinaryOperator op) {
 		checkIndex(a, b, startIndex, stopIndexPlusOne);
 
 		int length = stopIndexPlusOne - startIndex;
@@ -311,12 +298,19 @@ public class DoubleArray {
 		}
 		return result;
 	}
-	public static double[] toArray(double[] a, double[] b, DoubleBinaryOperator op) {
-		return toArray(a, b, 0, a.length, op);
+	public static double[] toDoubleArray(double[] a, double[] b, DoubleBinaryOperator op) {
+		return toDoubleArray(a, b, 0, a.length, op);
 	}
-	
-	
-		
+	//
+	// multiply
+	//
+	private static final DoubleBinaryOperator multiplyOp = (a, b) -> a * b;
+	public static double[] multiply(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
+		return toDoubleArray(a, b, startIndex, stopIndexPlusOne, multiplyOp);
+	}
+	public static double[] multiply(double[] a, double[] b) {
+		return multiply(a, b, 0, a.length);
+	}
 	//
 	// FIXME Reinvested Price
 	//
@@ -325,13 +319,13 @@ public class DoubleArray {
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// reduces - double[] to double
+	// double[] to double
 	///////////////////////////////////////////////////////////////////////////
-	public static interface ReduceImpl extends DoubleConsumer {
+	public static interface ToDoubleImpl extends DoubleConsumer {
 		// extends DoubleConsumer for forEach() of DoubleStream
 		public double get();
 	}
-	public static double reduce(double[] array, int startIndex, int stopIndexPlusOne, ReduceImpl reduce) {
+	public static double toDouble(double[] array, int startIndex, int stopIndexPlusOne, ToDoubleImpl reduce) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		// Arrays.stream(array, startIndex, stopIndexPlusOne).forEach(reduce);
 		for(int i = startIndex; i < stopIndexPlusOne; i++) {
@@ -339,13 +333,10 @@ public class DoubleArray {
 		}
 		return reduce.get();
 	}
-	
-	
-	
 	//
 	// sum
 	//
-	private static class SumImpl implements ReduceImpl {
+	private static class SumImpl implements ToDoubleImpl {
 		private int    count  = 0;
 		private double result = 0;
 		
@@ -368,19 +359,16 @@ public class DoubleArray {
 		}
 	}
 	public static double sum(double array[], int startIndex, int stopIndexPlusOne) {
-		ReduceImpl reduce = new SumImpl();
-		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+		ToDoubleImpl reduce = new SumImpl();
+		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double sum(double[] array) {
 		return sum(array, 0, array.length);
 	}
-	
-	
-	
 	//
-	// mean -- arithmetic mean
+	// mean
 	//
-	private static class MeanImpl implements ReduceImpl {
+	private static class MeanImpl implements ToDoubleImpl {
 		private int    count  = 0;
 		private double result = 0;
 		
@@ -403,19 +391,16 @@ public class DoubleArray {
 		}
 	}
 	public static double mean(double array[], int startIndex, int stopIndexPlusOne) {
-		ReduceImpl reduce = new MeanImpl();
-		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+		ToDoubleImpl reduce = new MeanImpl();
+		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double mean(double[] array) {
 		return mean(array, 0, array.length);
 	}
-	
-	
-	
 	//
-	// GeometricMeanImpl
+	// geometric mean
 	//
-	private static class GeometricMeanImpl implements ReduceImpl {
+	private static class GeometricMeanImpl implements ToDoubleImpl {
 		private int    count  = 0;
 		private double result = 0;
 		
@@ -438,8 +423,8 @@ public class DoubleArray {
 		}
 	}
 	public static double geometricMean(double array[], int startIndex, int stopIndexPlusOne) {
-		ReduceImpl reduce = new GeometricMeanImpl();
-		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+		ToDoubleImpl reduce = new GeometricMeanImpl();
+		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double geometricMean(double[] array) {
 		return geometricMean(array, 0, array.length);
@@ -450,7 +435,10 @@ public class DoubleArray {
 	//
 	// variance
 	//
-	private static class VarianceImpl implements ReduceImpl {
+	//
+	// variance without mean
+	//
+	private static class VarianceImpl implements ToDoubleImpl {
 		private int    count  = 0;
 		private double sum    = 0;
 		private double sum2   = 0;
@@ -480,8 +468,8 @@ public class DoubleArray {
 		}
 	}
 	public static double variance(double array[], int startIndex, int stopIndexPlusOne) {
-		ReduceImpl reduce = new VarianceImpl();
-		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+		ToDoubleImpl reduce = new VarianceImpl();
+		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double variance(double[] array) {
 		return variance(array, 0, array.length);
@@ -489,7 +477,10 @@ public class DoubleArray {
 	//
 	// variance - using precalculated mean
 	//
-	private static class Variance2Impl implements ReduceImpl {
+	//
+	// variance with mean
+	//
+	private static class Variance2Impl implements ToDoubleImpl {
 		private final double mean;
 		
 		private int    count  = 0;
@@ -520,14 +511,17 @@ public class DoubleArray {
 		}
 	}
 	public static double variance(double array[], int startIndex, int stopIndexPlusOne, double mean) {
-		ReduceImpl reduce = new Variance2Impl(mean);
-		return reduce(array, startIndex, stopIndexPlusOne, reduce);
+		ToDoubleImpl reduce = new Variance2Impl(mean);
+		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double variance(double[] array, double mean) {
 		return variance(array, 0, array.length, mean);
 	}
 	//
 	// standard deviation
+	//
+	//
+	// standard deviation without mean
 	//
 	public static double standardDeviation(double array[], int startIndex, int stopIndexPlusOne) {
 		// Math.sqrt(Double.Nan) == Double.NaN
@@ -536,6 +530,9 @@ public class DoubleArray {
 	public static double standardDeviation(double[] array) {
 		return standardDeviation(array, 0, array.length);
 	}
+	//
+	// standard deviation with mean
+	//
 	//
 	// standardDeviation - using precalculated mean
 	//
