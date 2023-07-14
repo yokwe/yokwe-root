@@ -56,7 +56,7 @@ class TestDoubleArray {
 		};
 	
 	static double[] data  = table52;
-	static double[] data2 = DoubleArray.toArray(data, o -> Math.abs(o));
+	static double[] data2 = DoubleArray.toDoubleArray(data, o -> Math.abs(o));
 	
 	static DescriptiveStatistics stats  = new DescriptiveStatistics(data);
 	static DescriptiveStatistics stats2 = new DescriptiveStatistics(data2);
