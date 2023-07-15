@@ -2,6 +2,7 @@ package yokwe.util;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -14,9 +15,34 @@ import java.util.stream.Collector;
 public final class GenericArray {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	//
-	// create array from another type of array using map and op
-	//
+	///////////////////////////////////////////////////////////////////////////
+	// check index consistency with array
+	///////////////////////////////////////////////////////////////////////////
+	public static <T> void checkIndex(T[] array, int startIndex, int stopIndexPlusOne) {
+		if (array == null) {
+			logger.error("array == null");
+			throw new UnexpectedException("array == null");
+		}
+		if (array.length == 0 && startIndex == 0 && stopIndexPlusOne == 0) return;
+		
+		if (!(0 <= startIndex && startIndex < array.length)) {
+			logger.error("  array.length      {}", array.length);
+			logger.error("  startIndex        {}", startIndex);
+			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
+			throw new UnexpectedException("offset is out of range");
+		}
+		if (!(startIndex < stopIndexPlusOne && stopIndexPlusOne <= array.length)) {
+			logger.error("  array.length      {}", array.length);
+			logger.error("  startIndex        {}", startIndex);
+			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
+			throw new UnexpectedException("offset is out of range");
+		}
+	}
+	
+
+	///////////////////////////////////////////////////////////////////////////
+	// T[] to R[] with map and op
+	///////////////////////////////////////////////////////////////////////////
 	public static final class Generator<R> implements IntFunction<R[]> {
 		private final Class<R> clazz;
 		
@@ -35,11 +61,19 @@ public final class GenericArray {
 		IntFunction<R[]> generator = new Generator<R>(clazz);
 		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).map(op).toArray(generator);
 	}
+	///////////////////////////////////////////////////////////////////////////
+	// T[] to R[] with map
+	///////////////////////////////////////////////////////////////////////////
+	public static <T, R> R[] toArray(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> map, Class<R> clazz) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		IntFunction<R[]> generator = new Generator<R>(clazz);
+		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).toArray(generator);
+	}
 	
 	
-	//
-	// create single value from array using collect
-	//
+	///////////////////////////////////////////////////////////////////////////
+	// T[] to R using collect
+	///////////////////////////////////////////////////////////////////////////
 	public interface CollectImpl<R> extends Consumer<R>, Supplier<R> {
 		@Override
 		public abstract void accept(R value);
@@ -89,30 +123,21 @@ public final class GenericArray {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).collect(collector);
 	}
-
 	
-	//
-	// check index consistency with array
-	//
-	public static <T> void checkIndex(T[] array, int startIndex, int stopIndexPlusOne) {
-		if (array == null) {
-			logger.error("array == null");
-			throw new UnexpectedException("array == null");
-		}
-		if (array.length == 0 && startIndex == 0 && stopIndexPlusOne == 0) return;
-		
-		if (!(0 <= startIndex && startIndex < array.length)) {
-			logger.error("  array.length      {}", array.length);
-			logger.error("  startIndex        {}", startIndex);
-			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
-			throw new UnexpectedException("offset is out of range");
-		}
-		if (!(startIndex < stopIndexPlusOne && stopIndexPlusOne <= array.length)) {
-			logger.error("  array.length      {}", array.length);
-			logger.error("  startIndex        {}", startIndex);
-			logger.error("  stopIndexPlusOne  {}", stopIndexPlusOne);
-			throw new UnexpectedException("offset is out of range");
-		}
+	
+	///////////////////////////////////////////////////////////////////////////
+	// T[] to R using reduce
+	///////////////////////////////////////////////////////////////////////////
+	public static <T, R> R reduce(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> map, BinaryOperator<R> op, R identity) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).reduce(identity, op);
+	}
+	public static <T, R> R reduce(T[] array, int startIndex, int stopIndexPlusOne, Function<T, R> map, BinaryOperator<R> op) {
+		checkIndex(array, startIndex, stopIndexPlusOne);
+		Optional<R> opt = Arrays.stream(array, startIndex, stopIndexPlusOne).map(map).reduce(op);
+		if (opt.isPresent()) return opt.get();
+		logger.error("opt is empty");
+		throw new UnexpectedException("opt is empty");
 	}
 	
 }
