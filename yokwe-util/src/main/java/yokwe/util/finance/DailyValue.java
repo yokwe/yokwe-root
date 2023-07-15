@@ -2,10 +2,6 @@ package yokwe.util.finance;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
 
 import yokwe.util.GenericArray;
 import yokwe.util.StringUtil;
@@ -14,54 +10,29 @@ import yokwe.util.UnexpectedException;
 public final class DailyValue implements Comparable<DailyValue> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	//
-	// create value array from DailyValue array
-	//
-	public static BigDecimal[] toValueArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {		
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, DailyValue::getValue, Function.identity(), BigDecimal.class);
+	///////////////////////////////////////////////////////////////////////////
+	// DailyValue[] to double[]
+	///////////////////////////////////////////////////////////////////////////
+	public static double[] toValueArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
+		return DoubleArray.toDoubleArray(array, startIndex, stopIndexPlusOne, DailyValue::getValue);
 	}
-	public static BigDecimal[] toValueArray(DailyValue[] array) {
+	public static double[] toValueArray(DailyValue[] array) {
 		// call above method
 		return toValueArray(array, 0, array.length);
 	}
 	
 	
-	//
-	// create date array from DailyValue array
-	//
+	///////////////////////////////////////////////////////////////////////////
+	// DailyValue[] to LocalDate[]
+	///////////////////////////////////////////////////////////////////////////
 	public static LocalDate[] toDateArray(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
-		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, DailyValue::getDate, Function.identity(), LocalDate.class);
+		return GenericArray.toArray(array, startIndex, stopIndexPlusOne, DailyValue::getDate, LocalDate.class);
 	}
 	public static LocalDate[] toDateArray(DailyValue[] array) {
 		return toDateArray(array, 0, array.length);
 	}
 	
-	
-	//
-	// get duration of DailyValue array
-	//
-	public static BigDecimal duration(LocalDate startDate, LocalDate endDate) {
-		Period period = startDate.until(endDate);
-		String string = String.format("%d.%02d", period.getYears(), period.getMonths());
-		return new BigDecimal(string);
-	}
-	public static BigDecimal duration(DailyValue[] array, int startIndex, int stopIndexPlusOne) {
-		// assume array is not ordered by date
-		LocalDate startDate = array[startIndex].date;
-		LocalDate endDate   = startDate;
-		for(int i = startIndex + 1; i < stopIndexPlusOne; i++) {
-			LocalDate date = array[i].date;
-			if (date.isBefore(startDate)) startDate = date; // find youngest date
-			if (date.isAfter(endDate))    endDate   = date; // find oldest date
-		}
 		
-		return duration(startDate, endDate);
-	}
-	public static BigDecimal duration(DailyValue[] array) {
-		return duration(array, 0, array.length);
-	}
-	
-	
 	//
 	// IndexRange and indexRange
 	//
@@ -124,50 +95,41 @@ public final class DailyValue implements Comparable<DailyValue> {
 		}
 		return new IndexRange(startIndex, stopIndexPlusOne);
 	}
-	
-	
-	//
-	// toMap
-	//
-	public static Map<LocalDate, BigDecimal> toMap(DailyValue[] array) {
-		Map<LocalDate, BigDecimal> map = new TreeMap<>();
 		
-		for(var e: array) {
-			var oldValue = map.put(e.date, e.value);
-			if (oldValue != null) {
-				logger.error("Duplicate date");
-				logger.error("  date  {}", e.date);
-				logger.error("  new  {}",  e.value);
-				logger.error("  old  {}",  oldValue);
-				throw new UnexpectedException("Duplicate date");
-			}
-		}
-		return map;
-	}
 	
-	
-	public final LocalDate  date;
-	public final BigDecimal value;
+	public final LocalDate date;
+	public final double    value;
 	
 
-	public DailyValue(LocalDate date, BigDecimal value) {
+	public DailyValue(LocalDate date, double value) {
+		// sanity check
+		if (Double.isInfinite(value)) {
+			DoubleArray.logger.error("value is infinite");
+			DoubleArray.logger.error("  value {}", Double.toString(value));
+			throw new UnexpectedException("value is infinite");
+		}
+
 		this.date  = date;
 		this.value = value;
+	}
+	public DailyValue(LocalDate date, BigDecimal value) {
+		this(date, value.doubleValue());
 	}
 	
 	public LocalDate getDate() {
 		return date;
 	}
-	public BigDecimal getValue() {
+	public double    getValue() {
 		return value;
 	}
 	
+	private LocalDate getKey() {
+		return date;
+	}
+
 	@Override
 	public String toString() {
 		return StringUtil.toString(this);
-	}
-	LocalDate getKey() {
-		return date;
 	}
 	@Override
 	public int compareTo(DailyValue that) {

@@ -1,9 +1,5 @@
 package yokwe.util.finance;
 
-import java.math.BigDecimal;
-
-import yokwe.util.BigDecimalUtil;
-
 //Morningstar
 //https://web.stanford.edu/~wfsharpe/art/stars/stars2.htm
 
@@ -20,12 +16,11 @@ public final class Finance {
 	//
 	// annualized return
 	//
-	public static BigDecimal annualizeReturn(BigDecimal absoluteReturn, int nYear) {
+	public static double annualizeReturn(double absoluteReturn, int nYear) {
 		// ((1 + absoluteReturn) ^ (1 / nYear)) - 1
-		BigDecimal base     = BigDecimal.ONE.add(absoluteReturn);
-		BigDecimal exponent = BigDecimalUtil.divide(BigDecimal.ONE, BigDecimal.valueOf(nYear));
-		
-		return BigDecimalUtil.mathPow(base, exponent).subtract(BigDecimal.ONE);
+		double base     = 1.0 + absoluteReturn;
+		double exponent = 1.0 / nYear;
+		return Math.pow(base, exponent) - 1.0;
 	}
 	
 	
@@ -36,19 +31,18 @@ public final class Finance {
 	// 標準偏差は求めた値を年率換算（年間での変化率を計算）して使うのが一般的だ。
 	// 具体的には、日次、週次、月次騰落率から計測した標準偏差について、
 	// 1年＝250（営業日）＝52（週）＝12（月）の各250、52、12の平方根を掛けた値が年率換算値になる。
-	public static final BigDecimal SQRT_12  = BigDecimalUtil.mathSqrt(BigDecimal.valueOf(12));
-	public static final BigDecimal SQRT_250 = BigDecimalUtil.mathSqrt(BigDecimal.valueOf(250));
+	public static final double SQRT_12  = Math.sqrt(12);
+	public static final double SQRT_250 = Math.sqrt(250);
 	
-	public static BigDecimal annualizeDailyStandardDeviation(BigDecimal dailyStandardDeviation) {
+	public static double annualizeDailyStandardDeviation(double dailyStandardDeviation) {
 		// 1 year = 250 days
 		// dailyStandardDeviation x sqrt(250)
-		return BigDecimalUtil.multiply(dailyStandardDeviation, SQRT_250);
+		return dailyStandardDeviation * SQRT_250;
 	}
-
-	public static BigDecimal annualizeMonthlyStandardDeviation(BigDecimal montylyStandardDeviation) {
+	public static double annualizeMonthlyStandardDeviation(double montylyStandardDeviation) {
 		// 1 year = 12 month
 		// montylyStandardDeviation x sqrt(12)
-		return BigDecimalUtil.multiply(montylyStandardDeviation, SQRT_12);
+		return montylyStandardDeviation * SQRT_12;
 	}
 	
 }

@@ -1,96 +1,96 @@
 package yokwe.util.finance;
 
-import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.ZERO;
-import static yokwe.util.BigDecimalUtil.MINUS_1;
-import static yokwe.util.BigDecimalUtil.PLUS_100;
-import static yokwe.util.BigDecimalUtil.add;
-import static yokwe.util.BigDecimalUtil.divide;
-import static yokwe.util.BigDecimalUtil.multiply;
+import java.util.function.DoubleUnaryOperator;
 
-import java.math.BigDecimal;
-import java.util.function.UnaryOperator;
+import yokwe.util.UnexpectedException;
 
 // Calculate RSI using Wilder methods
 //   See https://school.stockcharts.com/doku.php?id=technical_indicators:relative_strength_index_rsi
-public class RSI_Wilder implements UnaryOperator<BigDecimal> {
+public class RSI_Wilder implements DoubleUnaryOperator {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static final int DEFAULT_SIZE = 14;
+	public static final int    DEFAULT_SIZE = 14;
+	public static final double UNKNOWN_RSI  = -1;
 	
-	private final int          size;
-	private final BigDecimal   alpha;
-	private final EMA          emaGain;
-	private final EMA          emaLoss;
+	private final   int    size;
+	private final   double alpha;
+	private final   EMA    emaGain;
+	private final   EMA    emaLoss;
 	
-	private int        count = 0;
-	private BigDecimal lastValue = null;
-	private BigDecimal sumGain   = ZERO;
-	private BigDecimal sumLoss   = ZERO;
-	private BigDecimal avgGain   = null;
-	private BigDecimal avgLoss   = null;
+	private int    count     = 0;
+	private double lastValue = 0;
+	private double sumGain   = 0;
+	private double sumLoss   = 0;
 	
 	public RSI_Wilder() {
 		this(DEFAULT_SIZE);
 	}
 	public RSI_Wilder(int size_) {
 		size  = size_;
-		// alpha = 1 / size
-		alpha = divide(ONE, BigDecimal.valueOf(size));
+		alpha = 1.0 / size;
 		
 		emaGain = new EMA(alpha);
 		emaLoss = new EMA(alpha);
 	}
 	
 	@Override
-	public BigDecimal apply(BigDecimal value) {
-		final BigDecimal changeGain;
-		final BigDecimal changeLoss;
+	public double applyAsDouble(double value) {
+		// sanity check
+		if (Double.isInfinite(value)) {
+			DoubleArray.logger.error("value is infinite");
+			DoubleArray.logger.error("  value {}", Double.toString(value));
+			throw new UnexpectedException("value is infinite");
+		}
+
+		final double change;
+		final double changeGain;
+		final double changeLoss;
 		{
-			BigDecimal change  = lastValue == null ? ZERO : value.subtract(lastValue);
-			int        compare = change.compareTo(ZERO);
-			
-			changeGain = 0 < compare ? change : ZERO;
-			changeLoss = compare < 0 ? change.negate() : ZERO;
+			change  = (count == 0) ? 0 : value - lastValue;
+			changeGain = (0 < change) ? change : 0;
+			changeLoss = (change < 0) ? -change : 0;
 		}
 		
-		if (count < size) {
-			sumGain = add(sumGain, changeGain);
-			sumLoss = add(sumLoss, changeLoss);
-		} else if (count == size) {
-			sumGain = add(sumGain, changeGain);
-			sumLoss = add(sumLoss, changeLoss);
-			
-			// alpha == 1 / size
-			avgGain = emaGain.apply(multiply(sumGain, alpha));
-			avgLoss = emaLoss.apply(multiply(sumLoss, alpha));
-			sumGain = null;
-			sumLoss = null;
-		} else {
-			// avg = value * alpha + avg * (1 - alpha)
-			//     = avg * (1 - alpha) + value * alpha
-			//     = avg - avg * alpha + value * alpha
-			//     = avg + alpha * (value - avg)
-			// number of multiply is reduced
-			
-			avgGain = emaGain.apply(changeGain);
-			avgLoss = emaLoss.apply(changeLoss);
-		}
 		
-		final BigDecimal rsi;
+		final double avgGain;
+		final double avgLoss;
 		{
-			if (avgGain == null) {
-				rsi = MINUS_1;
+			if (count < size) {				
+				sumGain += changeGain;
+				sumLoss += changeLoss;
+
+				avgGain = 0;
+				avgLoss = 0;
+			} else if (count == size) {
+				sumGain += changeGain;
+				sumLoss += changeLoss;
+
+				// alpha == (1 / size)
+				// sumGain * alpha == sumGain / size
+				// sumLoss * alpha == sumLoss / size
+				avgGain = emaGain.applyAsDouble(sumGain * alpha);
+				avgLoss = emaLoss.applyAsDouble(sumLoss * alpha);
+
+				sumGain = 0;
+				sumLoss = 0;
 			} else {
-				// a = avgGain * 100
-				BigDecimal a = multiply(avgGain, PLUS_100);
-				// b = avgGain + avgLoss
-				BigDecimal b = add(avgGain, avgLoss);
-				// rsi = a / b  and avoid divide by zero
-				rsi = (b.compareTo(ZERO) == 0) ? MINUS_1 : divide(a, b);
+				avgGain = emaGain.applyAsDouble(changeGain);
+				avgLoss = emaLoss.applyAsDouble(changeLoss);
 			}
 		}
 		
+		final double rsi;
+		{
+			if (count < size) {
+				rsi = UNKNOWN_RSI;
+			} else {
+				double a = avgGain * 100;
+				double b = avgGain + avgLoss;
+				// avoid divide by zero
+				rsi = (b == 0) ? UNKNOWN_RSI : a / b;
+			}
+		}
+				
 		// update for next iteration
 		lastValue = value;
 		count++;
@@ -100,46 +100,46 @@ public class RSI_Wilder implements UnaryOperator<BigDecimal> {
 
 	private static void testA() {
 		// See http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
-		BigDecimal data[] = {
-			new BigDecimal("44.3389"),
-			new BigDecimal("44.0902"),
-			new BigDecimal("44.1497"),
-			new BigDecimal("43.6124"),
-			new BigDecimal("44.3278"),
-			new BigDecimal("44.8264"),
-			new BigDecimal("45.0955"),
-			new BigDecimal("45.4245"),
-			new BigDecimal("45.8433"),
-			new BigDecimal("46.0826"),
-			new BigDecimal("45.8931"),
-			new BigDecimal("46.0328"),
-			new BigDecimal("45.6140"),
-			new BigDecimal("46.2820"),
-			new BigDecimal("46.2820"),
-			new BigDecimal("46.0028"),
-			new BigDecimal("46.0328"),
-			new BigDecimal("46.4116"),
-			new BigDecimal("46.2222"),
-			new BigDecimal("45.6439"),
-			new BigDecimal("46.2122"),
-			new BigDecimal("46.2521"),
-			new BigDecimal("45.7137"),
-			new BigDecimal("46.4515"),
-			new BigDecimal("45.7835"),
-			new BigDecimal("45.3548"),
-			new BigDecimal("44.0288"),
-			new BigDecimal("44.1783"),
-			new BigDecimal("44.2181"),
-			new BigDecimal("44.5672"),
-			new BigDecimal("43.4205"),
-			new BigDecimal("42.6628"),
-			new BigDecimal("43.1314"),
+		double data[] = {
+			44.3389,
+			44.0902,
+			44.1497,
+			43.6124,
+			44.3278,
+			44.8264,
+			45.0955,
+			45.4245,
+			45.8433,
+			46.0826,
+			45.8931,
+			46.0328,
+			45.6140,
+			46.2820,
+			46.2820,
+			46.0028,
+			46.0328,
+			46.4116,
+			46.2222,
+			45.6439,
+			46.2122,
+			46.2521,
+			45.7137,
+			46.4515,
+			45.7835,
+			45.3548,
+			44.0288,
+			44.1783,
+			44.2181,
+			44.5672,
+			43.4205,
+			42.6628,
+			43.1314,
 		};
 		
 		var op = new RSI_Wilder(14);
 		for(int i = 0; i < data.length; i++) {
-			var rsi = op.apply(data[i]);
-			logger.info("data {}", String.format("%2d  %6.4f  %6.4f", i + 1, data[i].doubleValue(), rsi.doubleValue()));
+			var rsi = op.applyAsDouble(data[i]);
+			logger.info("data {}", String.format("%2d  %6.4f  %6.4f", i + 1, data[i], rsi));
 		}
 		logger.info("last line should be 43.13  37.77");
 	}

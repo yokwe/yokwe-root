@@ -1,27 +1,33 @@
 package yokwe.util.finance;
 
-import java.math.BigDecimal;
-import java.util.function.UnaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
-import yokwe.util.BigDecimalUtil;
+import yokwe.util.UnexpectedException;
 
-public final class LogReturn implements UnaryOperator<BigDecimal> {
-	private boolean    firstTime    = true;
-	private BigDecimal previousLog  = null;
+public final class LogReturn implements DoubleUnaryOperator {
+	private boolean firstTime    = true;
+	private double  lastLogValue = 0;
 	
 	@Override
-	public BigDecimal apply(BigDecimal value) {
+	public double applyAsDouble(double value) {
+		// sanity check
+		if (Double.isInfinite(value)) {
+			DoubleArray.logger.error("value is infinite");
+			DoubleArray.logger.error("  value {}", Double.toString(value));
+			throw new UnexpectedException("value is infinite");
+		}
+
 		if (firstTime) {
 			// use first value as previous
 			firstTime   = false;
-			previousLog = BigDecimalUtil.mathLog(value);
+			lastLogValue = Math.log(value);
 		}
 		
-		BigDecimal valueLog = BigDecimalUtil.mathLog(value);
-		BigDecimal ret      = valueLog.subtract(previousLog);
+		double logValue = Math.log(value);
+		double ret      = logValue - lastLogValue;
 		
 		// update for next iteration
-		previousLog = valueLog;
+		lastLogValue = logValue;
 		
 		return ret;
 	}

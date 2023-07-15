@@ -1,88 +1,108 @@
 package yokwe.util.finance;
 
-import static yokwe.util.BigDecimalUtil.multiply;
-
-import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
+
+import yokwe.util.UnexpectedException;
 
 //
 // return exponential moving average
 //
-public final class EMA implements UnaryOperator<BigDecimal>, Supplier<BigDecimal>, Consumer<BigDecimal>  {
+public final class EMA implements DoubleUnaryOperator, DoubleSupplier, DoubleConsumer {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
-	private final BigDecimal alpha;
 	
-	private BigDecimal average = null;
+	// calculation of alpha
+	public static final double SMOOTHING = 2.0;
+	public static double getAlpha(int days) {
+		return SMOOTHING / (1 + days);
+	}
+	public static double getAlphaFromDecayFactor(double decayFactor) {
+		return 1.0 - decayFactor;
+	}
 	
-	public EMA(BigDecimal alpha) {
+	private final double alpha;
+	
+	private boolean firstTime = true;
+	private double  average   = 0;
+	
+	public EMA(double alpha) {
 		this.alpha = alpha;
 	}
 	
 	public void clear() {
-		average = null;
+		firstTime = true;
+		average   = 0;
 	}
 
 	// Consumer<BigDecimal> for forEach()
 	@Override
-	public void accept(BigDecimal value) {
-		if (average == null) average = value;
+	public void accept(double value) {
+		// sanity check
+		if (Double.isInfinite(value)) {
+			DoubleArray.logger.error("value is infinite");
+			DoubleArray.logger.error("  value {}", Double.toString(value));
+			throw new UnexpectedException("value is infinite");
+		}
+		
+		if (firstTime) {
+			average = value;
+			firstTime = false;
+		}
 		
 		// average = value * alpha + average * (1 - alpha)
 		//         = average * (1 - alpha) + value * alpha
 		//         = average - average * alpha + value * alpha
 		//         = average + alpha * (value - average)
 		// number of multiply is reduced
-		average = average.add(multiply(alpha, value.subtract(average)));
+		average += alpha * (value - average);
 	}
 	// Supplier<BigDecimal> for get result after forEach
 	@Override
-	public BigDecimal get() {
+	public double getAsDouble() {
 		return average;
 	}
 	// UnaryOperator<BigDecimal> for map()
 	@Override
-	public BigDecimal apply(BigDecimal value) {
+	public double applyAsDouble(double value) {
 		accept(value);
-		return get();
+		return getAsDouble();
 	}
 	
 	private static void testTable53() {
 		// See Table 5.3 of page 82
 		//   https://www.msci.com/documents/10199/5915b101-4206-4ba0-aee2-3449d5c7e95a
 		//   https://elischolar.library.yale.edu/cgi/viewcontent.cgi?article=1546&context=ypfs-documents
-		BigDecimal alpha = new BigDecimal("0.06"); // 1 - 0.94 
+		double alpha = 0.06; // 1 - 0.94 
 		
-		BigDecimal[] data = {
-			new BigDecimal("0.633"),
-			new BigDecimal("0.115"),
-			new BigDecimal("-0.459"),
-			new BigDecimal("0.093"),
-			new BigDecimal("0.176"),
-			new BigDecimal("-0.087"),
-			new BigDecimal("-0.142"),
-			new BigDecimal("0.324"),
-			new BigDecimal("-0.943"),
-			new BigDecimal("-0.528"),
-			new BigDecimal("-0.107"),
-			new BigDecimal("-0.159"),
-			new BigDecimal("-0.445"),
-		 	new BigDecimal("0.053"),
-			new BigDecimal("0.152"),
-			new BigDecimal("-0.318"),
-			new BigDecimal("0.424"),
-			new BigDecimal("-0.708"),
-			new BigDecimal("-0.105"),
-			new BigDecimal("-0.257"),
+		double[] data = {
+			0.633,
+			0.115,
+			-0.459,
+			0.093,
+			0.176,
+			-0.087,
+			-0.142,
+			0.324,
+			-0.943,
+			-0.528,
+			-0.107,
+			-0.159,
+			-0.445,
+		 	0.053,
+			0.152,
+			-0.318,
+			0.424,
+			-0.708,
+			-0.105,
+			-0.257,
 		};
 		
-		BigDecimal[] var_r = Arrays.stream(data).map(o -> multiply(o, o)).map(new EMA(alpha)).toArray(BigDecimal[]::new);
+		double[] var_r = Arrays.stream(data).map(o -> o * o).map(new EMA(alpha)).toArray();
 		logger.info("");
 		for(int i = 0; i < var_r.length; i++) {
-			logger.info("Table 5.3 {}", String.format("%8.3f  %8.3f", data[i], var_r[i].doubleValue()));
+			logger.info("Table 5.3 {}", String.format("%8.3f  %8.3f", data[i], var_r[i]));
 		}
 		logger.info("last line should be -0.257     0.224");
 	}
