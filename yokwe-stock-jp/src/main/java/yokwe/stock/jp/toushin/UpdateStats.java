@@ -18,10 +18,11 @@ import yokwe.stock.jp.nomura.NomuraFund;
 import yokwe.stock.jp.rakuten.RakutenFund;
 import yokwe.stock.jp.sbi.SBIFund;
 import yokwe.stock.jp.sony.SonyFund;
-import yokwe.util.BigDecimalArray;
+import yokwe.util.DoubleUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyValue;
+import yokwe.util.finance.DoubleArray;
 import yokwe.util.finance.MonthlyStats;
 import yokwe.util.finance.RSI_Wilder;
 import yokwe.util.libreoffice.Sheet;
@@ -116,8 +117,10 @@ public class UpdateStats {
 				LocalDate startDate  = endDate.minusYears(1).plusDays(1);
 				var       indexRange = DailyValue.indexRange(priceArray, startDate, endDate);
 				if (indexRange.isValid() && RSI_Wilder.DEFAULT_SIZE <= indexRange.size()) {
-					BigDecimal[] rsiArray = BigDecimalArray.toRSI(priceArray, indexRange.startIndex, indexRange.stopIndexPlusOne, o -> o.value);
-					stats.rsi = rsiArray[rsiArray.length - 1];
+					double[] array = DailyValue.toValueArray(priceArray);
+					
+					double[] rsiArray = DoubleArray.rsi(array, indexRange.startIndex, indexRange.stopIndexPlusOne);
+					stats.rsi = DoubleUtil.toBigDecimal(rsiArray[rsiArray.length - 1]);
 				} else {
 					logger.info("rsi  !  {}  {}  {}  {}  {}", isinCode, startDate, endDate, indexRange, indexRange.size());
 					stats.rsi = null;
@@ -128,37 +131,37 @@ public class UpdateStats {
 			{
 				int nYear = 1;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd1Y     = aStats == null ? null : aStats.standardDeviation;
-				stats.div1Y    = aStats == null ? null : aStats.dividend;
-				stats.yield1Y  = aStats == null ? null : aStats.yield;
-				stats.return1Y = aStats == null ? null : aStats.returns;
+				stats.sd1Y     = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
+				stats.div1Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
+				stats.yield1Y  = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
+				stats.return1Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.returns);
 			}
 			// 3 year
 			{
 				int nYear = 3;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd3Y     = aStats == null ? null : aStats.standardDeviation;
-				stats.div3Y    = aStats == null ? null : aStats.dividend;
-				stats.yield3Y  = aStats == null ? null : aStats.yield;
-				stats.return3Y = aStats == null ? null : aStats.returns;
+				stats.sd3Y     = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
+				stats.div3Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
+				stats.yield3Y  = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
+				stats.return3Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.returns);
 			}
 			// 5 year
 			{
 				int nYear = 5;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd5Y     = aStats == null ? null : aStats.standardDeviation;
-				stats.div5Y    = aStats == null ? null : aStats.dividend;
-				stats.yield5Y  = aStats == null ? null : aStats.yield;
-				stats.return5Y = aStats == null ? null : aStats.returns;
+				stats.sd5Y     = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
+				stats.div5Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
+				stats.yield5Y  = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
+				stats.return5Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.returns);
 			}
 			// 10 year
 			{
 				int nYear = 10;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd10Y     = aStats == null ? null : aStats.standardDeviation;
-				stats.div10Y    = aStats == null ? null : aStats.dividend;
-				stats.yield10Y  = aStats == null ? null : aStats.yield;
-				stats.return10Y = aStats == null ? null : aStats.returns;
+				stats.sd10Y     = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
+				stats.div10Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
+				stats.yield10Y  = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
+				stats.return10Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.returns);
 			}
 			
 			stats.divQ1Y   = (nikkei == null || nikkei.divScore1Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore1Y);

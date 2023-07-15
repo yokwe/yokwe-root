@@ -2,10 +2,10 @@ package yokwe.stock.jp.toushin;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.Map;
 
-import yokwe.util.BigDecimalUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyValue;
@@ -38,8 +38,10 @@ public final class T001 {
 		{
 			var startDate = priceArray[0].date;
 			var stopDate  = priceArray[priceArray.length - 1].date;
-			var duration  = DailyValue.duration(priceArray).doubleValue();
-			logger.info("            {} - {}  {}", startDate, stopDate, String.format("%.2f", duration));
+			
+			Period period = startDate.until(stopDate);
+			var duration  = String.format("%d.%02d", period.getYears(), period.getMonths());
+			logger.info("            {} - {}  {}", startDate, stopDate, duration);
 		}
 		
 		MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, priceArray, divArray, 121);
@@ -50,13 +52,13 @@ public final class T001 {
 			if (aStats == null) continue;
 			
 			logger.info("nYear   {}", nYear);
-			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startValue.stripTrailingZeros(), aStats.endValue.stripTrailingZeros());
+			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startValue, aStats.endValue);
 			
-			logger.info("  anRetrun  {}", aStats.returns.multiply(N_100).toPlainString());
-			logger.info("  anSD      {}", aStats.standardDeviation.stripTrailingZeros().toPlainString());
-			logger.info("  div       {}", aStats.dividend.stripTrailingZeros().toPlainString());
-			logger.info("  yield     {}", BigDecimalUtil.setScale(aStats.yield, 4));
-			logger.info("  sharpe    {}", BigDecimalUtil.setScale(aStats.sharpeRatio, 4));
+			logger.info("  anRetrun  {}", aStats.returns * 100);
+			logger.info("  anSD      {}", aStats.standardDeviation);
+			logger.info("  div       {}", aStats.dividend);
+			logger.info("  yield     {}", String.format("%.4f", aStats.yield));
+			logger.info("  sharpe    {}", String.format("%.4f", aStats.sharpeRatio));
 		}
 
 	}
