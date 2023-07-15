@@ -1,6 +1,7 @@
 package yokwe.util;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class DoubleUtil {
@@ -32,21 +33,31 @@ public class DoubleUtil {
 		return round(String.format("%.7f", value), 5);
 	}
 
+	
+	//
+	// BigDecimal related constants
+	//
+	private static final int          DOUBLE_PRECISION      = 15; // precision of double type
+	private static final RoundingMode DOUBLE_ROUNDING_MODE  = RoundingMode.HALF_EVEN;
+	private static final MathContext  DOUBLE_MATH_CONTEXT   = new MathContext(DOUBLE_PRECISION, DOUBLE_ROUNDING_MODE);
+
 	public static BigDecimal toBigDecimal(double value) {
 	    if (Double.isInfinite(value)) {
 	    	logger.error("value is infinite");
 	    	throw new UnexpectedException("value is infinite");
 	    }
 	    if (Double.isNaN(value)) {
-	    	logger.error("value is NaN");
-	    	throw new UnexpectedException("value is NaN");
+	    	return null;
+//	    	logger.error("value is NaN");
+//	    	throw new UnexpectedException("value is NaN");
 	    }
-	    return BigDecimal.valueOf(value);
+	    // round to double precision and remove trailing zero
+	    return BigDecimal.valueOf(value).round(DOUBLE_MATH_CONTEXT).stripTrailingZeros();
 	}
 	public static BigDecimal toBigDecimal(double value, int places) {
 	    if (places < 0) throw new IllegalArgumentException();
 
 	    BigDecimal rawValue = toBigDecimal(value);
-	    return rawValue.setScale(places, RoundingMode.HALF_UP);
+	    return rawValue.setScale(places, DOUBLE_ROUNDING_MODE);
 	}
 }
