@@ -5,111 +5,102 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.junit.jupiter.api.Test;
 
+import yokwe.util.ClassUtil;
 import yokwe.util.finance.DoubleArray;
 
 class TestDoubleArray {
-//	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	static double[] table52 = {
-		 0.634,
-		 0.115,
-		-0.460,
-		 0.094,
-		 0.176,
-		-0.088,
-		-0.142,
-		 0.324,
-		-0.943,
-		-0.528,
-		-0.107,
-		-0.160,
-		-0.445,
-	 	 0.053,
-		 0.152,
-		-0.318,
-		 0.424,
-		-0.708,
-		-0.105,
-		-0.257,
-	};
-	static double[] table53 = {
-			 0.633,
-			 0.115,
-			-0.459,
-			 0.093,
-			 0.176,
-			-0.087,
-			-0.142,
-			 0.324,
-			-0.943,
-			-0.528,
-			-0.107,
-			-0.159,
-			-0.445,
-		 	 0.053,
-			 0.152,
-			-0.318,
-			 0.424,
-			-0.708,
-			-0.105,
-			-0.257,
-		};
+	private static final String FORMAT_NAME = "%-28s";
+	private static final double DOUBLE_DELTA = 1e-14;
 	
-	static double[] data  = table52;
-	static double[] data2 = DoubleArray.toDoubleArray(data, o -> Math.abs(o));
+	@Test
+	void testAA() {
+		String expected = "testAA";
+		String actual   = ClassUtil.getCallerMethodName();
+//		logger.info("{}  expected  {}  actual {}", ClassUtil.getCallerMethodName(), expected, actual);
+		assertEquals(expected, actual);
+	}
+	@Test
+	void testAAA() {
+		var stackFrame = ClassUtil.getCallerStackFrame();
+		
+		String expected = "testAAA";
+		String actual   = stackFrame.getMethodName();
+		logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual);
+	}
 	
-	static DescriptiveStatistics stats  = new DescriptiveStatistics(data);
-	static DescriptiveStatistics stats2 = new DescriptiveStatistics(data2);
-	static double delta = 1e-14;
 	
 	@Test
 	void testSum() {
+		double data[] = { 1, 2, 3, 4, 5};
+		DescriptiveStatistics stats = new DescriptiveStatistics(data);
+		
 		double expected = stats.getSum();
 		double actual   = DoubleArray.sum(data);
-//		logger.info("expected  {}  actual {}", expected, actual);
-		assertEquals(expected, actual, delta);
+		logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
 	void testMean() {
+		double data[] = { 1, 2, 3, 4, 5};
+		DescriptiveStatistics stats = new DescriptiveStatistics(data);
+		
 		double expected = stats.getMean();
 		double actual   = DoubleArray.mean(data);
-//		logger.info("expected  {}  actual {}", expected, actual);
-		assertEquals(expected, actual, delta);
+		logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
 	void testGeometricMean() {
-		double expected = stats2.getGeometricMean();
-		double actual   = DoubleArray.geometricMean(data2);
-//		logger.info("expected  {}  actual {}", expected, actual);
-		assertEquals(expected, actual, delta);
+		double data[] = { 1, 2, 3, 4, 5};
+		DescriptiveStatistics stats = new DescriptiveStatistics(data);
+		
+		double expected = stats.getGeometricMean();
+		double actual   = DoubleArray.geometricMean(data);
+		logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
 	void testVariance() {
+		double data[] = { 1, 2, 3, 4, 5};
+		DescriptiveStatistics stats = new DescriptiveStatistics(data);
+
 		double expected = stats.getPopulationVariance();
 		double actual   = DoubleArray.variance(data);
-//		logger.info("expected  {}  actual {}", expected, actual);
-		assertEquals(expected, actual, delta);
+		logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
 	void testVariance2() {
+		double data[] = { 1, 2, 3, 4, 5};
+		DescriptiveStatistics stats = new DescriptiveStatistics(data);
+
 		double expected = stats.getPopulationVariance();
 		double actual   = DoubleArray.variance(data, DoubleArray.mean(data));
-//		logger.info("expected  {}  actual {}", expected, actual);
-		assertEquals(expected, actual, delta);
+		logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
 	void testStandardDeviation() {
+		double data[] = { 1, 2, 3, 4, 5};
+		DescriptiveStatistics stats = new DescriptiveStatistics(data);
+		
 		double expected = Math.sqrt(stats.getPopulationVariance());
 		double actual   = DoubleArray.standardDeviation(data);
-//		logger.info("expected  {}  actual {}", expected, actual);
-		assertEquals(expected, actual, delta);
+		logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
 	void testStandardDeviation2() {
+		double data[] = { 1, 2, 3, 4, 5};
+		DescriptiveStatistics stats = new DescriptiveStatistics(data);
+
 		double expected = Math.sqrt(stats.getPopulationVariance());
 		double actual   = DoubleArray.standardDeviation(data, DoubleArray.mean(data));
-//		logger.info("expected  {}  actual {}", expected, actual);
-		assertEquals(expected, actual, delta);
+		logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	
 	@Test
