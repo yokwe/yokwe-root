@@ -174,14 +174,8 @@ public final class ClassUtil {
     	return FindClass.find(packageName);
     }
     
-	public static Class<?> getCallerClass() {
-//		Class<?> callerClass = java.lang.invoke.MethodHandles.lookup().lookupClass();
-		Class<?> callerClass = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
-
-		return callerClass;
-	}
-	
-	private static StackFrame getCallerStackFrame(int offset) {
+	public static final int OFFSET_CALLER = 2;
+	public static StackFrame getCallerStackFrame(int offset) {
 		int size = offset + 1;
 		StackFrame[] array = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).walk(s -> s.limit(size).toArray(StackFrame[]::new));
 		if (array == null) {
@@ -201,17 +195,27 @@ public final class ClassUtil {
 		return array[offset];
 	}
 	public static StackFrame getCallerStackFrame() {
-		// offset 0 -- getCallerStackFrame(2)
+		// offset 0 -- getCallerStackFrame(offset)
 		// offset 1 -- getCallerStackFrame()
 		// offset 2 -- caller
-		return getCallerStackFrame(2);
+		return getCallerStackFrame(OFFSET_CALLER);
 	}
-	
-	public static String gethCallerMethodName() {
+	public static String getCallerMethodName() {
+		// offset 0 -- getCallerStackFrame(offset)
+		// offset 1 -- getCallerStackFrame()
+		// offset 2 -- caller
+		return getCallerStackFrame(OFFSET_CALLER).getMethodName();
+	}
+//	public static Class<?> getCallerClass() {
+//		//Class<?> callerClass = java.lang.invoke.MethodHandles.lookup().lookupClass();
+//		Class<?> callerClass = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
+//		return callerClass;
+//	}
+	public static Class<?> getCallerClass() {
 		// offset 0 -- getCallerStackFrame(2)
 		// offset 1 -- getCallerStackFrame()
 		// offset 2 -- caller
-		return getCallerStackFrame(2).getMethodName();
+		return getCallerStackFrame(OFFSET_CALLER).getDeclaringClass();
 	}
 
 	
