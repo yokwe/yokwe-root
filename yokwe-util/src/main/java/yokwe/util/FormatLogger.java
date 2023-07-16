@@ -8,7 +8,9 @@ public final class FormatLogger {
 	// use caller class for logger name
 	public static FormatLogger getLogger() {
 //		Class<?> caller = java.lang.invoke.MethodHandles.lookup().lookupClass();
-		Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
+//		Class<?> caller = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
+		Class<?> caller = ClassUtil.getCallerStackFrame(ClassUtil.OFFSET_CALLER).getDeclaringClass();
+
 		return getLogger(caller.getSimpleName());
 	}
 	
