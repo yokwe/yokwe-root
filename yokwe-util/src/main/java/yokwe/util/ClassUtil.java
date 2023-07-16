@@ -2,6 +2,7 @@ package yokwe.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.StackWalker.StackFrame;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
@@ -14,8 +15,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -178,6 +179,39 @@ public final class ClassUtil {
 		Class<?> callerClass = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).getCallerClass();
 
 		return callerClass;
+	}
+	
+	private static StackFrame getCallerStackFrame(int offset) {
+		int size = offset + 1;
+		StackFrame[] array = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).walk(s -> s.limit(size).toArray(StackFrame[]::new));
+		if (array == null) {
+			logger.error("array == null");
+			throw new UnexpectedException("array == null");
+		}
+		if (array.length != size) {
+			logger.error("Unexpected array length");
+			logger.error("  size   {}", size);
+			logger.error("  array  {}", array.length);
+			for(int i = 0; i < array.length; i++) {
+				logger.error("  {}  {}", i, array[i].toString());
+			}
+			throw new UnexpectedException("Unexpected array length");
+		}
+		
+		return array[offset];
+	}
+	public static StackFrame getCallerStackFrame() {
+		// offset 0 -- getCallerStackFrame(2)
+		// offset 1 -- getCallerStackFrame()
+		// offset 2 -- caller
+		return getCallerStackFrame(2);
+	}
+	
+	public static String gethCallerMethodName() {
+		// offset 0 -- getCallerStackFrame(2)
+		// offset 1 -- getCallerStackFrame()
+		// offset 2 -- caller
+		return getCallerStackFrame(2).getMethodName();
 	}
 
 	
