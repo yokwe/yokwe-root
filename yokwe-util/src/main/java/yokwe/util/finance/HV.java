@@ -1,14 +1,12 @@
 package yokwe.util.finance;
 
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleUnaryOperator;
-
 import yokwe.util.UnexpectedException;
+import yokwe.util.finance.DoubleArray.DoubleReducer;
 
 //
 // return historical volatility
 //
-public final class HV implements DoubleUnaryOperator, DoubleConsumer {
+public final class HV implements DoubleReducer {
 	public static final double CONFIDENCE_95_PERCENT = 1.65;
 	public static final double CONFIDENCE_99_PERCENT = 2.33;
 	
@@ -41,6 +39,7 @@ public final class HV implements DoubleUnaryOperator, DoubleConsumer {
 		return getVaR(CONFIDENCE_99_PERCENT, timeHorizon);
 	}
 	
+	@Override
 	public double get() {
 		return Math.sqrt(ema.getAsDouble());
 	}
@@ -65,11 +64,5 @@ public final class HV implements DoubleUnaryOperator, DoubleConsumer {
 		
 		// update for next iteration
 		lastLogValue = logValue;
-	}
-	
-	@Override
-	public double applyAsDouble(double value) {
-		accept(value);
-		return get();
 	}
 }
