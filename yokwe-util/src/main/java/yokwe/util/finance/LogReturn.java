@@ -7,6 +7,9 @@ import yokwe.util.UnexpectedException;
 public final class LogReturn implements DoubleUnaryOperator {
 	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	//
+	// annual rate of return
+	//
 	public static double annualReturn(double logRetrun, double durationInYear) {
 		// From https://en.wikipedia.org/wiki/Rate_of_return
 		//   According to the CFA Institute's Global Investment Performance Standards (GIPS),[3]
@@ -18,6 +21,7 @@ public final class LogReturn implements DoubleUnaryOperator {
 		}
 		return logRetrun / durationInYear;
 	}
+	
 	
 	private boolean firstTime    = true;
 	private double  lastLogValue = 0;

@@ -22,7 +22,6 @@ public final class SimpleReturn implements DoubleUnaryOperator {
 		
 		return absoluteRateOfReturn / durationInYear;
 	}
-
 	public static double compoundAnnualReturn(double simpleReturn, double durationInYear) {
 		// From https://en.wikipedia.org/wiki/Rate_of_return
 		//   According to the CFA Institute's Global Investment Performance Standards (GIPS),[3]
@@ -40,6 +39,7 @@ public final class SimpleReturn implements DoubleUnaryOperator {
 		double exponent = 1.0 / durationInYear;
 		return Math.pow(base, exponent) - 1.0;
 	}
+	
 	
 	private boolean firstTime = true;
 	private double  lastValue = 0;

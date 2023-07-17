@@ -23,6 +23,7 @@ public class StandardDeviation implements DoubleReducer {
 		return monthlyStandardDeviation * Finance.SQRT_MONTHS_IN_YEAR;
 	}
 	
+	
 	private DoubleReducer variance = new Variance();
 
 	@Override
