@@ -307,33 +307,14 @@ public final class DoubleArray {
 		return variance(array, 0, array.length);
 	}
 	///////////////////////////////////////////////////////////////////////////
-	//variance using mean
-	///////////////////////////////////////////////////////////////////////////
-	public static double variance(double array[], int startIndex, int stopIndexPlusOne, double mean) {
-		ToDoubleImpl reduce = new VarianceUsingMean(mean);
-		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
-	}
-	public static double variance(double[] array, double mean) {
-		return variance(array, 0, array.length, mean);
-	}
-	///////////////////////////////////////////////////////////////////////////
 	// standard deviation
 	///////////////////////////////////////////////////////////////////////////
 	public static double standardDeviation(double array[], int startIndex, int stopIndexPlusOne) {
-		return Math.sqrt(variance(array, startIndex, stopIndexPlusOne));
+		ToDoubleImpl reduce = new StandardDeviation();
+		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double standardDeviation(double[] array) {
 		return standardDeviation(array, 0, array.length);
 	}
-	///////////////////////////////////////////////////////////////////////////
-	// standard deviation using mean
-	///////////////////////////////////////////////////////////////////////////
-	public static double standardDeviation(double array[], int startIndex, int stopIndexPlusOne, double mean) {
-		// Math.sqrt(Double.Nan) == Double.NaN
-		return Math.sqrt(variance(array, startIndex, stopIndexPlusOne, mean));
-	}
-	public static double standardDeviation(double[] array, double mean) {
-		return standardDeviation(array, 0, array.length, mean);
-	}
-
+	
 }
