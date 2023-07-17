@@ -258,9 +258,26 @@ public final class DoubleArray {
 		}
 		return op.get();
 	}
-	//
-	// FIXME covariance
-	//
+	///////////////////////////////////////////////////////////////////////////
+	// covariance
+	///////////////////////////////////////////////////////////////////////////
+	public static double covariance(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
+		Covariance op = new Covariance();
+		return toDouble(a, b, startIndex, stopIndexPlusOne, op);
+	}
+	public static double covariance(double[] a, double[] b) {
+		return covariance(a, b, 0, a.length);
+	}
+	///////////////////////////////////////////////////////////////////////////
+	// correlation
+	///////////////////////////////////////////////////////////////////////////
+	public static double correlation(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
+		Correlation op = new Correlation();
+		return toDouble(a, b, startIndex, stopIndexPlusOne, op);
+	}
+	public static double correlation(double[] a, double[] b) {
+		return correlation(a, b, 0, a.length);
+	}
 	
 	
 	///////////////////////////////////////////////////////////////////////////
