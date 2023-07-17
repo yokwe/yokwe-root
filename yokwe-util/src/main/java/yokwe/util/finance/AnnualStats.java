@@ -64,13 +64,12 @@ public final class AnnualStats {
 		dividend             = DoubleArray.sum(dividendArray, startIndex, stopIndexPlusOne);
 		yield                = (dividend / endValue) / nYear; // yield per year
 		
-		returns              = Finance.annualizeReturn(SimpleReturn.getValue(startValue, endValue), nYear);
+		returns              = SimpleReturn.compoundAnnualReturn(SimpleReturn.getValue(startValue, endValue), nYear);
 		
 		{
 			// calculate standard deviation from dailyReturnArray
-			double mean   = DoubleArray.mean(dailyReturnArray, startIndex, stopIndexPlusOne);
-			double sd     = DoubleArray.standardDeviation(dailyReturnArray, startIndex, stopIndexPlusOne, mean);
-			standardDeviation = Finance.annualizeDailyStandardDeviation(sd);
+			double sd = DoubleArray.standardDeviation(dailyReturnArray, startIndex, stopIndexPlusOne);
+			standardDeviation = StandardDeviation.annualStandardDeviationFromDailyStandardDeviation(sd);
 		}
 		
 		sharpeRatio = returns / standardDeviation;
