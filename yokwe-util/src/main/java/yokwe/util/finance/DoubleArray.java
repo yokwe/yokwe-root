@@ -22,7 +22,7 @@ public final class DoubleArray {
 	///////////////////////////////////////////////////////////////////////////
 	// check index consistency with array
 	///////////////////////////////////////////////////////////////////////////
-	private static void checkIndex(double[] array, int startIndex, int stopIndexPlusOne) {
+	public static void checkIndex(double[] array, int startIndex, int stopIndexPlusOne) {
 		if (array == null) {
 			logger.error("array == null");
 			throw new UnexpectedException("array == null");
@@ -42,7 +42,7 @@ public final class DoubleArray {
 			throw new UnexpectedException("offset is out of range");
 		}
 	}
-	private static void checkIndex(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
+	public static void checkIndex(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
 		// length of array a and b must be same
 		if (a != null && b != null && a.length != b.length) {
 			logger.error("  a.length          {}", a.length);
