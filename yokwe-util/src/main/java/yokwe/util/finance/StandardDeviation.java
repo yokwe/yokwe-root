@@ -1,8 +1,8 @@
 package yokwe.util.finance;
 
-import yokwe.util.finance.DoubleArray.ToDoubleImpl;
+import yokwe.util.finance.DoubleArray.DoubleReducer;
 
-public class StandardDeviation implements ToDoubleImpl {
+public class StandardDeviation implements DoubleReducer {
 	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	//
@@ -23,7 +23,7 @@ public class StandardDeviation implements ToDoubleImpl {
 		return monthlyStandardDeviation * Finance.SQRT_MONTHS_IN_YEAR;
 	}
 	
-	private ToDoubleImpl variance = new Variance();
+	private DoubleReducer variance = new Variance();
 
 	@Override
 	public void accept(double value) {

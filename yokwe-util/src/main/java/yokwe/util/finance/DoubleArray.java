@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.OptionalDouble;
 import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntFunction;
@@ -64,7 +63,14 @@ public final class DoubleArray {
 	///////////////////////////////////////////////////////////////////////////
 	public static <T> double[] toDoubleArray(T[] array, int startIndex, int stopIndexPlusOne, ToDoubleFunction<T> map) {
 		GenericArray.checkIndex(array, startIndex, stopIndexPlusOne);
-		return Arrays.stream(array, startIndex, stopIndexPlusOne).mapToDouble(map).toArray();
+//		return Arrays.stream(array, startIndex, stopIndexPlusOne).mapToDouble(map).toArray();
+		
+		int length = stopIndexPlusOne - startIndex;
+		double[] result = new double[length];
+		for(int i = 0, j = startIndex; i < length; i++, j++) {
+			result[i] = map.applyAsDouble(array[j]);
+		}
+		return result;
 	}
 	///////////////////////////////////////////////////////////////////////////
 	// BigDecima[] to double[]
@@ -97,15 +103,14 @@ public final class DoubleArray {
 	private static <R> R[] toArray(double[] array, int startIndex, int stopIndexPlusOne, DoubleFunction<R> map, Class<R> clazz) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
 		IntFunction<R[]> generator = new Generator<R>(clazz);
-		
-		return Arrays.stream(array, startIndex, stopIndexPlusOne).mapToObj(map).toArray(generator);
+//		return Arrays.stream(array, startIndex, stopIndexPlusOne).mapToObj(map).toArray(generator);
 
-//		int length = stopIndexPlusOne - startIndex;
-//		R[] result = generator.apply(length);
-//		for(int i = 0, j = startIndex; i < length; i++, j++) {
-//			result[i] = map.apply(array[j]);
-//		}
-//		return result;
+		int length = stopIndexPlusOne - startIndex;
+		R[] result = generator.apply(length);
+		for(int i = 0, j = startIndex; i < length; i++, j++) {
+			result[i] = map.apply(array[j]);
+		}
+		return result;
 	}
 	///////////////////////////////////////////////////////////////////////////
 	// double[] to BigDecima[]
@@ -125,14 +130,14 @@ public final class DoubleArray {
 	///////////////////////////////////////////////////////////////////////////
 	public static double[] toDoubleArray(double[] array, int startIndex, int stopIndexPlusOne, DoubleUnaryOperator op) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
-		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(op).toArray();
+//		return Arrays.stream(array, startIndex, stopIndexPlusOne).map(op).toArray();
 		
-//		int length = stopIndexPlusOne - startIndex;
-//		double[] result = new double[length];
-//		for(int i = 0, j = startIndex; i < length; i++, j++) {
-//			result[i] = op.applyAsDouble(array[j]);
-//		}
-//		return result;
+		int length = stopIndexPlusOne - startIndex;
+		double[] result = new double[length];
+		for(int i = 0, j = startIndex; i < length; i++, j++) {
+			result[i] = op.applyAsDouble(array[j]);
+		}
+		return result;
 	}
 	public static double[] toDoubleArray(double[] array, DoubleUnaryOperator op) {
 		return toDoubleArray(array, 0, array.length, op);
@@ -240,16 +245,37 @@ public final class DoubleArray {
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// double[] to double using ToDoubleImpl
+	// double[] double[] to double
 	///////////////////////////////////////////////////////////////////////////
-	public static interface ToDoubleImpl extends DoubleConsumer {
-		// extends DoubleConsumer for forEach() of DoubleStream
+	public interface BiDoubleReducer {
+	    public void   accept(double a, double b);
 		public double get();
 	}
-	public static double toDouble(double[] array, int startIndex, int stopIndexPlusOne, ToDoubleImpl toDouble) {
+	public static double toDouble(double[] a, double[] b, int startIndex, int stopIndexPlusOne, BiDoubleReducer op) {
+		checkIndex(a, b, startIndex, stopIndexPlusOne);
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			op.accept(a[i], b[i]);
+		}
+		return op.get();
+	}
+	//
+	// FIXME covariance
+	//
+	
+	
+	///////////////////////////////////////////////////////////////////////////
+	// double[] to double using DoubleReducer
+	///////////////////////////////////////////////////////////////////////////
+	public static interface DoubleReducer {
+		public void   accept(double array);
+		public double get();
+	}
+	public static double toDouble(double[] array, int startIndex, int stopIndexPlusOne, DoubleReducer op) {
 		checkIndex(array, startIndex, stopIndexPlusOne);
-		Arrays.stream(array, startIndex, stopIndexPlusOne).forEach(toDouble);
-		return toDouble.get();
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			op.accept(array[i]);
+		}
+		return op.get();
 	}
 	///////////////////////////////////////////////////////////////////////////
 	// double[] to double using DoubleBinaryOperator
@@ -280,7 +306,7 @@ public final class DoubleArray {
 	// mean
 	///////////////////////////////////////////////////////////////////////////
 	public static double mean(double array[], int startIndex, int stopIndexPlusOne) {
-		ToDoubleImpl reduce = new Mean();
+		DoubleReducer reduce = new Mean();
 		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double mean(double[] array) {
@@ -290,7 +316,7 @@ public final class DoubleArray {
 	// geometric mean
 	///////////////////////////////////////////////////////////////////////////
 	public static double geometricMean(double array[], int startIndex, int stopIndexPlusOne) {
-		ToDoubleImpl reduce = new GeometricMean();
+		DoubleReducer reduce = new GeometricMean();
 		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double geometricMean(double[] array) {
@@ -300,7 +326,7 @@ public final class DoubleArray {
 	//variance
 	///////////////////////////////////////////////////////////////////////////
 	public static double variance(double array[], int startIndex, int stopIndexPlusOne) {
-		ToDoubleImpl reduce = new Variance();
+		DoubleReducer reduce = new Variance();
 		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double variance(double[] array) {
@@ -310,7 +336,7 @@ public final class DoubleArray {
 	// standard deviation
 	///////////////////////////////////////////////////////////////////////////
 	public static double standardDeviation(double array[], int startIndex, int stopIndexPlusOne) {
-		ToDoubleImpl reduce = new StandardDeviation();
+		DoubleReducer reduce = new StandardDeviation();
 		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
 	}
 	public static double standardDeviation(double[] array) {

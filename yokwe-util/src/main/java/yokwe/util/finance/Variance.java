@@ -1,9 +1,9 @@
 package yokwe.util.finance;
 
 import yokwe.util.UnexpectedException;
-import yokwe.util.finance.DoubleArray.ToDoubleImpl;
+import yokwe.util.finance.DoubleArray.DoubleReducer;
 
-class Variance implements ToDoubleImpl {
+class Variance implements DoubleReducer {
 	private int    count  = 0;
 	private double sum    = 0;
 	private double sum2   = 0;
