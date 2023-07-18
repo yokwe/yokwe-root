@@ -42,12 +42,18 @@ public final class Stats {
 		for(int i = a.startIndex; i < a.stopIndexPlusOne; i++) {
 			sumAB += a.data[i] * b.data[i];
 		}
+		double sumA = a.sum();
+		double sumB = b.sum();
 		
-		double eAB  = sumAB / a.length;
-		double eA   = a.mean();
-		double eB   = b.mean();
-		// covariance = E(a * b) - E(a) * E(b)
-		return eAB - (eA * eB);
+		// Calculate unbiased value
+		// E(a * b) - E(a) * E(b)
+		//   sumAB / N - (sumA / N) * (sumB / N)
+		// change N to (N - 1)
+		//  (sumAB / N - (sumA / N) * (sumB / N)) * (N / (N - 1))
+		//  (sumAB     - (sumA    ) * (sumB / N)) / (N - 1)
+		//  (sumAB - (sumA * sumB / N)) / (N - 1)
+		double N = a.length;
+		return (sumAB - (sumA * sumB) / N) / (N - 1);
 	}
 	public static double correlation(Stats a, Stats b) {
 		// sanity check
@@ -149,13 +155,14 @@ public final class Stats {
 	}
 	public double variance() {
 		if (Double.isNaN(var)) {
-			double mean_ = mean();
-			var = 0;
+			double e = mean();
+			double tsum = 0;
 			for(int i = startIndex; i < stopIndexPlusOne; i++) {
-				double t = data[i] - mean_;
-				var += t * t;
+				double t = data[i] - e;
+				tsum += t * t;
 			}
-			var = var / length;
+			// Calculate unbiased value
+			var = tsum / (length - 1.0);
 			// sanity check
 			if (Double.isInfinite(var)) {
 				logger.error("var is infinite");
