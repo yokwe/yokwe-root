@@ -79,6 +79,9 @@ public final class Stats {
 	//
 	private double min   = Double.NaN;
 	private double max   = Double.NaN;
+	//
+	private double geoMean = Double.NaN;
+	
 	
 	public Stats(double[] data, int startIndex, int stopIndexPlusOne) {
 		DoubleArray.checkIndex(data, startIndex, stopIndexPlusOne);
@@ -186,5 +189,24 @@ public final class Stats {
 		}
 		return max;
 	}
-	
+	public double geometricMean() {
+		if (Double.isNaN(geoMean)) {
+			double t = 0;
+			for(int i = startIndex; i < stopIndexPlusOne; i++) {
+				double v = data[i];
+				if (v < 0) {
+					logger.error("negative value");
+					throw new UnexpectedException("negative value");
+				}
+				t += Math.log(v);
+			}
+			geoMean = Math.exp(t / length);
+			// sanity check
+			if (Double.isInfinite(geoMean)) {
+				logger.error("geoMean is infinite");
+				throw new UnexpectedException("geoMean is infinite");
+			}
+		}
+		return geoMean;
+	}
 }

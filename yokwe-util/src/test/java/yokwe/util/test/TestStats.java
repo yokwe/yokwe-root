@@ -153,4 +153,16 @@ public class TestStats {
 		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 
+	@Test
+	void testGeoMean() {
+		DescriptiveStatistics ds    = new DescriptiveStatistics(dataA);
+		Stats                 stats = new Stats(dataA);
+		
+		double expected = ds.getGeometricMean();
+		double actual   = stats.geometricMean();
+		
+		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
+	}
+
 }
