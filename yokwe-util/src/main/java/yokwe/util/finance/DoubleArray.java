@@ -245,42 +245,6 @@ public final class DoubleArray {
 	
 	
 	///////////////////////////////////////////////////////////////////////////
-	// double[] double[] to double
-	///////////////////////////////////////////////////////////////////////////
-	public interface BiDoubleReducer {
-	    public void   accept(double a, double b);
-		public double get();
-	}
-	public static double toDouble(double[] a, double[] b, int startIndex, int stopIndexPlusOne, BiDoubleReducer op) {
-		checkIndex(a, b, startIndex, stopIndexPlusOne);
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			op.accept(a[i], b[i]);
-		}
-		return op.get();
-	}
-	///////////////////////////////////////////////////////////////////////////
-	// covariance
-	///////////////////////////////////////////////////////////////////////////
-	public static double covariance(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
-		Covariance op = new Covariance();
-		return toDouble(a, b, startIndex, stopIndexPlusOne, op);
-	}
-	public static double covariance(double[] a, double[] b) {
-		return covariance(a, b, 0, a.length);
-	}
-	///////////////////////////////////////////////////////////////////////////
-	// correlation
-	///////////////////////////////////////////////////////////////////////////
-	public static double correlation(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
-		Correlation op = new Correlation();
-		return toDouble(a, b, startIndex, stopIndexPlusOne, op);
-	}
-	public static double correlation(double[] a, double[] b) {
-		return correlation(a, b, 0, a.length);
-	}
-	
-	
-	///////////////////////////////////////////////////////////////////////////
 	// double[] to double using DoubleReducer
 	///////////////////////////////////////////////////////////////////////////
 	public static interface DoubleReducer {
@@ -293,71 +257,6 @@ public final class DoubleArray {
 			op.accept(array[i]);
 		}
 		return op.get();
-	}
-	///////////////////////////////////////////////////////////////////////////
-	// double[] to double using DoubleBinaryOperator
-	///////////////////////////////////////////////////////////////////////////
-	public static double toDouble(double[] array, int startIndex, int stopIndexPlusOne, DoubleBinaryOperator op, double identity) {
-		checkIndex(array, startIndex, stopIndexPlusOne);
-		return Arrays.stream(array, startIndex, stopIndexPlusOne).reduce(identity, op);
-	}
-	public static double toDouble(double[] array, int startIndex, int stopIndexPlusOne, DoubleBinaryOperator op) {
-		checkIndex(array, startIndex, stopIndexPlusOne);
-		OptionalDouble opt = Arrays.stream(array, startIndex, stopIndexPlusOne).reduce(op);
-		
-		if (opt.isPresent()) return opt.getAsDouble();
-		logger.error("opt is empty");
-		throw new UnexpectedException("opt is empty");
-	}
-	///////////////////////////////////////////////////////////////////////////
-	// sum
-	///////////////////////////////////////////////////////////////////////////
-	private static final DoubleBinaryOperator sumImpl = (a, b) -> a + b;
-	public static double sum(double array[], int startIndex, int stopIndexPlusOne) {
-		return toDouble(array, startIndex, stopIndexPlusOne, sumImpl, 0);
-	}
-	public static double sum(double[] array) {
-		return sum(array, 0, array.length);
-	}
-	///////////////////////////////////////////////////////////////////////////
-	// mean
-	///////////////////////////////////////////////////////////////////////////
-	public static double mean(double array[], int startIndex, int stopIndexPlusOne) {
-		DoubleReducer reduce = new Mean();
-		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
-	}
-	public static double mean(double[] array) {
-		return mean(array, 0, array.length);
-	}
-	///////////////////////////////////////////////////////////////////////////
-	// geometric mean
-	///////////////////////////////////////////////////////////////////////////
-	public static double geometricMean(double array[], int startIndex, int stopIndexPlusOne) {
-		DoubleReducer reduce = new GeometricMean();
-		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
-	}
-	public static double geometricMean(double[] array) {
-		return geometricMean(array, 0, array.length);
-	}
-	///////////////////////////////////////////////////////////////////////////
-	//variance
-	///////////////////////////////////////////////////////////////////////////
-	public static double variance(double array[], int startIndex, int stopIndexPlusOne) {
-		DoubleReducer reduce = new Variance();
-		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
-	}
-	public static double variance(double[] array) {
-		return variance(array, 0, array.length);
-	}
-	///////////////////////////////////////////////////////////////////////////
-	// standard deviation
-	///////////////////////////////////////////////////////////////////////////
-	public static double standardDeviation(double array[], int startIndex, int stopIndexPlusOne) {
-		DoubleReducer reduce = new StandardDeviation();
-		return toDouble(array, startIndex, stopIndexPlusOne, reduce);
-	}
-	public static double standardDeviation(double[] array) {
-		return standardDeviation(array, 0, array.length);
 	}
 	
 }
