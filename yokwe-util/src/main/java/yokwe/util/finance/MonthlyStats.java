@@ -116,6 +116,6 @@ public final class MonthlyStats {
 		startValue = priceArray[startIndex - 1];
 		endValue   = priceArray[stopIndexPlusOne - 1];
 		
-		dividend   = DoubleArray.sum(dividendArray, startIndex, stopIndexPlusOne);
+		dividend   = Stats.sum(dividendArray, startIndex, stopIndexPlusOne);
 	}
 }
