@@ -87,7 +87,7 @@ public class TestStats {
 		DescriptiveStatistics ds    = new DescriptiveStatistics(dataA);
 		Stats                 stats = new Stats(dataA);
 		
-		double expected = ds.getPopulationVariance();
+		double expected = ds.getVariance();
 		double actual   = stats.variance();
 		
 		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
@@ -98,7 +98,7 @@ public class TestStats {
 		DescriptiveStatistics ds    = new DescriptiveStatistics(dataA);
 		Stats                 stats = new Stats(dataA);
 		
-		double expected = Math.sqrt(ds.getPopulationVariance());
+		double expected = ds.getStandardDeviation();
 		double actual   = stats.standardDeviation();
 		
 		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
@@ -111,7 +111,7 @@ public class TestStats {
 		Stats statsA = new Stats(dataA);
 		Stats statsB = new Stats(dataB);
 		
-		double expected = covariance.covariance(dataA, dataB, false);
+		double expected = covariance.covariance(dataA, dataB);
 		double actual   = Stats.covariance(statsA, statsB);
 		
 		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
