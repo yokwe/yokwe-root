@@ -50,34 +50,12 @@ public class TestStats {
 		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
-	void testSum2() {
-		DescriptiveStatistics ds    = new DescriptiveStatistics(dataA);
-		Stats                 stats = new Stats(dataA);
-		
-		double expected = ds.getSumsq();
-		double actual   = stats.sum2();
-		
-		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
-		assertEquals(expected, actual, DOUBLE_DELTA);
-	}
-	@Test
 	void testMean() {
 		DescriptiveStatistics ds    = new DescriptiveStatistics(dataA);
 		Stats                 stats = new Stats(dataA);
 		
 		double expected = ds.getMean();
 		double actual   = stats.mean();
-		
-		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
-		assertEquals(expected, actual, DOUBLE_DELTA);
-	}
-	@Test
-	void testMean2() {
-		DescriptiveStatistics ds = new DescriptiveStatistics(dataA);
-		Stats stats = new Stats(dataA);
-		
-		double expected = ds.getSumsq() / dataA.length;
-		double actual   = stats.mean2();
 		
 		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
 		assertEquals(expected, actual, DOUBLE_DELTA);
@@ -148,6 +126,28 @@ public class TestStats {
 		
 		double expected = correlation.correlation(subA, subB);
 		double actual   = Stats.correlation(statsA, statsB);
+		
+		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
+	}
+	@Test
+	void testMin() {
+		DescriptiveStatistics ds    = new DescriptiveStatistics(dataA);
+		Stats                 stats = new Stats(dataA);
+		
+		double expected = ds.getMin();
+		double actual   = stats.min();
+		
+		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
+		assertEquals(expected, actual, DOUBLE_DELTA);
+	}
+	@Test
+	void testMax() {
+		DescriptiveStatistics ds    = new DescriptiveStatistics(dataA);
+		Stats                 stats = new Stats(dataA);
+		
+		double expected = ds.getMax();
+		double actual   = stats.max();
 		
 		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
 		assertEquals(expected, actual, DOUBLE_DELTA);
