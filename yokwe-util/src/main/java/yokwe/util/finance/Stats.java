@@ -38,22 +38,21 @@ public final class Stats {
 		// sanity check
 		checkStats(a, b);
 		
-		double sumAB = 0;
-		for(int i = a.startIndex; i < a.stopIndexPlusOne; i++) {
-			sumAB += a.data[i] * b.data[i];
-		}
-		double sumA = a.sum();
-		double sumB = b.sum();
+		double eA = a.mean();
+		double eB = b.mean();
 		
+		double tsum = 0;
+		for(int i = a.startIndex; i < a.stopIndexPlusOne; i++) {
+			tsum += (a.data[i] - eA) * (b.data[i] - eB);
+		}
 		// Calculate unbiased value
-		// E(a * b) - E(a) * E(b)
-		//   sumAB / N - (sumA / N) * (sumB / N)
-		// change N to (N - 1)
-		//  (sumAB / N - (sumA / N) * (sumB / N)) * (N / (N - 1))
-		//  (sumAB     - (sumA    ) * (sumB / N)) / (N - 1)
-		//  (sumAB - (sumA * sumB / N)) / (N - 1)
-		double N = a.length;
-		return (sumAB - (sumA * sumB) / N) / (N - 1);
+		double cov = tsum / (a.length - 1.0);
+		// sanity check
+		if (Double.isInfinite(cov)) {
+			logger.error("var is infinite");
+			throw new UnexpectedException("var is infinite");
+		}
+		return cov;
 	}
 	public static double correlation(Stats a, Stats b) {
 		// sanity check
@@ -74,11 +73,12 @@ public final class Stats {
 	private final int      length;
 	
 	private double sum   = Double.NaN;
-	private double sum2  = Double.NaN;
 	private double mean  = Double.NaN;
-	private double mean2 = Double.NaN;
 	private double var   = Double.NaN;
 	private double sd    = Double.NaN;
+	//
+	private double min   = Double.NaN;
+	private double max   = Double.NaN;
 	
 	public Stats(double[] data, int startIndex, int stopIndexPlusOne) {
 		DoubleArray.checkIndex(data, startIndex, stopIndexPlusOne);
@@ -116,21 +116,6 @@ public final class Stats {
 		}
 		return sum;
 	}
-	public double sum2() {
-		if (Double.isNaN(sum2)) {
-			sum2 = 0;
-			for(int i = startIndex; i < stopIndexPlusOne; i++) {
-				double t = data[i];
-				sum2 += t * t;
-			}
-			// sanity check
-			if (Double.isInfinite(sum2)) {
-				logger.error("sum2 is infinite");
-				throw new UnexpectedException("sum2 is infinite");
-			}
-		}
-		return sum2;
-	}
 	public double mean() {
 		if (Double.isNaN(mean)) {
 			mean = sum() / length;
@@ -141,17 +126,6 @@ public final class Stats {
 			}
 		}
 		return mean;
-	}
-	public double mean2() {
-		if (Double.isNaN(mean2)) {
-			mean2 = sum2() / length;
-			// sanity check
-			if (Double.isInfinite(mean2)) {
-				logger.error("mean2 is infinite");
-				throw new UnexpectedException("mean2 is infinite");
-			}
-		}
-		return mean2;
 	}
 	public double variance() {
 		if (Double.isNaN(var)) {
@@ -181,6 +155,36 @@ public final class Stats {
 			}
 		}
 		return sd;
+	}
+	public double min() {
+		if (Double.isNaN(min)) {
+			min = data[startIndex];
+			for(int i = startIndex + 1; i < stopIndexPlusOne; i++) {
+				double t = data[i];
+				if (t < min) min = t;
+			}
+			// sanity check
+			if (Double.isInfinite(min)) {
+				logger.error("min is infinite");
+				throw new UnexpectedException("min is infinite");
+			}
+		}
+		return min;
+	}
+	public double max() {
+		if (Double.isNaN(max)) {
+			max = data[startIndex];
+			for(int i = startIndex + 1; i < stopIndexPlusOne; i++) {
+				double t = data[i];
+				if (max < t) max = t;
+			}
+			// sanity check
+			if (Double.isInfinite(max)) {
+				logger.error("max is infinite");
+				throw new UnexpectedException("max is infinite");
+			}
+		}
+		return max;
 	}
 	
 }
