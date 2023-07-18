@@ -65,6 +65,14 @@ public final class Stats {
 		return covAB / (sdA * sdB);
 	}
 	
+	public static double sum(double[] data, int startIndex, int stopIndexPlusOne) {
+		Stats stats = new Stats(data, startIndex, stopIndexPlusOne);
+		return stats.sum();
+	}
+	public static double standardDeviation(double[] data, int startIndex, int stopIndexPlusOne) {
+		Stats stats = new Stats(data, startIndex, stopIndexPlusOne);
+		return stats.standardDeviation();
+	}
 	
 	
 	private final double[] data;
