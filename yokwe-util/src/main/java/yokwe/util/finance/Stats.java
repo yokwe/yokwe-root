@@ -41,27 +41,6 @@ public final class Stats {
 		}
 	}
 	
-	public static double covariance2(Stats a, Stats b) {
-		// sanity check
-		checkStats(a, b);
-		
-		double eA = a.mean();
-		double eB = b.mean();
-		
-		double tsum = 0;
-		for(int i = a.startIndex; i < a.stopIndexPlusOne; i++) {
-			tsum += (a.data[i] - eA) * (b.data[i] - eB);
-		}
-		// Calculate unbiased value
-		double cov = tsum / (a.length - 1.0);
-		// sanity check
-		if (Double.isInfinite(cov)) {
-			logger.error("var is infinite");
-			throw new UnexpectedException("var is infinite");
-		}
-		return cov;
-	}
-
 	public static double covariance(Stats a, Stats b) {
 		// sanity check
 		checkStats(a, b);
@@ -79,11 +58,11 @@ public final class Stats {
 		// sanity check
 		checkStats(a, b);
 
-		double covAB = covariance(a, b);
-		double sdA   = a.standardDeviation();
-		double sdB   = b.standardDeviation();
+		double cov = covariance(a, b);
+		double sdA = a.standardDeviation();
+		double sdB = b.standardDeviation();
 		// correlation = covariance(a, b) / statndardDeviation(a) * statndardDeviation(b)
-		return covAB / (sdA * sdB);
+		return cov / (sdA * sdB);
 	}
 	
 	public static double sum(double[] data, int startIndex, int stopIndexPlusOne) {
