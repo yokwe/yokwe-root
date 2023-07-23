@@ -90,7 +90,7 @@ public class TestStats {
 		Stats statsB = new Stats(dataB);
 		
 		double expected = covariance.covariance(dataA, dataB);
-		double actual   = Stats.covariance2(statsA, statsB);
+		double actual   = Stats.covariance(statsA, statsB);
 		
 		if (OUTPUT_LOG) logger.info("{}  expected  {}  actual {}", String.format(FORMAT_NAME, ClassUtil.getCallerMethodName()), expected, actual);
 		assertEquals(expected, actual, DOUBLE_DELTA);
