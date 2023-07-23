@@ -1,6 +1,13 @@
 package yokwe.util.finance;
 
 import yokwe.util.UnexpectedException;
+import yokwe.util.finance.online.Covariance;
+import yokwe.util.finance.online.GeometricMean;
+import yokwe.util.finance.online.Max;
+import yokwe.util.finance.online.Mean;
+import yokwe.util.finance.online.Min;
+import yokwe.util.finance.online.Sum;
+import yokwe.util.finance.online.Variance;
 
 public final class Stats {
 	static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -34,7 +41,7 @@ public final class Stats {
 		}
 	}
 	
-	public static double covariance(Stats a, Stats b) {
+	public static double covariance2(Stats a, Stats b) {
 		// sanity check
 		checkStats(a, b);
 		
@@ -54,6 +61,20 @@ public final class Stats {
 		}
 		return cov;
 	}
+
+	public static double covariance(Stats a, Stats b) {
+		// sanity check
+		checkStats(a, b);
+		
+		var op = new Covariance();
+		double cov = op.applyAsDouble(a.data, b.data, a.startIndex, a.stopIndexPlusOne);
+		// sanity check
+		if (Double.isInfinite(cov)) {
+			logger.error("var is infinite");
+			throw new UnexpectedException("var is infinite");
+		}
+		return cov;
+	}
 	public static double correlation(Stats a, Stats b) {
 		// sanity check
 		checkStats(a, b);
@@ -66,12 +87,14 @@ public final class Stats {
 	}
 	
 	public static double sum(double[] data, int startIndex, int stopIndexPlusOne) {
-		Stats stats = new Stats(data, startIndex, stopIndexPlusOne);
-		return stats.sum();
+		var op = new Sum();
+		op.accept(data, startIndex, stopIndexPlusOne);
+		return op.getAsDouble();
 	}
 	public static double standardDeviation(double[] data, int startIndex, int stopIndexPlusOne) {
-		Stats stats = new Stats(data, startIndex, stopIndexPlusOne);
-		return stats.standardDeviation();
+		var op = new Variance();
+		op.accept(data, startIndex, stopIndexPlusOne);
+		return op.standardDeviation();
 	}
 	
 	
@@ -92,7 +115,7 @@ public final class Stats {
 	
 	
 	public Stats(double[] data, int startIndex, int stopIndexPlusOne) {
-		DoubleArray.checkIndex(data, startIndex, stopIndexPlusOne);
+		Util.checkIndex(data, startIndex, stopIndexPlusOne);
 		
 		this.data             = data;
 		this.startIndex       = startIndex;
@@ -115,10 +138,8 @@ public final class Stats {
 	
 	public double sum() {
 		if (Double.isNaN(sum)) {
-			sum = 0;
-			for(int i = startIndex; i < stopIndexPlusOne; i++) {
-				sum += data[i];
-			}
+			var op = new Sum();
+			sum = op.applyAsDouble(data, startIndex, stopIndexPlusOne);
 			// sanity check
 			if (Double.isInfinite(sum)) {
 				logger.error("sum is infinite");
@@ -129,7 +150,8 @@ public final class Stats {
 	}
 	public double mean() {
 		if (Double.isNaN(mean)) {
-			mean = sum() / length;
+			var op = new Mean();
+			mean = op.applyAsDouble(data, startIndex, stopIndexPlusOne);
 			// sanity check
 			if (Double.isInfinite(mean)) {
 				logger.error("mean is infinite");
@@ -140,14 +162,8 @@ public final class Stats {
 	}
 	public double variance() {
 		if (Double.isNaN(var)) {
-			double e = mean();
-			double tsum = 0;
-			for(int i = startIndex; i < stopIndexPlusOne; i++) {
-				double t = data[i] - e;
-				tsum += t * t;
-			}
-			// Calculate unbiased value
-			var = tsum / (length - 1.0);
+			var op = new Variance();
+			var = op.applyAsDouble(data, startIndex, stopIndexPlusOne);
 			// sanity check
 			if (Double.isInfinite(var)) {
 				logger.error("var is infinite");
@@ -169,11 +185,8 @@ public final class Stats {
 	}
 	public double min() {
 		if (Double.isNaN(min)) {
-			min = data[startIndex];
-			for(int i = startIndex + 1; i < stopIndexPlusOne; i++) {
-				double t = data[i];
-				if (t < min) min = t;
-			}
+			var op = new Min();
+			min = op.applyAsDouble(data, startIndex, stopIndexPlusOne);
 			// sanity check
 			if (Double.isInfinite(min)) {
 				logger.error("min is infinite");
@@ -184,31 +197,20 @@ public final class Stats {
 	}
 	public double max() {
 		if (Double.isNaN(max)) {
-			max = data[startIndex];
-			for(int i = startIndex + 1; i < stopIndexPlusOne; i++) {
-				double t = data[i];
-				if (max < t) max = t;
-			}
+			var op = new Max();
+			max = op.applyAsDouble(data, startIndex, stopIndexPlusOne);
 			// sanity check
 			if (Double.isInfinite(max)) {
 				logger.error("max is infinite");
-				throw new UnexpectedException("max is infinite");
+				throw new UnexpectedException("mean is infinite");
 			}
 		}
 		return max;
 	}
 	public double geometricMean() {
 		if (Double.isNaN(geoMean)) {
-			double t = 0;
-			for(int i = startIndex; i < stopIndexPlusOne; i++) {
-				double v = data[i];
-				if (v < 0) {
-					logger.error("negative value");
-					throw new UnexpectedException("negative value");
-				}
-				t += Math.log(v);
-			}
-			geoMean = Math.exp(t / length);
+			var op = new GeometricMean();
+			geoMean = op.applyAsDouble(data, startIndex, stopIndexPlusOne);
 			// sanity check
 			if (Double.isInfinite(geoMean)) {
 				logger.error("geoMean is infinite");

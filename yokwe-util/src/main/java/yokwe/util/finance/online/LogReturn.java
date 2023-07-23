@@ -1,10 +1,8 @@
-package yokwe.util.finance;
-
-import java.util.function.DoubleUnaryOperator;
+package yokwe.util.finance.online;
 
 import yokwe.util.UnexpectedException;
 
-public final class LogReturn implements DoubleUnaryOperator {
+public final class LogReturn implements OnlineDoubleUnaryOperator {
 	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	//
@@ -22,16 +20,18 @@ public final class LogReturn implements DoubleUnaryOperator {
 		return logRetrun / durationInYear;
 	}
 	
+	public LogReturn() {}
 	
 	private boolean firstTime    = true;
 	private double  lastLogValue = 0;
+	private double  logRun;
 	
 	@Override
-	public double applyAsDouble(double value) {
+	public void accept(double value) {
 		// sanity check
 		if (Double.isInfinite(value)) {
-			DoubleArray.logger.error("value is infinite");
-			DoubleArray.logger.error("  value {}", Double.toString(value));
+			logger.error("value is infinite");
+			logger.error("  value {}", Double.toString(value));
 			throw new UnexpectedException("value is infinite");
 		}
 
@@ -42,11 +42,16 @@ public final class LogReturn implements DoubleUnaryOperator {
 		}
 		
 		double logValue = Math.log(value);
-		double ret      = logValue - lastLogValue;
+		
+		// save logRun for later use
+		logRun = logValue - lastLogValue;
 		
 		// update for next iteration
 		lastLogValue = logValue;
-		
-		return ret;
+	}
+	
+	@Override
+	public double getAsDouble() {
+		return logRun;
 	}
 }

@@ -1,16 +1,13 @@
-package yokwe.util.finance;
+package yokwe.util.finance.online;
 
 import java.util.Arrays;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleSupplier;
-import java.util.function.DoubleUnaryOperator;
 
 import yokwe.util.UnexpectedException;
 
 //
 // return exponential moving average
 //
-public final class EMA implements DoubleUnaryOperator, DoubleSupplier, DoubleConsumer {
+public final class EMA implements OnlineDoubleUnaryOperator {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// calculation of alpha
@@ -36,13 +33,13 @@ public final class EMA implements DoubleUnaryOperator, DoubleSupplier, DoubleCon
 		average   = 0;
 	}
 
-	// Consumer<BigDecimal> for forEach()
+	// DoubleConsumer
 	@Override
 	public void accept(double value) {
 		// sanity check
 		if (Double.isInfinite(value)) {
-			DoubleArray.logger.error("value is infinite");
-			DoubleArray.logger.error("  value {}", Double.toString(value));
+			logger.error("value is infinite");
+			logger.error("  value {}", Double.toString(value));
 			throw new UnexpectedException("value is infinite");
 		}
 		
@@ -58,16 +55,11 @@ public final class EMA implements DoubleUnaryOperator, DoubleSupplier, DoubleCon
 		// number of multiply is reduced
 		average += alpha * (value - average);
 	}
-	// Supplier<BigDecimal> for get result after forEach
+	
+	// DoubleSupplier
 	@Override
 	public double getAsDouble() {
 		return average;
-	}
-	// UnaryOperator<BigDecimal> for map()
-	@Override
-	public double applyAsDouble(double value) {
-		accept(value);
-		return getAsDouble();
 	}
 	
 	private static void testTable53() {

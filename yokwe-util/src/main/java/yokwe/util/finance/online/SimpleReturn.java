@@ -1,10 +1,8 @@
-package yokwe.util.finance;
-
-import java.util.function.DoubleUnaryOperator;
+package yokwe.util.finance.online;
 
 import yokwe.util.UnexpectedException;
 
-public final class SimpleReturn implements DoubleUnaryOperator {
+public final class SimpleReturn implements OnlineDoubleUnaryOperator {
 	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	//
@@ -43,6 +41,7 @@ public final class SimpleReturn implements DoubleUnaryOperator {
 	
 	private boolean firstTime = true;
 	private double  lastValue = 0;
+	private double  simpleReturn;
 	
 	public static double getValue(double startValue, double endValue) {
 		// (endValue - startValue) / startValue
@@ -51,11 +50,11 @@ public final class SimpleReturn implements DoubleUnaryOperator {
 	}
 	
 	@Override
-	public double applyAsDouble(double value) {
+	public void accept(double value) {
 		// sanity check
 		if (Double.isInfinite(value)) {
-			DoubleArray.logger.error("value is infinite");
-			DoubleArray.logger.error("  value {}", Double.toString(value));
+			logger.error("value is infinite");
+			logger.error("  value {}", Double.toString(value));
 			throw new UnexpectedException("value is infinite");
 		}
 		
@@ -65,11 +64,14 @@ public final class SimpleReturn implements DoubleUnaryOperator {
 			lastValue = value;
 		}
 		
-		double ret = getValue(lastValue, value);
+		simpleReturn = getValue(lastValue, value);
 		
 		// update for next iteration
 		lastValue = value;
-		
-		return ret;
+	}
+	
+	@Override
+	public double getAsDouble() {
+		return simpleReturn;
 	}
 }

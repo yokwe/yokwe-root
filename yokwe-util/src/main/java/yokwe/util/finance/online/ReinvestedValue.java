@@ -1,13 +1,13 @@
-package yokwe.util.finance;
-
-import java.util.function.DoubleBinaryOperator;
+package yokwe.util.finance.online;
 
 import yokwe.util.UnexpectedException;
 
 //
-// calculate reinvested price
+// calculate reinvested value
 //
-public final class ReinvestedPrice implements DoubleBinaryOperator {
+public final class ReinvestedValue implements OnlineDoubleBinaryOperator {
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
 	// https://www.nikkei.com/help/contents/markets/fund/
 	// 分配金再投資基準価格
 	// 分配金を受け取らず、その分を元本に加えて運用を続けたと想定して算出する基準価格です。
@@ -23,36 +23,39 @@ public final class ReinvestedPrice implements DoubleBinaryOperator {
 	
 	private boolean firstTime = true;
 	
-	private double previousPrice;
-	private double previousReinvestedPrice;
+	private double lastPrice;
+	private double lastReinvestedValue;
 
 	@Override
-	public double applyAsDouble(double price, double div) {
+	public void accept(double price, double div) {
 		// sanity check
 		if (Double.isInfinite(price)) {
-			DoubleArray.logger.error("price is infinite");
-			DoubleArray.logger.error("  price {}", Double.toString(price));
+			logger.error("price is infinite");
+			logger.error("  price {}", Double.toString(price));
 			throw new UnexpectedException("price is infinite");
 		}
 		if (Double.isInfinite(div)) {
-			DoubleArray.logger.error("div is infinite");
-			DoubleArray.logger.error("  div {}", Double.toString(div));
+			logger.error("div is infinite");
+			logger.error("  div {}", Double.toString(div));
 			throw new UnexpectedException("div is infinite");
 		}
 
 		if (firstTime) {
-			previousPrice           = price;
-			previousReinvestedPrice = price;
+			lastPrice           = price;
+			lastReinvestedValue = price;
 			firstTime = false;
 		}
 		
-		double dailyReturn = (price + div) / previousPrice;
-		double reinvestedPrice = previousReinvestedPrice * dailyReturn;
+		double dailyReturn = (price + div) / lastPrice;
+		double reinvestedPrice = lastReinvestedValue * dailyReturn;
 					
 		// update for next iteration
-		previousPrice           = price;
-		previousReinvestedPrice = reinvestedPrice;
-		
-		return reinvestedPrice;
+		lastPrice           = price;
+		lastReinvestedValue = reinvestedPrice;
+	}
+	
+	@Override
+	public double getAsDouble() {
+		return lastReinvestedValue;
 	}
 }

@@ -1,12 +1,13 @@
-package yokwe.util.finance;
+package yokwe.util.finance.online;
 
 import yokwe.util.UnexpectedException;
-import yokwe.util.finance.DoubleArray.DoubleReducer;
 
 //
 // return historical volatility
 //
-public final class HV implements DoubleReducer {
+public final class HV implements OnlineDoubleUnaryOperator {
+	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
 	public static final double CONFIDENCE_95_PERCENT = 1.65;
 	public static final double CONFIDENCE_99_PERCENT = 2.33;
 	
@@ -30,7 +31,7 @@ public final class HV implements DoubleReducer {
 	}
 	
 	public double getVaR(double confidence, int timeHorizon) {
-		return get() * confidence * Math.sqrt(timeHorizon);
+		return getAsDouble() * confidence * Math.sqrt(timeHorizon);
 	}
 	public double getVaR95(int timeHorizon) {
 		return getVaR(CONFIDENCE_95_PERCENT, timeHorizon);
@@ -40,7 +41,7 @@ public final class HV implements DoubleReducer {
 	}
 	
 	@Override
-	public double get() {
+	public double getAsDouble() {
 		return Math.sqrt(ema.getAsDouble());
 	}
 	
@@ -48,8 +49,8 @@ public final class HV implements DoubleReducer {
 	public void accept(double value) {
 		// sanity check
 		if (Double.isInfinite(value)) {
-			DoubleArray.logger.error("value is infinite");
-			DoubleArray.logger.error("  value {}", Double.toString(value));
+			logger.error("value is infinite");
+			logger.error("  value {}", Double.toString(value));
 			throw new UnexpectedException("value is infinite");
 		}
 		

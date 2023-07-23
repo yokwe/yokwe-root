@@ -6,6 +6,7 @@ open module yokwe.util {
 	exports yokwe.util.http;
 	exports yokwe.util.json;
 	exports yokwe.util.finance;
+	exports yokwe.util.finance.online;
 
 	requires commons.math3;
 	requires org.apache.commons.net;

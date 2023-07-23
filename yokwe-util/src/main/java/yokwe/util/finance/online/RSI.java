@@ -1,12 +1,10 @@
-package yokwe.util.finance;
-
-import java.util.function.DoubleUnaryOperator;
+package yokwe.util.finance.online;
 
 import yokwe.util.UnexpectedException;
 
 // Calculate RSI using Wilder methods
 //   See https://school.stockcharts.com/doku.php?id=technical_indicators:relative_strength_index_rsi
-public class RSI_Wilder implements DoubleUnaryOperator {
+public final class RSI implements OnlineDoubleUnaryOperator {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final int    DEFAULT_SIZE = 14;
@@ -21,11 +19,12 @@ public class RSI_Wilder implements DoubleUnaryOperator {
 	private double lastValue = 0;
 	private double sumGain   = 0;
 	private double sumLoss   = 0;
+	private double rsi;
 	
-	public RSI_Wilder() {
+	public RSI() {
 		this(DEFAULT_SIZE);
 	}
-	public RSI_Wilder(int size_) {
+	public RSI(int size_) {
 		size  = size_;
 		alpha = 1.0 / size;
 		
@@ -34,11 +33,11 @@ public class RSI_Wilder implements DoubleUnaryOperator {
 	}
 	
 	@Override
-	public double applyAsDouble(double value) {
+	public void accept(double value) {
 		// sanity check
 		if (Double.isInfinite(value)) {
-			DoubleArray.logger.error("value is infinite");
-			DoubleArray.logger.error("  value {}", Double.toString(value));
+			logger.error("value is infinite");
+			logger.error("  value {}", Double.toString(value));
 			throw new UnexpectedException("value is infinite");
 		}
 
@@ -79,25 +78,25 @@ public class RSI_Wilder implements DoubleUnaryOperator {
 			}
 		}
 		
-		final double rsi;
-		{
-			if (count < size) {
-				rsi = UNKNOWN_RSI;
-			} else {
-				double a = avgGain * 100;
-				double b = avgGain + avgLoss;
-				// avoid divide by zero
-				rsi = (b == 0) ? UNKNOWN_RSI : a / b;
-			}
+		if (count < size) {
+			rsi = UNKNOWN_RSI;
+		} else {
+			double a = avgGain * 100;
+			double b = avgGain + avgLoss;
+			// avoid divide by zero
+			rsi = (b == 0) ? UNKNOWN_RSI : a / b;
 		}
 				
 		// update for next iteration
 		lastValue = value;
 		count++;
-		
+	}
+	
+	@Override
+	public double getAsDouble() {
 		return rsi;
 	}
-
+	
 	private static void testA() {
 		// See http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
 		double data[] = {
@@ -136,7 +135,7 @@ public class RSI_Wilder implements DoubleUnaryOperator {
 			43.1314,
 		};
 		
-		var op = new RSI_Wilder(14);
+		var op = new RSI(14);
 		for(int i = 0; i < data.length; i++) {
 			var rsi = op.applyAsDouble(data[i]);
 			logger.info("data {}", String.format("%2d  %6.4f  %6.4f", i + 1, data[i], rsi));

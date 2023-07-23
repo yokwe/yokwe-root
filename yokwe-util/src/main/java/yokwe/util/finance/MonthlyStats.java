@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import yokwe.util.UnexpectedException;
+import yokwe.util.finance.online.ReinvestedValue;
+import yokwe.util.finance.online.SimpleReturn;
 
 public final class MonthlyStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -24,18 +26,13 @@ public final class MonthlyStats {
 				dividendArray[i] = map.getOrDefault(date, zero);
 			}
 		}
-		double[] priceArray = new double[rawPriceArray.length];
+		double[] priceArray;
 		{
-			ReinvestedPrice reinvestedPrice = new ReinvestedPrice();
-			for(int i = 0; i < rawPriceArray.length; i++) {
-				var price = rawPriceArray[i].value;
-				var div   = dividendArray[i];
-				
-				priceArray[i] = reinvestedPrice.applyAsDouble(price, div);;
-			}
+			double[] valueArray = DailyValue.toValueArray(rawPriceArray);
+			priceArray = DoubleArray.toDoubleArray(valueArray, dividendArray, new ReinvestedValue());
 		}
-		double[] dailyReturnArray = DoubleArray.simpleReturn(priceArray);
 		
+		double[] dailyReturnArray = DoubleArray.toDoubleArray(priceArray, new SimpleReturn());
 		
 		// array of index that point to stopIndexPlusOne of each month
 		// stopIndexPlusOneArray[0] contains stopIndexPlusOne of newest month

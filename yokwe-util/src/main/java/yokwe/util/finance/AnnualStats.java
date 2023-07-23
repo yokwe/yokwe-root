@@ -3,6 +3,8 @@ package yokwe.util.finance;
 import java.time.LocalDate;
 
 import yokwe.util.UnexpectedException;
+import yokwe.util.finance.online.SimpleReturn;
+import yokwe.util.finance.online.Variance;
 
 public final class AnnualStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -68,7 +70,9 @@ public final class AnnualStats {
 		
 		{
 			// calculate standard deviation from dailyReturnArray
-			double sd = Stats.standardDeviation(dailyReturnArray, startIndex, stopIndexPlusOne);
+			var op = new Variance();
+			op.accept(dailyReturnArray, startIndex, stopIndexPlusOne);
+			double sd = op.standardDeviation();
 			standardDeviation = Finance.annualStandardDeviationFromDailyStandardDeviation(sd);
 		}
 		

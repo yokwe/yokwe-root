@@ -32,32 +32,9 @@ public final class DailyValue implements Comparable<DailyValue> {
 		return toDateArray(array, 0, array.length);
 	}
 	
-		
 	//
 	// IndexRange and indexRange
 	//
-	public static final class IndexRange {
-		public final int startIndex;
-		public final int stopIndexPlusOne;
-		
-		public IndexRange(int startIndex, int stopIndexPlusOne) {
-			this.startIndex       = startIndex;
-			this.stopIndexPlusOne = stopIndexPlusOne;
-		}
-		
-		public boolean isValid() {
-			return 0 <= startIndex && 0 <= stopIndexPlusOne && startIndex < stopIndexPlusOne;
-		}
-		
-		public int size() {
-			return stopIndexPlusOne - startIndex;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("{%d  %d}", startIndex, stopIndexPlusOne);
-		}
-	}
 	public static IndexRange indexRange(DailyValue[] array, LocalDate startDate, LocalDate endDate) {
 		// return index of array between startDaten inclusive and endDate inclusive
 		
@@ -104,8 +81,8 @@ public final class DailyValue implements Comparable<DailyValue> {
 	public DailyValue(LocalDate date, double value) {
 		// sanity check
 		if (Double.isInfinite(value)) {
-			DoubleArray.logger.error("value is infinite");
-			DoubleArray.logger.error("  value {}", Double.toString(value));
+			logger.error("value is infinite");
+			logger.error("  value {}", Double.toString(value));
 			throw new UnexpectedException("value is infinite");
 		}
 
