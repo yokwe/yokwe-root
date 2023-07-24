@@ -1,7 +1,6 @@
 package yokwe.util.finance;
 
 import java.lang.reflect.Array;
-import java.time.LocalDate;
 import java.util.function.IntFunction;
 
 import yokwe.util.UnexpectedException;
