@@ -3,7 +3,10 @@ package yokwe.util.finance;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ToDoubleFunction;
@@ -66,6 +69,67 @@ public final class DailyPriceDiv implements Comparable<DailyPriceDiv> {
 	public static double[] toDivArray(DailyPriceDiv[] array) {
 		return toDivArray(array, 0, array.length);
 	}
+	
+	
+	public static <T, U> DailyPriceDiv[] toDailyPriceDivArray(
+		T[] priceArray, Function<T, LocalDate> opPriceDate, ToDoubleFunction<T> opPrice,
+		U[] divArray,   Function<U, LocalDate> opDivDate,   ToDoubleFunction<U> opDiv,
+		int startIndex, int stopIndexPlusOne
+		) {
+		// Sanity check
+		Util.checkIndex(priceArray, divArray, startIndex, stopIndexPlusOne);
+		
+		Map<LocalDate, DailyPriceDiv> map = new TreeMap<>();
+		
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			var entry = priceArray[i];
+			LocalDate date  = opPriceDate.apply(entry);
+			double    price = opPrice.applyAsDouble(entry);
+			DailyPriceDiv dailyPriceDiv = new DailyPriceDiv(date, price, 0);
+			if (map.containsKey(date)) {
+				logger.error("Duplicate date");
+				logger.error("  date  {}", date);
+				logger.error("  entry {}", entry);
+				throw new UnexpectedException("Duplicate date");
+			} else {
+				map.put(date, dailyPriceDiv);
+			}
+		}
+		
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			var entry = divArray[i];
+			LocalDate date = opDivDate.apply(entry);
+			double    div  = opDiv.applyAsDouble(entry);
+			if (map.containsKey(date)) {
+				var oldEntry = map.get(date);
+				if (oldEntry.div != 0) {
+					logger.error("oldEntry contains div");
+					logger.error("  oldEntry {}", oldEntry);
+					logger.error("  entry    {}", entry);
+					throw new UnexpectedException("oldEntry contains div");
+				} else {
+					var newEntry = new DailyPriceDiv(oldEntry.date, oldEntry.price, div);
+					map.put(date, newEntry);
+				}
+			} else {
+				logger.error("Unpexpected date");
+				logger.error("  date  {}", date);
+				logger.error("  entry {}", entry);
+				throw new UnexpectedException("Unpexpected date");
+			}
+		}
+
+		DailyPriceDiv[] array = map.values().toArray(new DailyPriceDiv[0]);
+		Arrays.sort(array);
+		return array;
+	}
+	public static <T, U> DailyPriceDiv[] toDailyPriceDivArray(
+		T[] priceArray, Function<T, LocalDate> opPriceDate, ToDoubleFunction<T> opPrice,
+		U[] divArray,   Function<U, LocalDate> opDivDate,   ToDoubleFunction<U> opDiv
+		) {
+		return toDailyPriceDivArray(priceArray, opPriceDate, opPrice, divArray, opDivDate, opDiv, 0, priceArray.length);
+	}
+
 	
 	public final LocalDate date;
 	public final double    price;
