@@ -1,6 +1,7 @@
 package yokwe.util.finance;
 
 import java.time.LocalDate;
+import java.util.function.Function;
 
 import yokwe.util.UnexpectedException;
 
@@ -9,8 +10,8 @@ import yokwe.util.UnexpectedException;
 //
 public final class IndexRange {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
-	public static IndexRange getInstance(LocalDate[] array, LocalDate startDate, LocalDate endDate) {
+	
+	public static <T> IndexRange getInstance(T[] array, LocalDate startDate, LocalDate endDate, Function<T, LocalDate> op) {
 		// return index of array between startDaten inclusive and endDate inclusive
 		
 		// sanity check
@@ -29,7 +30,7 @@ public final class IndexRange {
 		LocalDate stopIndexPlusOneDate = null;
 		
 		for(int i = 0; i < array.length; i++) {
-			LocalDate date = array[i];
+			LocalDate date = op.apply(array[i]);
 			if (date.isEqual(startDate) || date.isAfter(startDate)) {
 				// youngest date equals to startDate or after startDate
 				if (startIndexDate == null || date.isBefore(startIndexDate)) {
@@ -48,6 +49,10 @@ public final class IndexRange {
 		return new IndexRange(startIndex, stopIndexPlusOne);
 	}
 
+	public static IndexRange getInstance(LocalDate[] array, LocalDate startDate, LocalDate endDate) {
+		return getInstance(array, startDate, endDate, Function.identity());
+	}
+	
 	public final int startIndex;
 	public final int stopIndexPlusOne;
 	
