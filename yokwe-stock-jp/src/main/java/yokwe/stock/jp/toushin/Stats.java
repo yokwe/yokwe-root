@@ -58,13 +58,13 @@ public class Stats extends Sheet implements Comparable<Stats> {
 	@Sheet.ColumnName("sd10年") public BigDecimal sd10Y;
 
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
-	@Sheet.ColumnName("ret1年")  public BigDecimal return1Y;
+	@Sheet.ColumnName("収益1年")  public BigDecimal ror1Y;
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
-	@Sheet.ColumnName("ret3年")  public BigDecimal return3Y;
+	@Sheet.ColumnName("収益3年")  public BigDecimal ror3Y;
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
-	@Sheet.ColumnName("ret5年")  public BigDecimal return5Y;
+	@Sheet.ColumnName("収益5年")  public BigDecimal ror5Y;
 	@NumberFormat(SpreadSheet.FORMAT_PERCENT2)
-	@Sheet.ColumnName("ret10年") public BigDecimal return10Y;
+	@Sheet.ColumnName("収益10年") public BigDecimal ror10Y;
 	
 	@NumberFormat(SpreadSheet.FORMAT_NUMBER0)
 	@Sheet.ColumnName("配当1年")  public BigDecimal div1Y;
