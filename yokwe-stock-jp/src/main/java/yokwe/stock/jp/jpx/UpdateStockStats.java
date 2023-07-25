@@ -20,7 +20,6 @@ import yokwe.stock.jp.moneybujpx.ETFDiv;
 import yokwe.stock.jp.xbrl.tdnet.report.Dividend;
 import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
-import yokwe.util.UnexpectedException;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
 import yokwe.util.stats.HV;
@@ -64,9 +63,8 @@ public class UpdateStockStats {
 			String      stockCode = stock.stockCode;
 			StockInfo   info      = StockInfo.get(stockCode);
 			if (info == null) {
-				logger.error("No stock info");
-				logger.error("  stockCode {}!", stockCode);
-				throw new UnexpectedException("no stock info");
+				logger.warn("No stock info  {}  {}", stock.stockCode, stock.name);
+				continue;
 			}
 
 			List<Price> priceList;
