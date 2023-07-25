@@ -70,15 +70,19 @@ public final class DailyPriceDiv implements Comparable<DailyPriceDiv> {
 		return toDivArray(array, 0, array.length);
 	}
 	
-	
 	public static <T, U> DailyPriceDiv[] toDailyPriceDivArray(
 		T[] priceArray, Function<T, LocalDate> opPriceDate, ToDoubleFunction<T> opPrice,
-		U[] divArray,   Function<U, LocalDate> opDivDate,   ToDoubleFunction<U> opDiv,
-		int startIndex, int stopIndexPlusOne
+		U[] divArray,   Function<U, LocalDate> opDivDate,   ToDoubleFunction<U> opDiv
 		) {
-		// Sanity check
-		Util.checkIndex(priceArray, divArray, startIndex, stopIndexPlusOne);
+		final int startIndex = 0;
+		final int stopIndexPlusOne = priceArray.length;
 		
+		// Sanity check
+		Util.checkIndex(priceArray, startIndex, stopIndexPlusOne);
+		if (divArray == null) {
+			throw new UnexpectedException("divArray is null");
+		}
+
 		Map<LocalDate, DailyPriceDiv> map = new TreeMap<>();
 		
 		for(int i = startIndex; i < stopIndexPlusOne; i++) {
@@ -96,7 +100,7 @@ public final class DailyPriceDiv implements Comparable<DailyPriceDiv> {
 			}
 		}
 		
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+		for(int i = 0; i < divArray.length; i++) {
 			var entry = divArray[i];
 			LocalDate date = opDivDate.apply(entry);
 			double    div  = opDiv.applyAsDouble(entry);
@@ -112,22 +116,13 @@ public final class DailyPriceDiv implements Comparable<DailyPriceDiv> {
 					map.put(date, newEntry);
 				}
 			} else {
-				logger.error("Unpexpected date");
-				logger.error("  date  {}", date);
-				logger.error("  entry {}", entry);
-				throw new UnexpectedException("Unpexpected date");
+				logger.warn("Ignore out of date div  {}", entry);
 			}
 		}
 
 		DailyPriceDiv[] array = map.values().toArray(new DailyPriceDiv[0]);
 		Arrays.sort(array);
 		return array;
-	}
-	public static <T, U> DailyPriceDiv[] toDailyPriceDivArray(
-		T[] priceArray, Function<T, LocalDate> opPriceDate, ToDoubleFunction<T> opPrice,
-		U[] divArray,   Function<U, LocalDate> opDivDate,   ToDoubleFunction<U> opDiv
-		) {
-		return toDailyPriceDivArray(priceArray, opPriceDate, opPrice, divArray, opDivDate, opDiv, 0, priceArray.length);
 	}
 
 	
