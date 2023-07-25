@@ -3,7 +3,6 @@ package yokwe.stock.jp.toushin;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +20,7 @@ import yokwe.util.DoubleUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyPriceDiv;
-import yokwe.util.finance.DoubleArray;
-import yokwe.util.finance.IndexRange;
+import yokwe.util.finance.Finance;
 import yokwe.util.finance.MonthlyStats;
 import yokwe.util.finance.online.RSI;
 import yokwe.util.libreoffice.Sheet;
@@ -36,10 +34,12 @@ public class UpdateStats {
 
 	public static final  BigDecimal CONSUMPTION_TAX_RATE  = new BigDecimal("1.1"); // 10 percent
 	
-	private static BigDecimal       MINUS_ONE = BigDecimal.ONE.negate();
+	private static final BigDecimal MINUS_ONE = BigDecimal.ONE.negate();
 	private static final int        MAX_YEARS = 10;
 	
 	private static final boolean USE_REINVESTMENT = false;
+	
+	private static final LocalDate LAST_DATE_OF_LAST_MONTH = LocalDate.now().withDayOfMonth(1).minusDays(1);
 	
 	private static List<Stats> getStatsList() {
 		List<Stats> statsList = new ArrayList<>();
@@ -73,19 +73,29 @@ public class UpdateStats {
 			count++;
 			if ((count % 500) == 1) logger.info("{}", String.format("%4d / %4d", count, fundList.size()));
 			
-			Price[] priceArray = Price.getList(isinCode).stream().toArray(Price[]::new);
-			if (priceArray.length == 0) {
-				countNoPrice++;
-				continue;
+			MonthlyStats[] monthlyStatsArray;
+			BigDecimal     nav;
+			{
+				Price[] priceArray = Price.getList(isinCode).stream().toArray(Price[]::new);
+				if (priceArray.length == 0) {
+					countNoPrice++;
+					continue;
+				}
+				
+				// use latest value for nav
+				nav = null;
+				for(var e: priceArray) {
+					if (e.date.isAfter(LAST_DATE_OF_LAST_MONTH)) break;
+					nav = e.nav;
+				}
+				
+				Dividend[] divArray = Dividend.getList(isinCode).stream().toArray(Dividend[]::new);
+				DailyPriceDiv[] dailyPriceDivArray = DailyPriceDiv.toDailyPriceDivArray(
+					priceArray, o -> o.date, o -> o.price.doubleValue(),
+					divArray,   o -> o.date, o -> o.amount.doubleValue());
+				
+				monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, dailyPriceDivArray, MAX_YEARS * 12 + 1);
 			}
-			Price lastPrice = priceArray[priceArray.length - 1];
-			
-			Dividend[] dividendArray = Dividend.getList(isinCode).stream().toArray(Dividend[]::new);
-			DailyPriceDiv[] dailyPriceDivArray = DailyPriceDiv.toDailyPriceDivArray(
-				priceArray, o -> o.date, o -> o.price.doubleValue(),
-				dividendArray, o -> o.date, o -> o.amount.doubleValue());
-			
-			MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, dailyPriceDivArray, MAX_YEARS * 12 + 1);
 
 			var nikkei = nikkeiMap.get(isinCode);
 			if (nikkei == null) {
@@ -100,10 +110,7 @@ public class UpdateStats {
 			
 			stats.inception  = fund.inceptionDate;
 			stats.redemption = fund.redemptionDate;
-			{
-				Period period = fund.inceptionDate.until(LocalDate.now());
-				stats.age = new BigDecimal(String.format("%d.%02d", period.getYears(), period.getMonths()));
-			}
+			stats.age        = Finance.durationInYearMonth(stats.inception, LAST_DATE_OF_LAST_MONTH);
 			
 			// Use toushin category
 			stats.investingAsset = fund.investingAsset;
@@ -112,81 +119,76 @@ public class UpdateStats {
 			
 			stats.expenseRatio = fund.expenseRatio.multiply(CONSUMPTION_TAX_RATE);
 			stats.buyFeeMax    = fund.buyFeeMax.multiply(CONSUMPTION_TAX_RATE);
-			stats.nav          = lastPrice.nav;
+			stats.nav          = nav;
 			stats.divc         = fund.divFreq;
-			
-			{
-				// calculate latest RSI using priceArray
-				LocalDate endDate    = lastPrice.date;
-				LocalDate startDate  = endDate.minusYears(1).plusDays(1);
-				var       indexRange = IndexRange.getInstance(priceArray, startDate, endDate, o -> o.date);
-				if (indexRange.isValid() && RSI.DEFAULT_SIZE <= indexRange.size()) {
-					double[] array = DoubleArray.toDoubleArray(priceArray, indexRange.startIndex, indexRange.stopIndexPlusOne, o -> o.price.doubleValue());
-					stats.rsi = DoubleUtil.toBigDecimal(new RSI().applyAsDouble(array));
-				} else {
-					logger.info("rsi  !  {}  {}  {}  {}  {}", isinCode, startDate, endDate, indexRange, indexRange.size());
-					stats.rsi = null;
-				}
-			}
 			
 			// 1 year
 			{
 				int nYear = 1;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd1Y     = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
-				stats.div1Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
-				stats.yield1Y  = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
-				stats.return1Y = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				stats.sd1Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
+				stats.div1Y   = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
+				stats.yield1Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
+				stats.ror1Y   = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				
+				if (aStats == null) {
+					stats.rsi = null;
+				} else {
+					// calculate RSI using one year price data in aStats.retPrice
+					RSI rsi = new RSI();
+					rsi.accept(aStats.retPrice);
+					stats.rsi = DoubleUtil.toBigDecimal(rsi.getAsDouble());
+				}
 			}
 			// 3 year
 			{
 				int nYear = 3;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd3Y     = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
-				stats.div3Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
-				stats.yield3Y  = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
-				stats.return3Y = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				stats.sd3Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
+				stats.div3Y   = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
+				stats.yield3Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
+				stats.ror3Y   = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
 			}
 			// 5 year
 			{
 				int nYear = 5;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd5Y     = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
-				stats.div5Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
-				stats.yield5Y  = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
-				stats.return5Y = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				stats.sd5Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
+				stats.div5Y   = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
+				stats.yield5Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
+				stats.ror5Y   = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
 			}
 			// 10 year
 			{
 				int nYear = 10;
 				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd10Y     = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
-				stats.div10Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
-				stats.yield10Y  = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
-				stats.return10Y = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				stats.sd10Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
+				stats.div10Y   = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
+				stats.yield10Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
+				stats.ror10Y   = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
 			}
 			
-			stats.divQ1Y   = (nikkei == null || nikkei.divScore1Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore1Y);
-			stats.divQ3Y   = (nikkei == null || nikkei.divScore3Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore3Y);
-			stats.divQ5Y   = (nikkei == null || nikkei.divScore5Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore5Y);
-			stats.divQ10Y  = (nikkei == null || nikkei.divScore10Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore10Y);
+			stats.divQ1Y  = (nikkei == null || nikkei.divScore1Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore1Y);
+			stats.divQ3Y  = (nikkei == null || nikkei.divScore3Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore3Y);
+			stats.divQ5Y  = (nikkei == null || nikkei.divScore5Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore5Y);
+			stats.divQ10Y = (nikkei == null || nikkei.divScore10Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore10Y);
 			
 			stats.name     = fund.name;
 			
 			if (stats.stockCode.isEmpty()) {
-				stats.gmo      = gmoSet.contains(fund.isinCode)     ? GMOFund.getSalesFee(isinCode, MINUS_ONE)     : null;
-				stats.nikko    = nikkoSet.contains(fund.isinCode)   ? NikkoFund.getSalesFee(isinCode, MINUS_ONE)   : null;
-				stats.nomura   = nomuraSet.contains(fund.isinCode)  ? NomuraFund.getSalesFee(isinCode, MINUS_ONE)  : null;
-				stats.rakuten  = rakutenSet.contains(fund.isinCode) ? BigDecimal.ZERO : null;
-				stats.sbi      = sbiSet.contains(fund.isinCode)     ? BigDecimal.ZERO : null;
-				stats.sony     = sonySet.contains(fund.isinCode)    ? BigDecimal.ZERO : null;
+				stats.gmo     = gmoSet.contains(fund.isinCode)     ? GMOFund.getSalesFee(isinCode, MINUS_ONE)     : null;
+				stats.nikko   = nikkoSet.contains(fund.isinCode)   ? NikkoFund.getSalesFee(isinCode, MINUS_ONE)   : null;
+				stats.nomura  = nomuraSet.contains(fund.isinCode)  ? NomuraFund.getSalesFee(isinCode, MINUS_ONE)  : null;
+				stats.rakuten = rakutenSet.contains(fund.isinCode) ? BigDecimal.ZERO : null;
+				stats.sbi     = sbiSet.contains(fund.isinCode)     ? BigDecimal.ZERO : null;
+				stats.sony    = sonySet.contains(fund.isinCode)    ? BigDecimal.ZERO : null;
 			} else {
-				stats.gmo      = BigDecimal.ZERO;
-				stats.nikko    = BigDecimal.ZERO;
-				stats.nomura   = BigDecimal.ZERO;
-				stats.rakuten  = BigDecimal.ZERO;
-				stats.sbi      = BigDecimal.ZERO;
-				stats.sony     = BigDecimal.ZERO;
+				stats.gmo     = BigDecimal.ZERO;
+				stats.nikko   = BigDecimal.ZERO;
+				stats.nomura  = BigDecimal.ZERO;
+				stats.rakuten = BigDecimal.ZERO;
+				stats.sbi     = BigDecimal.ZERO;
+				stats.sony    = BigDecimal.ZERO;
 			}
 			
 			statsList.add(stats);
@@ -233,6 +235,8 @@ public class UpdateStats {
 	
 	public static void main(String[] args) {
 		logger.info("START");
+		
+		logger.info("LAST_DATE_OF_LAST_MONTH  {}", LAST_DATE_OF_LAST_MONTH);		
 		
 		List<Stats> statsList = getStatsList();
 		
