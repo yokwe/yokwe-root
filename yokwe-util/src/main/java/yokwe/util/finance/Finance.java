@@ -59,17 +59,14 @@ public final class Finance {
 	
 	
 	public static BigDecimal durationInYearMonth(LocalDate startDate, LocalDate endDate) {
-		// sanity check
-		if (startDate.isAfter(endDate)) {
-			logger.error("Unexpected date ragne");
-			logger.error("  {}  {}", startDate, endDate);
-			throw new UnexpectedException("Unexpected date ragne");
-		}
-		
 		// startDate and endDate is inclusive
-		LocalDate endDatePlusOne = endDate.plusDays(1);		
-		Period    period         = startDate.until(endDatePlusOne);
-		return new BigDecimal(String.format("%d.%02d", period.getYears(), period.getMonths()));
+		if (startDate.isAfter(endDate)) {
+			return new BigDecimal("0.00");
+		} else {
+			LocalDate endDatePlusOne = endDate.plusDays(1);		
+			Period    period         = startDate.until(endDatePlusOne);
+			return new BigDecimal(String.format("%d.%02d", period.getYears(), period.getMonths()));
+		}
 	}
 	
 	
