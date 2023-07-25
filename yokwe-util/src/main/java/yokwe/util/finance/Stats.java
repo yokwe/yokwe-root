@@ -75,6 +75,9 @@ public final class Stats {
 		op.accept(data, startIndex, stopIndexPlusOne);
 		return op.standardDeviation();
 	}
+	public static double standardDeviation(double[] data) {
+		return standardDeviation(data, 0, data.length);
+	}
 	
 	
 	private final double[] data;
