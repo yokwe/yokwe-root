@@ -8,7 +8,7 @@ import java.util.Map;
 
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.AnnualStats;
-import yokwe.util.finance.DailyValue;
+import yokwe.util.finance.DailyPriceDiv;
 import yokwe.util.finance.MonthlyStats;
 
 public final class T001 {
@@ -32,8 +32,11 @@ public final class T001 {
 		
 		logger.info("fund        {}  {}", isinCode, fund.name);
 		
-		DailyValue[] priceArray = Price.getList(isinCode).stream().map(o ->new DailyValue(o.date, o.price)).toArray(DailyValue[]::new);
-		DailyValue[] divArray   = Dividend.getList(isinCode).stream().map(o -> new DailyValue(o.date, o.amount)).toArray(DailyValue[]::new);
+		Price[]    priceArray = Price.getList(isinCode).stream().toArray(Price[]::new);
+		Dividend[] divArray   = Dividend.getList(isinCode).stream().toArray(Dividend[]::new);
+		DailyPriceDiv[] dailyPriceDivArray = DailyPriceDiv.toDailyPriceDivArray(
+				priceArray, o -> o.date, o -> o.price.doubleValue(),
+				divArray, o -> o.date, o -> o.amount.doubleValue());
 		
 		{
 			var startDate = priceArray[0].date;
@@ -44,7 +47,7 @@ public final class T001 {
 			logger.info("            {} - {}  {}", startDate, stopDate, duration);
 		}
 		
-		MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, priceArray, divArray, 121);
+		MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, dailyPriceDivArray, 121);
 		logger.info("monthlyStatsArray0  {}", monthlyStatsArray[0].endDate);
 		
 		for(int nYear: Arrays.asList(1, 3, 5)) {
@@ -52,13 +55,15 @@ public final class T001 {
 			if (aStats == null) continue;
 			
 			logger.info("nYear   {}", nYear);
-			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startValue, aStats.endValue);
+			logger.info("  {} - {}  {} - {}", aStats.startDate, aStats.endDate, aStats.startPrice, aStats.endPrice);
 			
-			logger.info("  anRetrun  {}", aStats.returns * 100);
-			logger.info("  anSD      {}", aStats.standardDeviation);
-			logger.info("  div       {}", aStats.dividend);
-			logger.info("  yield     {}", String.format("%.4f", aStats.yield));
-			logger.info("  sharpe    {}", String.format("%.4f", aStats.sharpeRatio));
+			logger.info("  rorPrice        {}", aStats.rorPrice * 100);
+			logger.info("  rorNoReinvested {}", aStats.rorNoReinvestment * 100);
+			logger.info("  rorReinvested   {}", aStats.rorReinvestment * 100);
+			logger.info("  anSD            {}", aStats.standardDeviation);
+			logger.info("  div             {}", aStats.dividend);
+			logger.info("  yield           {}", String.format("%.4f", aStats.yield));
+			logger.info("  sharpe          {}", String.format("%.4f", aStats.rorReinvestment / aStats.standardDeviation));
 		}
 
 	}
