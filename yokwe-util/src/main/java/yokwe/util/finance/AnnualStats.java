@@ -1,6 +1,7 @@
 package yokwe.util.finance;
 
 import java.time.LocalDate;
+import java.util.function.DoubleUnaryOperator;
 
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.NoReinvestedValue;
@@ -67,7 +68,7 @@ public final class AnnualStats {
 		startIndex           = startMonth.startIndex;
 		stopIndexPlusOne     = endMonth.stopIndexPlusOne;
 		
-		retPrice             = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, o -> o);
+		retPrice             = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
 		retReinvestment      = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new ReinvestedValue());
 		retNoReinvestment    = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new NoReinvestedValue());
 		
