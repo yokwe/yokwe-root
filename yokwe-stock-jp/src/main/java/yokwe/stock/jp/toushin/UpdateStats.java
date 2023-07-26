@@ -183,15 +183,17 @@ public class UpdateStats {
 				stats.sbi     = sbiSet.contains(fund.isinCode)     ? BigDecimal.ZERO : null;
 				stats.sony    = sonySet.contains(fund.isinCode)    ? BigDecimal.ZERO : null;
 			} else {
-				stats.gmo     = BigDecimal.ZERO;
-				stats.nikko   = BigDecimal.ZERO;
-				stats.nomura  = BigDecimal.ZERO;
-				stats.rakuten = BigDecimal.ZERO;
-				stats.sbi     = BigDecimal.ZERO;
-				stats.sony    = BigDecimal.ZERO;
+				stats.gmo     = null;
+				stats.nikko   = null;
+				stats.nomura  = null;
+				stats.rakuten = null;
+				stats.sbi     = null;
+				stats.sony    = null;
 			}
 			
 			// special case
+			if (fund.redemptionDate.compareTo(Fund.NO_REDEMPTION_DATE) == 0) stats.redemption = null;
+
 			if (stats.div1Y  != null && stats.div1Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield1Y  = stats.divQ1Y = null;
 			if (stats.div3Y  != null && stats.div3Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield3Y  = stats.divQ3Y = null;
 			if (stats.div5Y  != null && stats.div5Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield5Y  = stats.divQ5Y = null;
