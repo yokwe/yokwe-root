@@ -95,12 +95,5 @@ public final class AnnualStats {
 			double sd = Stats.standardDeviation(array);
 			standardDeviation = Finance.annualStandardDeviationFromDailyStandardDeviation(sd);
 		}
-		
-		{
-			Stats stats = new Stats(retPrice);
-			double cov = stats.standardDeviation() / stats.mean();
-			logger.info("XXX  {}  {}", standardDeviation, cov);
-		}
-		
 	}
 }
