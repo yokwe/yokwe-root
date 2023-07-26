@@ -191,6 +191,12 @@ public class UpdateStats {
 				stats.sony    = BigDecimal.ZERO;
 			}
 			
+			// special case
+			if (stats.div1Y  != null && stats.div1Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield1Y  = stats.divQ1Y = null;
+			if (stats.div3Y  != null && stats.div3Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield3Y  = stats.divQ3Y = null;
+			if (stats.div5Y  != null && stats.div5Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield5Y  = stats.divQ5Y = null;
+			if (stats.div10Y != null && stats.div10Y.compareTo(BigDecimal.ZERO) == 0) stats.yield10Y = stats.divQ10Y = null;
+			
 			statsList.add(stats);
 		}
 		
