@@ -48,35 +48,41 @@ public class UpdateStockPrice {
 	}
 
 	private static class Context {
+		// See below link for parameter of synchronized statement
+		//   https://rules.sonarsource.com/java/RSPEC-1860/
 		private List<StockPrice>               stockPriceList;
+		private Object                         stockPriceListLock = new Object();
 		private List<StockInfo>                stockInfoList;
+		private Object                         stockInfoListLock = new Object();
 		private Map<String, List<PriceVolume>> priceVolumeMap;
-		private Integer                        buildCount;
-				
+		private Object                         priceVolumeMapLock = new Object();
+		private int                            buildCount;
+		private Object                         buildCountLock = new Object();
+		
 		public void add(StockPrice newValue) {
-			synchronized(stockPriceList) {
+			synchronized(stockPriceListLock) {
 				stockPriceList.add(newValue);
 			}
 		}
 		public void add(StockInfo newValue) {
-			synchronized(stockInfoList) {
+			synchronized(stockInfoListLock) {
 				stockInfoList.add(newValue);
 			}
 		}
 		public void put(String key, List<PriceVolume> value) {
-			synchronized(priceVolumeMap) {
+			synchronized(priceVolumeMapLock) {
 				priceVolumeMap.put(key, value);
 			}
 		}
 
 		public void incrementBuildCount() {
-			synchronized(buildCount) {
+			synchronized(buildCountLock) {
 				buildCount = buildCount + 1;
 			}
 		}
 		public int getBuildCount() {
 			int ret;
-			synchronized(buildCount) {
+			synchronized(buildCountLock) {
 				ret = buildCount;
 			}
 			return ret;
