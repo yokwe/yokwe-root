@@ -106,6 +106,7 @@ public class UpdateStockStats {
 			
 			StockStats stockStats = new StockStats();
 			// stockCode name category unit issued
+			stockStats.isinCode  = info.isinCode;
 			stockStats.stockCode = stock.stockCode;
 			stockStats.name      = stock.name;
 			if (stock.isETF()) {

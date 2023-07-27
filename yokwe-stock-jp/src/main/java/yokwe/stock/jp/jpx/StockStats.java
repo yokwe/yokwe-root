@@ -21,6 +21,7 @@ public class StockStats implements Comparable<StockStats> {
 	}
 
 	public String     stockCode;
+	public String     isinCode;
 	public String     name;
 	public String     category;
 	public int        unit;
