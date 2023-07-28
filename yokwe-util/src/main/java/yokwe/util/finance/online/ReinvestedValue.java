@@ -24,7 +24,7 @@ public final class ReinvestedValue implements OnlineDoubleBinaryOperator {
 	private boolean firstTime = true;
 	
 	private double lastPrice;
-	private double lastReinvestedValue;
+	private double lastReinvestedValue = Double.NaN;
 
 	@Override
 	public void accept(double price, double div) {
@@ -46,7 +46,7 @@ public final class ReinvestedValue implements OnlineDoubleBinaryOperator {
 			firstTime = false;
 		}
 		
-		double dailyReturn = (price + div) / lastPrice;
+		double dailyReturn     = (price + div) / lastPrice;
 		double reinvestedPrice = lastReinvestedValue * dailyReturn;
 					
 		// update for next iteration

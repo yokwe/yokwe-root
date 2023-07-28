@@ -20,11 +20,9 @@ public final class LogReturn implements OnlineDoubleUnaryOperator {
 		return logRetrun / durationInYear;
 	}
 	
-	public LogReturn() {}
-	
 	private boolean firstTime    = true;
 	private double  lastLogValue = 0;
-	private double  logRun;
+	private double  logReturn    = Double.NaN;
 	
 	@Override
 	public void accept(double value) {
@@ -43,8 +41,8 @@ public final class LogReturn implements OnlineDoubleUnaryOperator {
 		
 		double logValue = Math.log(value);
 		
-		// save logRun for later use
-		logRun = logValue - lastLogValue;
+		// save logReturn for later use
+		logReturn = logValue - lastLogValue;
 		
 		// update for next iteration
 		lastLogValue = logValue;
@@ -52,6 +50,6 @@ public final class LogReturn implements OnlineDoubleUnaryOperator {
 	
 	@Override
 	public double getAsDouble() {
-		return logRun;
+		return logReturn;
 	}
 }

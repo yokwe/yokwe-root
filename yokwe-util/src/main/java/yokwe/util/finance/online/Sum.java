@@ -5,14 +5,8 @@ import yokwe.util.UnexpectedException;
 public class Sum implements OnlineDoubleUnaryOperator {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static double apply(double[] value) {
-		var op = new Sum();
-		return op.applyAsDouble(value);
-	}
-	
-	
-	private double sum = 0;
-	public Sum() {}
+	private boolean firstTime = true;
+	private double  sum       = Double.NaN;
 	
 	@Override
 	public void accept(double value) {
@@ -22,8 +16,13 @@ public class Sum implements OnlineDoubleUnaryOperator {
 			logger.error("  value {}", Double.toString(value));
 			throw new UnexpectedException("value is infinite");
 		}
-
-		sum += value;
+		
+		if (firstTime) {
+			sum       = value;
+			firstTime = false;
+		} else {
+			sum += value;
+		}
 	}
 	
 	@Override

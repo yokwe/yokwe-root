@@ -6,13 +6,6 @@ public final class Covariance implements OnlineDoubleBinaryOperator {
 	private double lastMeanB = 0;
 	private double lastC     = 0;
 	
-	public Covariance() {}
-	public Covariance(double[] a, double[] b, int startIndex, int stopIndexPlusOne) {
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			accept(a[i], b[i]);
-		}
-	}
-
 	@Override
 	public void accept(double a, double b) {
 		count++;

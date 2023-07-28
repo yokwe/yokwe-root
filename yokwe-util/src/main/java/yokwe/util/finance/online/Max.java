@@ -6,8 +6,7 @@ public class Max implements OnlineDoubleUnaryOperator {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private boolean firstTime = true;
-	private double  maxValue  = 0;
-	public Max() {}
+	private double  maxValue  = Double.NaN;
 	
 	@Override
 	public void accept(double value) {

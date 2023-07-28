@@ -6,8 +6,7 @@ public class Min implements OnlineDoubleUnaryOperator {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private boolean firstTime = true;
-	private double  minValue  = 0;
-	public Min() {}
+	private double  minValue  = Double.NaN;
 	
 	@Override
 	public void accept(double value) {

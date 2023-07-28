@@ -38,16 +38,16 @@ public final class SimpleReturn implements OnlineDoubleUnaryOperator {
 		return Math.pow(base, exponent) - 1.0;
 	}
 	
-	
-	private boolean firstTime = true;
-	private double  lastValue = 0;
-	private double  simpleReturn;
-	
 	public static double getValue(double startValue, double endValue) {
 		// (endValue - startValue) / startValue
 		// (endValue / statValue) - 1
 		return (endValue / startValue) - 1;
 	}
+	
+	
+	private boolean firstTime    = true;
+	private double  lastValue    = 0;
+	private double  simpleReturn = Double.NaN;
 	
 	@Override
 	public void accept(double value) {

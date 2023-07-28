@@ -11,9 +11,9 @@ public final class SMA implements OnlineDoubleUnaryOperator {
 	private final int      size;
 	private final double[] data;
 
-	private int      count = 0;
-	private int      index = 0;
-	private double   result;
+	private int      count   = 0;
+	private int      index   = 0;
+	private double   average = Double.NaN;
 	
 	private Mean mean = new Mean();
 	
@@ -24,7 +24,7 @@ public final class SMA implements OnlineDoubleUnaryOperator {
 	
 	@Override
 	public double getAsDouble() {
-		return result;
+		return average;
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public final class SMA implements OnlineDoubleUnaryOperator {
 			// update mean with oldValue and value
 			mean.replace(oldValue, value);
 		}
-		result = mean.getAsDouble();
+		average = mean.getAsDouble();
 		
 		// update for next iteration
 		count++;

@@ -19,7 +19,7 @@ public final class RSI implements OnlineDoubleUnaryOperator {
 	private double lastValue = 0;
 	private double sumGain   = 0;
 	private double sumLoss   = 0;
-	private double rsi;
+	private double rsi       = Double.NaN;
 	
 	public RSI() {
 		this(DEFAULT_SIZE);

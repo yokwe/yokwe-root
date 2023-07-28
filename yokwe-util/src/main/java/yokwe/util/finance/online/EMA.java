@@ -22,17 +22,12 @@ public final class EMA implements OnlineDoubleUnaryOperator {
 	private final double alpha;
 	
 	private boolean firstTime = true;
-	private double  average   = 0;
+	private double  average   = Double.NaN;
 	
 	public EMA(double alpha) {
 		this.alpha = alpha;
 	}
 	
-	public void clear() {
-		firstTime = true;
-		average   = 0;
-	}
-
 	// DoubleConsumer
 	@Override
 	public void accept(double value) {

@@ -9,16 +9,6 @@ public final class Variance implements OnlineDoubleUnaryOperator {
 	private double lastM1 = Double.NaN;
 	private double lastM2 = Double.NaN;
 	
-	public Variance() {}
-	public Variance(double[] array, int startIndex, int stopIndexPlusOne) {
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			accept(array[i]);
-		}
-	}
-	public Variance(double[] array) {
-		this(array, 0, array.length);
-	}
-
 	@Override
 	public void accept(double value) {
 		count++;
@@ -33,8 +23,8 @@ public final class Variance implements OnlineDoubleUnaryOperator {
 			} else {
 				double delta = value - lastM1;
 				m1 = lastM1 + delta / count;
-				m2 = Math.fma(delta, value - m1, lastM2);
-//				m2 = lastM2 + delta * (value - m1);
+//				m2 = Math.fma(delta, value - m1, lastM2);
+				m2 = lastM2 + delta * (value - m1);
 			}
 		}
 		
@@ -54,10 +44,10 @@ public final class Variance implements OnlineDoubleUnaryOperator {
 		return lastM1;
 	}
 	public double variance() {
-		return (count <= 1) ? Double.NaN : (lastM2 / (count - 1));
+		return (firstTime) ? Double.NaN : (lastM2 / (count - 1));
 	}
 	public double biasedVariance() {
-		return (count == 0) ? Double.NaN : (lastM2 / count);
+		return (firstTime) ? Double.NaN : (lastM2 / count);
 	}
 	public double standardDeviation() {
 		return Math.sqrt(variance());

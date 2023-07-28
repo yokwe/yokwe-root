@@ -7,16 +7,7 @@ public final class Mean implements OnlineDoubleUnaryOperator {
 	
 	private boolean firstTime = true;
 	private int     count     = 0;
-	
-	private double lastMean;
-	
-	public Mean() {}
-	
-	public Mean(double[] array, int startIndex, int stopIndexPlusOne) {
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			accept(array[i]);
-		}
-	}
+	private double  lastMean  = Double.NaN;
 	
 	@Override
 	public double getAsDouble() {
