@@ -14,21 +14,22 @@ import yokwe.util.finance.online.Variance;
 public class TestVariance {
 	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean OUTPUT_LOG = true;
+	private static final boolean OUTPUT_LOG = false;
 	
 	private static final String FORMAT_NAME = "%-28s";
 	private static final double DOUBLE_DELTA = 1e-14;
 	
 	private static final int DATA_SIZE = 100000;
 	private static final double[] dataA;
-	private static final double[] dataB;
 	static {
 		Random random = new Random(System.currentTimeMillis());
 		dataA = random.doubles(DATA_SIZE).toArray();
-		dataB = random.doubles(DATA_SIZE).toArray();
 	}
 	private static DescriptiveStatistics ds       = new DescriptiveStatistics(dataA);
-	private static Variance              variance = new Variance(dataA);
+	private static Variance              variance = new Variance();
+	static {
+		variance.accept(dataA);
+	}
 
 	@Test
 	void testMean() {
