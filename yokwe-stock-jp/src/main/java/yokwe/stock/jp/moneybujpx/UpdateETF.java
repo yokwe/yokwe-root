@@ -1,5 +1,6 @@
 package yokwe.stock.jp.moneybujpx;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,8 +21,10 @@ import yokwe.util.json.JSON.Ignore;
 
 public class UpdateETF {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	private static final boolean DEBUG_USE_FILE = false;
 
-	public static final class RAW {
+ 	public static final class RAW {
 	    public static final class Data {
 	        public static final class DividendHist {
 	            public String     date; // YYYY/MM/DD
@@ -260,11 +263,13 @@ public class UpdateETF {
 		
 		String     categoryName      = raw.data.categoryName;
 		String     stockName         = raw.data.stockName;
-
+		String     targetIndex       = raw.data.targetIndex;
+		
 		ETF etf = new ETF(
 				date, stockCode, listingDate, expenseRatio,
 				divFreq,
 				categoryName,
+				targetIndex,
 				stockName
 				);
 		
@@ -275,11 +280,23 @@ public class UpdateETF {
 	private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
 	
 	public static ETF getInstance(String stockCode, List<ETFDiv> list) {
-		String body   = String.format("{\"stockCode\":\"%s\"}", Stock.toStockCode4(stockCode));
-		String string = HttpUtil.getInstance().withPost(body, CONTENT_TYPE).download(URL).result;
-		// debug
-		FileUtil.write().file(Storage.MoneyBuJPX.getPath("file", stockCode + ".json"), string);
+		File file;
+		{
+			String path = Storage.MoneyBuJPX.getPath("file", stockCode + ".json");
+			file = new File(path);
+		}
 		
+		String string;
+		if (DEBUG_USE_FILE && file.canRead()) {
+			string = FileUtil.read().file(file);
+		} else {
+			String body   = String.format("{\"stockCode\":\"%s\"}", Stock.toStockCode4(stockCode));
+			string = HttpUtil.getInstance().withPost(body, CONTENT_TYPE).download(URL).result;
+			// debug
+			FileUtil.write().file(Storage.MoneyBuJPX.getPath("file", stockCode + ".json"), string);
+		}
+		
+				
 		if (string == null) {
 			logger.warn("failed to download {}", stockCode);
 			return null;
