@@ -17,6 +17,7 @@ import yokwe.stock.jp.japanreit.REIT;
 import yokwe.stock.jp.japanreit.REITDiv;
 import yokwe.stock.jp.moneybujpx.ETF;
 import yokwe.stock.jp.moneybujpx.ETFDiv;
+import yokwe.stock.jp.toushin.Fund;
 import yokwe.stock.jp.xbrl.tdnet.report.Dividend;
 import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
@@ -58,6 +59,9 @@ public class UpdateStockStats {
 		
 		Map<String, REIT> reitMap = REIT.getMap();
 		//  stockCode
+		
+		Map<String, Fund> fundMap = Fund.getMap();
+		//  isinCode
 		
 		for(var stock: Stock.getList()) {
 			String      stockCode = stock.stockCode;
@@ -236,6 +240,14 @@ public class UpdateStockStats {
 					stockStats.div1Y     = BigDecimal.ZERO;
 					stockStats.yieldLast = BigDecimal.ZERO;
 					stockStats.yield1Y   = BigDecimal.ZERO;
+				}
+				
+				// Use Fund.divFreq for divc if available
+				{
+					if (fundMap.containsKey(stockStats.isinCode)) {
+						var fund = fundMap.get(stockStats.isinCode);
+						stockStats.divc = fund.divFreq;
+					}
 				}
 			}
 			
