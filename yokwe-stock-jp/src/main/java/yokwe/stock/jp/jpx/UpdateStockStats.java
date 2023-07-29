@@ -17,7 +17,6 @@ import yokwe.stock.jp.japanreit.REIT;
 import yokwe.stock.jp.japanreit.REITDiv;
 import yokwe.stock.jp.moneybujpx.ETF;
 import yokwe.stock.jp.moneybujpx.ETFDiv;
-import yokwe.stock.jp.toushin.Fund;
 import yokwe.stock.jp.xbrl.tdnet.report.Dividend;
 import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
@@ -59,9 +58,6 @@ public class UpdateStockStats {
 		
 		Map<String, REIT> reitMap = REIT.getMap();
 		//  stockCode
-		
-		Map<String, Fund> fundMap = Fund.getMap();
-		//  isinCode
 		
 		for(var stock: Stock.getList()) {
 			String      stockCode = stock.stockCode;
@@ -184,6 +180,11 @@ public class UpdateStockStats {
 			
 			
 			// divc div div1Y yiedlLast yiedl1Y
+			stockStats.divc      = 0;
+			stockStats.divLast   = BigDecimal.ZERO;
+			stockStats.div1Y     = BigDecimal.ZERO;
+			stockStats.yieldLast = BigDecimal.ZERO;
+			stockStats.yield1Y   = BigDecimal.ZERO;
 			{
 				double[] divArray = null;
 				
@@ -198,8 +199,19 @@ public class UpdateStockStats {
 						if (etf.divFreq != divArray.length) {
 							logger.warn("divFreq not match  {}  divArray {}  ETF  difFreq {}  {}", stockCode, divArray.length, etf.divFreq, etf.listingDate);
 						}
+						
+						stockStats.divc      = etf.divFreq;
+						stockStats.divLast   = DoubleUtil.toBigDecimal(divArray[divArray.length - 1], 3);
+						
+						stockStats.yieldLast = stockStats.divLast.multiply(BigDecimal.valueOf(stockStats.divc)).divide(stockStats.price, 3, RoundingMode.HALF_UP);
+						
+						stockStats.div1Y     = DoubleUtil.toBigDecimal(Arrays.stream(divArray).sum(), 3);
+						if (etf.divFreq != divArray.length) {
+							// adjust div1Y  div1Y = div1Y * divc / divArray.length
+							stockStats.div1Y   = stockStats.div1Y.multiply(BigDecimal.valueOf(stockStats.divc)).divide(BigDecimal.valueOf(divArray.length), 15, RoundingMode.HALF_UP);
+						}
+						stockStats.yield1Y   = stockStats.div1Y.divide(stockStats.price, 3, RoundingMode.HALF_UP);
 					}
-					
 				} else if (reit != null) {
 					List<REITDiv> list = REITDiv.getList(stockCode);
 					if (list != null && !list.isEmpty()) {
@@ -213,6 +225,19 @@ public class UpdateStockStats {
 						if (reit.divFreq != divArray.length) {
 							logger.warn("divFreq not match  {}  difArray {}  REIT divFreq {}  {}", stockCode, divArray.length, reit.divFreq, reit.listingDate);
 						}
+						
+						stockStats.divc      = reit.divFreq;
+						stockStats.divLast   = DoubleUtil.toBigDecimal(divArray[divArray.length - 1], 3);
+						stockStats.div1Y     = DoubleUtil.toBigDecimal(Arrays.stream(divArray).sum(), 3);
+						
+						stockStats.yieldLast = stockStats.divLast.multiply(BigDecimal.valueOf(stockStats.divc)).divide(stockStats.price, 3, RoundingMode.HALF_UP);
+						
+						stockStats.div1Y     = DoubleUtil.toBigDecimal(Arrays.stream(divArray).sum(), 3);
+						if (reit.divFreq != divArray.length) {
+							// adjust div1Y  div1Y = div1Y * divc / divArray.length
+							stockStats.div1Y   = stockStats.div1Y.multiply(BigDecimal.valueOf(stockStats.divc)).divide(BigDecimal.valueOf(divArray.length), 15, RoundingMode.HALF_UP);
+						}
+						stockStats.yield1Y   = stockStats.div1Y.divide(stockStats.price, 3, RoundingMode.HALF_UP);
 					}
 				} else {
 					if (divMap.containsKey(stockCode)) {
@@ -225,28 +250,12 @@ public class UpdateStockStats {
 							
 							divArray = list.stream().filter(o -> 0 <= o.payDate.compareTo(firstDate)).mapToDouble(o -> o.dividend).toArray();
 						}
-					}
-				}
-				
-				if (divArray != null && 1 <= divArray.length) {
-					stockStats.divc      = divArray.length;
-					stockStats.divLast   = DoubleUtil.toBigDecimal(divArray[divArray.length - 1], 3);
-					stockStats.div1Y     = DoubleUtil.toBigDecimal(Arrays.stream(divArray).sum(), 3);
-					stockStats.yieldLast = stockStats.divLast.divide(stockStats.price, 3, RoundingMode.HALF_UP);
-					stockStats.yield1Y   = stockStats.div1Y.divide(stockStats.price, 3, RoundingMode.HALF_UP);
-				} else {
-					stockStats.divc      = 0;
-					stockStats.divLast   = BigDecimal.ZERO;
-					stockStats.div1Y     = BigDecimal.ZERO;
-					stockStats.yieldLast = BigDecimal.ZERO;
-					stockStats.yield1Y   = BigDecimal.ZERO;
-				}
-				
-				// Use Fund.divFreq for divc if available
-				{
-					if (fundMap.containsKey(stockStats.isinCode)) {
-						var fund = fundMap.get(stockStats.isinCode);
-						stockStats.divc = fund.divFreq;
+						
+						stockStats.divc      = divArray.length;
+						stockStats.divLast   = DoubleUtil.toBigDecimal(divArray[divArray.length - 1], 3);
+						stockStats.div1Y     = DoubleUtil.toBigDecimal(Arrays.stream(divArray).sum(), 3);
+						stockStats.yieldLast = stockStats.divLast.multiply(BigDecimal.valueOf(stockStats.divc)).divide(stockStats.price, 3, RoundingMode.HALF_UP);
+						stockStats.yield1Y   = stockStats.div1Y.divide(stockStats.price, 3, RoundingMode.HALF_UP);
 					}
 				}
 			}
