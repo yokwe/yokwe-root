@@ -9,13 +9,19 @@ import java.util.TreeMap;
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
-import yokwe.util.UnexpectedException;
 
 public class ETFDiv implements Comparable<ETFDiv> {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
+	private static final String PREFIX = "etf-div";
+	public static String getPath() {
+		return Storage.MoneyBuJPX.getPath(PREFIX);
+	}
 	public static String getPath(String stockCode) {
-		return Storage.MoneyBuJPX.getPath("etf-div", stockCode + ".csv");
+		return Storage.MoneyBuJPX.getPath(PREFIX, stockCode + ".csv");
+	}
+	
+	private static final String PREFIX_DELIST = "etf-div-delist";
+	public static String getPathDelist() {
+		return Storage.MoneyBuJPX.getPath(PREFIX_DELIST);
 	}
 
 	public static void save(String stockCode, Collection<ETFDiv> collection) {

@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -327,6 +329,17 @@ public class UpdateETF {
 		}
 	}
 
+	private static void moveUnknownFile() {
+		Set<String> validNameSet = new TreeSet<>();
+		for(var e: Stock.getList()) {
+			File file = new File(ETFDiv.getPath(e.stockCode));
+			validNameSet.add(file.getName());
+		}
+		
+		// etf-div
+		FileUtil.moveUnknownFile(validNameSet, ETFDiv.getPath(), ETFDiv.getPathDelist());
+	}
+
 	public static void main(String[] args) {
 		logger.info("START");
 		
@@ -388,6 +401,8 @@ public class UpdateETF {
 		logger.info("save {} {}", etfList.size(), ETF.getPath());
 		ETF.save(etfList);
 		
+		moveUnknownFile();
+
 		logger.info("STOP");
 	}
 	

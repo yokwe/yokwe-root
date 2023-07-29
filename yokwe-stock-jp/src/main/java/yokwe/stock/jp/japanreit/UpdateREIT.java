@@ -1,13 +1,17 @@
 package yokwe.stock.jp.japanreit;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.stock.jp.jpx.Stock;
+import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.ScrapeUtil.AsNumber;
@@ -389,7 +393,11 @@ public class UpdateREIT {
 		logger.info("reit {}", stockList.size());
 		
 		List<REIT> list = new ArrayList<>();
+		int count = 0;
 		for(var e: stockList) {
+			if ((count % 10) == 0) logger.info(String.format("%4d / %4d  %s", count, stockList.size(), e.stockCode));
+			count++;
+
 			String stockCode = e.stockCode;
 			
 			final REIT reit;
@@ -412,10 +420,23 @@ public class UpdateREIT {
 		logger.info("save {} {}", list.size(), REIT.getPath());
 		REIT.save(list);
 	}
+	
+	private static void moveUnknownFile() {
+		Set<String> validNameSet = new TreeSet<>();
+		for(var e: Stock.getList()) {
+			File file = new File(REITDiv.getPath(e.stockCode));
+			validNameSet.add(file.getName());
+		}
+		
+		// reit-div
+		FileUtil.moveUnknownFile(validNameSet, REITDiv.getPath(), REITDiv.getPathDelist());
+	}
+
 
 	public static void main(String[] args) {
 		logger.info("START");
 		update();
+		moveUnknownFile();
 		logger.info("STOP");
 	}
 }

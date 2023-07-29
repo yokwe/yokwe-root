@@ -9,8 +9,17 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class REITDiv implements Comparable<REITDiv> {
+	private static final String PREFIX = "reit-div";
+	public static String getPath() {
+		return Storage.JapanREIT.getPath(PREFIX);
+	}
 	public static String getPath(String stockCode) {
-		return Storage.JapanREIT.getPath("reit-div", stockCode + ".csv");
+		return Storage.JapanREIT.getPath(PREFIX, stockCode + ".csv");
+	}
+	
+	private static final String PREFIX_DELIST = "reit-div-delist";
+	public static String getPathDelist() {
+		return Storage.JapanREIT.getPath(PREFIX_DELIST);
 	}
 
 	public static void save(String stockCode, Collection<REITDiv> collection) {
