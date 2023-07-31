@@ -27,4 +27,13 @@ public final class Dividend implements Comparable<Dividend> {
 		return this.date.compareTo(that.date);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Dividend) {
+			Dividend that = (Dividend)o;
+			return this.date.equals(that.date) && this.amount.compareTo(that.amount) == 0;
+		} else {
+			return false;
+		}
+	}
 }
