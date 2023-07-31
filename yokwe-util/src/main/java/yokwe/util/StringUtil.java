@@ -14,10 +14,13 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -513,5 +516,20 @@ public class StringUtil {
 	}
 	public static String padRightSpace(String string, int width) {
 		return padRight(string, width, " ");
+	}
+	
+	//
+	// toHTTPDateTime  -- date time to RFC-1123 format string that is used in HTTP header
+	//
+	public static String toHTTPDateTime(LocalDate localDate) {
+		return toHTTPDateTime(localDate.atStartOfDay());
+	}
+	public static String toHTTPDateTime(LocalDateTime localDateTime) {
+		return toHTTPDateTime(localDateTime.atZone(DateTimeFormatter.RFC_1123_DATE_TIME.getZone()));
+	}
+	public static String toHTTPDateTime(ZonedDateTime zonedDateTime) {
+		// Sun, 06 Nov 1994 08:49:37 GMT
+		// Sat, 29 Jul 2023 20:21:21 GMT
+		return DateTimeFormatter.RFC_1123_DATE_TIME.format(zonedDateTime);
 	}
 }
