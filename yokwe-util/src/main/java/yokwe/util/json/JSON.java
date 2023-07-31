@@ -56,6 +56,11 @@ public final class JSON {
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
+	public @interface Optional {
+	}
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
 	public @interface DateTimeFormat {
 		String value();
 	}
@@ -68,6 +73,7 @@ public final class JSON {
 		public final String   type;
 		public final boolean  isArray;
 		public final boolean  ignoreField;
+		public final boolean  optionalField;
 		
 		public final Map<String, Enum<?>> enumMap;
 		public final DateTimeFormatter    dateTimeFormatter;
@@ -86,7 +92,8 @@ public final class JSON {
 			this.type     = type.getName();
 			this.isArray  = type.isArray();
 			
-			this.ignoreField = field.getDeclaredAnnotation(Ignore.class) != null;
+			this.ignoreField   = field.getDeclaredAnnotation(Ignore.class) != null;
+			this.optionalField = field.getDeclaredAnnotation(Optional.class) != null;
 			
 			DateTimeFormat dateTimeFormat = field.getDeclaredAnnotation(DateTimeFormat.class);
 			this.dateTimeFormatter = (dateTimeFormat == null) ? null : DateTimeFormatter.ofPattern(dateTimeFormat.value());
@@ -249,6 +256,7 @@ public final class JSON {
 			boolean hasWarning = false;
 			for(FieldInfo fieldInfo: classInfo.fieldInfos) {
 				if (fieldInfo.ignoreField)                      continue;
+				if (fieldInfo.optionalField)                    continue;
 				if (jsonObject.containsKey(fieldInfo.jsonName)) continue;
 				// jsonObject doesn't contains field named fieldInfo.jsonName
 				logger.warn("Missing json field  {}  {}  {}", classInfo.clazzName, fieldInfo.jsonName, jsonObject.keySet());
@@ -312,7 +320,7 @@ public final class JSON {
 			Object objectField = fieldInfo.field.get(object);
 			// If field is null, assign default value
 			if (objectField == null) {
-				if (!fieldInfo.ignoreField) {
+				if (!fieldInfo.ignoreField && !fieldInfo.optionalField) {
 					logger.warn("Assign default value  {} {} {}", classInfo.clazzName, fieldInfo.name, fieldInfo.type);
 				}
 				setValue(object, fieldInfo);
