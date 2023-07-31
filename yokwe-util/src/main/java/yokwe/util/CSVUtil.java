@@ -487,18 +487,18 @@ public class CSVUtil {
 		}
 		
 		private E read(BufferedReader br) {
+			String[] values = parseLine(br, context.separator);
+			if (values == null) return null;
+			
+			FieldInfo[] fieldInfos = classInfo.fieldInfos;
+			// sanity check
+			if (fieldInfos.length != values.length) {
+				logger.error("fieldInfos {}", fieldInfos.length);
+				logger.error("values     {}", values.length);
+				throw new UnexpectedException("fieldInfos.length != values.length");
+			}
+			
 			try {
-				String[] values = parseLine(br, context.separator);
-				if (values == null) return null;
-				
-				FieldInfo[] fieldInfos = classInfo.fieldInfos;
-				// sanity check
-				if (fieldInfos.length != values.length) {
-					logger.error("fieldInfos {}", fieldInfos.length);
-					logger.error("values     {}", values.length);
-					throw new UnexpectedException("fieldInfos.length != values.length");
-				}
-				
 				// build args
 				Object[] args = new Object[classInfo.fieldInfos.length];
 				for(int i = 0; i < args.length; i++) {
@@ -513,6 +513,7 @@ public class CSVUtil {
 			} catch (IllegalArgumentException | SecurityException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
+				logger.error("  values {}", Arrays.stream(values).toList());
 				throw new UnexpectedException(exceptionName, e);
 			}
 		}
