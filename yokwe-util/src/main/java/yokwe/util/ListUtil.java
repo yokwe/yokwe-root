@@ -28,29 +28,29 @@ public final class ListUtil {
 				}
 			}
 		}
-				
+		
 		return map;
 	}
 	
-	public static <E extends Comparable<E>, K> void save(Class<E> clazz, String path, Collection<E> collection) {
+	public static <E extends Comparable<E>> void save(Class<E> clazz, String path, Collection<E> collection) {
 		save(clazz, path, new ArrayList<>(collection));
 	}
-	public static <E extends Comparable<E>, K> void save(Class<E> clazz, String path, List<E> list) {
+	public static <E extends Comparable<E>> void save(Class<E> clazz, String path, List<E> list) {
 		// Sort before save
 		Collections.sort(list);
 		CSVUtil.write(clazz).file(path, list);
 	}
-	public static <E extends Comparable<E>, K> List<E> load(Class<E> clazz, String path) {
+	public static <E extends Comparable<E>> List<E> load(Class<E> clazz, String path) {
 		return CSVUtil.read(clazz).file(path);
 	}
-	public static <E extends Comparable<E>, K> List<E> load(Class<E> clazz, Reader reader) {
+	public static <E extends Comparable<E>> List<E> load(Class<E> clazz, Reader reader) {
 		return CSVUtil.read(clazz).file(reader);
 	}
-	public static <E extends Comparable<E>, K> List<E> getList(Class<E> clazz, String path) {
+	public static <E extends Comparable<E>> List<E> getList(Class<E> clazz, String path) {
 		var ret = load(clazz, path);
 		return ret == null ? new ArrayList<>() : ret;
 	}
-	public static <E extends Comparable<E>, K> List<E> getList(Class<E> clazz, Reader reader) {
+	public static <E extends Comparable<E>> List<E> getList(Class<E> clazz, Reader reader) {
 		var ret = load(clazz, reader);
 		return ret == null ? new ArrayList<>() : ret;
 	}
