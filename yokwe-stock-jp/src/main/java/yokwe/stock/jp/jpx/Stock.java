@@ -3,7 +3,6 @@ package yokwe.stock.jp.jpx;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.CSVUtil;
@@ -58,6 +57,21 @@ public class Stock extends Sheet implements Comparable<Stock> {
 			return stockCode;
 		} else if (stockCode.length() == 4) {
 			return String.format("%s0", stockCode);
+		} else {
+			logger.error("Unexpected stockCode");
+			logger.error("  stockCode {}!", stockCode);
+			throw new UnexpectedException("Unexpected stockCode");
+		}
+	}
+	
+	public static boolean isPreferredStock(String stockCode) {
+		// https://www.jpx.co.jp/sicc/news/nlsgeu00000329fb-att/bessi2.pdf
+		//   予備コードは次のような場合に固有名コードの末尾につけて使用する。
+		//   新株式 １ 第二新株式 ２ 優先株式 ５、６ 新株予約権証券 ９
+		
+		if (stockCode.length() == 5) {
+			char char5 = stockCode.charAt(4);
+			return (char5 == '5' || char5 == '6');
 		} else {
 			logger.error("Unexpected stockCode");
 			logger.error("  stockCode {}!", stockCode);
