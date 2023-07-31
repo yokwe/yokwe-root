@@ -98,4 +98,16 @@ public final class Storage {
 		}
 	}
 	
+	// Yahoo
+	public static class Yahoo {
+		public static final String PREFIX = "yahoo";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 }
