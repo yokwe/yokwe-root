@@ -9,7 +9,6 @@ public final class Price implements Comparable<Price> {
 	public BigDecimal high;
 	public BigDecimal low;
 	public BigDecimal close;
-	public BigDecimal adjClose;
 	public long       volume;
 	
 	public Price(
@@ -18,7 +17,6 @@ public final class Price implements Comparable<Price> {
 		BigDecimal high,
 		BigDecimal low,
 		BigDecimal close,
-		BigDecimal adjClose,
 		long       volume
 		) {
 		this.date     = date;
@@ -26,20 +24,18 @@ public final class Price implements Comparable<Price> {
 		this.high     = high;
 		this.low      = low;
 		this.close    = close;
-		this.adjClose = adjClose;
 		this.volume   = volume;
 	}
 	
 	@Override
 	public String toString() {
 		return String.format(
-			"{%s  %s  %s  %s  %s  %s  %d}",
+			"{%s  %s  %s  %s  %s  %d}",
 			date,
 			open.toPlainString(),
 			high.toPlainString(),
 			low.toPlainString(),
 			close.toPlainString(),
-			adjClose.toPlainString(),
 			volume);
 	}
 	
@@ -47,5 +43,19 @@ public final class Price implements Comparable<Price> {
 	public int compareTo(Price that) {
 		return this.date.compareTo(that.date);
 	}
-
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Price) {
+			Price that = (Price)o;
+			return
+				this.date.equals(that.date) &&
+				this.open.compareTo(that.open) == 0 &&
+				this.high.compareTo(that.high) == 0 &&
+				this.low.compareTo(that.low) == 0 &&
+				this.volume == that.volume;
+		} else {
+			return false;
+		}
+	}
 }
