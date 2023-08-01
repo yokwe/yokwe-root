@@ -2,7 +2,6 @@ package yokwe.util.yahoo.finance;
 
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -29,12 +28,12 @@ public class Download {
 	public static class RAW {
 		public static class Price {
 			@CSVUtil.ColumnName("Date")       LocalDate  date;
-			@CSVUtil.ColumnName("Open")       BigDecimal open;
-			@CSVUtil.ColumnName("High")       BigDecimal high;
-			@CSVUtil.ColumnName("Low")        BigDecimal low;
-			@CSVUtil.ColumnName("Close")      BigDecimal close;
-			@CSVUtil.ColumnName("Adj Close")  BigDecimal adjClose;
-			@CSVUtil.ColumnName("Volume")     long       volume;
+			@CSVUtil.ColumnName("Open")       String     open;
+			@CSVUtil.ColumnName("High")       String     high;
+			@CSVUtil.ColumnName("Low")        String     low;
+			@CSVUtil.ColumnName("Close")      String     close;
+			@CSVUtil.ColumnName("Adj Close")  String     adjClose;
+			@CSVUtil.ColumnName("Volume")     String     volume;
 		}
 		public static class Dividend {
 			@CSVUtil.ColumnName("Date")          LocalDate  date;
@@ -107,19 +106,60 @@ public class Download {
 		
 	public static List<Price> getPrice(String symbol, LocalDate period1, LocalDate period2, Interval interval) {
 		String string = getString(symbol, period1, period2, interval, Events.PRICE);
-		if (string == null) return null;	
+		if (string == null) return null;
 		
 		List<Price> list = new ArrayList<>();
 		{
 			List<RAW.Price> rawList = CSVUtil.read(RAW.Price.class).file(new StringReader(string));
 			
+			Price[] array = new Price[rawList.size()];
+			int index = 0;
 			for(var e: rawList) {
-				BigDecimal open     = e.open.setScale(2, RoundingMode.HALF_EVEN);
-				BigDecimal high     = e.high.setScale(2, RoundingMode.HALF_EVEN);
-				BigDecimal low      = e.low.setScale(2, RoundingMode.HALF_EVEN);
-				BigDecimal close    = e.close.setScale(2, RoundingMode.HALF_EVEN);
-				BigDecimal adjClose = e.adjClose.setScale(2, RoundingMode.HALF_EVEN);
-				list.add(new Price(e.date, open, high, low, close, adjClose, e.volume));
+				BigDecimal open   = e.open.equals("null")   ? null : new BigDecimal(e.open);
+				BigDecimal high   = e.high.equals("null")   ? null : new BigDecimal(e.high);
+				BigDecimal low    = e.low.equals("null")    ? null : new BigDecimal(e.low);
+				BigDecimal close  = e.close.equals("null")  ? null : new BigDecimal(e.close);
+				long       volume = e.volume.equals("null") ? -1   : Long.valueOf(e.volume);
+				
+				array[index++] = new Price(e.date, open, high, low, close, volume);
+			}
+			//
+			int startIndex = 0;
+			for(int i = 0; i < array.length; i++) {
+				if (array[i].open == null) {
+					startIndex++;
+					continue;
+				}
+				break;
+			}
+			//
+			int stopIndexPlusOne = array.length;
+			for(int i = array.length - 1; 0 <= i; i--) {
+				if (array[i].open == null) {
+					stopIndexPlusOne--;
+					continue;
+				}
+				break;
+			}
+			
+			BigDecimal open   = array[startIndex].open;
+			BigDecimal high   = array[startIndex].high;
+			BigDecimal low    = array[startIndex].low;
+			BigDecimal close  = array[startIndex].close;
+			for(int i = startIndex; i < stopIndexPlusOne; i++) {
+				Price price = array[i];
+				if (price.open  == null) price.open   = open;
+				if (price.high  == null) price.high   = high;
+				if (price.low   == null) price.low    = low;
+				if (price.close == null) price.close  = close;
+				if (price.volume == -1)  price.volume = 0;
+				
+				if (price.open == null || price.high == null || price.low == null || price.close == null || price.volume == -1) {
+					logger.warn("XXXX  {}", price);
+					continue;
+				}
+				
+				list.add(price);
 			}
 		}
 		
