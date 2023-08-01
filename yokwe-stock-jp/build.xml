@@ -352,4 +352,22 @@
 		</java>
 	</target>	
 
+	<!-- YAHOO -->
+	<target name="yahoo-update-yahoo-price">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.yahoo.UpdateYahooPrice" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>	
+	<target name="yahoo-update-yahoo-div">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.yahoo.UpdateYahooDiv" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>	
+
 </project>
