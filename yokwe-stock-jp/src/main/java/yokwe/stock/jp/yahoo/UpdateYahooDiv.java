@@ -5,6 +5,8 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,14 +21,20 @@ import yokwe.util.FileUtil;
 public class UpdateYahooDiv {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final long UPDATE_FOR_LAST_DAYS =   10;
-	private static final long GRACE_PERIOD_IN_DAYS =    7;
-	private static final long SLEEP_DURATION       = 1000;
+	private static final long UPDATE_DURATION_IN_DAY  =   10;
+	private static final long GRACE_PERIOD_IN_DAYS    =    7;
+	private static final long SLEEP_DURATION_IN_MILLI = 1000;
 	private static final long SHORT_FILE_LENGTH    =   20;
 	
-	private static final LocalDate PERIOD_0 = LocalDate.of(2017, 1, 1);                 // 5 years  2018 2019 2020 2021 2022 2023
-	private static final LocalDate PERIOD_2 = LocalDate.now().minusDays(1);             // Do not include today
-	private static final LocalDate PERIOD_1 = PERIOD_2.minusDays(UPDATE_FOR_LAST_DAYS); // last 10 days
+	private static final int DAY_ADJUST;
+	static {
+		ZoneId        japan = ZoneId.of("Asia/Tokyo");
+		ZonedDateTime now   = ZonedDateTime.now(japan);
+		DAY_ADJUST = (16 <= now.getHour()) ? 0 : 1;
+	}
+	private static final LocalDate PERIOD_0 = LocalDate.of(2017, 1, 1);                   // 5 years  2018 2019 2020 2021 2022 2023
+	private static final LocalDate PERIOD_2 = LocalDate.now().minusDays(DAY_ADJUST);      // Do not include today
+	private static final LocalDate PERIOD_1 = PERIOD_2.minusDays(UPDATE_DURATION_IN_DAY); // during UPDATE_DURATION_IN_DAYS
 	
 	private static void updateList(String label, List<String> stockCodeList) {
 		// shuffle stockCodeList
@@ -39,7 +47,7 @@ public class UpdateYahooDiv {
 			
 			// sleep before download
 			try {
-				Thread.sleep(SLEEP_DURATION);
+				Thread.sleep(SLEEP_DURATION_IN_MILLI);
 			} catch (InterruptedException e) {
 				//
 			}
