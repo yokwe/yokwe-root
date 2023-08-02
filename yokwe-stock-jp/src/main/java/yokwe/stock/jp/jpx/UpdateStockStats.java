@@ -3,6 +3,8 @@ package yokwe.stock.jp.jpx;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.japanreit.REIT;
 import yokwe.stock.jp.japanreit.REITDiv;
 import yokwe.stock.jp.moneybujpx.ETF;
@@ -21,7 +24,10 @@ import yokwe.stock.jp.toushin.Fund;
 import yokwe.stock.jp.xbrl.tdnet.report.Dividend;
 import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
+import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.libreoffice.Sheet;
+import yokwe.util.libreoffice.SpreadSheet;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
 import yokwe.util.stats.HV;
@@ -31,6 +37,35 @@ import yokwe.util.stats.RSI;
 public class UpdateStockStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	private static final String PREFIX_REPORT = "report";
+	private static final String URL_TEMPLATE  = StringUtil.toURLString(Storage.JPX.getPath("TEMPLATE_JPX_STOCK_STATS.ods"));
+	
+	private static void generateReport(List<StockStats> statsList) {
+		String urlReport;
+		{
+			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
+			String name       = String.format("stock-stats-%s.ods", timestamp);
+			String pathReport = Storage.JPX.getPath(PREFIX_REPORT, name);
+			urlReport  = StringUtil.toURLString(pathReport);
+		}
+
+		logger.info("urlReport {}", urlReport);
+		logger.info("docLoad   {}", URL_TEMPLATE);
+		try (
+			SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
+			SpreadSheet docSave = new SpreadSheet();) {				
+			String sheetName = Sheet.getSheetName(StockStats.class);
+			logger.info("sheet {}", sheetName);
+			docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
+			Sheet.fillSheet(docSave, statsList);
+			
+			// remove first sheet
+			docSave.removeSheet(docSave.getSheetName(0));
+
+			docSave.store(urlReport);
+			logger.info("output {}", urlReport);
+		}
+	}
 
 	private static List<StockStats> getStatsList() {
 		List<StockStats> statsList = new ArrayList<>();
@@ -294,13 +329,22 @@ public class UpdateStockStats {
 	}
 	
 	public static void main(String[] args) {
-		logger.info("START");
-		
-		List<StockStats> statsList = getStatsList();
-		logger.info("save {} {}", StockStats.getPath(), statsList.size());
-		StockStats.save(statsList);
-		
-		logger.info("STOP");
+		try {
+			logger.info("START");
+			
+			List<StockStats> statsList = getStatsList();
+			logger.info("save {} {}", StockStats.getPath(), statsList.size());
+			StockStats.save(statsList);
+			
+			generateReport(statsList);
+			
+			logger.info("STOP");
+		} catch (Throwable e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+		} finally {
+			System.exit(0);
+		}
 	}
 
 }

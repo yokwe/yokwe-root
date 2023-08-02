@@ -5,8 +5,12 @@ import java.util.List;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
+import yokwe.util.libreoffice.Sheet;
 
-public class StockStats implements Comparable<StockStats> {
+@Sheet.SheetName("stock-stats")
+@Sheet.HeaderRow(0)
+@Sheet.DataRow(1)
+public class StockStats extends Sheet implements Comparable<StockStats> {
 	private static final String PATH_FILE = Storage.JPX.getPath("stock-stats.csv");
 	public static final String getPath() {
 		return PATH_FILE;
@@ -20,37 +24,36 @@ public class StockStats implements Comparable<StockStats> {
 		return ListUtil.load(StockStats.class, getPath());
 	}
 
-	public String     stockCode;
-	public String     isinCode;
-	public String     name;
-	public String     category;
-	public int        unit;
-
-	public BigDecimal issued;
+	@Sheet.ColumnName("stockCode") public String     stockCode;
+	@Sheet.ColumnName("isinCode")  public String     isinCode;
+	@Sheet.ColumnName("name")      public String     name;
+	@Sheet.ColumnName("category")  public String     category;
+	@Sheet.ColumnName("unit")      public int        unit;
+	@Sheet.ColumnName("issued")    public BigDecimal issued;
 
 	// price
-	public String     priceDate;
-	public int        pricec;
-	public BigDecimal price;
-	public BigDecimal marketCap;
-	public BigDecimal priceLastPCT;
-	public BigDecimal priceMinPCT;
-	public BigDecimal priceMaxPCT;
-	public BigDecimal sd;
-	public BigDecimal hv;
-	public BigDecimal rsi;
+	@Sheet.ColumnName("priceDate")    public String     priceDate;
+	@Sheet.ColumnName("pricec")       public int        pricec;
+	@Sheet.ColumnName("price")        public BigDecimal price;
+	@Sheet.ColumnName("marketCap")    public BigDecimal marketCap;
+	@Sheet.ColumnName("priceLastPCT") public BigDecimal priceLastPCT;
+	@Sheet.ColumnName("priceMinPCT")  public BigDecimal priceMinPCT;
+	@Sheet.ColumnName("priceMaxPCT")  public BigDecimal priceMaxPCT;
+	@Sheet.ColumnName("sd")           public BigDecimal sd;
+	@Sheet.ColumnName("hv")           public BigDecimal hv;
+	@Sheet.ColumnName("rsi")          public BigDecimal rsi;
 
 	// dividend
-    public int        divc;
-    public BigDecimal divLast;
-    public BigDecimal div1Y;
-    public BigDecimal yieldLast;
-    public BigDecimal yield1Y;
+	@Sheet.ColumnName("divc")      public int        divc;
+	@Sheet.ColumnName("divLast")   public BigDecimal divLast;
+	@Sheet.ColumnName("div1Y")     public BigDecimal div1Y;
+	@Sheet.ColumnName("yieldLast") public BigDecimal yieldLast;
+	@Sheet.ColumnName("yield1Y")   public BigDecimal yield1Y;
     
     // trade volume
-    public BigDecimal vol;
-    public BigDecimal vol5;
-    public BigDecimal vol21;
+    @Sheet.ColumnName("vol")   public BigDecimal vol;
+    @Sheet.ColumnName("vol5")  public BigDecimal vol5;
+    @Sheet.ColumnName("vol21") public BigDecimal vol21;
 
 
 	@Override
