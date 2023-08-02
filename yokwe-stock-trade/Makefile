@@ -31,10 +31,9 @@ kill-long-running-process:
 	fi
 
 backup:
-	cp /mnt/stock/trade/activity/投資活動_monex.ods      /mnt/stock/trade/activity/backup/投資活動_monex_$$(date +%Y%m%d).ods
-	cp /mnt/stock/trade/activity/投資活動_gmo.ods        /mnt/stock/trade/activity/backup/投資活動_gmo_$$(date +%Y%m%d).ods
-	cp /mnt/stock/trade/activity/投資活動_firstrade.ods  /mnt/stock/trade/activity/backup/投資活動_firstrade_$$(date +%Y%m%d).ods
-	cp /mnt/stock/trade/activity/投資活動_ソニー銀行.ods /mnt/stock/trade/activity/backup/投資活動_ソニー銀行_$$(date +%Y%m%d).ods
+	date=$$(date +%Y%m%d); cd /mnt/stock/trade/activity; \
+	for i in *.ods; do name=$${i%.ods}; echo copy $${name}.ods; cp $${name}.ods  backup/$${date}_$${name}.ods; done
+
 
 monex-update-fx-tax:
 	ant monex-update-fx-tax
