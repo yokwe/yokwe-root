@@ -20,6 +20,7 @@ clear-log-file:
 
 backup:
 	cp /mnt/stock/jp/jpx/TEMPLATE_JPX_STATS.ods          /mnt/stock/jp/backup/TEMPLATE_JPX_STATS_$$(date +%Y%m%d).ods
+	cp /mnt/stock/jp/jpx/TEMPLATE_JPX_STOCK_STATS.ods    /mnt/stock/jp/backup/TEMPLATE_JPX_STOCK_STATS_$$(date +%Y%m%d).ods
 	cp /mnt/stock/jp/toushin/TEMPLATE_TOUSHIN_STATS.ods  /mnt/stock/jp/backup/TEMPLATE_TOUSHIN_STATS_$$(date +%Y%m%d).ods
 
 # JASDEC
