@@ -79,6 +79,72 @@ public final class Stats {
 		return standardDeviation(data, 0, data.length);
 	}
 	
+	public static double variance(Stats[] statsArray, double[] weightArray) {
+		// sanity check
+		{
+			if (statsArray == null) {
+				logger.error("dataArray is null");
+				throw new UnexpectedException("dataArray is null");
+			}
+			if (weightArray == null) {
+				logger.error("weightArray is null");
+				throw new UnexpectedException("weightArray is null");
+			}
+			if (statsArray.length == 0) {
+				logger.error("dataArray.length == 0");
+				throw new UnexpectedException("dataArray.length == 0");
+			}
+			if (weightArray.length == 0) {
+				logger.error("weightArray.length == 0");
+				throw new UnexpectedException("weightArray.length == 0");
+			}
+			if (statsArray.length != weightArray.length) {
+				logger.error("Unexpected length");
+				logger.error("  statsArray   {}", statsArray.length);
+				logger.error("  weightArray  {}", weightArray.length);
+				throw new UnexpectedException("Unexpected length");
+			}
+			int length = statsArray[0].length;
+			for(int i = 0; i < statsArray.length; i++) {
+				if (statsArray[i].length != length) {
+					logger.error("Unexpected length");
+					logger.error("  length                {}", length);
+					logger.error("  statsArray[{}].length  {}", i, statsArray[i].length);
+					throw new UnexpectedException("Unexpected length");
+				}
+			}
+		}
+		
+		double variance = 0;
+		int length = statsArray.length;
+		
+		// diagonal element
+		for(int i = 0; i < length; i++) {
+			// w1^2σ1^2 + w2^2σ2^2 + 2w1w2Cov1,2
+			double w = weightArray[i];
+			double v = statsArray[i].variance(); // sd = sqrt(variance) => sd ^ 2 = variance
+			variance += (w * w) * v;
+		}
+		// not diagonal element
+		for(int i = 0; i < length; i++) {
+			for(int j = 0; j < length; j++) {
+				if (i == j) break;
+				
+				double w1 = weightArray[i];
+				double w2 = weightArray[j];
+				Stats  s1 = statsArray[i];
+				Stats  s2 = statsArray[j];
+				double cov = covariance(s1, s2);
+				
+				variance += 2 * w1 * w2 * cov;
+			}
+		}
+		
+		return variance;
+	}
+	public static double standardDeviation(Stats[] statsArray, double[] weightArray) {
+		return Math.sqrt(variance(statsArray, weightArray));
+	}
 	
 	private final double[] data;
 	private final int      startIndex;
