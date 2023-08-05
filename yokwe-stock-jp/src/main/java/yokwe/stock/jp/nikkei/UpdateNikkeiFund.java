@@ -2,6 +2,7 @@ package yokwe.stock.jp.nikkei;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,6 +110,7 @@ public class UpdateNikkeiFund {
 		
 		
 		for(;;) {
+			Collections.shuffle(processList); // shuffle processList
 			process(processList, retryList, skipList, nikkeiFundList);
 			if (retryList.isEmpty()) break;
 			
