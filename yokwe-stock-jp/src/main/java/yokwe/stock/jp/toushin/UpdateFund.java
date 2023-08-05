@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -294,14 +295,15 @@ public class UpdateFund {
 		}
 	}
 	
-	private static void moveUnknownFile() {
-		Set<String> validNameSet = Fund.getList().stream().map(o -> o.isinCode + ".csv").collect(Collectors.toSet());
-		
-		// price
-		FileUtil.moveUnknownFile(validNameSet, Price.getPath(), Price.getPathDelist());
-		// div
-		FileUtil.moveUnknownFile(validNameSet, Dividend.getPath(), Dividend.getPathDelist());
-	}
+	
+//	private static void moveUnknownFile() {
+//		Set<String> validNameSet = Fund.getList().stream().map(o -> o.isinCode + ".csv").collect(Collectors.toSet());
+//		
+//		// price
+//		FileUtil.moveUnknownFile(validNameSet, Price.getPath(), Price.getPathDelist());
+//		// div
+//		FileUtil.moveUnknownFile(validNameSet, Dividend.getPath(), Dividend.getPathDelist());
+//	}
 	
 	private static void updateDivPrice(Download download) {
 		Charset charset = Charset.forName("SHIFT_JIS");
@@ -369,7 +371,8 @@ public class UpdateFund {
 		updateFundSeller(download);
 		updateDivPrice(download);
 		
-		moveUnknownFile();
+		// disable moveUnknwonFile because fundList is unstable
+		// moveUnknownFile();
 		
 		logger.info("STOP");
 	}
