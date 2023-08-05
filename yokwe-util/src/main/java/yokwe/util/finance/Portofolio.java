@@ -5,6 +5,7 @@ import java.util.List;
 
 import yokwe.util.GenericArray;
 import yokwe.util.UnexpectedException;
+import yokwe.util.finance.online.NoReinvestedValue;
 import yokwe.util.finance.online.ReinvestedValue;
 import yokwe.util.finance.online.SimpleReturn;
 
@@ -86,11 +87,13 @@ public final class Portofolio {
 		public final Entry    entry;
 		public final double[] retPrice;
 		public final double[] retReinvestment;
+		public final double[] retNoReinvestment;
 		
-		public Context(Entry entry, double[] retPrice, double[] retReinvestment) {
-			this.entry           = entry;
-			this.retPrice        = retPrice;
-			this.retReinvestment = retReinvestment;
+		public Context(Entry entry, double[] retPrice, double[] retReinvestment, double[] retNoReinvestment) {
+			this.entry             = entry;
+			this.retPrice          = retPrice;
+			this.retReinvestment   = retReinvestment;
+			this.retNoReinvestment = retNoReinvestment;
 		}
 	}
 	
@@ -103,17 +106,17 @@ public final class Portofolio {
 		
 		// sanity check
 		{
-			if (nMonth <= 0) {
+			if (nYear <= 0) {
 				logger.error("Unexpected value");
-				logger.error("  nMonth  {}", nMonth);
+				logger.error("  nYear  {}", nMonth);
 				throw new UnexpectedException("Unexpected value");
 			}
 			for(var e: entryArray) {
 				if (e.durationInMonth < nMonth) {
-					logger.error("too short duration");
+					logger.error("Not enough duration for nMonth");
 					logger.error("  nMonth           {}", nMonth);
 					logger.error("  durationInMonth  {}", e.durationInMonth);
-					throw new UnexpectedException("too short duration");
+					throw new UnexpectedException("Not enough duration for nMonth");
 				}
 			}
 		}
@@ -132,34 +135,50 @@ public final class Portofolio {
 			double[] priceArray  = startMonth.priceArray;
 			double[] divArray    = startMonth.divArray;
 			
-			// simple return of price
-			double[] retPrice        = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, new SimpleReturn());
-			// reinvesed price
-			double[] retReinvestment = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new ReinvestedValue());
+			// simple return of price for standard deviation
+			double[] retPrice          = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, new SimpleReturn());
+			// reinvested price
+			double[] retReinvestment   = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new ReinvestedValue());
+			// no reinvested price
+			double[] retNoReinvestment = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new NoReinvestedValue());
 
-			contextArray[i] = new Context(entryArray[i], retPrice, retReinvestment);
+			contextArray[i] = new Context(entryArray[i], retPrice, retReinvestment, retNoReinvestment);
 		}
 	}
 	
-	
+	// return Portfolio for last nYear
 	public Portofolio getInstance(int nYear) {
 		Entry[] entryArray = GenericArray.toArray(contextArray, 0, contextArray.length, o -> o.entry, Entry.class);
 		return new Portofolio(entryArray, nYear);
 	}
 	
+	// Rate of return of reinvestment -- invest dividend
 	public double rorReinvestment() {
 		double result = 0;
 		for(var e: contextArray) {
-			double startValue = e.retReinvestment[0];
-			double endValue   = e.retReinvestment[e.retReinvestment.length - 1];
+			double[] array = e.retReinvestment;
+			//
+			double startValue = array[0];
+			double endValue   = array[array.length - 1];
 			result += e.entry.weight * SimpleReturn.getValue(startValue, endValue);
 		}
 		return SimpleReturn.compoundAnnualReturn(result, nYear);
 	}
+	// Rate of return of no reinvestment -- just take dividend
+	public double rorNoReinvestment() {
+		double result = 0;
+		for(var e: contextArray) {
+			double[] array = e.retNoReinvestment;
+			//
+			double startValue = array[0];
+			double endValue   = array[array.length - 1];
+			result += e.entry.weight * SimpleReturn.getValue(startValue, endValue);
+		}
+		return SimpleReturn.compoundAnnualReturn(result, nYear);
+	}
+	// Standard deviation of simple return of price
 	public double standardDeviation() {
 		int length = contextArray.length;
-		
-		// FIXME standardDeviation use priceArray
 		
 		double[] weightArray = new double[length];
 		Stats[]  statsArray  = new Stats[length];
