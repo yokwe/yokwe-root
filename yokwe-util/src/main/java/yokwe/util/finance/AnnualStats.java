@@ -40,9 +40,9 @@ public final class AnnualStats {
 
 	public final int         stopIndexPlusOne;   // 次の期間の取引初日への配列インデックス
 	public final LocalDate   endDate;            // この期間の取引末日
-	public final double      endPrice;           // この期間の取引初日の基準価格
-	public final double      endReinvestment;    // この期間の取引初日の分配金再投資基準価格
-	public final double      endNoReinvestment;  // この期間の取引初日の分配金受取基準価格
+	public final double      endPrice;           // この期間の取引末日の基準価格
+	public final double      endReinvestment;    // この期間の取引末日の分配金再投資基準価格
+	public final double      endNoReinvestment;  // この期間の取引末日の分配金受取基準価格
 
 	public final double      dividend;           // 分配金累計
 	public final double      yield;              // 分配金利率 ※年率換算

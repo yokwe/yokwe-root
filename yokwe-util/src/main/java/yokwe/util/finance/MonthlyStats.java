@@ -42,7 +42,7 @@ public final class MonthlyStats {
 		// stopIndexPlusOneArray[0] contains stopIndexPlusOne of newest month
 		int[] stopIndexPlusOneArray;
 		{			
-			List<Integer> list = new ArrayList<>((priceArray.length / 12) + 1);
+			List<Integer> list = new ArrayList<>((dateArray.length / 12) + 1);
 			int lastMonthValue = dateArray[0].getMonthValue();
 			for(int i = 1; i < dateArray.length; i++) {
 				int monthValue = dateArray[i].getMonthValue();
@@ -73,7 +73,7 @@ public final class MonthlyStats {
 		return list.toArray(MonthlyStats[]::new);
 	}
 	
-
+	
 	public final String      isinCode;
 	public final int         startIndex;         // この期間の取引初日への配列インデックス
 	public final int         stopIndexPlusOne;   // 次の期間の取引初日への配列インデックス
@@ -93,11 +93,11 @@ public final class MonthlyStats {
 		startIndex       = startIndex_;
 		stopIndexPlusOne = stopIndexPlusOne_;
 		
-		dateArray          = dateArray_;
-		priceArray         = priceArray_;
-		divArray           = divArray_;
+		dateArray        = dateArray_;
+		priceArray       = priceArray_;
+		divArray         = divArray_;
 		
-		startDate  = dateArray[startIndex];
-		endDate    = dateArray[stopIndexPlusOne - 1];
+		startDate        = dateArray[startIndex];
+		endDate          = dateArray[stopIndexPlusOne - 1];
 	}
 }
