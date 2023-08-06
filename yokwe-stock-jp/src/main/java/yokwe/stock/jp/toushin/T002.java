@@ -1,6 +1,5 @@
 package yokwe.stock.jp.toushin;
 
-import java.time.LocalDate;
 import java.util.Map;
 
 import yokwe.util.UnexpectedException;
@@ -23,7 +22,7 @@ public class T002 {
 		}
 	}
 
-	private static void data(String isinCode, LocalDate targetDate) {
+	private static void data(String isinCode, int nYear) {
 		Fund fund = getFund(isinCode);
 		
 		logger.info("fund {}  {}", isinCode, fund.name);
@@ -41,18 +40,20 @@ public class T002 {
 		MonthlyStats[] monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, dailyPriceDivArray, 9999);
 		logger.info("monthlyStatsArray  {}  {}  {}", monthlyStatsArray.length, monthlyStatsArray[monthlyStatsArray.length - 1].startDate, monthlyStatsArray[0].endDate);
 		
-		int nYear = 3;
+		AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
+		logger.info("aStats  rorReinvested   {}", aStats.rorReinvestment * 100);
+		logger.info("aStats  anSD            {}", aStats.standardDeviation);
+	}
+	
+	private static DailyPriceDiv[] getDairyPriceDiv(String isinCode) {
+		Price[]    priceArray = Price.getList(isinCode).stream().toArray(Price[]::new);
+		Dividend[] divArray   = Dividend.getList(isinCode).stream().toArray(Dividend[]::new);
 		
-		{
-			AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-			logger.info("aStats  rorReinvested   {}", aStats.rorReinvestment * 100);
-			logger.info("aStats  anSD            {}", aStats.standardDeviation);
-		}
-		Portofolio portfolio = Portofolio.builder().
-			add(isinCode, dailyPriceDivArray, 100).
-			getInstance(nYear);		
-		logger.info("portofolio  rorReinvestment   {}", portfolio.rorReinvestment() * 100);
-		logger.info("portofolio  standardDeviation {}", portfolio.standardDeviation());
+		DailyPriceDiv[] dailyPriceDivArray = DailyPriceDiv.toDailyPriceDivArray(
+			priceArray, o -> o.date, o -> o.price.doubleValue(),
+			divArray,   o -> o.date, o -> o.amount.doubleValue());
+		
+		return dailyPriceDivArray;
 	}
 	
 	public static void main(String[] args) {
@@ -60,9 +61,27 @@ public class T002 {
 		
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
-
-		data("JP3046490003", LocalDate.now());
-		data("JP90C0008X42", LocalDate.now());
+		
+		Map<String, Fund> fundMap = Fund.getMap();
+		
+		var builder = Portofolio.builder();
+		{
+			String isinCode = "JP90C0008X42";
+			Fund fund = fundMap.get(isinCode);
+			builder.add(isinCode, fund.name, getDairyPriceDiv(isinCode), 100);
+		}
+		{
+			String isinCode = "JP3046490003";
+			Fund fund = fundMap.get(isinCode);
+			builder.add(isinCode, fund.name, getDairyPriceDiv(isinCode), 100);
+		}		
+		Portofolio portfolio = builder.getInstance(1);
+		
+		logger.info("portofolio  rorReinvestment    {}", portfolio.rorReinvestment() * 100);
+		logger.info("portofolio  standardDeviation  {}", portfolio.standardDeviation() * 100);
+		
+		data("JP90C0008X42", 1);
+		data("JP3046490003", 1);
 		
 		logger.info("STOP");
 	}
