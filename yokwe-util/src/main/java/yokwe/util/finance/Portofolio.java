@@ -1,7 +1,16 @@
 package yokwe.util.finance;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import yokwe.util.GenericArray;
 import yokwe.util.UnexpectedException;
@@ -14,12 +23,13 @@ public final class Portofolio {
 	
 	public static final class Entry {
 		public final String         isinCode;
+		public final String         name;
 		public final int            quantity;
 		public final MonthlyStats[] monthlyStatsArray;
 		public final int            durationInMonth;
 		public final double         weight;
 		
-		public Entry(String isinCode, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+		public Entry(String isinCode, String name, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
 			// sanity check
 			{
 				if (dailyPriceDivArray == null) {
@@ -37,13 +47,15 @@ public final class Portofolio {
 			}
 			
 			this.isinCode          = isinCode;
+			this.name              = name;
 			this.quantity          = quantity;
 			this.monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, dailyPriceDivArray, 99999);
 			this.durationInMonth   = monthlyStatsArray.length;
 			this.weight            = 0;
 		}
-		public Entry(String isinCode, MonthlyStats[] monthlyStatsArray, int quantity, double weight) {
+		public Entry(String isinCode, String name, MonthlyStats[] monthlyStatsArray, int quantity, double weight) {
 			this.isinCode          = isinCode;
+			this.name              = name;
 			this.quantity          = quantity;
 			this.monthlyStatsArray = monthlyStatsArray;
 			this.durationInMonth   = monthlyStatsArray.length;
@@ -56,8 +68,8 @@ public final class Portofolio {
 		
 		private int totalQuantity = 0;
 		
-		public Builder add(String isinCode, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
-			list.add(new Entry(isinCode, dailyPriceDivArray, quantity));
+		public Builder add(String isinCode, String name, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+			list.add(new Entry(isinCode, name, dailyPriceDivArray, quantity));
 			totalQuantity += quantity;
 			return this;
 		}
@@ -73,7 +85,7 @@ public final class Portofolio {
 			for(int i = 0; i < length; i++) {
 				Entry  entry  = list.get(i);
 				double weigth = (double)entry.quantity / totalQuantity;
-				entryArray[i] = new Entry(entry.isinCode, entry.monthlyStatsArray, entry.quantity, weigth);
+				entryArray[i] = new Entry(entry.isinCode, entry.name, entry.monthlyStatsArray, entry.quantity, weigth);
 			}
 			return new Portofolio(entryArray, nYear);
 		}
@@ -84,13 +96,15 @@ public final class Portofolio {
 	}
 	
 	public static class Context {
-		public final Entry    entry;
-		public final double[] retPrice;
-		public final double[] retReinvestment;
-		public final double[] retNoReinvestment;
+		public final Entry       entry;
+		public final LocalDate[] dateArray;
+		public final double[]    retPrice;
+		public final double[]    retReinvestment;
+		public final double[]    retNoReinvestment;
 		
-		public Context(Entry entry, double[] retPrice, double[] retReinvestment, double[] retNoReinvestment) {
+		public Context(Entry entry, LocalDate[] dateArray, double[] retPrice, double[] retReinvestment, double[] retNoReinvestment) {
 			this.entry             = entry;
+			this.dateArray         = dateArray;
 			this.retPrice          = retPrice;
 			this.retReinvestment   = retReinvestment;
 			this.retNoReinvestment = retNoReinvestment;
@@ -123,6 +137,24 @@ public final class Portofolio {
 
 		this.contextArray = new Context[entryArray.length];
 		this.nYear        = nYear;
+		
+		Set<LocalDate> dateSet       = new TreeSet<>();
+		{
+			for(int i = 0; i < entryArray.length; i++) {
+				Entry entry = entryArray[i];
+				
+				MonthlyStats startMonth = entry.monthlyStatsArray[nMonth - 1];
+				MonthlyStats endMonth   = entry.monthlyStatsArray[0];
+
+				int startIndex       = startMonth.startIndex;
+				int stopIndexPlusOne = endMonth.stopIndexPlusOne;
+
+				LocalDate[] dateArray = GenericArray.toArray(startMonth.dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
+				Set<LocalDate> set = Arrays.stream(dateArray).collect(Collectors.toSet());
+				dateSet.addAll(set);
+			}
+		}
+		
 		for(int i = 0; i < entryArray.length; i++) {
 			Entry entry = entryArray[i];
 			
@@ -132,21 +164,78 @@ public final class Portofolio {
 			int startIndex       = startMonth.startIndex;
 			int stopIndexPlusOne = endMonth.stopIndexPlusOne;
 			
-			double[] priceArray  = startMonth.priceArray;
-			double[] divArray    = startMonth.divArray;
 			
-			// simple return of price for standard deviation
-			double[] retPrice          = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, new SimpleReturn());
+			LocalDate[] dateArray  = startMonth.dateArray;
+			double[]    priceArray = startMonth.priceArray;
+			double[]    divArray   = startMonth.divArray;
+			
+			
+			final LocalDate[] myDateArray;
+			final double[]    myPriceArray;
+			final double[]    myDivArray;
+			{
+				final int length = stopIndexPlusOne - startIndex;
+				if (length == dateSet.size()) {
+					myDateArray  = GenericArray.toArray(startMonth.dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
+					myPriceArray = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
+					myDivArray   = DoubleArray.toDoubleArray(divArray,   startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
+				} else {
+					// There is missing data in this fund.
+					//   If mother fund of the fund registered in foreign stock exchange, the fund cannot trade if foreign stock exchange is closed.
+					Map<LocalDate, Double> priceMap = new TreeMap<>();
+					Map<LocalDate, Double> divMap   = new TreeMap<>();
+					
+					// build priceMap and divMap
+					for(int j = startIndex; j < stopIndexPlusOne; j++) {
+						LocalDate date =  dateArray[j];
+						double    price = priceArray[j];
+						double    div   = divArray[j];
+						
+						priceMap.put(date, price);
+						divMap.put(date, div);
+					}
+					
+					int myLength = dateSet.size();
+					myDateArray  = new LocalDate[myLength];
+					myPriceArray = new double[myLength];
+					myDivArray   = new double[myLength];
+					
+					int index = 0;
+					for(var date: dateSet) {
+						myDateArray[index] = date;
+						
+						if (priceMap.containsKey(date)) {
+							myPriceArray[index] = priceMap.get(date);
+							myDivArray[index]   = divMap.get(date);
+						} else {
+							if (index == 0) {
+								myPriceArray[index] = priceArray[startIndex];
+								myDivArray[index]   = 0;
+							} else {
+								myPriceArray[index] = myPriceArray[index - 1];
+								myDivArray[index]   = 0;
+							}
+							logger.warn("Supply missing data  {}  {}  {}  {}", entry.isinCode, index, date, myPriceArray[index]);
+						}
+						// update for next iteration
+						index++;
+					}
+					
+				}
+			}
+			
+			// price
+			double[]    retPrice          = DoubleArray.toDoubleArray(myPriceArray, DoubleUnaryOperator.identity());
 			// reinvested price
-			double[] retReinvestment   = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new ReinvestedValue());
+			double[]    retReinvestment   = DoubleArray.toDoubleArray(myPriceArray, myDivArray, new ReinvestedValue());
 			// no reinvested price
-			double[] retNoReinvestment = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new NoReinvestedValue());
+			double[]    retNoReinvestment = DoubleArray.toDoubleArray(myPriceArray, myDivArray, new NoReinvestedValue());
 
-			contextArray[i] = new Context(entryArray[i], retPrice, retReinvestment, retNoReinvestment);
-		}
+			contextArray[i] = new Context(entryArray[i], myDateArray, retPrice, retReinvestment, retNoReinvestment);
+		}		
 	}
 	
-	// return Portfolio for last nYear
+	// return Portofolio for last nYear
 	public Portofolio getInstance(int nYear) {
 		Entry[] entryArray = GenericArray.toArray(contextArray, 0, contextArray.length, o -> o.entry, Entry.class);
 		return new Portofolio(entryArray, nYear);
@@ -185,10 +274,28 @@ public final class Portofolio {
 		for(int i = 0; i < length; i++) {
 			Context context = contextArray[i];
 			weightArray[i] = context.entry.weight;
-			statsArray[i]  = new Stats(context.retPrice);
+			
+			// use simple return of price
+			statsArray[i]  = new Stats(DoubleArray.toDoubleArray(context.retPrice, new SimpleReturn()));
 		}
 		
 		return Finance.annualStandardDeviationFromDailyStandardDeviation(Stats.standardDeviation(statsArray, weightArray));
+	}
+	
+	public double standardDeviation2() {
+		int length = contextArray[0].retPrice.length;
+		double[] data = new double[length];
+		
+		// create synthesize value from retPrice and weight
+		for(var e: contextArray) {
+			double[] simpleReturn = DoubleArray.toDoubleArray(e.retPrice, new SimpleReturn());
+			for(int i = 0; i < length; i++) {
+				data[i] += e.entry.weight * simpleReturn[i];
+			}
+		}
+		
+		// return standard deviation of synthesize value
+		return Finance.annualStandardDeviationFromDailyStandardDeviation(Stats.standardDeviation(data));
 	}
 	
 }
