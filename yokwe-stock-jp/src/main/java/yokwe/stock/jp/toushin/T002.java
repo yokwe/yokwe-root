@@ -71,25 +71,23 @@ public class T002 {
 				add("JP3046490003", getDairyPriceDiv("JP3046490003")).
 				add("JP90C0008X42", getDairyPriceDiv("JP90C0008X42")).
 				setDuration(1);
+			logger.info("portfolio  {}  {}", portfolio, portfolio.durationInMonth());
 			
 			portfolio.
 				setQuantity("JP3046490003", 100).
 				setQuantity("JP90C0008X42", 0);
-			logger.info("portfolio  {}", portfolio);
 			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
 			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
 			
 			portfolio.
 				setQuantity("JP3046490003", 0).
 				setQuantity("JP90C0008X42", 100);
-			logger.info("portfolio  {}", portfolio);
 			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
 			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
 			
 			portfolio.
 				setQuantity("JP3046490003", 100).
 				setQuantity("JP90C0008X42", 100);
-			logger.info("portfolio  {}", portfolio);
 			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
 			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
 		}

@@ -51,7 +51,7 @@ public final class Portfolio {
 		
 		@Override
 		public String toString() {
-//			return String.format("{%s  %d  %d}", name, durationInMonth, quantity);
+//			return String.format("{%s  %d  %d}", name, quantity, durationInMonth);
 			return String.format("{%s  %d}", name, quantity);
 		}
 		
@@ -281,6 +281,11 @@ public final class Portfolio {
 			//
 			needsSetDuration = false;
 		}
+	}
+	
+	public int durationInMonth() {
+		var opt = map.values().stream().mapToInt(o -> o.durationInMonth).min();
+		return opt.orElse(0);
 	}
 	
 	// Rate of return of reinvestment -- invest dividend
