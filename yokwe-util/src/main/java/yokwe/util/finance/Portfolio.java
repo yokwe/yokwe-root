@@ -51,7 +51,8 @@ public final class Portfolio {
 		
 		@Override
 		public String toString() {
-			return String.format("{%s  %d  %d}", name, durationInMonth, quantity);
+//			return String.format("{%s  %d  %d}", name, durationInMonth, quantity);
+			return String.format("{%s  %d}", name, quantity);
 		}
 		
 		void setQuantity(int newValue) {
@@ -206,6 +207,11 @@ public final class Portfolio {
 	private boolean needsSetDuration  = true;
 	private boolean needsSetWeight    = true;
 
+	@Override
+	public String toString() {
+		return String.format("{%d  %s}", nYear, map.values());
+	}
+	
 	public Portfolio add(String name, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
 		Holding holding = new Holding(name, dailyPriceDivArray, quantity);
 		var oldValue = map.put(name, holding);
