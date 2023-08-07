@@ -6,7 +6,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyPriceDiv;
 import yokwe.util.finance.MonthlyStats;
-import yokwe.util.finance.Portofolio;
+import yokwe.util.finance.Portfolio;
 
 public class T002 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -62,9 +62,9 @@ public class T002 {
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
 		
-		Portofolio portfolio;
+		Portfolio portfolio;
 		{
-			var builder = Portofolio.builder();
+			var builder = Portfolio.builder();
 			{
 				String isinCode = "JP90C0008X42";
 				builder.add(isinCode, getDairyPriceDiv(isinCode), 100);

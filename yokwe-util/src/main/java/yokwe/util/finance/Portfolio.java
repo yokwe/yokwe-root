@@ -18,7 +18,7 @@ import yokwe.util.finance.online.NoReinvestedValue;
 import yokwe.util.finance.online.ReinvestedValue;
 import yokwe.util.finance.online.SimpleReturn;
 
-public final class Portofolio {
+public final class Portfolio {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final class Entry {
@@ -71,7 +71,7 @@ public final class Portofolio {
 			return this;
 		}
 
-		public Portofolio build(int nYear) {
+		public Portfolio build(int nYear) {
 			if (list.isEmpty()) {
 				logger.error("list is empty");
 				throw new UnexpectedException("list is empty");
@@ -84,7 +84,7 @@ public final class Portofolio {
 				double weigth = (double)entry.quantity / totalQuantity;
 				entryArray[i] = new Entry(entry.code, entry.monthlyStatsArray, entry.quantity, weigth);
 			}
-			return new Portofolio(entryArray, nYear);
+			return new Portfolio(entryArray, nYear);
 		}
 	}
 	
@@ -112,7 +112,7 @@ public final class Portofolio {
 	private final Context[] contextArray;
 	private final int       nYear;
 	
-	private Portofolio(Entry[] entryArray, int nYear) {
+	private Portfolio(Entry[] entryArray, int nYear) {
 		final int nMonth = nYear * 12;
 		
 		// sanity check
@@ -232,10 +232,10 @@ public final class Portofolio {
 		}		
 	}
 	
-	// return Portofolio for last nYear
-	public Portofolio getInstance(int nYear) {
+	// return Portfolio for last nYear
+	public Portfolio getInstance(int nYear) {
 		Entry[] entryArray = GenericArray.toArray(contextArray, 0, contextArray.length, o -> o.entry, Entry.class);
-		return new Portofolio(entryArray, nYear);
+		return new Portfolio(entryArray, nYear);
 	}
 	
 	// Rate of return of reinvestment -- invest dividend
