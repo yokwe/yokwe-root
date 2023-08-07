@@ -7,7 +7,6 @@ import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyPriceDiv;
 import yokwe.util.finance.MonthlyStats;
 import yokwe.util.finance.Portfolio;
-import yokwe.util.finance.Portfolio2;
 
 public class T002 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -43,7 +42,7 @@ public class T002 {
 		
 		AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
 		logger.info("aStats  rorReinvested   {}", aStats.rorReinvestment * 100);
-		logger.info("aStats  anSD            {}", aStats.standardDeviation);
+		logger.info("aStats  anSD            {}", aStats.standardDeviation * 100);
 	}
 	
 	private static DailyPriceDiv[] getDairyPriceDiv(String isinCode) {
@@ -57,31 +56,40 @@ public class T002 {
 		return dailyPriceDivArray;
 	}
 	
-	public static void aa() {
-		
-	}
 	public static void main(String[] args) {
 		logger.info("START");
 		
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
+		data("JP3046490003", 1);
+		data("JP90C0008X42", 1);
+		
 		{
 			Portfolio portfolio = new Portfolio();
 			
-			portfolio.put("AA", "JP90C0008X42", getDairyPriceDiv("JP90C0008X42"), 100);
-			portfolio.put("BB", "JP3046490003", getDairyPriceDiv("JP3046490003"));
+			portfolio.
+				add("JP3046490003", getDairyPriceDiv("JP3046490003")).
+				add("JP90C0008X42", getDairyPriceDiv("JP90C0008X42")).
+				setDuration(1);
 			
-//			portfolio.setQuantity("AA", 100);
-			portfolio.setQuantity("BB", 100);
-			portfolio.setDuration(1);
+			portfolio.
+				setQuantity("JP3046490003", 100).
+				setQuantity("JP90C0008X42", 0);
+			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
+			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
 			
+			portfolio.
+				setQuantity("JP3046490003", 0).
+				setQuantity("JP90C0008X42", 100);
+			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
+			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
+			
+			portfolio.
+				setQuantity("JP3046490003", 100).
+				setQuantity("JP90C0008X42", 100);
 			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
 			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
 		}
-		
-		
-		data("JP90C0008X42", 1);
-		data("JP3046490003", 1);
 		
 		logger.info("STOP");
 	}
