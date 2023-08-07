@@ -7,6 +7,7 @@ import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyPriceDiv;
 import yokwe.util.finance.MonthlyStats;
 import yokwe.util.finance.Portfolio;
+import yokwe.util.finance.Portfolio2;
 
 public class T002 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -56,28 +57,28 @@ public class T002 {
 		return dailyPriceDivArray;
 	}
 	
+	public static void aa() {
+		
+	}
 	public static void main(String[] args) {
 		logger.info("START");
 		
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
-		
-		Portfolio portfolio;
 		{
-			var builder = Portfolio.builder();
-			{
-				String isinCode = "JP90C0008X42";
-				builder.add(isinCode, getDairyPriceDiv(isinCode), 100);
-			}
-			{
-				String isinCode = "JP3046490003";
-				builder.add(isinCode, getDairyPriceDiv(isinCode), 100);
-			}		
-			portfolio = builder.build(1);
+			Portfolio portfolio = new Portfolio();
+			
+			portfolio.put("AA", "JP90C0008X42", getDairyPriceDiv("JP90C0008X42"), 100);
+			portfolio.put("BB", "JP3046490003", getDairyPriceDiv("JP3046490003"));
+			
+//			portfolio.setQuantity("AA", 100);
+			portfolio.setQuantity("BB", 100);
+			portfolio.setDuration(1);
+			
+			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
+			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
 		}
 		
-		logger.info("portofolio  rorReinvestment    {}", portfolio.rorReinvestment() * 100);
-		logger.info("portofolio  standardDeviation  {}", portfolio.standardDeviation() * 100);
 		
 		data("JP90C0008X42", 1);
 		data("JP3046490003", 1);
