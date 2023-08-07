@@ -7,10 +7,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import yokwe.util.GenericArray;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.NoReinvestedValue;
 import yokwe.util.finance.online.ReinvestedValue;
@@ -19,23 +17,20 @@ import yokwe.util.finance.online.SimpleReturn;
 public final class Portfolio {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final class Holding {
-		public final String         code;              // can be isinCode, stockCode or ticker symbol
-		public final MonthlyStats[] monthlyStatsArray;
-		public final int            durationInMonth;
+	private static final class Holding {
+		final String         name;
+		final MonthlyStats[] monthlyStatsArray;
+		final int            durationInMonth;
 
-		private int     quantity;
-		private double  weight;
-		private boolean needsSetWeight;
+		int      quantity;
+		double   weight;
+		boolean  needsSetWeight;
 		
-		public int         nYear;
-		public LocalDate[] dateArray;
-		public double[]    retPrice;
-		public double[]    retReinvestment;
-		public double[]    retNoReinvestment;
+		double[] retPrice;
+		double[] retReinvestment;
+		double[] retNoReinvestment;
 		
-		
-		public Holding(String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+		Holding(String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
 			// sanity check
 			{
 				if (dailyPriceDivArray == null) {
@@ -48,41 +43,41 @@ public final class Portfolio {
 				}
 			}
 			
-			this.code              = code;
+			this.name              = code;
 			this.monthlyStatsArray = MonthlyStats.monthlyStatsArray(code, dailyPriceDivArray, 99999);
 			this.durationInMonth   = monthlyStatsArray.length;
 			
 			setQuantity(quantity);
 		}
-		public Holding(String code, DailyPriceDiv[] dailyPriceDivArray) {
+		Holding(String code, DailyPriceDiv[] dailyPriceDivArray) {
 			this(code, dailyPriceDivArray, 0);
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s  %d  %d  %d}", code, durationInMonth, quantity, nYear);
+			return String.format("{%s  %d  %d}", name, durationInMonth, quantity);
 		}
 		
-		private void setQuantity(int newValue) {
+		void setQuantity(int newValue) {
 			// sanity check
 			if (quantity < 0) {
 				logger.error("quantity < 0");
 				logger.error("  quiantity  {}", quantity);
 				throw new UnexpectedException("quantity < 0");
 			}
-
+			
 			quantity       = newValue;
 			needsSetWeight = true;
 		}
-		public void setWeight(int totalQuantity) {
+		void setWeight(int totalQuantity) {
 			// sanity check
 			{
 				if (totalQuantity <= 0) {
 					logger.error("totalQuantity <= 0");
 					throw new UnexpectedException("totalQuantity <= 0");
 				}
-				if (quantity <= 0) {
-					logger.error("quantity <= 0");
+				if (quantity < 0) {
+					logger.error("quantity < 0");
 					throw new UnexpectedException("quantity <= 0");
 				}
 				if (totalQuantity < quantity) {
@@ -95,7 +90,7 @@ public final class Portfolio {
 			//
 			needsSetWeight = false;
 		}
-		public void setDuration(int nYear, Set<LocalDate> dateSet) {
+		void setDuration(int nYear, Set<LocalDate> dateSet) {
 			final int nMonth = nYear * 12;
 			// sanity check
 			{
@@ -122,13 +117,11 @@ public final class Portfolio {
 			final double[]    priceArray = startMonth.priceArray;
 			final double[]    divArray   = startMonth.divArray;
 			
-			final LocalDate[] myDateArray;
 			final double[]    myPriceArray;
 			final double[]    myDivArray;
 			{
 				Set<LocalDate> myDateSet = Arrays.stream(dateArray).collect(Collectors.toSet());
 				if (dateSet.equals(myDateSet)) {
-					myDateArray  = GenericArray.toArray(startMonth.dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
 					myPriceArray = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
 					myDivArray   = DoubleArray.toDoubleArray(divArray,   startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
 				} else {
@@ -148,14 +141,11 @@ public final class Portfolio {
 					}
 					
 					int length = dateSet.size();
-					myDateArray  = new LocalDate[length];
 					myPriceArray = new double[length];
 					myDivArray   = new double[length];
 					
 					int index = 0;
-					for(var date: dateSet) {
-						myDateArray[index] = date;
-						
+					for(var date: dateSet) {				
 						if (priceMap.containsKey(date)) {
 							myPriceArray[index] = priceMap.get(date);
 							myDivArray[index]   = divMap.get(date);
@@ -167,7 +157,7 @@ public final class Portfolio {
 								myPriceArray[index] = myPriceArray[index - 1];
 								myDivArray[index]   = 0;
 							}
-							logger.warn("Supply missing data  {}  {}  {}  {}", code, index, date, myPriceArray[index]);
+							logger.warn("Supply missing data  {}  {}  {}  {}", name, index, date, myPriceArray[index]);
 						}
 						// update for next iteration
 						index++;
@@ -175,10 +165,6 @@ public final class Portfolio {
 				}
 			}
 			
-			// nYear
-			this.nYear             = nYear;
-			// date
-			this.dateArray         = myDateArray;
 			// price
 			this.retPrice          = DoubleArray.toDoubleArray(myPriceArray, DoubleUnaryOperator.identity());
 			// reinvested price
@@ -187,7 +173,7 @@ public final class Portfolio {
 			this.retNoReinvestment = DoubleArray.toDoubleArray(myPriceArray, myDivArray, new NoReinvestedValue());
 		}
 		
-		public Set<LocalDate> getDateSet(int nYear) {
+		Set<LocalDate> getDateSet(int nYear) {
 			final int nMonth = nYear * 12;
 			// sanity check
 			{
@@ -221,54 +207,38 @@ public final class Portfolio {
 		}
 	}
 	
-	public int                  nYear = 0;
-	public Map<String, Holding> map   = new TreeMap<>();
-	//         name
+	private int                  nYear = 0;
+	private Map<String, Holding> map   = new TreeMap<>();
+	//          name
 	private boolean needsSetDuration  = true;
 	
-	public void put(String name, Holding holding) {
-		if (map.containsKey(name)) {
+	public Portfolio add(String name, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+		Holding holding = new Holding(name, dailyPriceDivArray, quantity);
+		put(name, holding);
+		
+		return this;
+	}
+	public Portfolio add(String name, DailyPriceDiv[] dailyPriceDivArray) {
+		Holding holding = new Holding(name, dailyPriceDivArray);
+		put(name, holding);
+		
+		return this;
+	}
+	private void put(String name, Holding holding) {
+		var oldValue = map.put(name, holding);
+		if (oldValue != null) {
 			logger.error("Duplicate name");
 			logger.error("  name  {}", name);
 			logger.error("  map   {}", map.keySet());
 			throw new UnexpectedException("Duplicate name");
-		} else {
-			map.put(name, holding);
 		}
 		//
 		needsSetDuration = true;
 	}
-	public void put(String name, String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
-		Holding holding = new Holding(code, dailyPriceDivArray, quantity);
-		put(name, holding);
-	}
-	public void put(String name, String code, DailyPriceDiv[] dailyPriceDivArray) {
-		Holding holding = new Holding(code, dailyPriceDivArray);
-		put(name, holding);
-	}
-	public Holding get(String name) {
-		if (map.containsKey(name)) {
-			return map.get(name);
-		} else {
-			logger.error("Unknown name");
-			logger.error("  name  {}", name);
-			logger.error("  map   {}", map.keySet());
-			throw new UnexpectedException("Duplicate name");
-		}
-	}
 
-	public void setQuantity(String name, int newValue) {
-		if (map.containsKey(name)) {
-			// sanity check
-			{
-				if (newValue < 0) {
-					logger.error("newValue < 0");
-					logger.error("  newValue  {}", newValue);
-					throw new UnexpectedException("newValue < 0");
-				}
-			}
-
-			Holding holding = map.get(name);
+	public Portfolio setQuantity(String name, int newValue) {
+		Holding holding = map.get(name);
+		if (holding != null) {
 			holding.setQuantity(newValue);
 		} else {
 			logger.error("Unknown name");
@@ -276,21 +246,23 @@ public final class Portfolio {
 			logger.error("  map   {}", map.keySet());
 			throw new UnexpectedException("Unknown name");
 		}
+		
+		return this;
 	}
-	public void setDuration(int nYear) {
+	public Portfolio setDuration(int newValue) {
 		// sanity check
-		{
-			if (nYear <= 0) {
-				logger.error("nYear <= 0");
-				logger.error("  nYear  {}", nYear);
-				throw new UnexpectedException("nYear <= 0");
-			}
+		if (newValue <= 0) {
+			logger.error("newValue <= 0");
+			logger.error("  newValue  {}", newValue);
+			throw new UnexpectedException("newValue <= 0");
 		}
-		this.nYear = nYear;
-		//
+		
+		nYear            = newValue;
 		needsSetDuration = true;
+		
+		return this;
 	}
-	public void prepare() {
+	private void prepare() {
 		{
 			boolean needsSetWeight = false;
 			for(var holding: map.values()) {
@@ -322,7 +294,6 @@ public final class Portfolio {
 			needsSetDuration = false;
 		}
 	}
-	
 	
 	// Rate of return of reinvestment -- invest dividend
 	public double rorReinvestment() {
