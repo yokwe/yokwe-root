@@ -10,15 +10,15 @@ import yokwe.util.UnexpectedException;
 public final class MonthlyStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static MonthlyStats[] monthlyStatsArray(String isinCode, DailyPriceDiv[] array, int nMonth) {
+	public static MonthlyStats[] monthlyStatsArray(String code, DailyPriceDiv[] array, int nMonth) {
 		LocalDate[]  dateArray  = DailyPriceDiv.toDateArray(array);
 		double[]     priceArray = DailyPriceDiv.toPriceArray(array);
 		double[]     divArray   = DailyPriceDiv.toDivArray(array);
 		
-		return monthlyStatsArray(isinCode, dateArray, priceArray, divArray, nMonth);
+		return monthlyStatsArray(code, dateArray, priceArray, divArray, nMonth);
 	}
 	
-	public static MonthlyStats[] monthlyStatsArray(String isinCode, LocalDate[] dateArray, double[] priceArray, double[] divArray, int nMonth) {
+	public static MonthlyStats[] monthlyStatsArray(String code, LocalDate[] dateArray, double[] priceArray, double[] divArray, int nMonth) {
 		// sanity check
 		if (dateArray == null) {
 			throw new UnexpectedException("dateArray is null");
@@ -66,7 +66,7 @@ public final class MonthlyStats {
 			int stopIndexPlusOne = stopIndexPlusOneArray[i];
 			int startIndex       = stopIndexPlusOneArray[i + 1];
 			
-			list.add(new MonthlyStats(isinCode, startIndex, stopIndexPlusOne, dateArray, priceArray, divArray));
+			list.add(new MonthlyStats(code, startIndex, stopIndexPlusOne, dateArray, priceArray, divArray));
 			if (list.size() == nMonth) break;
 		}
 
@@ -74,7 +74,7 @@ public final class MonthlyStats {
 	}
 	
 	
-	public final String      isinCode;
+	public final String      code;               // isinCode, stockCode or ticker symbol
 	public final int         startIndex;         // この期間の取引初日への配列インデックス
 	public final int         stopIndexPlusOne;   // 次の期間の取引初日への配列インデックス
 	public final LocalDate[] dateArray;
@@ -86,10 +86,10 @@ public final class MonthlyStats {
 	public final LocalDate   endDate;            // この期間の取引末日	
 
 	
-	private MonthlyStats(String isinCode_, int startIndex_, int stopIndexPlusOne_, 
+	private MonthlyStats(String code_, int startIndex_, int stopIndexPlusOne_, 
 		LocalDate[] dateArray_, double[] priceArray_, double[] divArray_) {
 		
-		isinCode         = isinCode_;
+		code             = code_;
 		startIndex       = startIndex_;
 		stopIndexPlusOne = stopIndexPlusOne_;
 		

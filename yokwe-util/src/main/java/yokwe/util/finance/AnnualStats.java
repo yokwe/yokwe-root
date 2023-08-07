@@ -22,7 +22,7 @@ public final class AnnualStats {
 	}
 	
 	
-	public final String      isinCode;
+	public final String      code;                // isinCode, stockCode or ticker symbol
 	public final LocalDate[] dateArray;
 	public final double[]    priceArray;          // 基準価格
 	public final double[]    divArray;            // 分配金
@@ -60,7 +60,7 @@ public final class AnnualStats {
 		MonthlyStats startMonth = monthlyStatsArray[nMonth - 1];
 		MonthlyStats endMonth   = monthlyStatsArray[0];
 		
-		isinCode             = startMonth.isinCode;
+		code                 = startMonth.code;
 		dateArray            = startMonth.dateArray;
 		priceArray           = startMonth.priceArray;
 		divArray             = startMonth.divArray;
