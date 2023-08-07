@@ -62,20 +62,19 @@ public class T002 {
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
 		
-		Map<String, Fund> fundMap = Fund.getMap();
-		
-		var builder = Portofolio.builder();
+		Portofolio portfolio;
 		{
-			String isinCode = "JP90C0008X42";
-			Fund fund = fundMap.get(isinCode);
-			builder.add(isinCode, fund.name, getDairyPriceDiv(isinCode), 100);
+			var builder = Portofolio.builder();
+			{
+				String isinCode = "JP90C0008X42";
+				builder.add(isinCode, getDairyPriceDiv(isinCode), 100);
+			}
+			{
+				String isinCode = "JP3046490003";
+				builder.add(isinCode, getDairyPriceDiv(isinCode), 100);
+			}		
+			portfolio = builder.build(1);
 		}
-		{
-			String isinCode = "JP3046490003";
-			Fund fund = fundMap.get(isinCode);
-			builder.add(isinCode, fund.name, getDairyPriceDiv(isinCode), 100);
-		}		
-		Portofolio portfolio = builder.getInstance(1);
 		
 		logger.info("portofolio  rorReinvestment    {}", portfolio.rorReinvestment() * 100);
 		logger.info("portofolio  standardDeviation  {}", portfolio.standardDeviation() * 100);
