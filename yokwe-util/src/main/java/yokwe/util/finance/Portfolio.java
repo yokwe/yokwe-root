@@ -24,7 +24,6 @@ public final class Portfolio {
 
 		int      quantity;
 		double   weight;
-		boolean  needsSetWeight;
 		
 		double[] retPrice;
 		double[] retReinvestment;
@@ -49,9 +48,6 @@ public final class Portfolio {
 			
 			setQuantity(quantity);
 		}
-		Holding(String code, DailyPriceDiv[] dailyPriceDivArray) {
-			this(code, dailyPriceDivArray, 0);
-		}
 		
 		@Override
 		public String toString() {
@@ -66,8 +62,7 @@ public final class Portfolio {
 				throw new UnexpectedException("quantity < 0");
 			}
 			
-			quantity       = newValue;
-			needsSetWeight = true;
+			quantity = newValue;
 		}
 		void setWeight(int totalQuantity) {
 			// sanity check
@@ -87,8 +82,6 @@ public final class Portfolio {
 			}
 
 			weight = (double)quantity / totalQuantity;
-			//
-			needsSetWeight = false;
 		}
 		void setDuration(int nYear, Set<LocalDate> dateSet) {
 			final int nMonth = nYear * 12;
@@ -211,20 +204,10 @@ public final class Portfolio {
 	private Map<String, Holding> map   = new TreeMap<>();
 	//          name
 	private boolean needsSetDuration  = true;
-	
+	private boolean needsSetWeight    = true;
+
 	public Portfolio add(String name, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
 		Holding holding = new Holding(name, dailyPriceDivArray, quantity);
-		put(name, holding);
-		
-		return this;
-	}
-	public Portfolio add(String name, DailyPriceDiv[] dailyPriceDivArray) {
-		Holding holding = new Holding(name, dailyPriceDivArray);
-		put(name, holding);
-		
-		return this;
-	}
-	private void put(String name, Holding holding) {
 		var oldValue = map.put(name, holding);
 		if (oldValue != null) {
 			logger.error("Duplicate name");
@@ -234,6 +217,11 @@ public final class Portfolio {
 		}
 		//
 		needsSetDuration = true;
+		
+		return this;
+	}
+	public Portfolio add(String name, DailyPriceDiv[] dailyPriceDivArray) {
+		return add(name, dailyPriceDivArray, 0);
 	}
 
 	public Portfolio setQuantity(String name, int newValue) {
@@ -246,6 +234,7 @@ public final class Portfolio {
 			logger.error("  map   {}", map.keySet());
 			throw new UnexpectedException("Unknown name");
 		}
+		needsSetWeight = true;
 		
 		return this;
 	}
@@ -263,21 +252,14 @@ public final class Portfolio {
 		return this;
 	}
 	private void prepare() {
-		{
-			boolean needsSetWeight = false;
+		if (needsSetWeight) {
+			// call holding.setWeight
+			int totalQuantity = map.values().stream().mapToInt(o -> o.quantity).sum();
 			for(var holding: map.values()) {
-				if (holding.needsSetWeight) {
-					needsSetWeight = true;
-					break;
-				}
+				holding.setWeight(totalQuantity);
 			}
-			if (needsSetWeight) {
-				// call holding.setWeight
-				int totalQuantity = map.values().stream().mapToInt(o -> o.quantity).sum();
-				for(var holding: map.values()) {
-					holding.setWeight(totalQuantity);
-				}
-			}
+			//
+			needsSetWeight = false;
 		}
 		
 		if (needsSetDuration) {
