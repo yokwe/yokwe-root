@@ -22,14 +22,13 @@ public final class Portofolio {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static final class Entry {
-		public final String         isinCode;
-		public final String         name;
+		public final String         code;              // can be isinCode, stockCode or ticker symbol
 		public final int            quantity;
 		public final MonthlyStats[] monthlyStatsArray;
 		public final int            durationInMonth;
 		public final double         weight;
 		
-		public Entry(String isinCode, String name, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+		public Entry(String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
 			// sanity check
 			{
 				if (dailyPriceDivArray == null) {
@@ -46,16 +45,14 @@ public final class Portofolio {
 				}
 			}
 			
-			this.isinCode          = isinCode;
-			this.name              = name;
+			this.code              = code;
 			this.quantity          = quantity;
-			this.monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, dailyPriceDivArray, 99999);
+			this.monthlyStatsArray = MonthlyStats.monthlyStatsArray(code, dailyPriceDivArray, 99999);
 			this.durationInMonth   = monthlyStatsArray.length;
 			this.weight            = 0;
 		}
-		public Entry(String isinCode, String name, MonthlyStats[] monthlyStatsArray, int quantity, double weight) {
-			this.isinCode          = isinCode;
-			this.name              = name;
+		public Entry(String code, MonthlyStats[] monthlyStatsArray, int quantity, double weight) {
+			this.code              = code;
 			this.quantity          = quantity;
 			this.monthlyStatsArray = monthlyStatsArray;
 			this.durationInMonth   = monthlyStatsArray.length;
@@ -68,13 +65,13 @@ public final class Portofolio {
 		
 		private int totalQuantity = 0;
 		
-		public Builder add(String isinCode, String name, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
-			list.add(new Entry(isinCode, name, dailyPriceDivArray, quantity));
+		public Builder add(String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+			list.add(new Entry(code, dailyPriceDivArray, quantity));
 			totalQuantity += quantity;
 			return this;
 		}
 
-		public Portofolio getInstance(int nYear) {
+		public Portofolio build(int nYear) {
 			if (list.isEmpty()) {
 				logger.error("list is empty");
 				throw new UnexpectedException("list is empty");
@@ -85,7 +82,7 @@ public final class Portofolio {
 			for(int i = 0; i < length; i++) {
 				Entry  entry  = list.get(i);
 				double weigth = (double)entry.quantity / totalQuantity;
-				entryArray[i] = new Entry(entry.isinCode, entry.name, entry.monthlyStatsArray, entry.quantity, weigth);
+				entryArray[i] = new Entry(entry.code, entry.monthlyStatsArray, entry.quantity, weigth);
 			}
 			return new Portofolio(entryArray, nYear);
 		}
@@ -215,7 +212,7 @@ public final class Portofolio {
 								myPriceArray[index] = myPriceArray[index - 1];
 								myDivArray[index]   = 0;
 							}
-							logger.warn("Supply missing data  {}  {}  {}  {}", entry.isinCode, index, date, myPriceArray[index]);
+							logger.warn("Supply missing data  {}  {}  {}  {}", entry.code, index, date, myPriceArray[index]);
 						}
 						// update for next iteration
 						index++;
