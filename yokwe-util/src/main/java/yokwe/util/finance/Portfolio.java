@@ -1,9 +1,7 @@
 package yokwe.util.finance;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -20,15 +18,24 @@ import yokwe.util.finance.online.SimpleReturn;
 
 public final class Portfolio {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	public static final class Entry {
+
+	public static final class Holding {
 		public final String         code;              // can be isinCode, stockCode or ticker symbol
-		public final int            quantity;
 		public final MonthlyStats[] monthlyStatsArray;
 		public final int            durationInMonth;
-		public final double         weight;
+
+		private int     quantity;
+		private double  weight;
+		private boolean needsSetWeight;
 		
-		public Entry(String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+		public int         nYear;
+		public LocalDate[] dateArray;
+		public double[]    retPrice;
+		public double[]    retReinvestment;
+		public double[]    retNoReinvestment;
+		
+		
+		public Holding(String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
 			// sanity check
 			{
 				if (dailyPriceDivArray == null) {
@@ -39,140 +46,88 @@ public final class Portfolio {
 					logger.error("dailyPriceDivArray.length == 0");
 					throw new UnexpectedException("dailyPriceDivArray.length == 0");
 				}
+			}
+			
+			this.code              = code;
+			this.monthlyStatsArray = MonthlyStats.monthlyStatsArray(code, dailyPriceDivArray, 99999);
+			this.durationInMonth   = monthlyStatsArray.length;
+			
+			setQuantity(quantity);
+		}
+		public Holding(String code, DailyPriceDiv[] dailyPriceDivArray) {
+			this(code, dailyPriceDivArray, 0);
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s  %d  %d  %d}", code, durationInMonth, quantity, nYear);
+		}
+		
+		private void setQuantity(int newValue) {
+			// sanity check
+			if (quantity < 0) {
+				logger.error("quantity < 0");
+				logger.error("  quiantity  {}", quantity);
+				throw new UnexpectedException("quantity < 0");
+			}
+
+			quantity       = newValue;
+			needsSetWeight = true;
+		}
+		public void setWeight(int totalQuantity) {
+			// sanity check
+			{
+				if (totalQuantity <= 0) {
+					logger.error("totalQuantity <= 0");
+					throw new UnexpectedException("totalQuantity <= 0");
+				}
 				if (quantity <= 0) {
 					logger.error("quantity <= 0");
 					throw new UnexpectedException("quantity <= 0");
 				}
-			}
-			
-			this.code              = code;
-			this.quantity          = quantity;
-			this.monthlyStatsArray = MonthlyStats.monthlyStatsArray(code, dailyPriceDivArray, 99999);
-			this.durationInMonth   = monthlyStatsArray.length;
-			this.weight            = 0;
-		}
-		public Entry(String code, MonthlyStats[] monthlyStatsArray, int quantity, double weight) {
-			this.code              = code;
-			this.quantity          = quantity;
-			this.monthlyStatsArray = monthlyStatsArray;
-			this.durationInMonth   = monthlyStatsArray.length;
-			this.weight            = weight;
-		}
-	}
-	
-	public static final class Builder {
-		private final List<Entry> list = new ArrayList<>();
-		
-		private int totalQuantity = 0;
-		
-		public Builder add(String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
-			list.add(new Entry(code, dailyPriceDivArray, quantity));
-			totalQuantity += quantity;
-			return this;
-		}
-
-		public Portfolio build(int nYear) {
-			if (list.isEmpty()) {
-				logger.error("list is empty");
-				throw new UnexpectedException("list is empty");
-			}
-			
-			final int length = list.size();
-			Entry[] entryArray = new Entry[length];
-			for(int i = 0; i < length; i++) {
-				Entry  entry  = list.get(i);
-				double weigth = (double)entry.quantity / totalQuantity;
-				entryArray[i] = new Entry(entry.code, entry.monthlyStatsArray, entry.quantity, weigth);
-			}
-			return new Portfolio(entryArray, nYear);
-		}
-	}
-	
-	public static Builder builder() {
-		return new Builder();
-	}
-	
-	public static class Context {
-		public final Entry       entry;
-		public final LocalDate[] dateArray;
-		public final double[]    retPrice;
-		public final double[]    retReinvestment;
-		public final double[]    retNoReinvestment;
-		
-		public Context(Entry entry, LocalDate[] dateArray, double[] retPrice, double[] retReinvestment, double[] retNoReinvestment) {
-			this.entry             = entry;
-			this.dateArray         = dateArray;
-			this.retPrice          = retPrice;
-			this.retReinvestment   = retReinvestment;
-			this.retNoReinvestment = retNoReinvestment;
-		}
-	}
-	
-
-	private final Context[] contextArray;
-	private final int       nYear;
-	
-	private Portfolio(Entry[] entryArray, int nYear) {
-		final int nMonth = nYear * 12;
-		
-		// sanity check
-		{
-			if (nYear <= 0) {
-				logger.error("Unexpected value");
-				logger.error("  nYear  {}", nMonth);
-				throw new UnexpectedException("Unexpected value");
-			}
-			for(var e: entryArray) {
-				if (e.durationInMonth < nMonth) {
-					logger.error("Not enough duration for nMonth");
-					logger.error("  nMonth           {}", nMonth);
-					logger.error("  durationInMonth  {}", e.durationInMonth);
-					throw new UnexpectedException("Not enough duration for nMonth");
+				if (totalQuantity < quantity) {
+					logger.error("totalQuantity < quantity");
+					throw new UnexpectedException("totalQuantity < quantity");
 				}
 			}
+
+			weight = (double)quantity / totalQuantity;
+			//
+			needsSetWeight = false;
 		}
-
-		this.contextArray = new Context[entryArray.length];
-		this.nYear        = nYear;
-		
-		Set<LocalDate> dateSet       = new TreeSet<>();
-		{
-			for(int i = 0; i < entryArray.length; i++) {
-				Entry entry = entryArray[i];
-				
-				MonthlyStats startMonth = entry.monthlyStatsArray[nMonth - 1];
-				MonthlyStats endMonth   = entry.monthlyStatsArray[0];
-
-				int startIndex       = startMonth.startIndex;
-				int stopIndexPlusOne = endMonth.stopIndexPlusOne;
-
-				LocalDate[] dateArray = GenericArray.toArray(startMonth.dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
-				Set<LocalDate> set = Arrays.stream(dateArray).collect(Collectors.toSet());
-				dateSet.addAll(set);
+		public void setDuration(int nYear, Set<LocalDate> dateSet) {
+			final int nMonth = nYear * 12;
+			// sanity check
+			{
+				if (nYear <= 0) {
+					logger.error("Unexpected value");
+					logger.error("  nYear  {}", nYear);
+					throw new UnexpectedException("Unexpected value");
+				}
+				if (durationInMonth < nMonth) {
+					logger.error("durationInMonth < nMonth");
+					logger.error("  nMonth           {}", nMonth);
+					logger.error("  durationInMonth  {}", durationInMonth);
+					throw new UnexpectedException("durationInMonth < nMonth");
+				}
 			}
-		}
-		
-		for(int i = 0; i < entryArray.length; i++) {
-			Entry entry = entryArray[i];
-			
-			MonthlyStats startMonth = entry.monthlyStatsArray[nMonth - 1];
-			MonthlyStats endMonth   = entry.monthlyStatsArray[0];
-			
-			int startIndex       = startMonth.startIndex;
-			int stopIndexPlusOne = endMonth.stopIndexPlusOne;
-			
-			
-			LocalDate[] dateArray  = startMonth.dateArray;
-			double[]    priceArray = startMonth.priceArray;
-			double[]    divArray   = startMonth.divArray;
-			
+						
+			final MonthlyStats startMonth = monthlyStatsArray[nMonth - 1];
+			final MonthlyStats endMonth   = monthlyStatsArray[0];
+
+			final int startIndex       = startMonth.startIndex;
+			final int stopIndexPlusOne = endMonth.stopIndexPlusOne;
+
+			final LocalDate[] dateArray  = startMonth.dateArray;
+			final double[]    priceArray = startMonth.priceArray;
+			final double[]    divArray   = startMonth.divArray;
 			
 			final LocalDate[] myDateArray;
 			final double[]    myPriceArray;
 			final double[]    myDivArray;
 			{
-				final int length = stopIndexPlusOne - startIndex;
-				if (length == dateSet.size()) {
+				Set<LocalDate> myDateSet = Arrays.stream(dateArray).collect(Collectors.toSet());
+				if (dateSet.equals(myDateSet)) {
 					myDateArray  = GenericArray.toArray(startMonth.dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
 					myPriceArray = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
 					myDivArray   = DoubleArray.toDoubleArray(divArray,   startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
@@ -192,10 +147,10 @@ public final class Portfolio {
 						divMap.put(date, div);
 					}
 					
-					int myLength = dateSet.size();
-					myDateArray  = new LocalDate[myLength];
-					myPriceArray = new double[myLength];
-					myDivArray   = new double[myLength];
+					int length = dateSet.size();
+					myDateArray  = new LocalDate[length];
+					myPriceArray = new double[length];
+					myDivArray   = new double[length];
 					
 					int index = 0;
 					for(var date: dateSet) {
@@ -212,87 +167,209 @@ public final class Portfolio {
 								myPriceArray[index] = myPriceArray[index - 1];
 								myDivArray[index]   = 0;
 							}
-							logger.warn("Supply missing data  {}  {}  {}  {}", entry.code, index, date, myPriceArray[index]);
+							logger.warn("Supply missing data  {}  {}  {}  {}", code, index, date, myPriceArray[index]);
 						}
 						// update for next iteration
 						index++;
 					}
-					
 				}
 			}
 			
+			// nYear
+			this.nYear             = nYear;
+			// date
+			this.dateArray         = myDateArray;
 			// price
-			double[]    retPrice          = DoubleArray.toDoubleArray(myPriceArray, DoubleUnaryOperator.identity());
+			this.retPrice          = DoubleArray.toDoubleArray(myPriceArray, DoubleUnaryOperator.identity());
 			// reinvested price
-			double[]    retReinvestment   = DoubleArray.toDoubleArray(myPriceArray, myDivArray, new ReinvestedValue());
+			this.retReinvestment   = DoubleArray.toDoubleArray(myPriceArray, myDivArray, new ReinvestedValue());
 			// no reinvested price
-			double[]    retNoReinvestment = DoubleArray.toDoubleArray(myPriceArray, myDivArray, new NoReinvestedValue());
+			this.retNoReinvestment = DoubleArray.toDoubleArray(myPriceArray, myDivArray, new NoReinvestedValue());
+		}
+		
+		public Set<LocalDate> getDateSet(int nYear) {
+			final int nMonth = nYear * 12;
+			// sanity check
+			{
+				if (nYear <= 0) {
+					logger.error("Unexpected value");
+					logger.error("  nYear  {}", nYear);
+					throw new UnexpectedException("Unexpected value");
+				}
+				if (durationInMonth < nMonth) {
+					logger.error("durationInMonth < nMonth");
+					logger.error("  nMonth           {}", nMonth);
+					logger.error("  durationInMonth  {}", durationInMonth);
+					throw new UnexpectedException("durationInMonth < nMonth");
+				}
+			}
+						
+			final MonthlyStats startMonth = monthlyStatsArray[nMonth - 1];
+			final MonthlyStats endMonth   = monthlyStatsArray[0];
 
-			contextArray[i] = new Context(entryArray[i], myDateArray, retPrice, retReinvestment, retNoReinvestment);
-		}		
+			final int startIndex       = startMonth.startIndex;
+			final int stopIndexPlusOne = endMonth.stopIndexPlusOne;
+
+			final LocalDate[] dateArray  = startMonth.dateArray;
+			
+			Set<LocalDate> set = new TreeSet<>();
+			for(int i = startIndex; i < stopIndexPlusOne; i++) {
+				set.add(dateArray[i]);
+			}
+			
+			return set;
+		}
 	}
 	
-	// return Portfolio for last nYear
-	public Portfolio getInstance(int nYear) {
-		Entry[] entryArray = GenericArray.toArray(contextArray, 0, contextArray.length, o -> o.entry, Entry.class);
-		return new Portfolio(entryArray, nYear);
+	public int                  nYear = 0;
+	public Map<String, Holding> map   = new TreeMap<>();
+	//         name
+	private boolean needsSetDuration  = true;
+	
+	public void put(String name, Holding holding) {
+		if (map.containsKey(name)) {
+			logger.error("Duplicate name");
+			logger.error("  name  {}", name);
+			logger.error("  map   {}", map.keySet());
+			throw new UnexpectedException("Duplicate name");
+		} else {
+			map.put(name, holding);
+		}
+		//
+		needsSetDuration = true;
 	}
+	public void put(String name, String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+		Holding holding = new Holding(code, dailyPriceDivArray, quantity);
+		put(name, holding);
+	}
+	public void put(String name, String code, DailyPriceDiv[] dailyPriceDivArray) {
+		Holding holding = new Holding(code, dailyPriceDivArray);
+		put(name, holding);
+	}
+	public Holding get(String name) {
+		if (map.containsKey(name)) {
+			return map.get(name);
+		} else {
+			logger.error("Unknown name");
+			logger.error("  name  {}", name);
+			logger.error("  map   {}", map.keySet());
+			throw new UnexpectedException("Duplicate name");
+		}
+	}
+
+	public void setQuantity(String name, int newValue) {
+		if (map.containsKey(name)) {
+			// sanity check
+			{
+				if (newValue < 0) {
+					logger.error("newValue < 0");
+					logger.error("  newValue  {}", newValue);
+					throw new UnexpectedException("newValue < 0");
+				}
+			}
+
+			Holding holding = map.get(name);
+			holding.setQuantity(newValue);
+		} else {
+			logger.error("Unknown name");
+			logger.error("  name  {}", name);
+			logger.error("  map   {}", map.keySet());
+			throw new UnexpectedException("Unknown name");
+		}
+	}
+	public void setDuration(int nYear) {
+		// sanity check
+		{
+			if (nYear <= 0) {
+				logger.error("nYear <= 0");
+				logger.error("  nYear  {}", nYear);
+				throw new UnexpectedException("nYear <= 0");
+			}
+		}
+		this.nYear = nYear;
+		//
+		needsSetDuration = true;
+	}
+	public void prepare() {
+		{
+			boolean needsSetWeight = false;
+			for(var holding: map.values()) {
+				if (holding.needsSetWeight) {
+					needsSetWeight = true;
+					break;
+				}
+			}
+			if (needsSetWeight) {
+				// call holding.setWeight
+				int totalQuantity = map.values().stream().mapToInt(o -> o.quantity).sum();
+				for(var holding: map.values()) {
+					holding.setWeight(totalQuantity);
+				}
+			}
+		}
+		
+		if (needsSetDuration) {
+			Set<LocalDate> dateSet = new TreeSet<>();
+			// build dateSet
+			for(var holding: map.values()) {
+				dateSet.addAll(holding.getDateSet(nYear));
+			}
+			// call holding.setDuration
+			for(var holding: map.values()) {
+				holding.setDuration(nYear, dateSet);
+			}
+			//
+			needsSetDuration = false;
+		}
+	}
+	
 	
 	// Rate of return of reinvestment -- invest dividend
 	public double rorReinvestment() {
+		prepare();
+		
 		double result = 0;
-		for(var e: contextArray) {
+		for(var e: map.values()) {
 			double[] array = e.retReinvestment;
 			//
 			double startValue = array[0];
 			double endValue   = array[array.length - 1];
-			result += e.entry.weight * SimpleReturn.getValue(startValue, endValue);
+			result += e.weight * SimpleReturn.getValue(startValue, endValue);
 		}
 		return SimpleReturn.compoundAnnualReturn(result, nYear);
 	}
 	// Rate of return of no reinvestment -- just take dividend
 	public double rorNoReinvestment() {
+		prepare();
+
 		double result = 0;
-		for(var e: contextArray) {
+		for(var e: map.values()) {
 			double[] array = e.retNoReinvestment;
 			//
 			double startValue = array[0];
 			double endValue   = array[array.length - 1];
-			result += e.entry.weight * SimpleReturn.getValue(startValue, endValue);
+			result += e.weight * SimpleReturn.getValue(startValue, endValue);
 		}
 		return SimpleReturn.compoundAnnualReturn(result, nYear);
 	}
 	// Standard deviation of simple return of price
 	public double standardDeviation() {
-		int length = contextArray.length;
+		prepare();
+
+		int length = map.size();
 		
 		double[] weightArray = new double[length];
 		Stats[]  statsArray  = new Stats[length];
-		for(int i = 0; i < length; i++) {
-			Context context = contextArray[i];
-			weightArray[i] = context.entry.weight;
-			
-			// use simple return of price
-			statsArray[i]  = new Stats(DoubleArray.toDoubleArray(context.retPrice, new SimpleReturn()));
-		}
 		
+		int index = 0;
+		for(var e: map.values()) {
+			weightArray[index] = e.weight;
+			statsArray[index]  = new Stats(DoubleArray.toDoubleArray(e.retPrice, new SimpleReturn()));
+			// update for next iteration
+			index++;
+		}
+				
 		return Finance.annualStandardDeviationFromDailyStandardDeviation(Stats.standardDeviation(statsArray, weightArray));
 	}
-	
-	public double standardDeviation2() {
-		int length = contextArray[0].retPrice.length;
-		double[] data = new double[length];
-		
-		// create synthesize value from retPrice and weight
-		for(var e: contextArray) {
-			double[] simpleReturn = DoubleArray.toDoubleArray(e.retPrice, new SimpleReturn());
-			for(int i = 0; i < length; i++) {
-				data[i] += e.entry.weight * simpleReturn[i];
-			}
-		}
-		
-		// return standard deviation of synthesize value
-		return Finance.annualStandardDeviationFromDailyStandardDeviation(Stats.standardDeviation(data));
-	}
-	
+
 }
