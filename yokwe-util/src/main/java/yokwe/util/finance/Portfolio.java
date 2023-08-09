@@ -207,6 +207,12 @@ public final class Portfolio {
 	private boolean needsSetDuration  = true;
 	private boolean needsSetWeight    = true;
 
+	public Portfolio() {}
+	
+	public Portfolio(int nYear) {
+		setDuration(nYear);
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("{%d  %s}", nYear, map.values());
@@ -286,6 +292,9 @@ public final class Portfolio {
 	public int durationInMonth() {
 		var opt = map.values().stream().mapToInt(o -> o.durationInMonth).min();
 		return opt.orElse(0);
+	}
+	public int durationInYear() {
+		return durationInMonth() / 12;
 	}
 	
 	// Rate of return of reinvestment -- invest dividend
