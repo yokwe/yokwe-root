@@ -98,7 +98,6 @@ public class FundStats {
 			throw new UnexpectedException("startIndexArray.length != duration");
 		}
 
-
 		MonthlyStats[] monthlyStatsArray;
 		{
 			
@@ -171,8 +170,15 @@ public class FundStats {
 		validMonthSet.add(60);
 		validMonthSet.add(120);
 	}
-	private static boolean checkMonthValue(int nMonth) {
-		return validMonthSet.contains(nMonth);
+	private void checkMonthValue(int nMonth) {
+		validMonthSet.contains(nMonth);
+		
+		if (duration < nMonth) {
+			logger.error("Unexpected nMonth");
+			logger.error("  nMonth    {}", nMonth);
+			logger.error("  duration  {}", duration);
+			throw new UnexpectedException("Unexpected nMonth");
+		}
 	}
 	
 	public double rateOfReturn(int nMonth) {
@@ -191,12 +197,6 @@ public class FundStats {
 		
 		// sanity check
 		checkMonthValue(nMonth);
-		if (duration < nMonth) {
-			logger.error("Unexpected nMonth");
-			logger.error("  nMonth    {}", nMonth);
-			logger.error("  duration  {}", duration);
-			throw new UnexpectedException("Unexpected nMonth");
-		}
 		
 		double value = 1;
 		for(int i = 0; i < nMonth; i++) {
@@ -247,14 +247,34 @@ public class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 
-		int       startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int       stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int    startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int    stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
 		
-		double    startValue       = priceArray[startIndex - 1];
-		double    endValue         = priceArray[stopIndexPlusOne - 1];
-		double    divTotal         = Arrays.stream(divArray, startIndex, stopIndexPlusOne).sum();
+		double startValue       = priceArray[startIndex - 1];
+		double endValue         = priceArray[stopIndexPlusOne - 1];
+		double divTotal         = Arrays.stream(divArray, startIndex, stopIndexPlusOne).sum();
 		
 		return Math.pow((endValue + divTotal) / startValue, 12.0 / nMonth) - 1;
 	}
+	
+	public double dividend(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int    startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int    stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
 
+		return Arrays.stream(divArray, startIndex, stopIndexPlusOne).sum();
+	}
+	
+	public double yield(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int    startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int    stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+
+		return Arrays.stream(divArray, startIndex, stopIndexPlusOne).sum() * 12.0 / nMonth;
+	}
+	
 }
