@@ -15,6 +15,7 @@ import java.util.Set;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.NoReinvestedValue;
 import yokwe.util.finance.online.ReinvestedValue;
+import yokwe.util.finance.online.SimpleReturn;
 
 public class FundStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -22,12 +23,14 @@ public class FundStats {
 	// https://www.nikkei.com/help/contents/markets/fund/
 	
 	public static class MonthlyStats {
-		public final double rorReinvest;
-		public final double rorNoReinvest;
+		public final double[] rorPriceArray;
+		public final double[] rorReinvestArray;
+		public final double[] rorNoReinvestArray;
 		
-		public MonthlyStats(double rorReinvest, double rorNoReinvest) {
-			this.rorReinvest   = rorReinvest;
-			this.rorNoReinvest = rorNoReinvest;
+		public MonthlyStats(double[] rorPriceArray, double[] rorReinvestArray, double[] rorNoReinvestArray) {
+			this.rorPriceArray      = rorPriceArray;
+			this.rorReinvestArray   = rorReinvestArray;
+			this.rorNoReinvestArray = rorNoReinvestArray;
 		}
 	}
 
@@ -50,7 +53,7 @@ public class FundStats {
 	public final int         startIndex;            // startIndex for firstDate
 	public final int         stopIndexPlusOne;      // stopIndexPlusOne for lastDate
 	
-	public final MonthlyStats[] monthlyStatsArray;  // monthlyStatsArray.length == duration
+	public final MonthlyStats monthlyStats;         // monthlyStats.rorPriceArray.length == duration
 	
 	
 	
@@ -59,7 +62,7 @@ public class FundStats {
 		LocalDate[] dateArray, double[] priceArray, double[] divArray,
 		int duration, LocalDate firstDate, LocalDate lastDate,
 		int startIndexArray[],
-		MonthlyStats[] monthlyStatsArray) {
+		MonthlyStats monthlyStats) {
 		this.code              = code;
 		this.length            = dateArray.length;
 		this.dateArray         = dateArray;
@@ -73,7 +76,7 @@ public class FundStats {
 		this.startIndex        = startIndexArray[0];
 		this.stopIndexPlusOne  = startIndexArray[startIndexArray.length - 1];
 		
-		this.monthlyStatsArray = monthlyStatsArray;
+		this.monthlyStats      = monthlyStats;
 	}
 	public static FundStats getInstance(String code, DailyPriceDiv[] array) {
 		LocalDate firstDate = array[0].date.plusMonths(1).with(TemporalAdjusters.firstDayOfMonth());                // inclusive
@@ -98,15 +101,26 @@ public class FundStats {
 			throw new UnexpectedException("startIndexArray.length != duration");
 		}
 
-		MonthlyStats[] monthlyStatsArray;
+		MonthlyStats monthlyStats;
 		{
 			
-			List<MonthlyStats> list = new ArrayList<>();
+			List<Double> rorPriceList      = new ArrayList<>();
+			List<Double> rorReinvestList   = new ArrayList<>();
+			List<Double> rorNoReinvestList = new ArrayList<>();
 			
 			for(int i = 1; i < startIndexArray.length; i++) {
 				int startIndex       = startIndexArray[i - 1];
 				int stopIndexPlusOne = startIndexArray[i];
 				
+				double rorPrice;
+				{
+					double   startValue   = priceArray[startIndex - 1];
+					double   endValue     = priceArray[stopIndexPlusOne - 1];
+					
+					rorPrice = (endValue / startValue) - 1;
+				}
+				rorPriceList.add(rorPrice);
+
 				double rorReinvest;
 				{
 					double[] valueArray   = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new ReinvestedValue());
@@ -115,7 +129,8 @@ public class FundStats {
 					
 					rorReinvest = (endValue / startValue) - 1;
 				}
-				
+				rorReinvestList.add(rorReinvest);
+
 				double rorNoReinvest;
 				{
 					double[] valueArray   = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new NoReinvestedValue());
@@ -124,18 +139,21 @@ public class FundStats {
 					
 					rorNoReinvest = (endValue / startValue) - 1;
 				}
-
-				MonthlyStats monthlyStats = new MonthlyStats(rorReinvest, rorNoReinvest);
-				list.add(monthlyStats);
+				rorNoReinvestList.add(rorNoReinvest);
 			}
 			
 			// reverse list. So first entry of list point to latest week
-			Collections.reverse(list);
-			// list to array
-			monthlyStatsArray = list.stream().toArray(MonthlyStats[]::new);
+			Collections.reverse(rorPriceList);
+			Collections.reverse(rorReinvestList);
+			Collections.reverse(rorNoReinvestList);
+			monthlyStats = new MonthlyStats(
+				rorPriceList.stream().mapToDouble(o -> o).toArray(),
+				rorReinvestList.stream().mapToDouble(o -> o).toArray(),
+				rorNoReinvestList.stream().mapToDouble(o -> o).toArray()
+			);
 		}
 		
-		return new FundStats(code, dateArray, priceArray, divArray, duration, firstDate, lastDate, startIndexArray, monthlyStatsArray);
+		return new FundStats(code, dateArray, priceArray, divArray, duration, firstDate, lastDate, startIndexArray, monthlyStats);
 	}
 	
 	private static int[] getStartIndexArray(LocalDate[] dateArray, TemporalField temporalField) {
@@ -200,7 +218,7 @@ public class FundStats {
 		
 		double value = 1;
 		for(int i = 0; i < nMonth; i++) {
-			value *= (1 + monthlyStatsArray[i].rorReinvest);
+			value *= (1 + monthlyStats.rorReinvestArray[i]);
 		}
 		return Math.pow(value, 12.0 / nMonth) - 1;
 	}
@@ -277,4 +295,38 @@ public class FundStats {
 		return Arrays.stream(divArray, startIndex, stopIndexPlusOne).sum() * 12.0 / nMonth;
 	}
 	
+	public double risk(int nMonth) {
+		// リスク・リスク(１年)・リスク(年率)
+		// 基準価格のブレ幅の大きさ表します。
+		// 過去の基準価格の一定間隔（日次、週次、月次）のリターンを統計処理した標準偏差の数値です。
+		// この数値が大きな投資信託ほど大きく値上がりしたり、大きく値下がりしたりする可能性が高く、
+		// 逆にリスクの小さい投信ほど値動きは緩やかになると推測できます。
+		// 月次更新。6カ月は日次データ、1年は週次データ、3年超は月次データで算出しています。
+		// リスク(年率)は対象期間中のリスクを１年間に換算した年率で表示しています。
+		// 【計算内容】
+		// ・リスク(1年)、リスク(年率)1年　（=年率標準偏差1年）
+		// √(nΣ週次リターン^2 - (Σ週次リターン)^2) / n(n-1) × √52　n=52
+		// ・リスク(年率)3年～設定来　（=年率標準偏差3年～設定来）
+		// √(nΣ月次リターン^2 - (Σ月次リターン)^2) / n(n-1) × √12　n=36,60,120,設定来月数
+		
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		double value;
+		if (nMonth == 6) {
+			// use priceArray
+			double[]  array            = DoubleArray.toDoubleArray(priceArray, new SimpleReturn());
+			int       startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+			int       stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+			value = Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * Math.sqrt(250);
+		} else if (nMonth == 12) {
+			// use weeklyStats
+			value = 0;
+		} else {
+			// use monthlyStats
+			value = Stats.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * Math.sqrt(12);
+		}
+		
+		return value;
+	}
 }
