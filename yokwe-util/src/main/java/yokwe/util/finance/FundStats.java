@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Set;
 
 import yokwe.util.UnexpectedException;
-import yokwe.util.finance.online.NoReinvestedValue;
-import yokwe.util.finance.online.ReinvestedValue;
-import yokwe.util.finance.online.SimpleReturn;
 
 public class FundStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -25,12 +22,10 @@ public class FundStats {
 	public static class MonthlyStats {
 		public final double[] rorPriceArray;
 		public final double[] rorReinvestArray;
-		public final double[] rorNoReinvestArray;
 		
-		public MonthlyStats(double[] rorPriceArray, double[] rorReinvestArray, double[] rorNoReinvestArray) {
-			this.rorPriceArray      = rorPriceArray;
-			this.rorReinvestArray   = rorReinvestArray;
-			this.rorNoReinvestArray = rorNoReinvestArray;
+		public MonthlyStats(double[] rorPriceArray, double[] rorReinvestArray) {
+			this.rorPriceArray    = rorPriceArray;
+			this.rorReinvestArray = rorReinvestArray;
 		}
 	}
 
@@ -106,7 +101,6 @@ public class FundStats {
 			
 			List<Double> rorPriceList      = new ArrayList<>();
 			List<Double> rorReinvestList   = new ArrayList<>();
-			List<Double> rorNoReinvestList = new ArrayList<>();
 			
 			for(int i = 1; i < startIndexArray.length; i++) {
 				int startIndex       = startIndexArray[i - 1];
@@ -120,36 +114,49 @@ public class FundStats {
 					rorPrice = (endValue / startValue) - 1;
 				}
 				rorPriceList.add(rorPrice);
-
+				
 				double rorReinvest;
 				{
-					double[] valueArray   = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new ReinvestedValue());
-					double   startValue   = priceArray[startIndex - 1];
-					double   endValue     = valueArray[valueArray.length - 1];
+					// https://www.nikkei.com/help/contents/markets/fund/#qf15
+					//
+					// リターン・リターン(１年)・リターン(年率)
+					// 投資家が期間中に投資信託を保有して得られた収益を示します。
+					// 分配金を受け取らずにその分を元本に加えて運用を続けた場合、
+					// 基準価格（分配金再投資ベース）がどれだけ上昇または下落したかをパーセントで表示しています。
+					// リターン(年率)は対象期間中のリターンを１年間に換算した年率で表示しています。
+					// 【計算内容】
+					// ・リターン　(＝累積リターン)
+					// {nΠ1(1+月次リターンn)} - 1 　n=6,12,36,60,120,設定来月数
+					// ・リターン(1年)、リターン(年率)　（＝年率累積リターン）
+					// (1+上記累積リターン)^(12/n) - 1 　n=6,12,36,60,120,設定来月数
+					
+					double lastPrice           = priceArray[startIndex - 1];
+					double lastReinvestedPrice = lastPrice;
+					for(int j = startIndex; j < stopIndexPlusOne; j++) {
+						double price = priceArray[j];
+						double div   = divArray[j];
+						
+						double dailyReturn     = (price + div) / lastPrice;
+						double reinvestedPrice = lastReinvestedPrice * dailyReturn;
+						
+						// update for next iteration
+						lastPrice           = price;
+						lastReinvestedPrice = reinvestedPrice;
+					}
+					double startValue   = priceArray[startIndex - 1];
+					double endValue     = lastReinvestedPrice;
 					
 					rorReinvest = (endValue / startValue) - 1;
 				}
 				rorReinvestList.add(rorReinvest);
-
-				double rorNoReinvest;
-				{
-					double[] valueArray   = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new NoReinvestedValue());
-					double   startValue   = priceArray[startIndex - 1];
-					double   endValue     = valueArray[valueArray.length - 1];
-					
-					rorNoReinvest = (endValue / startValue) - 1;
-				}
-				rorNoReinvestList.add(rorNoReinvest);
 			}
 			
 			// reverse list. So first entry of list point to latest week
 			Collections.reverse(rorPriceList);
 			Collections.reverse(rorReinvestList);
-			Collections.reverse(rorNoReinvestList);
 			monthlyStats = new MonthlyStats(
 				rorPriceList.stream().mapToDouble(o -> o).toArray(),
-				rorReinvestList.stream().mapToDouble(o -> o).toArray(),
-				rorNoReinvestList.stream().mapToDouble(o -> o).toArray()
+				rorReinvestList.stream().mapToDouble(o -> o).toArray()
 			);
 		}
 		
@@ -200,19 +207,6 @@ public class FundStats {
 	}
 	
 	public double rateOfReturn(int nMonth) {
-		// https://www.nikkei.com/help/contents/markets/fund/#qf15
-		//
-		// リターン・リターン(１年)・リターン(年率)
-		// 投資家が期間中に投資信託を保有して得られた収益を示します。
-		// 分配金を受け取らずにその分を元本に加えて運用を続けた場合、
-		// 基準価格（分配金再投資ベース）がどれだけ上昇または下落したかをパーセントで表示しています。
-		// リターン(年率)は対象期間中のリターンを１年間に換算した年率で表示しています。
-		// 【計算内容】
-		// ・リターン　(＝累積リターン)
-		// {nΠ1(1+月次リターンn)} - 1 　n=6,12,36,60,120,設定来月数
-		// ・リターン(1年)、リターン(年率)　（＝年率累積リターン）
-		// (1+上記累積リターン)^(12/n) - 1 　n=6,12,36,60,120,設定来月数
-		
 		// sanity check
 		checkMonthValue(nMonth);
 		
@@ -220,34 +214,6 @@ public class FundStats {
 		for(int i = 0; i < nMonth; i++) {
 			value *= (1 + monthlyStats.rorReinvestArray[i]);
 		}
-		return Math.pow(value, 12.0 / nMonth) - 1;
-	}
-	public double rateOfReturnX(int nMonth) {
-		// https://www.nikkei.com/help/contents/markets/fund/#qf15
-		//
-		// リターン・リターン(１年)・リターン(年率)
-		// 投資家が期間中に投資信託を保有して得られた収益を示します。
-		// 分配金を受け取らずにその分を元本に加えて運用を続けた場合、
-		// 基準価格（分配金再投資ベース）がどれだけ上昇または下落したかをパーセントで表示しています。
-		// リターン(年率)は対象期間中のリターンを１年間に換算した年率で表示しています。
-		// ・リターン(1年)、リターン(年率)　（＝年率累積リターン）
-		// (1+上記累積リターン)^(12/n) - 1 　n=6,12,36,60,120,設定来月数
-		
-		// sanity check
-		checkMonthValue(nMonth);
-
-		int       startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int       stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
-		
-		double value;
-		{
-			double[] valueArray   = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new ReinvestedValue());
-			double   startValue   = priceArray[startIndex - 1];
-			double   endValue     = valueArray[valueArray.length - 1];
-			
-			value = (endValue / startValue);
-		}
-		
 		return Math.pow(value, 12.0 / nMonth) - 1;
 	}
 
@@ -315,13 +281,41 @@ public class FundStats {
 		double value;
 		if (nMonth == 6) {
 			// use priceArray
-			double[]  array            = DoubleArray.toDoubleArray(priceArray, new SimpleReturn());
+			double[]  array            = new double[priceArray.length];
 			int       startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
 			int       stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+			
+			for(int i = startIndex; i < stopIndexPlusOne; i++) {
+				double startValue = priceArray[i - 1];
+				double endValue   = priceArray[i];
+				array[i] = (endValue / startValue) - 1;
+			}
+
 			value = Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * Math.sqrt(250);
 		} else if (nMonth == 12) {
 			// use weeklyStats
-			value = 0;
+			double[] array;
+			{
+				List<Double> list = new ArrayList<>();
+				
+				LocalDate oneYearBeforeLastDate = lastDate.minusYears(1).plusDays(1); // inclusive
+				int[] startIndexArray = getStartIndexArray(dateArray, ChronoField.ALIGNED_WEEK_OF_YEAR);
+				for(int i = 1; i < startIndexArray.length; i++) {
+					int       startIndex       = startIndexArray[i - 1];
+					int       stopIndexPlusOne = startIndexArray[i];
+					LocalDate startDate        = dateArray[startIndex];
+					LocalDate endDate          = dateArray[stopIndexPlusOne - 1];
+					double    startValue       = priceArray[startIndex - 1]; // previous day close value
+					double    endValue         = priceArray[stopIndexPlusOne - 1];
+					
+					if (startDate.isBefore(oneYearBeforeLastDate)) continue;
+					if (endDate.isAfter(lastDate)) break;
+					
+					list.add((endValue / startValue) - 1);
+				}
+				array = list.stream().mapToDouble(o -> o).toArray();
+			}
+			value = Stats.standardDeviation(array) * Math.sqrt(52);
 		} else {
 			// use monthlyStats
 			value = Stats.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * Math.sqrt(12);
