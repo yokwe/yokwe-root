@@ -16,11 +16,17 @@ import yokwe.util.finance.online.SimpleReturn;
 
 public final class Portfolio {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
+	
+	public static enum Interval {
+		WEEK,
+		MONTH,
+	}
+	
+	
 	private static final class Holding {
-		final String         name;
-		final MonthlyStats[] monthlyStatsArray;
-		final int            durationInMonth;
+		final String        name;
+		final WeeklyStats[] weeklyStatsArray;
+		final int           durationInWeek;
 
 		int      quantity;
 		double   weight;
@@ -29,7 +35,7 @@ public final class Portfolio {
 		double[] retReinvestment;
 		double[] retNoReinvestment;
 		
-		Holding(String code, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
+		Holding(String name, DailyPriceDiv[] dailyPriceDivArray, int quantity) {
 			// sanity check
 			{
 				if (dailyPriceDivArray == null) {
@@ -42,9 +48,9 @@ public final class Portfolio {
 				}
 			}
 			
-			this.name              = code;
-			this.monthlyStatsArray = MonthlyStats.monthlyStatsArray(code, dailyPriceDivArray, 99999);
-			this.durationInMonth   = monthlyStatsArray.length;
+			this.name             = name;
+			this.weeklyStatsArray = WeeklyStats.weeklyStatsArray(name, dailyPriceDivArray);
+			this.durationInWeek   = weeklyStatsArray.length;
 			
 			setQuantity(quantity);
 		}
@@ -85,7 +91,7 @@ public final class Portfolio {
 			weight = (double)quantity / totalQuantity;
 		}
 		void setDuration(int nYear, Set<LocalDate> dateSet) {
-			final int nMonth = nYear * 12;
+			final int nWeek = nYear * 52;
 			// sanity check
 			{
 				if (nYear <= 0) {
@@ -93,16 +99,16 @@ public final class Portfolio {
 					logger.error("  nYear  {}", nYear);
 					throw new UnexpectedException("Unexpected value");
 				}
-				if (durationInMonth < nMonth) {
-					logger.error("durationInMonth < nMonth");
-					logger.error("  nMonth           {}", nMonth);
-					logger.error("  durationInMonth  {}", durationInMonth);
-					throw new UnexpectedException("durationInMonth < nMonth");
+				if (durationInWeek < nWeek) {
+					logger.error("durationInWeek < nWeek");
+					logger.error("  nWeek           {}", nWeek);
+					logger.error("  durationInWeek  {}", durationInWeek);
+					throw new UnexpectedException("durationInWeek < nWeek");
 				}
 			}
 						
-			final MonthlyStats startMonth = monthlyStatsArray[nMonth - 1];
-			final MonthlyStats endMonth   = monthlyStatsArray[0];
+			final WeeklyStats startMonth = weeklyStatsArray[nWeek - 1];
+			final WeeklyStats endMonth   = weeklyStatsArray[0];
 
 			final int startIndex       = startMonth.startIndex;
 			final int stopIndexPlusOne = endMonth.stopIndexPlusOne;
@@ -168,7 +174,7 @@ public final class Portfolio {
 		}
 		
 		Set<LocalDate> getDateSet(int nYear) {
-			final int nMonth = nYear * 12;
+			final int nWeek = nYear * 52;
 			// sanity check
 			{
 				if (nYear <= 0) {
@@ -176,27 +182,27 @@ public final class Portfolio {
 					logger.error("  nYear  {}", nYear);
 					throw new UnexpectedException("Unexpected value");
 				}
-				if (durationInMonth < nMonth) {
-					logger.error("durationInMonth < nMonth");
-					logger.error("  nMonth           {}", nMonth);
-					logger.error("  durationInMonth  {}", durationInMonth);
-					throw new UnexpectedException("durationInMonth < nMonth");
+				if (durationInWeek < nWeek) {
+					logger.error("durationInWeek < nWeek");
+					logger.error("  nWeek           {}", nWeek);
+					logger.error("  durationInWeek  {}", durationInWeek);
+					throw new UnexpectedException("durationInWeek < nWeek");
 				}
 			}
 						
-			final MonthlyStats startMonth = monthlyStatsArray[nMonth - 1];
-			final MonthlyStats endMonth   = monthlyStatsArray[0];
+			final WeeklyStats startWeek = weeklyStatsArray[nWeek - 1];
+			final WeeklyStats endWeek   = weeklyStatsArray[0];
 
-			final int startIndex       = startMonth.startIndex;
-			final int stopIndexPlusOne = endMonth.stopIndexPlusOne;
+			final int startIndex       = startWeek.startIndex;
+			final int stopIndexPlusOne = endWeek.stopIndexPlusOne;
 
-			final LocalDate[] dateArray  = startMonth.dateArray;
+			final LocalDate[] dateArray  = startWeek.dateArray;
 			
-			Set<LocalDate> set = new TreeSet<>();
+			TreeSet<LocalDate> set = new TreeSet<>();
 			for(int i = startIndex; i < stopIndexPlusOne; i++) {
 				set.add(dateArray[i]);
 			}
-			
+			logger.info("set  {}  {}", set.first(), set.last());
 			return set;
 		}
 	}
@@ -229,13 +235,21 @@ public final class Portfolio {
 		}
 		//
 		needsSetDuration = true;
-		
+		needsSetWeight   = true;
+
 		return this;
 	}
 	public Portfolio add(String name, DailyPriceDiv[] dailyPriceDivArray) {
 		return add(name, dailyPriceDivArray, 0);
 	}
 
+	public void clearQuantity() {
+		for(var e: map.values()) {
+			e.setQuantity(0);
+		}
+		needsSetWeight = true;
+	}
+	
 	public Portfolio setQuantity(String name, int newValue) {
 		Holding holding = map.get(name);
 		if (holding != null) {
@@ -275,11 +289,12 @@ public final class Portfolio {
 		}
 		
 		if (needsSetDuration) {
-			Set<LocalDate> dateSet = new TreeSet<>();
+			TreeSet<LocalDate> dateSet = new TreeSet<>();
 			// build dateSet
 			for(var holding: map.values()) {
 				dateSet.addAll(holding.getDateSet(nYear));
 			}
+			
 			// call holding.setDuration
 			for(var holding: map.values()) {
 				holding.setDuration(nYear, dateSet);
@@ -289,13 +304,28 @@ public final class Portfolio {
 		}
 	}
 	
-	public int durationInMonth() {
-		var opt = map.values().stream().mapToInt(o -> o.durationInMonth).min();
+	private int durationInWeek() {
+		var opt = map.values().stream().mapToInt(o -> o.durationInWeek).min();
 		return opt.orElse(0);
 	}
 	public int durationInYear() {
-		return durationInMonth() / 12;
+		return durationInWeek() / 52;
 	}
+	
+	private int durationInWeek(String name) {
+		Holding holding = map.get(name);
+		if (holding == null) {
+			logger.error("Unexpected name");
+			logger.error("  name  {}", name);
+			logger.error("  map   {}", map.values().stream().map(o -> o.name).toList());
+			throw new UnexpectedException("Unexpected name");
+		}
+		return holding.durationInWeek;
+	}
+	public int durationInYear(String name) {
+		return durationInWeek(name) / 52;
+	}
+
 	
 	// Rate of return of reinvestment -- invest dividend
 	public double rorReinvestment() {
@@ -344,5 +374,62 @@ public final class Portfolio {
 				
 		return Finance.annualStandardDeviationFromDailyStandardDeviation(Stats.standardDeviation(statsArray, weightArray));
 	}
+	
+	private Holding getHolding(String name) {
+		if (map.containsKey(name)) {
+			return map.get(name);
+		} else {
+			logger.error("Unexpected name");
+			logger.error("  name  {}", name);
+			logger.error("  map  {}", map.values().stream().toList());
+			throw new UnexpectedException("Unexpected name");
+		}
+	}
+	// Correlation
+	public double correlation(String a, String b) {
+		prepare();
 
+		var dataA = getHolding(a).retPrice;
+		var dataB = getHolding(b).retPrice;
+		
+		var meanA = Stats.mean(dataA);
+		var meanB = Stats.mean(dataB);
+		
+		var statsA = new Stats(DoubleArray.toDoubleArray(dataA, o -> o / meanA));
+		var statsB = new Stats(DoubleArray.toDoubleArray(dataB, o -> o / meanB));
+		
+		return Stats.correlation(statsA, statsB);
+	}
+	//
+	public double rorReinvestment(String name) {
+		prepare();
+		
+		var array = getHolding(name).retReinvestment;
+		double startValue = array[0];
+		double endValue   = array[array.length - 1];
+		return SimpleReturn.compoundAnnualReturn(SimpleReturn.getValue(startValue, endValue), nYear);
+	}
+	public double rorNoReinvestment(String name) {
+		prepare();
+		
+		var array = getHolding(name).retNoReinvestment;
+		double startValue = array[0];
+		double endValue   = array[array.length - 1];
+		return SimpleReturn.compoundAnnualReturn(SimpleReturn.getValue(startValue, endValue), nYear);
+	}
+	public double standardDeviation(String name) {
+		prepare();
+		
+		var array = getHolding(name).retPrice;
+		var stats = new Stats(DoubleArray.toDoubleArray(array, new SimpleReturn()));
+		return Finance.annualStandardDeviationFromDailyStandardDeviation(stats.standardDeviation());
+	}
+	public double standardDeviation2(String name) {
+		prepare();
+		
+		var array = getHolding(name).retPrice;
+		var stats = new Stats(array);
+		
+		return Finance.annualStandardDeviationFromDailyStandardDeviation(stats.standardDeviation() / stats.mean());
+	}
 }

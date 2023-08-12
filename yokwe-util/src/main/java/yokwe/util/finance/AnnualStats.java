@@ -21,6 +21,16 @@ public final class AnnualStats {
 		return (nMonth <= monthlyStatsArray.length) ? new AnnualStats(monthlyStatsArray, nYear) : null;
 	}
 	
+	public static AnnualStats getInstance(final WeeklyStats[] weeklyStatsArray, final int nYear) {
+		if (weeklyStatsArray == null) {
+			logger.error("weeklyStatsArray == null");
+			throw new UnexpectedException("weeklyStatsArray == null");
+		}
+		
+		int nWeek = nYear * 52;
+		return (nWeek <= weeklyStatsArray.length) ? new AnnualStats(weeklyStatsArray, nYear) : null;
+	}
+	
 	
 	public final String      code;                // isinCode, stockCode or ticker symbol
 	public final LocalDate[] dateArray;
@@ -96,4 +106,49 @@ public final class AnnualStats {
 			standardDeviation = Finance.annualStandardDeviationFromDailyStandardDeviation(sd);
 		}
 	}
+	
+	private AnnualStats(final WeeklyStats[] weeklyStatsArray, final int nYear) {
+		final int nWeek = nYear * 52;  // 7 * 52 = 364
+		
+		// this class represents last nWeek of data
+		WeeklyStats startMonth = weeklyStatsArray[nWeek - 1];
+		WeeklyStats endMonth   = weeklyStatsArray[0];
+		
+		code                 = startMonth.code;
+		dateArray            = startMonth.dateArray;
+		priceArray           = startMonth.priceArray;
+		divArray             = startMonth.divArray;
+		
+		startIndex           = startMonth.startIndex;
+		stopIndexPlusOne     = endMonth.stopIndexPlusOne;
+		
+		retPrice             = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
+		retReinvestment      = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new ReinvestedValue());
+		retNoReinvestment    = DoubleArray.toDoubleArray(priceArray, divArray, startIndex, stopIndexPlusOne, new NoReinvestedValue());
+		
+		startDate            = dateArray[startIndex];
+		startPrice           = retPrice[0];
+		startReinvestment    = retReinvestment[0];
+		startNoReinvestment  = retNoReinvestment[0];
+
+		endDate              = dateArray[stopIndexPlusOne - 1];
+		endPrice             = retPrice[retPrice.length - 1];
+		endReinvestment      = retReinvestment[retReinvestment.length - 1];
+		endNoReinvestment    = retNoReinvestment[retNoReinvestment.length - 1];
+		
+		dividend             = Stats.sum(divArray, startIndex, stopIndexPlusOne);
+		yield                = (dividend / endPrice) / nYear; // yield per year
+		
+		rorPrice             = SimpleReturn.compoundAnnualReturn(SimpleReturn.getValue(startPrice, endPrice), nYear);
+		rorReinvestment      = SimpleReturn.compoundAnnualReturn(SimpleReturn.getValue(startReinvestment, endReinvestment), nYear);
+		rorNoReinvestment    = SimpleReturn.compoundAnnualReturn(SimpleReturn.getValue(startNoReinvestment, endNoReinvestment), nYear);
+		
+		{
+			// calculate standard deviation from retPrice
+			double[] array = DoubleArray.toDoubleArray(retPrice, new SimpleReturn());
+			double sd = Stats.standardDeviation(array);
+			standardDeviation = Finance.annualStandardDeviationFromDailyStandardDeviation(sd);
+		}
+	}
+	
 }

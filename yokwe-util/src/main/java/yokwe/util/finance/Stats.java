@@ -146,6 +146,19 @@ public final class Stats {
 		return Math.sqrt(variance(statsArray, weightArray));
 	}
 	
+	public static double[] standardMeasure(double[] data) {
+		Stats stats = new Stats(data);
+		double sd = stats.standardDeviation();
+		double mean = stats.mean();
+		
+		return DoubleArray.toDoubleArray(data, o -> (o - mean) / sd);
+	}
+	
+	public static double mean(double[] data) {
+		Stats stats = new Stats(data);
+		return stats.mean();
+	}
+	
 	private final double[] data;
 	private final int      startIndex;
 	private final int      stopIndexPlusOne;

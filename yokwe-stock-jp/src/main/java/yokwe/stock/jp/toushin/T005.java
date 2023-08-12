@@ -8,7 +8,7 @@ import yokwe.util.finance.DailyPriceDiv;
 import yokwe.util.finance.MonthlyStats;
 import yokwe.util.finance.Portfolio;
 
-public class T002 {
+public class T005 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Map<String, Fund> FUND_MAP = Fund.getMap();
@@ -68,16 +68,28 @@ public class T002 {
 			Portfolio portfolio = new Portfolio();
 			
 			portfolio.
-				add("JP3046490003", getDairyPriceDiv("JP3046490003"), 100).
-				add("JP90C0008X42", getDairyPriceDiv("JP90C0008X42"), 100).
+				add("JP3046490003", getDairyPriceDiv("JP3046490003")).
+				add("JP90C0008X42", getDairyPriceDiv("JP90C0008X42")).
 				setDuration(1);
 			logger.info("portfolio  {}  {}", portfolio, portfolio.durationInYear());
 			
-			logger.info("portofolio JP3046490003 rorReinvestment    {}", portfolio.rorReinvestment("JP3046490003") * 100);
-			logger.info("portofolio JP3046490003 standardDeviation  {}", portfolio.standardDeviation("JP3046490003") * 100);
-
-			logger.info("portofolio JP90C0008X42 rorReinvestment    {}", portfolio.rorReinvestment("JP90C0008X42") * 100);
-			logger.info("portofolio JP90C0008X42 standardDeviation  {}", portfolio.standardDeviation("JP90C0008X42") * 100);
+			portfolio.
+				setQuantity("JP3046490003", 100).
+				setQuantity("JP90C0008X42", 0);
+			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
+			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
+			
+			portfolio.
+				setQuantity("JP3046490003", 0).
+				setQuantity("JP90C0008X42", 100);
+			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
+			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
+			
+			portfolio.
+				setQuantity("JP3046490003", 100).
+				setQuantity("JP90C0008X42", 100);
+			logger.info("portofolio rorReinvestment    {}", portfolio.rorReinvestment() * 100);
+			logger.info("portofolio standardDeviation  {}", portfolio.standardDeviation() * 100);
 		}
 		
 		logger.info("STOP");

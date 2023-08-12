@@ -23,10 +23,12 @@ public final class Finance {
 
 	public static final int WORKING_DAYS_IN_YEAR = 250;
 	public static final int DAYS_IN_YEAR         = 365;
+	public static final int WEEKS_IN_YEAR        =  52;
 	public static final int MONTHS_IN_YEAR       =  12;
 	
 	public static final double DURATION_PER_DAY          = 1.0 / DAYS_IN_YEAR;
 	public static final double SQRT_MONTHS_IN_YEAR       = Math.sqrt(MONTHS_IN_YEAR);
+	public static final double SQRT_WEEKS_IN_YEAR        = Math.sqrt(WEEKS_IN_YEAR);
 	public static final double SQRT_WORKING_DAYS_IN_YEAR = Math.sqrt(WORKING_DAYS_IN_YEAR);
 	
 	
@@ -56,8 +58,6 @@ public final class Finance {
 		return diffYear + diffDays * DURATION_PER_DAY;
 	}
 	
-	
-	
 	public static BigDecimal durationInYearMonth(LocalDate startDate, LocalDate endDate) {
 		// startDate and endDate is inclusive
 		if (startDate.isAfter(endDate)) {
@@ -79,13 +79,12 @@ public final class Finance {
 	// 具体的には、日次、週次、月次騰落率から計測した標準偏差について、
 	// 1年＝250（営業日）＝52（週）＝12（月）の各250、52、12の平方根を掛けた値が年率換算値になる。	
 	public static double annualStandardDeviationFromDailyStandardDeviation(double dailyStandardDeviation) {
-		// 1 year = 250 days
-		// dailyStandardDeviation x sqrt(250)
 		return dailyStandardDeviation * Finance.SQRT_WORKING_DAYS_IN_YEAR;
 	}
+	public static double annualStandardDeviationFromWeeklyStandardDeviation(double weeklyStandardDeviation) {
+		return weeklyStandardDeviation * Finance.SQRT_WEEKS_IN_YEAR;
+	}
 	public static double annualStandardDeviationFromMonthlyStandardDeviation(double monthlyStandardDeviation) {
-		// 1 year = 12 month
-		// montylyStandardDeviation x sqrt(12)
 		return monthlyStandardDeviation * Finance.SQRT_MONTHS_IN_YEAR;
 	}
 
