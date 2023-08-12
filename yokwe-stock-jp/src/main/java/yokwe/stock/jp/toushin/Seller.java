@@ -59,11 +59,11 @@ public class Seller implements Comparable<Seller> {
 			if (map.containsKey(sellerName)) {
 				return map.get(sellerName);
 			} else {
-				logger.warn("Unexpected sellerName  {}  {}", isinCode, sellerName);
+//				logger.warn("Unexpected sellerName  {}  {}", isinCode, sellerName);
 				return null;
 			}
 		} else {
-			logger.warn("Unexpected sellerName  {}  {}", isinCode, sellerName);
+//			logger.warn("Unexpected sellerName  {}  {}", isinCode, sellerName);
 			return null;
 		}
 	}
