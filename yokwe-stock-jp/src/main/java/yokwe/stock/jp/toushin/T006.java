@@ -41,8 +41,16 @@ public class T006 {
 		logger.info("fundStats      {}  {}  {}", fundStats.duration, fundStats.firstDate, fundStats.lastDate);
 		
 		logger.info("  rateOfReturn  {}", fundStats.rateOfReturn(nMonth));
-		logger.info("  rateOfReturnX {}", fundStats.rateOfReturnX(nMonth));
-		logger.info("  rateOfReturnNoReinvest {}", fundStats.rateOfReturnNoReinvest(nMonth));
+		logger.info("  rateOfReturn2 {}", fundStats.rateOfReturnNoReinvest(nMonth));
+		logger.info("  risk          {}", fundStats.risk(nMonth));
+		
+//		int[] a = {6, 12, 36, 60, 120};
+//		for(var e: a) {
+//			logger.info("{}", e);
+//			logger.info("  rateOfReturn  {}", fundStats.rateOfReturn(e));
+//			logger.info("  rateOfReturn2 {}", fundStats.rateOfReturnNoReinvest(e));
+//			logger.info("  risk          {}", fundStats.risk(e));
+//		}
 	}
 	
 	
@@ -51,8 +59,9 @@ public class T006 {
 		
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
-		testStats("JP3046490003", 12);
-		testStats("JP90C0008X42", 12);
+		int nMonth = 12;
+		testStats("JP3046490003", nMonth);
+		testStats("JP90C0008X42", nMonth);
 		
 		logger.info("STOP");
 	}
