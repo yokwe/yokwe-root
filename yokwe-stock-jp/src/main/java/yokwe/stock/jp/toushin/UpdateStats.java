@@ -18,11 +18,9 @@ import yokwe.stock.jp.sbi.SBIFund;
 import yokwe.stock.jp.sony.SonyFund;
 import yokwe.util.DoubleUtil;
 import yokwe.util.StringUtil;
-import yokwe.util.finance.AnnualStats;
 import yokwe.util.finance.DailyPriceDiv;
 import yokwe.util.finance.Finance;
-import yokwe.util.finance.MonthlyStats;
-import yokwe.util.finance.online.RSI;
+import yokwe.util.finance.FundStats;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -35,9 +33,6 @@ public class UpdateStats {
 	public static final  BigDecimal CONSUMPTION_TAX_RATE  = new BigDecimal("1.1"); // 10 percent
 	
 	private static final BigDecimal MINUS_ONE = BigDecimal.ONE.negate();
-	private static final int        MAX_YEARS = 10;
-	
-	private static final boolean USE_REINVESTMENT = false;
 	
 	private static final LocalDate LAST_DATE_OF_LAST_MONTH = LocalDate.now().withDayOfMonth(1).minusDays(1);
 	
@@ -73,8 +68,8 @@ public class UpdateStats {
 			count++;
 			if ((count % 500) == 1) logger.info("{}", String.format("%4d / %4d", count, fundList.size()));
 			
-			MonthlyStats[] monthlyStatsArray;
-			BigDecimal     nav;
+			FundStats  fundStats;
+			BigDecimal nav;
 			{
 				Price[] priceArray = Price.getList(isinCode).stream().toArray(Price[]::new);
 				if (priceArray.length == 0) {
@@ -89,12 +84,11 @@ public class UpdateStats {
 					nav = e.nav;
 				}
 				
-				Dividend[] divArray = Dividend.getList(isinCode).stream().toArray(Dividend[]::new);
+				Dividend[]      divArray           = Dividend.getList(isinCode).stream().toArray(Dividend[]::new);
 				DailyPriceDiv[] dailyPriceDivArray = DailyPriceDiv.toDailyPriceDivArray(
 					priceArray, o -> o.date, o -> o.price.doubleValue(),
 					divArray,   o -> o.date, o -> o.amount.doubleValue());
-				
-				monthlyStatsArray = MonthlyStats.monthlyStatsArray(isinCode, dailyPriceDivArray, MAX_YEARS * 12 + 1);
+				fundStats = FundStats.getInstance(isinCode, dailyPriceDivArray);
 			}
 
 			var nikkei = nikkeiMap.get(isinCode);
@@ -124,48 +118,40 @@ public class UpdateStats {
 			
 			// 1 year
 			{
-				int nYear = 1;
-				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd1Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
-				stats.div1Y   = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
-				stats.yield1Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
-				stats.ror1Y   = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				int nMonth = 12;
 				
-				if (aStats == null) {
-					stats.rsi = null;
-				} else {
-					// calculate RSI using one year price data in aStats.retPrice
-					RSI rsi = new RSI();
-					rsi.accept(aStats.retPrice);
-					stats.rsi = DoubleUtil.toBigDecimal(rsi.getAsDouble());
-				}
+				stats.sd1Y    = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth));
+				stats.div1Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth));
+				stats.yield1Y = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth));
+				stats.ror1Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth));
+				stats.rsi     = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rsi(nMonth));
 			}
 			// 3 year
 			{
-				int nYear = 3;
-				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd3Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
-				stats.div3Y   = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
-				stats.yield3Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
-				stats.ror3Y   = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				int nMonth = 36;
+				
+				stats.sd3Y    = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth));
+				stats.div3Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth));
+				stats.yield3Y = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth));
+				stats.ror3Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth));
 			}
 			// 5 year
 			{
-				int nYear = 5;
-				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd5Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
-				stats.div5Y   = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
-				stats.yield5Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
-				stats.ror5Y   = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				int nMonth = 60;
+				
+				stats.sd5Y    = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth));
+				stats.div5Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth));
+				stats.yield5Y = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth));
+				stats.ror5Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth));
 			}
 			// 10 year
 			{
-				int nYear = 10;
-				AnnualStats  aStats = AnnualStats.getInstance(monthlyStatsArray, nYear);
-				stats.sd10Y    = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.standardDeviation);
-				stats.div10Y   = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.dividend);
-				stats.yield10Y = aStats == null ? null : DoubleUtil.toBigDecimal(aStats.yield);
-				stats.ror10Y   = aStats == null ? null : DoubleUtil.toBigDecimal(USE_REINVESTMENT ? aStats.rorReinvestment : aStats.rorNoReinvestment);
+				int nMonth = 120;
+				
+				stats.sd10Y    = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth));
+				stats.div10Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth));
+				stats.yield10Y = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth));
+				stats.ror10Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth));
 			}
 			
 			stats.divQ1Y  = (nikkei == null || nikkei.divScore1Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore1Y);
