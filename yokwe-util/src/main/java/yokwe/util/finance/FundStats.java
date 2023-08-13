@@ -20,7 +20,7 @@ import yokwe.util.GenericArray;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.RSI;
 
-public class FundStats {
+public final class FundStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// https://www.nikkei.com/help/contents/markets/fund/
@@ -33,7 +33,7 @@ public class FundStats {
 	public static final double SQRT_WEEK_IN_YEAR  = Math.sqrt(WEEK_IN_YEAR);
 	public static final double SQRT_MONTH_IN_YEAR = Math.sqrt(MONTH_IN_YEAR);
 	
-	public static class MonthlyStats {
+	public static final class MonthlyStats {
 		public final double[] rorPriceArray;    // rorPriceArray.length == duration
 		public final double[] rorReinvestArray; // rorReinvestArray.length == duration
 		
@@ -236,6 +236,12 @@ public class FundStats {
 		}
 	}
 	
+	private int getStartIndex(int nMonth) {
+		return startIndexArray[startIndexArray.length - 1 - nMonth];
+	}
+	private int getStopIndexPlusOne() {
+		return startIndexArray[startIndexArray.length - 1];
+	}
 	public double rateOfReturn(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
@@ -261,8 +267,8 @@ public class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 
-		int    startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int    stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
 		
 		double startValue       = priceArray[startIndex - 1];       // use previous day price as startValue
 		double endValue         = priceArray[stopIndexPlusOne - 1];
@@ -275,8 +281,8 @@ public class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 		
-		int    startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int    stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
 
 		return Arrays.stream(divArray, startIndex, stopIndexPlusOne).sum();
 	}
@@ -289,12 +295,15 @@ public class FundStats {
 		return (dividend(nMonth) / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
 	}
 	
-	public double risk2(int nMonth) {
-		// calculate risk using daily price value
-		double[]  array            = new double[priceArray.length];
-		int       startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int       stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+	public double riskDaily(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
 		
+		// calculate risk using daily price value
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		double[] array = new double[priceArray.length];
 		for(int i = startIndex; i < stopIndexPlusOne; i++) {
 			double startValue = priceArray[i - 1];
 			double endValue   = priceArray[i];
@@ -302,6 +311,12 @@ public class FundStats {
 		}
 		
 		return Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
+	}
+	public double riskMonthly(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		return Stats.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * SQRT_MONTH_IN_YEAR;
 	}
 	public double risk(int nMonth) {
 		// リスク・リスク(１年)・リスク(年率)
@@ -322,18 +337,7 @@ public class FundStats {
 		
 		double value;
 		if (nMonth == 6) {
-			// use priceArray
-			double[]  array            = new double[priceArray.length];
-			int       startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-			int       stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
-			
-			for(int i = startIndex; i < stopIndexPlusOne; i++) {
-				double startValue = priceArray[i - 1];
-				double endValue   = priceArray[i];
-				array[i] = (endValue / startValue) - 1;
-			}
-			
-			value = Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
+			value = riskDaily(nMonth);
 		} else if (nMonth == 12) {
 			// use weeklyStats
 			double[] array;
@@ -359,8 +363,7 @@ public class FundStats {
 			}
 			value = Stats.standardDeviation(array) * SQRT_WEEK_IN_YEAR;
 		} else {
-			// use monthlyStats
-			value = Stats.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * SQRT_MONTH_IN_YEAR;
+			value = riskMonthly(nMonth);
 		}
 		
 		return value;
@@ -370,8 +373,8 @@ public class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 
-		int    startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int    stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
 		
 		RSI rsi = new RSI();
 		for(int i = startIndex; i < stopIndexPlusOne; i++) {
@@ -413,8 +416,8 @@ public class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 		
-		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
 		
 		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
 	}
@@ -422,8 +425,8 @@ public class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 		
-		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
 		
 		return DoubleArray.toDoubleArray(divArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
 	}
@@ -431,8 +434,8 @@ public class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 		
-		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
 		
 		return GenericArray.toArray(dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
 	}
