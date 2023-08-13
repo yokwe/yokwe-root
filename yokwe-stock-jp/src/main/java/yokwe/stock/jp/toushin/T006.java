@@ -34,15 +34,17 @@ public class T006 {
 	static void testStats(String isinCode, int nMonth) {
 		logger.info("testStats  {}  {}  {}", isinCode, nMonth, getFund(isinCode).name);
 				
-		DailyPriceDiv[] dailyPriceDivarray = getDailyPriceDiv(isinCode);
+		DailyPriceDiv[] dailyPriceDivArray = getDailyPriceDiv(isinCode);
 //		logger.info("dailyPriceDiv  {}  {}  {}", dailyPriceDivarray.length, dailyPriceDivarray[0].date, dailyPriceDivarray[dailyPriceDivarray.length - 1].date);
 
-		FundStats fundStats = FundStats.getInstance(isinCode, dailyPriceDivarray);
+		FundStats fundStats = FundStats.getInstance(isinCode, dailyPriceDivArray);
 		logger.info("fundStats      {}  {}  {}", fundStats.duration, fundStats.firstDate, fundStats.lastDate);
 		
 		logger.info("  rateOfReturn  {}", fundStats.rateOfReturn(nMonth));
 		logger.info("  rateOfReturn2 {}", fundStats.rateOfReturnNoReinvest(nMonth));
 		logger.info("  risk          {}", fundStats.risk(nMonth));
+		logger.info("  riskDaily     {}", fundStats.riskDaily(nMonth));
+		logger.info("  riskMonthly   {}", fundStats.riskMonthly(nMonth));
 		
 //		int[] a = {6, 12, 36, 60, 120};
 //		for(var e: a) {
@@ -59,7 +61,7 @@ public class T006 {
 		
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
-		int nMonth = 12;
+		int nMonth = 36;
 		testStats("JP3046490003", nMonth);
 		testStats("JP90C0008X42", nMonth);
 		
