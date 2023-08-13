@@ -19,6 +19,7 @@ import java.util.function.Function;
 import yokwe.util.GenericArray;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.RSI;
+import yokwe.util.finance.online.SimpleReturn;
 
 public final class FundStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -295,6 +296,8 @@ public final class FundStats {
 		return (dividend(nMonth) / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
 	}
 	
+	// METHOD_B is more similar to nikkei fund result
+	private static boolean USE_METHOD_A = false;
 	public double riskDaily(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
@@ -303,14 +306,27 @@ public final class FundStats {
 		int startIndex       = getStartIndex(nMonth);
 		int stopIndexPlusOne = getStopIndexPlusOne();
 		
-		double[] array = new double[priceArray.length];
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			double startValue = priceArray[i - 1];
-			double endValue   = priceArray[i];
-			array[i] = (endValue / startValue) - 1;
+		if (USE_METHOD_A) {
+			// Method A -- accurate result
+//			JP3046490003  riskDialy    0.14569695340652486
+//			JP90C0008X42  riskDaily    0.17312979346974974
+			
+			double[] array = new double[priceArray.length];
+			for(int i = startIndex; i < stopIndexPlusOne; i++) {
+				double startValue = priceArray[i - 1];
+				double endValue   = priceArray[i];
+				array[i] = (endValue / startValue) - 1;
+			}
+			return Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
+		} else {
+			// Method B -- approximate result and same result as Portfolio.risk()
+//			JP3046490003  riskDialy    0.14501861868895044
+//			JP90C0008X42  riskDaily    0.1727880222672037
+			
+			double[] array = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, new SimpleReturn());
+			return Stats.standardDeviation(array) * SQRT_DAY_IN_YEAR;
 		}
 		
-		return Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
 	}
 	public double riskMonthly(int nMonth) {
 		// sanity check
