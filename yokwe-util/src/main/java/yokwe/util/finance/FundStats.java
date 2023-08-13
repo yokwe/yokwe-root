@@ -25,6 +25,14 @@ public class FundStats {
 	
 	// https://www.nikkei.com/help/contents/markets/fund/
 	
+	public static final int DAY_IN_YEAR   = 250;
+	public static final int WEEK_IN_YEAR  =  52;
+	public static final int MONTH_IN_YEAR =  12;
+	
+	public static final double SQRT_DAY_IN_YEAR   = Math.sqrt(DAY_IN_YEAR);
+	public static final double SQRT_WEEK_IN_YEAR  = Math.sqrt(WEEK_IN_YEAR);
+	public static final double SQRT_MONTH_IN_YEAR = Math.sqrt(MONTH_IN_YEAR);
+	
 	public static class MonthlyStats {
 		public final double[] rorPriceArray;    // rorPriceArray.length == duration
 		public final double[] rorReinvestArray; // rorReinvestArray.length == duration
@@ -196,7 +204,7 @@ public class FundStats {
 
 		// first entry point to startIndex of first month
 		// last  entry point to stopIndexPlusOne of last month
-		List<Integer> list = new ArrayList<>((dateArray.length / 12) + 1);
+		List<Integer> list = new ArrayList<>(dateArray.length);
 		
 		int lastValue = dateArray[0].get(temporalField);
 		for(int i = 1; i < dateArray.length; i++) {
@@ -236,7 +244,7 @@ public class FundStats {
 		for(int i = 0; i < nMonth; i++) {
 			value *= (1 + monthlyStats.rorReinvestArray[i]);
 		}
-		return Math.pow(value, 12.0 / nMonth) - 1;
+		return Math.pow(value, MONTH_IN_YEAR / (double)nMonth) - 1;
 	}
 	
 	public double rateOfReturnNoReinvest(int nMonth) {
@@ -260,7 +268,7 @@ public class FundStats {
 		double endValue         = priceArray[stopIndexPlusOne - 1];
 		double divTotal         = Arrays.stream(divArray, startIndex, stopIndexPlusOne).sum();
 		
-		return Math.pow((endValue + divTotal) / startValue, 12.0 / nMonth) - 1;
+		return Math.pow((endValue + divTotal) / startValue, MONTH_IN_YEAR / (double)nMonth) - 1;
 	}
 	
 	public double dividend(int nMonth) {
@@ -278,9 +286,23 @@ public class FundStats {
 		checkMonthValue(nMonth);
 		
 		double endPrice = priceArray[stopIndexPlusOne - 1];
-		return (dividend(nMonth) / endPrice) * 12.0 / nMonth; // calculate annual yield
+		return (dividend(nMonth) / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
 	}
 	
+	public double risk2(int nMonth) {
+		// calculate risk using daily price value
+		double[]  array            = new double[priceArray.length];
+		int       startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int       stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			double startValue = priceArray[i - 1];
+			double endValue   = priceArray[i];
+			array[i] = (endValue / startValue) - 1;
+		}
+		
+		return Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
+	}
 	public double risk(int nMonth) {
 		// リスク・リスク(１年)・リスク(年率)
 		// 基準価格のブレ幅の大きさ表します。
@@ -311,7 +333,7 @@ public class FundStats {
 				array[i] = (endValue / startValue) - 1;
 			}
 			
-			value = Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * Math.sqrt(250);
+			value = Stats.standardDeviation(array, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
 		} else if (nMonth == 12) {
 			// use weeklyStats
 			double[] array;
@@ -335,10 +357,10 @@ public class FundStats {
 				}
 				array = list.stream().mapToDouble(o -> o).toArray();
 			}
-			value = Stats.standardDeviation(array) * Math.sqrt(52);
+			value = Stats.standardDeviation(array) * SQRT_WEEK_IN_YEAR;
 		} else {
 			// use monthlyStats
-			value = Stats.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * Math.sqrt(12);
+			value = Stats.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * SQRT_MONTH_IN_YEAR;
 		}
 		
 		return value;
