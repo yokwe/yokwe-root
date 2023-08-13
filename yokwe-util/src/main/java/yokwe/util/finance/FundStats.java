@@ -10,8 +10,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 
+import yokwe.util.GenericArray;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.RSI;
 
@@ -74,13 +79,31 @@ public class FundStats {
 		this.monthlyStats      = monthlyStats;
 	}
 	public static FundStats getInstance(String code, DailyPriceDiv[] array) {
+		// check hole in array[].date
+		{
+			long threshold = 11; // 2019-04-26  18012  2019-05-07  18023
+			long lastEpochDay = array[0].date.toEpochDay();
+			for(int i = 1; i < array.length; i++) {
+				long epochDay = array[i].date.toEpochDay();
+				if (threshold < (epochDay - lastEpochDay)) {
+					// hole in array
+					logger.warn("Data has hole  {}  {}  {}", code, array[i - 1].date, array[i].date);
+					return null;
+				}
+				// update for next iteration
+				lastEpochDay = epochDay;
+			}
+		}
+		
 		LocalDate firstDate = array[0].date.plusMonths(1).with(TemporalAdjusters.firstDayOfMonth());                // inclusive
 		LocalDate lastDate  = array[array.length - 1].date.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()); // inclusive
 		Period    period    = Period.between(firstDate, lastDate.plusDays(1));
 		int       duration  = (int)period.toTotalMonths();
 		if (duration < 1) {
 			// return null if duration is less than 1
-			//logger.warn("FundStats getInstance  {}  {}  {}  {}", code, firstDate, lastDate, period.getDays());
+			LocalDate startDate = array[0].date;
+			LocalDate stopDate  = array[array.length - 1].date;
+			logger.warn("Data period is too short  {}  {}  {}  {}", code, startDate, stopDate, stopDate.toEpochDay() - startDate.toEpochDay());
 			return null;
 		}
 		
@@ -90,19 +113,11 @@ public class FundStats {
 		
 		final int[] startIndexArray = getStartIndexArray(dateArray, ChronoField.MONTH_OF_YEAR);
 		if (startIndexArray.length - 1 != duration) {
-			// return null if dateArray has hall
+			// return null if dateArray has hole
 			logger.warn("startIndexArray.length != duration");
 			logger.warn("  code             {}", code);
 			logger.warn("  startIndexArray  {}", startIndexArray.length);
 			logger.warn("  duration         {}", duration);
-//			logger.warn("  firstDate        {}", firstDate);
-//			logger.warn("  lastDate         {}", lastDate);
-//			logger.warn("  startIndex       {}", dateArray[startIndexArray[0]]);
-//			logger.warn("  startIndex       {}", dateArray[startIndexArray[startIndexArray.length - 1] - 1]);
-//			for(var e: startIndexArray) {
-//				logger.warn("  startIndexArray  {}", dateArray[e]);
-//			}
-//			throw new UnexpectedException("startIndexArray.length != duration");
 			return null;
 		}
 		
@@ -343,4 +358,61 @@ public class FundStats {
 		
 		return rsi.getAsDouble();
 	}
+	
+	
+	public Map<LocalDate, Double> priceMap(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+
+		Map<LocalDate, Double>  map = new TreeMap<>();
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			map.put(dateArray[i], priceArray[i]);
+		}
+		return map;
+	}
+	public Map<LocalDate, Double> divMap(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+
+		Map<LocalDate, Double>  map = new TreeMap<>();
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			map.put(dateArray[i], divArray[i]);
+		}
+		return map;
+	}
+	
+	public double[] priceArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		
+		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
+	}
+	public double[] divArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		
+		return DoubleArray.toDoubleArray(divArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
+	}
+	public LocalDate[] dateArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
+		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		
+		return GenericArray.toArray(dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
+	}
+	
 }
