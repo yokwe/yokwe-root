@@ -8,10 +8,8 @@ import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 
@@ -220,14 +218,7 @@ public final class FundStats {
 		return array;
 	}
 	
-	private static Set<Integer> validMonthSet = new HashSet<>();
-	static {
-		int[] array = {6, 12, 36, 60, 120};
-		for(var e: array) validMonthSet.add(e);
-	}
 	private void checkMonthValue(int nMonth) {
-		validMonthSet.contains(nMonth);
-		
 		if (duration < nMonth) {
 			logger.error("Unexpected nMonth");
 			logger.error("  nMonth    {}", nMonth);
@@ -345,9 +336,9 @@ public final class FundStats {
 		checkMonthValue(nMonth);
 		
 		double value;
-		if (nMonth == 6) {
+		if (nMonth < 12) {
 			value = riskDaily(nMonth);
-		} else if (nMonth == 12) {
+		} else if (nMonth < 36) {
 			// use weeklyStats
 			double[] array;
 			{
@@ -437,6 +428,15 @@ public final class FundStats {
 		}
 		return array;
 	}
+	public double[] priceArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne);
+	}
 	
 	
 	
@@ -469,15 +469,6 @@ public final class FundStats {
 		return map;
 	}
 	
-	public double[] priceArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
-	}
 	public double[] divArray(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
