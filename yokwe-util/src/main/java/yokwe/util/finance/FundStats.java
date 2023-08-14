@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
 import yokwe.util.GenericArray;
@@ -296,8 +295,8 @@ public final class FundStats {
 		return (dividend(nMonth) / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
 	}
 	
-	// METHOD_B is more similar to nikkei fund result
-	private static boolean USE_METHOD_A = false;
+	// METHOD_B is more similar to nikkei fund page
+	private static boolean USE_METHOD_A = true;
 	public double riskDaily(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
@@ -312,7 +311,7 @@ public final class FundStats {
 //			JP3046490003  riskDialy    0.14569695340652486
 //			JP90C0008X42  riskDaily    0.17312979346974974
 			
-			array = simpleReturnArray(nMonth);
+			array = returnArray(nMonth);
 		} else {
 			// Method B -- approximate result and same result as Portfolio.risk()
 //			JP3046490003  riskDialy    0.14501861868895044
@@ -395,6 +394,54 @@ public final class FundStats {
 	}
 	
 	
+	
+	public LocalDate[] dateArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		return GenericArray.toArray(dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
+	}
+	public Map<LocalDate, Double> returnMap(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		double[] returnArray = returnArray(startIndex, stopIndexPlusOne);
+		
+		Map<LocalDate, Double> map = new TreeMap<>();
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			map.put(dateArray[i], returnArray[i - startIndex]);
+		}
+		return map;
+	}
+	public double[] returnArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		return returnArray(startIndex, stopIndexPlusOne);
+	}
+	private double[] returnArray(int startIndex, int stopIndexPlusOne) {
+		double[] array = new double[stopIndexPlusOne - startIndex];
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			double startValue = priceArray[i - 1];
+			double endValue   = priceArray[i];
+			array[i - startIndex] = (endValue / startValue) - 1;
+		}
+		return array;
+	}
+	
+	
+	
+	/*	
+	
 	public Map<LocalDate, Double> priceMap(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
@@ -431,23 +478,6 @@ public final class FundStats {
 		
 		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
 	}
-	public double[] simpleReturnArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		int length = stopIndexPlusOne - startIndex;
-		double[]array = new double[length];
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			double startValue = priceArray[i - 1];
-			double endValue   = priceArray[i];
-			array[i - startIndex] = (endValue / startValue) - 1;
-		}
-
-		return array;
-	}
 	public double[] divArray(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
@@ -457,14 +487,6 @@ public final class FundStats {
 		
 		return DoubleArray.toDoubleArray(divArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
 	}
-	public LocalDate[] dateArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return GenericArray.toArray(dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
-	}
 	
+	*/
 }
