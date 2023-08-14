@@ -312,13 +312,7 @@ public final class FundStats {
 //			JP3046490003  riskDialy    0.14569695340652486
 //			JP90C0008X42  riskDaily    0.17312979346974974
 			
-			int length = stopIndexPlusOne - startIndex;
-			array = new double[length];
-			for(int i = startIndex; i < stopIndexPlusOne; i++) {
-				double startValue = priceArray[i - 1];
-				double endValue   = priceArray[i];
-				array[i - startIndex] = (endValue / startValue) - 1;
-			}
+			array = simpleReturnArray(nMonth);
 		} else {
 			// Method B -- approximate result and same result as Portfolio.risk()
 //			JP3046490003  riskDialy    0.14501861868895044
@@ -436,6 +430,23 @@ public final class FundStats {
 		int stopIndexPlusOne = getStopIndexPlusOne();
 		
 		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
+	}
+	public double[] simpleReturnArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		int length = stopIndexPlusOne - startIndex;
+		double[]array = new double[length];
+		for(int i = startIndex; i < stopIndexPlusOne; i++) {
+			double startValue = priceArray[i - 1];
+			double endValue   = priceArray[i];
+			array[i - startIndex] = (endValue / startValue) - 1;
+		}
+
+		return array;
 	}
 	public double[] divArray(int nMonth) {
 		// sanity check
