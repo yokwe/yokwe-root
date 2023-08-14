@@ -1,7 +1,7 @@
 package yokwe.stock.jp.toushin;
 
 import yokwe.util.finance.DailyPriceDiv;
-import yokwe.util.finance.Portfolio2;
+import yokwe.util.finance.Portfolio;
 
 public class T005 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -20,12 +20,12 @@ public class T005 {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		int nMonth = 6;
+		int nMonth = 36;
 		
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend		
 		{
-			Portfolio2 portfolio = new Portfolio2();
+			Portfolio portfolio = new Portfolio();
 			
 			portfolio.
 				add("JP3046490003", getDairyPriceDiv("JP3046490003")).

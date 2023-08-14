@@ -17,7 +17,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import yokwe.util.ClassUtil;
 import yokwe.util.finance.DailyPriceDiv;
-import yokwe.util.finance.Portfolio;
+import yokwe.util.finance.FundStats;
 
 public class T003 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -58,8 +58,8 @@ public class T003 {
 				count++;
 				if ((count % 500) == 1) logger.info("{}", String.format("%4d / %4d", count, fundList.size()));
 				
-//				if (!fund.investingAsset.equals("株式")) continue;
-//				if (!fund.investingArea.equals("北米")) continue;
+				if (!fund.investingAsset.equals("株式")) continue;
+				if (!fund.investingArea.equals("北米")) continue;
 
 				DailyPriceDiv[] dailyPriceDivArray;
 				{
@@ -72,37 +72,32 @@ public class T003 {
 						divArray,   o -> o.date, o -> o.amount.doubleValue());
 				}
 				
-				Portfolio portfolio = new Portfolio();
-				portfolio.add(fund.isinCode, dailyPriceDivArray, 100);
-				int duraionInYear = portfolio.durationInYear();
+				FundStats fundStats = FundStats.getInstance(isinCode, dailyPriceDivArray);
+				if (fundStats == null) continue;
 				
-				if (1 <= duraionInYear) {
-					portfolio.setDuration(1);
-					double ror = portfolio.rorReinvestment();
-					double sd  = portfolio.standardDeviation();
+				if (12 <= fundStats.duration) {
+					double ror  = fundStats.rateOfReturn(12);
+					double risk = fundStats.risk(12);
 					
-					seriesY1.add(sd, ror);
+					seriesY1.add(risk, ror);
 				}
-				if (3 <= duraionInYear) {
-					portfolio.setDuration(3);
-					double ror = portfolio.rorReinvestment();
-					double sd  = portfolio.standardDeviation();
+				if (36 <= fundStats.duration) {
+					double ror  = fundStats.rateOfReturn(36);
+					double risk = fundStats.risk(36);
 					
-					seriesY3.add(sd, ror);
+					seriesY3.add(risk, ror);
 				}
-				if (5 <= duraionInYear) {
-					portfolio.setDuration(5);
-					double ror = portfolio.rorNoReinvestment();
-					double sd  = portfolio.standardDeviation();
+				if (60 <= fundStats.duration) {
+					double ror  = fundStats.rateOfReturn(60);
+					double risk = fundStats.risk(60);
 					
-					seriesY5.add(sd, ror);
+					seriesY5.add(risk, ror);
 				}
-				if (10 <= duraionInYear) {
-					portfolio.setDuration(10);
-					double ror = portfolio.rorReinvestment();
-					double sd  = portfolio.standardDeviation();
+				if (120 <= fundStats.duration) {
+					double ror  = fundStats.rateOfReturn(120);
+					double risk = fundStats.risk(120);
 					
-					seriesY10.add(sd, ror);
+					seriesY10.add(risk, ror);
 				}
 			}
 			
@@ -115,9 +110,11 @@ public class T003 {
 		final String methodName = ClassUtil.getCallerMethodName();
 		for(var series: list) {
 			XYSeriesCollection collection = new XYSeriesCollection(series);
-			JFreeChart chart = ChartFactory.createScatterPlot("ror-sd", "sd", "ror", collection);
+			JFreeChart chart = ChartFactory.createScatterPlot("ror-risk", "risk", "ror", collection);
 			
-			File file = new File("tmp/" + methodName + "-" + series.getKey().toString() + ".png");
+			String path = String.format("tmp/T003-%s-%s.png", methodName, series.getKey().toString());
+			logger.info("save  {}", path);
+			File   file = new File(path);
 			try {
 				ChartUtils.saveChartAsPNG(file, chart, 600, 600);
 			} catch (IOException e) {
@@ -126,17 +123,17 @@ public class T003 {
 		}
 	}
 	
-	private static class FundPortfolio {
+	private static class FundFundStats {
 		final Fund      fund;
-		final Portfolio portfolio;
+		final FundStats fundStats;
 		
-		FundPortfolio(Fund fund, Portfolio portfolio) {
+		FundFundStats(Fund fund, FundStats fundStats) {
 			this.fund      = fund;
-			this.portfolio = portfolio;
+			this.fundStats = fundStats;
 		}
 	}
 	static void sampleScatterB() {
-		List<FundPortfolio> fundPortfolioList = new ArrayList<>();
+		List<FundFundStats> fundFundStatsList = new ArrayList<>();
 		{
 			List<Fund> fundList = Fund.getList();
 			logger.info("fundList   {}", fundList.size());
@@ -164,28 +161,27 @@ public class T003 {
 						divArray,   o -> o.date, o -> o.amount.doubleValue());
 				}
 				
-				Portfolio portfolio = new Portfolio();
-				portfolio.add(fund.isinCode, dailyPriceDivArray, 100);
-				
-				fundPortfolioList.add(new FundPortfolio(fund, portfolio));
+				FundStats fundStats = FundStats.getInstance(isinCode, dailyPriceDivArray);
+				if (fundStats == null) continue;
+
+				fundFundStatsList.add(new FundFundStats(fund, fundStats));
 			}
 		}
 		
 		final String methodName = ClassUtil.getCallerMethodName();
 
 		{
-			int[] durationInYearArray = {1, 3, 5, 10};
-			for(var durationInYear: durationInYearArray) {
+			int[] durationArray = {12, 36, 60, 120};
+			for(var duration: durationArray) {
 				Map<String, XYSeries> seriesMap = new TreeMap<>();
 				//  key
 
-				for(var fundPortfolio: fundPortfolioList) {
-					Fund      fund      = fundPortfolio.fund;
-					Portfolio portfolio = fundPortfolio.portfolio;
-					if (durationInYear <= portfolio.durationInYear()) {
-						portfolio.setDuration(durationInYear);
-						double ror = portfolio.rorReinvestment()   * 100;
-						double sd  = portfolio.standardDeviation() * 100;
+				for(var fundFundStats: fundFundStatsList) {
+					Fund      fund      = fundFundStats.fund;
+					FundStats fundStats = fundFundStats.fundStats;
+					if (duration <= fundStats.duration) {
+						double ror = fundStats.rateOfReturn(duration)   * 100;
+						double sd  = fundStats.risk(duration) * 100;
 						
 						if (fund.isinCode.equals("JP90C0009FQ7")) logger.info("{}  {}  {}", fund.isinCode, sd, ror);
 						
@@ -205,7 +201,7 @@ public class T003 {
 				for(var e: seriesMap.values()) collection.addSeries(e);
 				
 				JFreeChart chart = ChartFactory.createScatterPlot("ror-sd", "sd", "ror", collection);
-				String path = String.format("tmp/%s-%d.png", methodName, durationInYear);
+				String path = String.format("tmp/T003-%s-%d.png", methodName, duration);
 				logger.info("save  {}", path);
 				
 				File file = new File(path);

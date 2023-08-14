@@ -55,14 +55,14 @@ public class T004 {
 			portfolio.add(isinCode, getDailyPriceDiv(isinCode));
 		}
 		for(var isinCode: isinCodeArray) {
-			logger.info("durationInYear  {}  {}  {}", isinCode, portfolio.durationInYear(isinCode), portfolio.durationInYear(isinCode));
+			logger.info("duration  {}  {}  {}", isinCode, portfolio.holdingDuration(), portfolio.holdingDuration(isinCode));
 		}
 		
 //		int nYear = portfolio.durationInYear();
-		logger.info("durationInYear  {}", portfolio.durationInYear());
-		int nYear = 9;
-		logger.info("nYear           {}", nYear);
-		portfolio.setDuration(nYear);
+		logger.info("holdingDuration  {}", portfolio.holdingDuration());
+		int duration = 118;
+		logger.info("duration         {}", duration);
+		portfolio.duration(duration);
 		
 		for(int i = 0; i < isinCodeArray.length; i++) {
 			for(int j = 0; j < isinCodeArray.length; j++) {
@@ -71,9 +71,10 @@ public class T004 {
 				String a = isinCodeArray[i];
 				String b = isinCodeArray[j];
 				
-				portfolio.clearQuantity();
-				portfolio.setQuantity(a, 100);
-				portfolio.setQuantity(b, 100);
+				portfolio.
+					clearQuantity().
+					quantity(a, 100).
+					quantity(b, 100);
 				
 				logger.info("A {}  {}", a, fundMap.get(a).name);
 				logger.info("B {}  {}", b, fundMap.get(b).name);
@@ -86,15 +87,14 @@ public class T004 {
 		for(var isinCode: isinCodeArray) {
 			XYSeries series = new XYSeries(isinCode);
 
-			portfolio.clearQuantity();
-			portfolio.setQuantity(isinCode, 100);
-			var sd  = portfolio.standardDeviation() * 100;
-			var ror = portfolio.rorNoReinvestment() * 100;
+			portfolio.clearQuantity().quantity(isinCode, 100);
+			var sd  = portfolio.risk() * 100;
+			var ror = portfolio.rateOfReturn() * 100;
 			series.add(sd, ror);
 
-			logger.info("{}  {}  {}", isinCode, portfolio.durationInYear(isinCode), fundMap.get(isinCode).name);
-			logger.info("  sd   {}  {}", sd, portfolio.standardDeviation(isinCode)  * 100);
-			logger.info("  ror  {}  {}", ror, portfolio.rorNoReinvestment(isinCode) * 100);
+			logger.info("{}  {}  {}", isinCode, portfolio.holdingDuration(isinCode), fundMap.get(isinCode).name);
+			logger.info("  sd   {}  {}", sd, portfolio.risk(isinCode)  * 100);
+			logger.info("  ror  {}  {}", ror, portfolio.risk(isinCode) * 100);
 			collection.addSeries(series);
 		}
 
@@ -104,15 +104,15 @@ public class T004 {
 			for(int i = 0; i < 10000; i++) {
 				portfolio.clearQuantity();
 				for(var e: isinCodeArray) {
-					portfolio.setQuantity(e, random.nextInt(1000));
+					portfolio.quantity(e, random.nextInt(1000));
 				}
-				var sd  = portfolio.standardDeviation() * 100;
-				var ror = portfolio.rorNoReinvestment() * 100;
+				var sd  = portfolio.risk() * 100;
+				var ror = portfolio.rateOfReturn() * 100;
 				series.add(sd, ror);
 			}
 			collection.addSeries(series);
 		}
-		JFreeChart chart = ChartFactory.createScatterPlot("Efficent Frontier  nYear = " + nYear, "sd", "ror", collection);
+		JFreeChart chart = ChartFactory.createScatterPlot("Efficent Frontier  duration = " + duration, "sd", "ror", collection);
 		{
 			for(var isinCode: isinCodeArray) {
 				Fund fund = fundMap.get(isinCode);
