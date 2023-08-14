@@ -405,8 +405,8 @@ public final class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 		
-		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
 
 		Map<LocalDate, Double>  map = new TreeMap<>();
 		for(int i = startIndex; i < stopIndexPlusOne; i++) {
@@ -418,8 +418,8 @@ public final class FundStats {
 		// sanity check
 		checkMonthValue(nMonth);
 		
-		int startIndex       = startIndexArray[startIndexArray.length - 1 - nMonth];
-		int stopIndexPlusOne = startIndexArray[startIndexArray.length - 1];
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
 
 		Map<LocalDate, Double>  map = new TreeMap<>();
 		for(int i = startIndex; i < stopIndexPlusOne; i++) {
