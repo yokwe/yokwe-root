@@ -1,14 +1,12 @@
 package yokwe.util.finance;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 import yokwe.util.UnexpectedException;
-import yokwe.util.finance.online.SimpleReturn;
 
 public class Portfolio2 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -47,18 +45,18 @@ public class Portfolio2 {
 		String   name;
 		double   weight;
 		double   rateOfReturn;
-		double[] priceArray;
+		double[] returnArray;
 		
-		Data(String name, double weight, double rateOfReturn, double[] priceArray) {
+		Data(String name) {
 			this.name         = name;
-			this.weight       = weight;
-			this.rateOfReturn = rateOfReturn;
-			this.priceArray   = priceArray;
+			this.weight       = 0;
+			this.rateOfReturn = 0;
+			this.returnArray  = null;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("{%s  %.3f  %d}", name, weight, priceArray == null ? -1 : priceArray.length);
+			return String.format("{%s  %.3f  %d}", name, weight, returnArray == null ? -1 : returnArray.length);
 		}
 	}
 	
@@ -118,62 +116,13 @@ public class Portfolio2 {
 	public Portfolio2 add(String name, DailyPriceDiv[] dailyPriceDivArray) {
 		return add(name, dailyPriceDivArray, 0);
 	}
-	
-	private void fillPriceMap(String name, Set<LocalDate> dateSet, Map<LocalDate, Double> priceMap) {
-		if (dateSet.equals(priceMap.keySet())) return;
 		
-		LocalDate[] dateArray = dateSet.toArray(LocalDate[]::new);
-		Arrays.sort(dateArray);
-
-		Set<LocalDate> mapDateSet = priceMap.keySet();
-		LocalDate[] mapDateArray = priceMap.keySet().toArray(LocalDate[]::new);
-		Arrays.sort(mapDateArray);
-		
-		for(int i = 0; i < dateArray.length; i++) {
-			LocalDate date = dateArray[i];
-			if (!mapDateSet.contains(date)) {
-				LocalDate lastDate = dateArray[Math.max(0, i - 1)];
-				if (priceMap.containsKey(lastDate)) {
-					Double lastValue = priceMap.get(lastDate);
-					priceMap.put(date, lastValue);
-					logger.warn("fillPriceMap  {}  {}  {}", name, date, lastValue);
-				} else {
-					logger.error("Unexpected");
-					logger.error("  date      {}", date);
-					logger.error("  lastDate  {}", lastDate);
-					throw new UnexpectedException("Unexpected");
-				}
-			}
-		}
-	}
-	
-	/*
-	private void fillDivMap(Set<LocalDate> dateSet, Map<LocalDate, Double> divMap) {
-		if (dateSet.equals(divMap.keySet())) return;
-		
-		LocalDate[] dateArray = dateSet.toArray(LocalDate[]::new);
-		Arrays.sort(dateArray);
-
-		Set<LocalDate> mapDateSet = divMap.keySet();
-		LocalDate[] mapDateArray = mapDateSet.toArray(LocalDate[]::new);
-		Arrays.sort(mapDateArray);
-		
-		Double zero = Double.valueOf(0);
-		for(int i = 0; i < dateArray.length; i++) {
-			LocalDate date = dateArray[i];
-			if (!mapDateSet.contains(date)) {
-				divMap.put(date, zero);
-			}
-		}
-	}
-	*/
-	
 	private void prepare() {
 		if (dataMap == null || holdingMapIsChanged) {
 			dataMap = new TreeMap<>();
 			for(var holding: holdingMap.values()) {
 				String name = holding.name;
-				Data   data = new Data(name, 0, 0, null);
+				Data   data = new Data(name);
 				dataMap.put(name, data);
 			}
 			holdingMapIsChanged = false;
@@ -186,28 +135,45 @@ public class Portfolio2 {
 			for(var holding: holdingMap.values()) {
 				String name = holding.name;
 				Data   data = dataMap.get(name);
-				// update weight
+				// update data.weight
 				data.weight = holding.quantity / (double)totalQuantity;
-				logger.info("quantity  {}  data {}", holding.quantity, data);
+				logger.info("quantity  {}  {}", data, holding.quantity);
 			}
 			quantityIsChanged = false;
 		}
 		if (durationIsChanged) {
-			Set<LocalDate> dateSet = new HashSet<>();
+			// commonDateSet contains common date of all holding
+			Set<LocalDate> commonDateSet = new HashSet<>();
 			for(var holding: holdingMap.values()) {
-				dateSet.addAll(holding.dateSet(nMonth));
+				Set<LocalDate> dateSet = holding.dateSet(nMonth);
+				if (commonDateSet.isEmpty()) {
+					commonDateSet.addAll(dateSet);
+				} else {
+					commonDateSet.retainAll(dateSet);
+				}
 			}
 			for(var holding: holdingMap.values()) {
 				String name = holding.name;
 				Data   data = dataMap.get(name);
-				// update rateOfReturn
+				// update data.rateOfReturn
 				data.rateOfReturn = holding.fundStats.rateOfReturn(nMonth);
-				// update priceArray
-				Map<LocalDate, Double> priceMap = holding.fundStats.priceMap(nMonth);
-				fillPriceMap(name, dateSet, priceMap);
-				data.priceArray = priceMap.values().stream().mapToDouble(o -> o).toArray();
+				// update data.returnArray
+				Map<LocalDate, Double> returnMap = holding.fundStats.returnMap(nMonth);
+				{
+					var i = returnMap.entrySet().iterator();
+					while(i.hasNext()) {
+						var entry = i.next();
+						var date = entry.getKey();
+						if (!commonDateSet.contains(date)) {
+							// if date is not in commonDateSet, remove entry for Stats.standardDeviation(statsArray, weightArray);
+							logger.warn("remove entry  {}  {}", name, date);
+							i.remove();
+						}
+					}
+				}
+				data.returnArray = returnMap.values().stream().mapToDouble(o -> o).toArray();
 				
-				logger.info("duration  data {}", data);
+				logger.info("duration  {}", data);
 			}
 			durationIsChanged = false;
 		}
@@ -233,11 +199,8 @@ public class Portfolio2 {
 		int index = 0;
 		for(var data: dataMap.values()) {
 			weightArray[index] = data.weight;
-			double[] simpleReturnArray = DoubleArray.toDoubleArray(data.priceArray, new SimpleReturn());
-			statsArray[index]  = new Stats(simpleReturnArray);
-			double sd = Stats.standardDeviation(simpleReturnArray) * FundStats.SQRT_DAY_IN_YEAR;
-			logger.info("XXX sd  {}  {}  {}", index, weightArray[index], sd);
-
+			statsArray[index]  = new Stats(data.returnArray);
+			
 			// update for next iteration
 			index++;
 		}
