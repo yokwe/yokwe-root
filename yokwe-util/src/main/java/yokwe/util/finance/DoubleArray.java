@@ -96,6 +96,9 @@ public final class DoubleArray {
 		}
 		return result;
 	}
+	public static double[] toDoubleArray(double[] array, int startIndex, int stopIndexPlusOne) {
+		return toDoubleArray(array, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
+	}
 	public static double[] toDoubleArray(double[] array, DoubleUnaryOperator op) {
 		return toDoubleArray(array, 0, array.length, op);
 	}
