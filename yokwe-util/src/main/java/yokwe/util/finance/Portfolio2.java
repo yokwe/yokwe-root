@@ -110,6 +110,7 @@ public class Portfolio2 {
 		Holding   holding   = new Holding(name, fundStats, quantity);
 		holdingMap.put(name, holding);
 		
+		quantityIsChanged   = true; // Need to update weight of holding because total quantity is changed.
 		holdingMapIsChanged = true;
 		return this;
 	}
