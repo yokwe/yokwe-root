@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
-import yokwe.util.GenericArray;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.RSI;
 import yokwe.util.finance.online.SimpleReturn;
@@ -44,6 +42,7 @@ public final class FundStats {
 	public final LocalDate[]  dateArray;        // 日付
 	public final double[]     priceArray;       // 基準価格
 	public final double[]     divArray;         // 分配金
+	public final double[]     returnArray;      // 日次リターン
 	
 	public final int          duration;         // duration in Month
 	public final LocalDate    firstDate;        // logical first date
@@ -63,7 +62,7 @@ public final class FundStats {
 	
 	private FundStats(
 		String code,
-		LocalDate[] dateArray, double[] priceArray, double[] divArray,
+		LocalDate[] dateArray, double[] priceArray, double[] divArray, double[] returnArray,
 		int duration, LocalDate firstDate, LocalDate lastDate,
 		int startIndexArray[],
 		MonthlyStats monthlyStats) {
@@ -72,6 +71,7 @@ public final class FundStats {
 		this.dateArray         = dateArray;
 		this.priceArray        = priceArray;
 		this.divArray          = divArray;
+		this.returnArray       = returnArray;
 		this.duration          = duration;
 		this.firstDate         = firstDate;
 		this.lastDate          = lastDate;
@@ -111,9 +111,18 @@ public final class FundStats {
 			return null;
 		}
 		
-		final LocalDate[]  dateArray  = DailyPriceDiv.toDateArray(array);
-		final double[]     priceArray = DailyPriceDiv.toPriceArray(array);
-		final double[]     divArray   = DailyPriceDiv.toDivArray(array);
+		final LocalDate[]  dateArray   = DailyPriceDiv.toDateArray(array);
+		final double[]     priceArray  = DailyPriceDiv.toPriceArray(array);
+		final double[]     divArray    = DailyPriceDiv.toDivArray(array);
+		final double[]     returnArray = new double[priceArray.length];
+		{
+			returnArray[0] = 0;
+			for(int i = 1; i < priceArray.length; i++) {
+				double startValue = priceArray[i - 1];
+				double endValue   = priceArray[i];
+				returnArray[i] = (endValue / startValue) - 1;
+			}
+		}
 		
 		final int[] startIndexArray = getStartIndexArray(dateArray, ChronoField.MONTH_OF_YEAR);
 		if (startIndexArray.length - 1 != duration) {
@@ -127,7 +136,7 @@ public final class FundStats {
 		
 		final MonthlyStats monthlyStats = getMonthlyStats(startIndexArray, priceArray, divArray);
 		
-		return new FundStats(code, dateArray, priceArray, divArray, duration, firstDate, lastDate, startIndexArray, monthlyStats);
+		return new FundStats(code, dateArray, priceArray, divArray, returnArray, duration, firstDate, lastDate, startIndexArray, monthlyStats);
 	}
 	
 	private static MonthlyStats getMonthlyStats(int[] startIndexArray, double[] priceArray, double[] divArray) {
@@ -391,7 +400,7 @@ public final class FundStats {
 		int startIndex       = getStartIndex(nMonth);
 		int stopIndexPlusOne = getStopIndexPlusOne();
 		
-		return GenericArray.toArray(dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
+		return Arrays.copyOfRange(dateArray, startIndex, stopIndexPlusOne);
 	}
 	public double[] priceArray(int nMonth) {
 		// sanity check
@@ -400,65 +409,7 @@ public final class FundStats {
 		int startIndex       = getStartIndex(nMonth);
 		int stopIndexPlusOne = getStopIndexPlusOne();
 		
-		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne);
-	}
-	public double[] returnArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return returnArray(startIndex, stopIndexPlusOne);
-	}
-	private double[] returnArray(int startIndex, int stopIndexPlusOne) {
-		double[] array = new double[stopIndexPlusOne - startIndex];
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			double startValue = priceArray[i - 1];
-			double endValue   = priceArray[i];
-			array[i - startIndex] = (endValue / startValue) - 1;
-		}
-		return array;
-	}
-	
-	
-	
-	/*	
-	
-	public Map<LocalDate, Double> priceMap(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-
-		Map<LocalDate, Double>  map = new TreeMap<>();
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			map.put(dateArray[i], priceArray[i]);
-		}
-		return map;
-	}
-	public Map<LocalDate, Double> divMap(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-
-		Map<LocalDate, Double>  map = new TreeMap<>();
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			map.put(dateArray[i], divArray[i]);
-		}
-		return map;
-	}
-	public double[] priceArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne);
+		return Arrays.copyOfRange(priceArray, startIndex, stopIndexPlusOne);
 	}
 	public double[] divArray(int nMonth) {
 		// sanity check
@@ -467,8 +418,16 @@ public final class FundStats {
 		int startIndex       = getStartIndex(nMonth);
 		int stopIndexPlusOne = getStopIndexPlusOne();
 		
-		return DoubleArray.toDoubleArray(divArray, startIndex, stopIndexPlusOne, DoubleUnaryOperator.identity());
+		return Arrays.copyOfRange(divArray, startIndex, stopIndexPlusOne);
+	}
+	public double[] returnArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		return Arrays.copyOfRange(returnArray, startIndex, stopIndexPlusOne);
 	}
 	
-	*/
 }
