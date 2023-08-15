@@ -1,7 +1,6 @@
 package yokwe.util.finance;
 
 import yokwe.util.UnexpectedException;
-import yokwe.util.finance.online.Covariance;
 import yokwe.util.finance.online.GeometricMean;
 import yokwe.util.finance.online.Max;
 import yokwe.util.finance.online.Mean;
@@ -10,7 +9,7 @@ import yokwe.util.finance.online.Sum;
 import yokwe.util.finance.online.Variance;
 
 public final class Stats {
-	static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static void checkStats(Stats a, Stats b) {
 		if (a == null) {
@@ -45,14 +44,17 @@ public final class Stats {
 		// sanity check
 		checkStats(a, b);
 		
-		var op = new Covariance();
-		double cov = op.applyAsDouble(a.data, b.data, a.startIndex, a.stopIndexPlusOne);
-		// sanity check
-		if (Double.isInfinite(cov)) {
-			logger.error("var is infinite");
-			throw new UnexpectedException("var is infinite");
+		double meanA = a.mean();
+		double meanB = b.mean();
+		
+		Mean mean = new Mean();
+		for(int i = a.startIndex; i < a.stopIndexPlusOne; i++) {
+			mean.accept((a.data[i] - meanA) * (b.data[i] - meanB));
 		}
-		return cov;
+		
+		// return unbiased covariance
+		int length = a.stopIndexPlusOne - a.startIndex;
+		return (mean.getAsDouble() * length) / (length - 1);
 	}
 	public static double correlation(Stats a, Stats b) {
 		// sanity check
@@ -63,20 +65,6 @@ public final class Stats {
 		double sdB = b.standardDeviation();
 		// correlation = covariance(a, b) / statndardDeviation(a) * statndardDeviation(b)
 		return cov / (sdA * sdB);
-	}
-	
-	public static double sum(double[] data, int startIndex, int stopIndexPlusOne) {
-		var op = new Sum();
-		op.accept(data, startIndex, stopIndexPlusOne);
-		return op.getAsDouble();
-	}
-	public static double standardDeviation(double[] data, int startIndex, int stopIndexPlusOne) {
-		var op = new Variance();
-		op.accept(data, startIndex, stopIndexPlusOne);
-		return op.standardDeviation();
-	}
-	public static double standardDeviation(double[] data) {
-		return standardDeviation(data, 0, data.length);
 	}
 	
 	public static double variance(Stats[] statsArray, double[] weightArray) {
@@ -146,18 +134,6 @@ public final class Stats {
 		return Math.sqrt(variance(statsArray, weightArray));
 	}
 	
-	public static double[] standardMeasure(double[] data) {
-		Stats stats = new Stats(data);
-		double sd = stats.standardDeviation();
-		double mean = stats.mean();
-		
-		return DoubleArray.toDoubleArray(data, o -> (o - mean) / sd);
-	}
-	
-	public static double mean(double[] data) {
-		Stats stats = new Stats(data);
-		return stats.mean();
-	}
 	
 	private final double[] data;
 	private final int      startIndex;
