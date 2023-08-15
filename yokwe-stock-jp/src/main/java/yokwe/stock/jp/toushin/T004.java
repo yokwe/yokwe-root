@@ -39,8 +39,9 @@ public class T004 {
 		
 		String[] isinCodeArray = {
 //			"JP90C000FZD4", // ｉＦｒｅｅＮＥＸＴ　ＦＡＮＧ＋インデックス
-			"JP90C0006G52", // 世界半導体株投資（野村世界業種別投資シリーズ）
-//			"JP90C0009FQ7", // ｉシェアーズ米国株式（Ｓ＆Ｐ５００）インデックス・ファンド
+//			"JP90C000KLP8", // ＦＡＮＧ＋２倍ベア（ＦＡＮＧ＋ブルベアファンド）
+//			"JP90C0006G52", // 世界半導体株投資（野村世界業種別投資シリーズ）
+			"JP90C0009FQ7", // ｉシェアーズ米国株式（Ｓ＆Ｐ５００）インデックス・ファンド
 			"JP90C0009G00", // ｉシェアーズゴールドインデックス・ファンド（為替ヘッジなし）
 			"JP90C0009FZ8", // ｉシェアーズコモディティインデックス・ファンド
 //			"JP90C00096Q0", // フィデリティ・ＵＳハイ・イールド・ファンド（資産成長型）
@@ -60,7 +61,7 @@ public class T004 {
 		
 //		int nYear = portfolio.durationInYear();
 		logger.info("holdingDuration  {}", portfolio.holdingDuration());
-		int duration = 118;
+		int duration = portfolio.holdingDuration();
 		logger.info("duration         {}", duration);
 		portfolio.duration(duration);
 		
