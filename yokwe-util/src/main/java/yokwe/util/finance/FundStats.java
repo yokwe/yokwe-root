@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.Function;
 
 import yokwe.util.GenericArray;
@@ -395,20 +393,14 @@ public final class FundStats {
 		
 		return GenericArray.toArray(dateArray, startIndex, stopIndexPlusOne, Function.identity(), LocalDate.class);
 	}
-	public Map<LocalDate, Double> returnMap(int nMonth) {
+	public double[] priceArray(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
 		
 		int startIndex       = getStartIndex(nMonth);
 		int stopIndexPlusOne = getStopIndexPlusOne();
 		
-		double[] returnArray = returnArray(startIndex, stopIndexPlusOne);
-		
-		Map<LocalDate, Double> map = new TreeMap<>();
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			map.put(dateArray[i], returnArray[i - startIndex]);
-		}
-		return map;
+		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne);
 	}
 	public double[] returnArray(int nMonth) {
 		// sanity check
@@ -427,15 +419,6 @@ public final class FundStats {
 			array[i - startIndex] = (endValue / startValue) - 1;
 		}
 		return array;
-	}
-	public double[] priceArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne);
 	}
 	
 	
@@ -468,7 +451,15 @@ public final class FundStats {
 		}
 		return map;
 	}
-	
+	public double[] priceArray(int nMonth) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		return DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne);
+	}
 	public double[] divArray(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);

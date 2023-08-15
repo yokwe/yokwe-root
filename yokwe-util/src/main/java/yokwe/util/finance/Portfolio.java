@@ -167,22 +167,24 @@ public class Portfolio {
 				// update data.rateOfReturn
 				data.rateOfReturn = holding.fundStats.rateOfReturn(nMonth);
 				// update data.returnArray
-				Map<LocalDate, Double> returnMap = holding.fundStats.returnMap(nMonth);
 				{
-					var i = returnMap.entrySet().iterator();
-					while(i.hasNext()) {
-						var entry = i.next();
-						var date  = entry.getKey();
-						if (!commonDateSet.contains(date)) {
-							// if date is not in commonDateSet, remove entry for Stats.standardDeviation(statsArray, weightArray);
-							logger.warn("remove entry  {}  {}", name, date);
-							i.remove();
+					LocalDate[] dateArray   = holding.fundStats.dateArray(nMonth);
+					double[]    returnArray = holding.fundStats.returnArray(nMonth);
+					
+					double[]    tempArray   = new double[dateArray.length];
+					int         tempIndex   = 0;
+					
+					for(int i = 0; i < dateArray.length; i++) {
+						if (commonDateSet.contains(dateArray[i])) {
+							// if dateArray[i] is in commonDateSet, add returnArray[i] to tempArray
+							tempArray[tempIndex++] = returnArray[i];
+						} else {
+							// if dataArray[i] is not in commonDateSet, skip this data
+							logger.info("skip data  {}  {}", name, dateArray[i]);
 						}
 					}
+					data.returnArray = Arrays.copyOf(tempArray, tempIndex);
 				}
-				data.returnArray = returnMap.values().stream().mapToDouble(o -> o).toArray();
-				
-//				logger.info("duration  {}", data);
 			}
 			durationIsChanged = false;
 		}
