@@ -12,7 +12,6 @@ import java.util.List;
 
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.RSI;
-import yokwe.util.finance.online.SimpleReturn;
 
 public final class FundStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -293,8 +292,6 @@ public final class FundStats {
 		return (dividend(nMonth) / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
 	}
 	
-	// METHOD_B is more similar to nikkei fund page
-	private static boolean USE_METHOD_A = true;
 	public double riskDaily(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
@@ -303,21 +300,7 @@ public final class FundStats {
 		int startIndex       = getStartIndex(nMonth);
 		int stopIndexPlusOne = getStopIndexPlusOne();
 		
-		double[] array;
-		if (USE_METHOD_A) {
-			// Method A -- accurate result
-//			JP3046490003  riskDialy    0.14569695340652486
-//			JP90C0008X42  riskDaily    0.17312979346974974
-			
-			array = returnArray(nMonth);
-		} else {
-			// Method B -- approximate result and same result as Portfolio.risk()
-//			JP3046490003  riskDialy    0.14501861868895044
-//			JP90C0008X42  riskDaily    0.1727880222672037
-			
-			array = DoubleArray.toDoubleArray(priceArray, startIndex, stopIndexPlusOne, new SimpleReturn());
-		}
-		return Stats.standardDeviation(array) * SQRT_DAY_IN_YEAR;
+		return Stats.standardDeviation(returnArray, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
 	}
 	public double riskMonthly(int nMonth) {
 		// sanity check
@@ -392,42 +375,36 @@ public final class FundStats {
 	}
 	
 	
+	private <T> T[] copyOfRange(int nMonth, T[] array) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		return Arrays.copyOfRange(array, startIndex, stopIndexPlusOne);
+	}
+	private double[] copyOfRange(int nMonth, double[] array) {
+		// sanity check
+		checkMonthValue(nMonth);
+		
+		int startIndex       = getStartIndex(nMonth);
+		int stopIndexPlusOne = getStopIndexPlusOne();
+		
+		return Arrays.copyOfRange(array, startIndex, stopIndexPlusOne);
+	}
 	
 	public LocalDate[] dateArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return Arrays.copyOfRange(dateArray, startIndex, stopIndexPlusOne);
+		return copyOfRange(nMonth, dateArray);
 	}
 	public double[] priceArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return Arrays.copyOfRange(priceArray, startIndex, stopIndexPlusOne);
+		return copyOfRange(nMonth, priceArray);
 	}
 	public double[] divArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return Arrays.copyOfRange(divArray, startIndex, stopIndexPlusOne);
+		return copyOfRange(nMonth, divArray);
 	}
 	public double[] returnArray(int nMonth) {
-		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
-		return Arrays.copyOfRange(returnArray, startIndex, stopIndexPlusOne);
+		return copyOfRange(nMonth, returnArray);
 	}
 	
 }
