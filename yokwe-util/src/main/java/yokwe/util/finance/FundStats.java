@@ -334,7 +334,7 @@ public final class FundStats {
 			{
 				List<Double> list = new ArrayList<>();
 				
-				LocalDate oneYearBeforeLastDate = lastDate.minusYears(1).plusDays(1); // inclusive
+				LocalDate firstDate = lastDate.minusMonths(nMonth).plusDays(1); // inclusive
 				int[] startIndexArray = getStartIndexArray(dateArray, ChronoField.ALIGNED_WEEK_OF_YEAR);
 				for(int i = 1; i < startIndexArray.length; i++) {
 					int       startIndex       = startIndexArray[i - 1];
@@ -342,7 +342,7 @@ public final class FundStats {
 					LocalDate startDate        = dateArray[startIndex];
 					LocalDate endDate          = dateArray[stopIndexPlusOne - 1];
 					
-					if (startDate.isBefore(oneYearBeforeLastDate)) continue;
+					if (startDate.isBefore(firstDate)) continue;
 					if (endDate.isAfter(lastDate)) break;
 					
 					double startValue = priceArray[startIndex - 1];       // previous day price as startValue
