@@ -31,7 +31,7 @@ class TestDoubleArray {
 	
 
 	@Test
-	void testStatsCor() {
+	void testCorrelation() {
 		PearsonsCorrelation correlation = new PearsonsCorrelation();
 		
 		double expected = correlation.correlation(dataA, dataB);
@@ -41,7 +41,7 @@ class TestDoubleArray {
 		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
-	void testStatsCov() {
+	void testCovariance() {
 		Covariance covariance = new Covariance();
 		
 		double expected = covariance.covariance(dataA, dataB);
@@ -51,7 +51,7 @@ class TestDoubleArray {
 		assertEquals(expected, actual, DOUBLE_DELTA);
 	}
 	@Test
-	void testStatsMean() {
+	void testMean() {
 		DescriptiveStatistics ds    = new DescriptiveStatistics(dataA);
 		
 		double expected = ds.getMean();
