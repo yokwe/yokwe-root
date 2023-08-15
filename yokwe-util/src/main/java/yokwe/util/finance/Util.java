@@ -46,6 +46,12 @@ public final class Util {
 		}
 		checkindex(array.length, startIndex, stopIndexPlusOne);
 	}
+	public static void checkIndex(double[] array) {
+		if (array == null) {
+			logger.error("array == null");
+			throw new UnexpectedException("array == null");
+		}
+	}
 	//
 	// two array
 	//
