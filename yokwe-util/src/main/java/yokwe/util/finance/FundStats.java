@@ -300,13 +300,13 @@ public final class FundStats {
 		int startIndex       = getStartIndex(nMonth);
 		int stopIndexPlusOne = getStopIndexPlusOne();
 		
-		return Stats.standardDeviation(returnArray, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
+		return DoubleArray.standardDeviation(returnArray, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
 	}
 	public double riskMonthly(int nMonth) {
 		// sanity check
 		checkMonthValue(nMonth);
 		
-		return Stats.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * SQRT_MONTH_IN_YEAR;
+		return DoubleArray.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * SQRT_MONTH_IN_YEAR;
 	}
 	public double risk(int nMonth) {
 		// リスク・リスク(１年)・リスク(年率)
@@ -351,7 +351,7 @@ public final class FundStats {
 				}
 				array = list.stream().mapToDouble(o -> o).toArray();
 			}
-			value = Stats.standardDeviation(array) * SQRT_WEEK_IN_YEAR;
+			value = DoubleArray.standardDeviation(array) * SQRT_WEEK_IN_YEAR;
 		} else {
 			value = riskMonthly(nMonth);
 		}
