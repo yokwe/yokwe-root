@@ -21,10 +21,19 @@ public final class ReinvestedValue implements OnlineDoubleBinaryOperator {
 	// 決算日に分配金が出た場合は、日次リターンを「（当日の基準価格＋分配金）÷前営業日基準価格 -1」として計算する。分配金は税引き前。
 	// （※1）当初元本の設定がある場合は当初元本価格を使用。
 	
-	private boolean firstTime = true;
+	private boolean lastPriceHasValue;
+	private double  lastPrice;
+	private double  lastReinvestedValue;
 	
-	private double lastPrice;
-	private double lastReinvestedValue = Double.NaN;
+	public ReinvestedValue(double lastPrice) {
+		this.lastPriceHasValue   = true;
+		this.lastPrice           = lastPrice;
+		this.lastReinvestedValue = lastPrice;
+	}
+	public ReinvestedValue() {
+		this.lastPriceHasValue   = false;
+		this.lastReinvestedValue = Double.NaN;
+	}
 
 	@Override
 	public void accept(double price, double div) {
@@ -39,16 +48,19 @@ public final class ReinvestedValue implements OnlineDoubleBinaryOperator {
 			logger.error("  div {}", Double.toString(div));
 			throw new UnexpectedException("div is infinite");
 		}
-
-		if (firstTime) {
-			lastPrice           = price;
-			lastReinvestedValue = price;
-			firstTime = false;
+		
+		double reinvestedPrice;
+		if (lastPriceHasValue) {
+			double dailyReturn = (price + div) / lastPrice;
+			reinvestedPrice = lastReinvestedValue * dailyReturn;
+		} else {
+			// reinvestedPrice = lastReinvestedValue * (price + div) / lastPrice
+			// reinvestedPrice = price * (price + div) / price
+			// reinvestedPrice = price + div
+			reinvestedPrice   = price + div;
+			lastPriceHasValue = true;
 		}
 		
-		double dailyReturn     = (price + div) / lastPrice;
-		double reinvestedPrice = lastReinvestedValue * dailyReturn;
-					
 		// update for next iteration
 		lastPrice           = price;
 		lastReinvestedValue = reinvestedPrice;
