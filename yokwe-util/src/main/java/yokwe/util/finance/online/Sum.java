@@ -6,7 +6,7 @@ public class Sum implements OnlineDoubleUnaryOperator {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private boolean firstTime = true;
-	private double  sum       = Double.NaN;
+	private double  sum       = 0;
 	
 	@Override
 	public void accept(double value) {
@@ -17,16 +17,13 @@ public class Sum implements OnlineDoubleUnaryOperator {
 			throw new UnexpectedException("value is infinite");
 		}
 		
-		if (firstTime) {
-			sum       = value;
-			firstTime = false;
-		} else {
-			sum += value;
-		}
+		if (firstTime) firstTime = false;
+		
+		sum += value;
 	}
 	
 	@Override
 	public double getAsDouble() {
-		return sum;
+		return firstTime ? Double.NaN : sum;
 	}
 }
