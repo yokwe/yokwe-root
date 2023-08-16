@@ -3,51 +3,31 @@ package yokwe.util.finance.online;
 // Welford's online algorithm
 //   https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
 public final class Variance implements OnlineDoubleUnaryOperator {
-	private boolean firstTime = true;
-	private int     count     = 0;
-	
-	private double lastM1 = Double.NaN;
-	private double lastM2 = Double.NaN;
+	private int    count = 0;
+	private double m1    = 0;
+	private double m2    = 0;
 	
 	@Override
 	public void accept(double value) {
 		count++;
 
-		final double m1, m2;
-		{
-			if (firstTime) {
-				m1 = value;
-				m2 = 0;
-				//
-				firstTime = false;
-			} else {
-				double delta = value - lastM1;
-				m1 = lastM1 + delta / count;
-//				m2 = Math.fma(delta, value - m1, lastM2);
-				m2 = lastM2 + delta * (value - m1);
-			}
-		}
-		
-		// update for next iteration
-		lastM1 = m1;
-		lastM2 = m2;
+		double delta = value - m1;
+		m1 += delta / count;
+		m2 += delta * (value - m1);
 	}
-	
 	
 	@Override
 	public double getAsDouble() {
 		return variance();
 	}
-	
-	
 	public double mean() {
-		return lastM1;
+		return (count == 0) ? Double.NaN : m1;
 	}
 	public double variance() {
-		return (firstTime) ? Double.NaN : (lastM2 / (count - 1));
+		return (count == 0) ? Double.NaN : (m2 / (count - 1));
 	}
 	public double biasedVariance() {
-		return (firstTime) ? Double.NaN : (lastM2 / count);
+		return (count == 0) ? Double.NaN : (m2 / count);
 	}
 	public double standardDeviation() {
 		return Math.sqrt(variance());
