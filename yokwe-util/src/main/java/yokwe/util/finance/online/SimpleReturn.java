@@ -3,7 +3,7 @@ package yokwe.util.finance.online;
 import yokwe.util.UnexpectedException;
 
 public final class SimpleReturn implements OnlineDoubleUnaryOperator {
-	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
 	public static final double getValue(double startValue, double endValue) {
 		// (endValue - startValue) / startValue
@@ -12,41 +12,39 @@ public final class SimpleReturn implements OnlineDoubleUnaryOperator {
 	}
 	
 	
-	private double  simpleReturn = Double.NaN;
-	private boolean hasLastValue;
-	private double  lastValue;
-	
+	private boolean hasValue;
+	private double  value;
+	private double  lastValue = Double.NaN;
+
 	public SimpleReturn() {
-		this.hasLastValue = false;
+		hasValue = false;
+		value    = Double.NaN;
 	}
-	public SimpleReturn(double lastValue) {
-		this.hasLastValue = true;
-		this.lastValue    = lastValue;
+	public SimpleReturn(double newValue) {
+		hasValue = true;
+		value    = newValue;
 	}
 	
 	@Override
-	public void accept(double value) {
+	public void accept(double newValue) {
 		// sanity check
-		if (Double.isInfinite(value)) {
-			logger.error("value is infinite");
-			logger.error("  value {}", Double.toString(value));
-			throw new UnexpectedException("value is infinite");
+		if (Double.isInfinite(newValue)) {
+			logger.error("newValue is infinite");
+			logger.error("  newValue {}", Double.toString(value));
+			throw new UnexpectedException("newValue is infinite");
 		}
 		
-		if (hasLastValue) {
-			simpleReturn = getValue(lastValue, value);
+		if (hasValue) {
+			lastValue = value;
 		} else {
-			// treat value as lastValue
-			hasLastValue = true;
-			simpleReturn = 0; // simpleReturn(value, value) == 0
+			hasValue  = true;
+			lastValue = newValue;
 		}
-		
-		// update for next iteration
-		lastValue = value;
+		value = newValue;
 	}
 	
 	@Override
 	public double getAsDouble() {
-		return simpleReturn;
+		return hasValue ? getValue(lastValue, value) : Double.NaN;
 	}
 }

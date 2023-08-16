@@ -3,53 +3,46 @@ package yokwe.util.finance.online;
 import yokwe.util.UnexpectedException;
 
 public final class LogReturn implements OnlineDoubleUnaryOperator {
-	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	//
-	// annual rate of return
-	//
-	public static double annualReturn(double logRetrun, double durationInYear) {
-		// From https://en.wikipedia.org/wiki/Rate_of_return
-		//   According to the CFA Institute's Global Investment Performance Standards (GIPS),[3]
-		//   Returns for periods of less than one year must not be annualized.
-		if (durationInYear < 1.0) {
-			logger.warn("durationInYear is less than one");
-			logger.warn("  durationInYear  {}", durationInYear);
-//			throw new UnexpectedException("durationInYear is less than one");
-		}
-		return logRetrun / durationInYear;
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+		
+	public static final double getValue(double startValue, double endValue) {
+		return Math.log(endValue / startValue);
 	}
 	
-	private boolean firstTime    = true;
-	private double  lastLogValue = 0;
-	private double  logReturn    = Double.NaN;
+	
+	private boolean hasValue;
+	private double  value;
+	private double  lastValue = Double.NaN;
+
+	public LogReturn() {
+		hasValue = false;
+		value    = Double.NaN;
+	}
+	public LogReturn(double newValue) {
+		hasValue = true;
+		value    = newValue;
+	}
 	
 	@Override
-	public void accept(double value) {
+	public void accept(double newValue) {
 		// sanity check
-		if (Double.isInfinite(value)) {
-			logger.error("value is infinite");
-			logger.error("  value {}", Double.toString(value));
-			throw new UnexpectedException("value is infinite");
-		}
-
-		if (firstTime) {
-			// use first value as previous
-			firstTime   = false;
-			lastLogValue = Math.log(value);
+		if (Double.isInfinite(newValue)) {
+			logger.error("newValue is infinite");
+			logger.error("  newValue {}", Double.toString(value));
+			throw new UnexpectedException("newValue is infinite");
 		}
 		
-		double logValue = Math.log(value);
-		
-		// save logReturn for later use
-		logReturn = logValue - lastLogValue;
-		
-		// update for next iteration
-		lastLogValue = logValue;
+		if (hasValue) {
+			lastValue = value;
+		} else {
+			hasValue  = true;
+			lastValue = newValue;
+		}
+		value = newValue;
 	}
 	
 	@Override
 	public double getAsDouble() {
-		return logReturn;
+		return hasValue ? getValue(lastValue, value) : Double.NaN;
 	}
 }
