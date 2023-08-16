@@ -165,54 +165,54 @@ public class Activity extends Sheet {
 	
 	public static final String ACCOUNT_DESIGNATED = "特定";
 	
-	@ColumnName("約定日時")              public String tradeDateTime;                  // YYYY/MM/DD HH:MM:SS
-	@ColumnName("取引区分")              public String tradeType;                      // コネクト自動入金 コネクト自動出金 現物 入金 出金 配当金（入金）
-	@ColumnName("受渡日")                public String settlementDate;                 // YYYY/MM/DD
-	@ColumnName("約定番号")              public String tradeNumber;
-	@ColumnName("銘柄名")                public String stockName;
-	@ColumnName("銘柄コード")             public String stockCode;
-	@ColumnName("限月")                  public String contractMonth;                  // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("コールプット区分")        public String callOrPut;                      // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("権利行使価格")           public String excercisePrice;                  // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("権利行使価格通貨")        public String excerciseCurrency;               // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("カバードワラント商品種別")  public String coveredWarrantType;              // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("売買区分")               public String transactionType;                 // 買 売
-	@ColumnName("通貨")                  public String currency;                        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("市場")                  public String market;                          // 東証
-	@ColumnName("口座")                  public String accountType;                     // 特定
-	@ColumnName("信用区分")               public String marginType;                      // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("約定数量")               public int    tradeAmount;
-	@ColumnName("約定単価")               public int    tradeUnitPrice;
-	@ColumnName("コンバージョンレート")     public String conversionRate;                  // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("手数料")                public int    fee;
-	@ColumnName("手数料消費税")           public int    feeTax;
-	@ColumnName("建単価")                public String longUnitPrice;                    // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("新規手数料")             public String newFee;                           // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("新規手数料消費税")        public String newFeeTax;                        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("管理費")                public String administrationFee;                // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("名義書換料")             public String transferFee;                      // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("金利")                  public String interestRate;                     // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("貸株料")                public String stockLendingFee;                  // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("品貸料")                public String premiumFee;                       // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("前日分値洗")             public String previousDayMarkToMarket;          // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("経過利子（円貨）")        public String accruedInterestJPY;               // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("経過利子（外貨）")        public String accruedInterestForeignCurrency;   // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("経過日数（外債）")        public String elapsedDayForeignCurrency;        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("所得税（外債）")          public String incomeTaxForeignCurrency;         // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("地方税（外債）")          public String localtaxForeignCurrency;          // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("金利・価格調整額（CFD）")  public String interestPriceAdjustmentCFD;       // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("配当金調整額（CFD）")      public String dividendAjdustmentCFD;           // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("売建単価（くりっく365）")   public String sellingUnitPriceClick365;        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("買建単価（くりっく365）")   public String buyingUnitPriceClick365;         // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("円貨スワップ損益")        public String jpySwapProfitAndLoss;             // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("外貨スワップ損益")        public String foreignCurrentySwapProfitAndLoss; // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("約定金額（円貨）")        public int    tradePriceJPY;
-	@ColumnName("約定金額（外貨）")        public String tradePriceForeignCurrency;        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("決済金額（円貨）")        public String settlementPriceJPY;               // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("決済金額（外貨）")        public String settlementPriceForeignCurrency;   // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
-	@ColumnName("実現損益")               public String realizedProfitAndLoss;
-	@ColumnName("受渡金額（円貨）")        public int    settlementPrice;
-	@ColumnName("備考")                  public String comment;                          // 余力自動振替 証券コネクト口座から入金 コネクト自動出金 証券コネクト口座へ出金
+	@ColumnName("約定日時")						public String tradeDateTime;                    // YYYY/MM/DD HH:MM:SS
+	@ColumnName("取引区分")						public String tradeType;                        // コネクト自動入金 コネクト自動出金 現物 入金 出金 配当金（入金）
+	@ColumnName("受渡日")						public String settlementDate;                   // YYYY/MM/DD
+	@ColumnName("約定番号")						public String tradeNumber;
+	@ColumnName("銘柄名")						public String stockName;
+	@ColumnName("銘柄コード")					public String stockCode;
+	@ColumnName("限月")							public String contractMonth;                    // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("コールプット区分")				public String callOrPut;                        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("権利行使価格")					public String excercisePrice;                   // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("権利行使価格通貨")				public String excerciseCurrency;                // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("カバードワラント商品種別")	public String coveredWarrantType;               // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("売買区分")						public String transactionType;                  // 買 売
+	@ColumnName("通貨")							public String currency;                         // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("市場")							public String market;                           // 東証
+	@ColumnName("口座")							public String accountType;                      // 特定
+	@ColumnName("信用区分")						public String marginType;                       // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("約定数量") 					public int    tradeAmount;
+	@ColumnName("約定単価")						public int    tradeUnitPrice;                   // FIXME tradeUnitPrice has *fractional* value
+	@ColumnName("コンバージョンレート")		public String conversionRate;                   // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("手数料")						public int    fee;
+	@ColumnName("手数料消費税")					public int    feeTax;
+	@ColumnName("建単価")						public String longUnitPrice;                    // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("新規手数料")					public String newFee;                           // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("新規手数料消費税")				public String newFeeTax;                        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("管理費")						public String administrationFee;                // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("名義書換料")					public String transferFee;                      // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("金利")							public String interestRate;                     // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("貸株料")						public String stockLendingFee;                  // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("品貸料")						public String premiumFee;                       // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("前日分値洗")					public String previousDayMarkToMarket;          // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("経過利子（円貨）")				public String accruedInterestJPY;               // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("経過利子（外貨）")				public String accruedInterestForeignCurrency;   // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("経過日数（外債）")				public String elapsedDayForeignCurrency;        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("所得税（外債）")				public String incomeTaxForeignCurrency;         // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("地方税（外債）")				public String localtaxForeignCurrency;          // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("金利・価格調整額（CFD）")		public String interestPriceAdjustmentCFD;       // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("配当金調整額（CFD）")			public String dividendAjdustmentCFD;            // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("売建単価（くりっく365）")		public String sellingUnitPriceClick365;         // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("買建単価（くりっく365）")		public String buyingUnitPriceClick365;          // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("円貨スワップ損益")				public String jpySwapProfitAndLoss;             // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("外貨スワップ損益")				public String foreignCurrentySwapProfitAndLoss; // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("約定金額（円貨）")				public int    tradePriceJPY;
+	@ColumnName("約定金額（外貨）")				public String tradePriceForeignCurrency;        // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("決済金額（円貨）")				public String settlementPriceJPY;               // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("決済金額（外貨）")				public String settlementPriceForeignCurrency;   // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
+	@ColumnName("実現損益")						public String realizedProfitAndLoss;
+	@ColumnName("受渡金額（円貨）")				public int    settlementPrice;
+	@ColumnName("備考")							public String comment;                          // 余力自動振替 証券コネクト口座から入金 コネクト自動出金 証券コネクト口座へ出金
 	
 	public Activity(
 			String tradeDateTime,
