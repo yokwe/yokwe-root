@@ -39,8 +39,8 @@ public final class EMA implements OnlineDoubleUnaryOperator {
 		}
 		
 		if (firstTime) {
-			average = value;
 			firstTime = false;
+			average   = value;
 		}
 		
 		// average = value * alpha + average * (1 - alpha)
