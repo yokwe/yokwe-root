@@ -5,13 +5,12 @@ import yokwe.util.UnexpectedException;
 public final class Mean implements OnlineDoubleUnaryOperator {	
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private boolean firstTime = true;
-	private int     count     = 0;
-	private double  lastMean  = Double.NaN;
+	private int     count = 0;
+	private double  mean  = 0;
 	
 	@Override
 	public double getAsDouble() {
-		return lastMean;
+		return (count == 0) ? Double.NaN : mean;
 	}
 	
 	// method for SMA
@@ -19,8 +18,8 @@ public final class Mean implements OnlineDoubleUnaryOperator {
 	public double replace(double oldValue, double value) {
 		// ((lastMean * count) - oldValue + value) / count
 		// lastMean + (value - oldValue) / count
-		lastMean += (value - oldValue) / count;
-		return lastMean;
+		mean += (value - oldValue) / count;
+		return mean;
 	}
 
 	@Override
@@ -33,19 +32,7 @@ public final class Mean implements OnlineDoubleUnaryOperator {
 		}
 
 		count++;
-		
-		final double mean;
-		{
-			if (firstTime) {
-				mean      = value;
-				firstTime = false;
-			} else {
-				mean = lastMean + (value - lastMean) / count;
-			}
-		}
-		
-		// update for next iteration
-		lastMean = mean;
+		mean += (value - mean) / count;
 	}
 
 }
