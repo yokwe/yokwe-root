@@ -6,7 +6,7 @@ import yokwe.util.UnexpectedException;
 // return historical volatility
 //
 public final class HV implements OnlineDoubleUnaryOperator {
-	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	public static final double CONFIDENCE_95_PERCENT = 1.65;
 	public static final double CONFIDENCE_99_PERCENT = 2.33;

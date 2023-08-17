@@ -12,7 +12,7 @@ import yokwe.util.finance.online.Variance;
 
 
 public class TestVariance {
-	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final boolean OUTPUT_LOG = false;
 	

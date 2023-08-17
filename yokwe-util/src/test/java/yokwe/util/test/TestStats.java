@@ -13,7 +13,7 @@ import yokwe.util.ClassUtil;
 import yokwe.util.finance.Stats;
 
 public class TestStats {
-	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final boolean OUTPUT_LOG = false;
 	

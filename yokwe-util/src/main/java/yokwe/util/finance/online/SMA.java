@@ -6,7 +6,7 @@ import yokwe.util.UnexpectedException;
 // simple moving average
 //
 public final class SMA implements OnlineDoubleUnaryOperator {
-	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private final int      size;
 	private final double[] data;

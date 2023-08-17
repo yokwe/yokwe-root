@@ -8,7 +8,7 @@ import yokwe.util.ClassUtil;
 import yokwe.util.finance.online.SimpleReturn;
 
 public class TestSimpleReturn {
-	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final boolean OUTPUT_LOG = false;
 
