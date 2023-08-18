@@ -21,6 +21,7 @@ public class T005 {
 		logger.info("START");
 		
 		int nMonth = 36;
+		int nOffset = 0;
 		
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend		
@@ -30,7 +31,7 @@ public class T005 {
 			portfolio.
 				add("JP3046490003", getDairyPriceDiv("JP3046490003")).
 				add("JP90C0008X42", getDairyPriceDiv("JP90C0008X42")).
-				duration(nMonth);
+				duration(nMonth, nOffset);
 			
 			logger.info("{}  rateOfReturn {}", "JP3046490003", portfolio.rateOfReturn("JP3046490003"));
 //			logger.info("{}  risk         {}", "JP3046490003", portfolio.risk("JP3046490003"));

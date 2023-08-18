@@ -76,26 +76,34 @@ public class T003 {
 				if (fundStats == null) continue;
 				
 				if (12 <= fundStats.duration) {
-					double ror  = fundStats.rateOfReturn(12);
-					double risk = fundStats.risk(12);
+					int nMonth  = 12;
+					int nOffset =  0;
+					double ror  = fundStats.rateOfReturn(nMonth, nOffset);
+					double risk = fundStats.risk(nMonth, nOffset);
 					
 					seriesY1.add(risk, ror);
 				}
 				if (36 <= fundStats.duration) {
-					double ror  = fundStats.rateOfReturn(36);
-					double risk = fundStats.risk(36);
+					int nMonth  = 36;
+					int nOffset =  0;
+					double ror  = fundStats.rateOfReturn(nMonth, nOffset);
+					double risk = fundStats.risk(nMonth, nOffset);
 					
 					seriesY3.add(risk, ror);
 				}
 				if (60 <= fundStats.duration) {
-					double ror  = fundStats.rateOfReturn(60);
-					double risk = fundStats.risk(60);
+					int nMonth  = 60;
+					int nOffset =  0;
+					double ror  = fundStats.rateOfReturn(nMonth, nOffset);
+					double risk = fundStats.risk(nMonth, nOffset);
 					
 					seriesY5.add(risk, ror);
 				}
 				if (120 <= fundStats.duration) {
-					double ror  = fundStats.rateOfReturn(120);
-					double risk = fundStats.risk(120);
+					int nMonth  = 120;
+					int nOffset =   0;
+					double ror  = fundStats.rateOfReturn(nMonth, nOffset);
+					double risk = fundStats.risk(nMonth, nOffset);
 					
 					seriesY10.add(risk, ror);
 				}
@@ -180,8 +188,11 @@ public class T003 {
 					Fund      fund      = fundFundStats.fund;
 					FundStats fundStats = fundFundStats.fundStats;
 					if (duration <= fundStats.duration) {
-						double ror = fundStats.rateOfReturn(duration)   * 100;
-						double sd  = fundStats.risk(duration) * 100;
+						int nMonth  = duration;
+						int nOffset = 0;
+
+						double ror = fundStats.rateOfReturn(nMonth, nOffset)   * 100;
+						double sd  = fundStats.risk(nMonth, nOffset) * 100;
 						
 						if (fund.isinCode.equals("JP90C0009FQ7")) logger.info("{}  {}  {}", fund.isinCode, sd, ror);
 						

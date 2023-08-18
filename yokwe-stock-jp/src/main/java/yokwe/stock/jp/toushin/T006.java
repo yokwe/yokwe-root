@@ -31,7 +31,7 @@ public class T006 {
 		return dailyPriceDivArray;
 	}
 	
-	static void testStats(String isinCode, int nMonth) {
+	static void testStats(String isinCode, int nMonth, int nOffset) {
 		logger.info("testStats  {}  {}  {}", isinCode, nMonth, getFund(isinCode).name);
 				
 		DailyPriceDiv[] dailyPriceDivArray = getDailyPriceDiv(isinCode);
@@ -40,11 +40,11 @@ public class T006 {
 		FundStats fundStats = FundStats.getInstance(isinCode, dailyPriceDivArray);
 		logger.info("fundStats      {}  {}  {}", fundStats.duration, fundStats.firstDate, fundStats.lastDate);
 		
-		logger.info("  rateOfReturn  {}", fundStats.rateOfReturn(nMonth));
-		logger.info("  rateOfReturn2 {}", fundStats.rateOfReturnNoReinvest(nMonth));
-		logger.info("  risk          {}", fundStats.risk(nMonth));
-		logger.info("  riskDaily     {}", fundStats.riskDaily(nMonth));
-		logger.info("  riskMonthly   {}", fundStats.riskMonthly(nMonth));
+		logger.info("  rateOfReturn  {}", fundStats.rateOfReturn(nMonth, nOffset));
+		logger.info("  rateOfReturn2 {}", fundStats.rateOfReturnNoReinvest(nMonth, nOffset));
+		logger.info("  risk          {}", fundStats.risk(nMonth, nOffset));
+		logger.info("  riskDaily     {}", fundStats.riskDaily(nMonth, nOffset));
+		logger.info("  riskMonthly   {}", fundStats.riskMonthly(nMonth, nOffset));
 		
 //		int[] a = {6, 12, 36, 60, 120};
 //		for(var e: a) {
@@ -61,9 +61,10 @@ public class T006 {
 		
 		// JP3046490003  01311078  ＮＥＸＴ　ＦＵＮＤＳ金価格連動型上場投信                            has no dividend
 		// JP90C0008X42  53311133  フランクリン・テンプルトン・アメリカ高配当株ファンド（毎月分配型）  has monthly dividend
-		int nMonth = 36;
-		testStats("JP3046490003", nMonth);
-		testStats("JP90C0008X42", nMonth);
+		int nMonth  = 36;
+		int nOffset = 0;
+		testStats("JP3046490003", nMonth, nOffset);
+		testStats("JP90C0008X42", nMonth, nOffset);
 		
 		logger.info("STOP");
 	}

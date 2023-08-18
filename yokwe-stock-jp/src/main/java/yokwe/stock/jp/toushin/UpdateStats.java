@@ -118,40 +118,44 @@ public class UpdateStats {
 			
 			// 1 year
 			{
-				int nMonth = 12;
+				int nMonth  = 12;
+				int nOffset = 0;
 				
-				stats.sd1Y    = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth));
-				stats.div1Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth));
-				stats.yield1Y = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth));
-				stats.ror1Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth));
-				stats.rsi     = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rsi(nMonth));
+				stats.sd1Y    = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth, nOffset));
+				stats.div1Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth, nOffset));
+				stats.yield1Y = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth, nOffset));
+				stats.ror1Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth, nOffset));
+				stats.rsi     = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rsi(nMonth, nOffset));
 			}
 			// 3 year
 			{
 				int nMonth = 36;
+				int nOffset = 0;
 				
-				stats.sd3Y    = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth));
-				stats.div3Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth));
-				stats.yield3Y = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth));
-				stats.ror3Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth));
+				stats.sd3Y    = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth, nOffset));
+				stats.div3Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth, nOffset));
+				stats.yield3Y = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth, nOffset));
+				stats.ror3Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth, nOffset));
 			}
 			// 5 year
 			{
 				int nMonth = 60;
+				int nOffset = 0;
 				
-				stats.sd5Y    = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth));
-				stats.div5Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth));
-				stats.yield5Y = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth));
-				stats.ror5Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth));
+				stats.sd5Y    = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth, nOffset));
+				stats.div5Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth, nOffset));
+				stats.yield5Y = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth, nOffset));
+				stats.ror5Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth, nOffset));
 			}
 			// 10 year
 			{
 				int nMonth = 120;
+				int nOffset = 0;
 				
-				stats.sd10Y    = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth));
-				stats.div10Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth));
-				stats.yield10Y = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth));
-				stats.ror10Y   = (fundStats == null || fundStats.duration < nMonth) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth));
+				stats.sd10Y    = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth, nOffset));
+				stats.div10Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth, nOffset));
+				stats.yield10Y = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth, nOffset));
+				stats.ror10Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth, nOffset));
 			}
 			
 			stats.divQ1Y  = (nikkei == null || nikkei.divScore1Y.isEmpty()) ? null : new BigDecimal(nikkei.divScore1Y);

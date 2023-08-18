@@ -61,9 +61,10 @@ public class T004 {
 		
 //		int nYear = portfolio.durationInYear();
 		logger.info("holdingDuration  {}", portfolio.holdingDuration());
-		int duration = portfolio.holdingDuration();
-		logger.info("duration         {}", duration);
-		portfolio.duration(duration);
+		int nMonth = portfolio.holdingDuration();
+		int nOffset = 0;
+		logger.info("duration         {}", nMonth);
+		portfolio.duration(nMonth, nOffset);
 		
 		for(int i = 0; i < isinCodeArray.length; i++) {
 			for(int j = 0; j < isinCodeArray.length; j++) {
@@ -113,7 +114,7 @@ public class T004 {
 			}
 			collection.addSeries(series);
 		}
-		JFreeChart chart = ChartFactory.createScatterPlot("Efficent Frontier  duration = " + duration, "sd", "ror", collection);
+		JFreeChart chart = ChartFactory.createScatterPlot("Efficent Frontier  duration = " + nMonth, "sd", "ror", collection);
 		{
 			for(var isinCode: isinCodeArray) {
 				Fund fund = fundMap.get(isinCode);
