@@ -33,9 +33,9 @@ public class Portfolio {
 			quantity = newValue;
 		}
 		
-		Set<LocalDate> dateSet(int nMonth) {
+		Set<LocalDate> dateSet(int nMonth, int nOffset) {
 			Set<LocalDate> set = new HashSet<>();
-			Arrays.stream(fundStats.dateArray(nMonth)).forEach(o -> set.add(o));
+			Arrays.stream(fundStats.dateArray(nMonth, nOffset)).forEach(o -> set.add(o));
 			return set;
 		}
 	}
@@ -60,6 +60,7 @@ public class Portfolio {
 	}
 	
 	private int                  nMonth     = 0;
+	private int                  nOffset    = 0;
 	private Map<String, Holding> holdingMap = new TreeMap<>();
 	//          name
 	
@@ -81,14 +82,25 @@ public class Portfolio {
 		return String.format("{%d  %s}", nMonth, holdingMap.values());
 	}
 	
-	public Portfolio duration(int nMonth) {
-		this.nMonth = nMonth;
+	public Portfolio duration(int nMonth, int nOffset) {
+		if (nMonth <= 0 || nOffset < 0) {
+			logger.error("Unexpected value");
+			logger.error("  nMonth    {}", nMonth);
+			logger.error("  nOffset   {}", nOffset);
+			throw new UnexpectedException("Unexpected value");
+		}
+
+		this.nMonth  = nMonth;
+		this.nOffset = nOffset;
 		
 		durationIsChanged = true;
 		return this;
 	}
 	public int duration() {
 		return this.nMonth;
+	}
+	public int offset() {
+		return this.nOffset;
 	}
 	public int holdingDuration() {
 		return holdingMap.values().stream().mapToInt(o -> o.fundStats.duration).min().getAsInt();
@@ -154,7 +166,7 @@ public class Portfolio {
 			// commonDateSet contains common date of all holding
 			Set<LocalDate> commonDateSet = new HashSet<>();
 			for(var holding: holdingMap.values()) {
-				Set<LocalDate> dateSet = holding.dateSet(nMonth);
+				Set<LocalDate> dateSet = holding.dateSet(nMonth, nOffset);
 				if (commonDateSet.isEmpty()) {
 					commonDateSet.addAll(dateSet);
 				} else {
@@ -165,11 +177,11 @@ public class Portfolio {
 				String name = holding.name;
 				Data   data = dataMap.get(name);
 				// update data.rateOfReturn
-				data.rateOfReturn = holding.fundStats.rateOfReturn(nMonth);
+				data.rateOfReturn = holding.fundStats.rateOfReturn(nMonth, nOffset);
 				// update data.returnArray
 				{
-					LocalDate[] dateArray   = holding.fundStats.dateArray(nMonth);
-					double[]    returnArray = holding.fundStats.returnArray(nMonth);
+					LocalDate[] dateArray   = holding.fundStats.dateArray(nMonth, nOffset);
+					double[]    returnArray = holding.fundStats.returnArray(nMonth, nOffset);
 					
 					double[]    tempArray   = new double[dateArray.length];
 					int         tempIndex   = 0;
@@ -230,17 +242,17 @@ public class Portfolio {
 		}
 	}
 	public double rateOfReturn(String name) {
-		return getHolding(name).fundStats.rateOfReturn(nMonth);
+		return getHolding(name).fundStats.rateOfReturn(nMonth, nOffset);
 	}
 	public double risk(String name) {
-		return getHolding(name).fundStats.risk(nMonth);
+		return getHolding(name).fundStats.risk(nMonth, nOffset);
 	}
 	public double riskDaily(String name) {
-		return getHolding(name).fundStats.riskDaily(nMonth);
+		return getHolding(name).fundStats.riskDaily(nMonth, nOffset);
 	}
 	public double correlation(String nameA, String nameB) {
-		Stats a = new Stats(getHolding(nameA).fundStats.priceArray(nMonth));
-		Stats b = new Stats(getHolding(nameB).fundStats.priceArray(nMonth));
+		Stats a = new Stats(getHolding(nameA).fundStats.priceArray(nMonth, nOffset));
+		Stats b = new Stats(getHolding(nameB).fundStats.priceArray(nMonth, nOffset));
 		return Stats.correlation(a, b);
 	}
 }
