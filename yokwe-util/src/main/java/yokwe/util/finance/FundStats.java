@@ -224,6 +224,15 @@ public final class FundStats {
 		return array;
 	}
 	
+	public boolean contains(int nMonth, int nOffset) {
+		if (nMonth <= 0 || nOffset < 0) {
+			logger.error("Unexpected value");
+			logger.error("  nMonth    {}", nMonth);
+			logger.error("  nOffset   {}", nOffset);
+			throw new UnexpectedException("Unexpected value");
+		}
+		return (nMonth + nOffset) <= duration;
+	}
 	private void checkMonthOffsetValue(int nMonth, int nOffset) {
 		if (nMonth <= 0 || nOffset < 0 || duration < (nMonth + nOffset)) {
 			logger.error("Unexpected value");
@@ -232,10 +241,6 @@ public final class FundStats {
 			logger.error("  duration  {}", duration);
 			throw new UnexpectedException("Unexpected value");
 		}
-	}
-	public boolean contains(int nMonth, int nOffset) {
-		checkMonthOffsetValue(nMonth, nOffset);
-		return (nMonth + nOffset) <= duration;
 	}
 	private int getStartIndex(int nMonth, int nOffset) {
 		return startIndexArray[startIndexArray.length - 1 - nMonth - nOffset];
