@@ -182,7 +182,7 @@ public class Activity extends Sheet {
 	@ColumnName("口座")							public String accountType;                      // 特定
 	@ColumnName("信用区分")						public String marginType;                       // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
 	@ColumnName("約定数量") 					public int    tradeAmount;
-	@ColumnName("約定単価")						public int    tradeUnitPrice;                   // FIXME tradeUnitPrice has *fractional* value
+	@ColumnName("約定単価")						public String tradeUnitPrice;                   // FIXME tradeUnitPrice has *fractional* value
 	@ColumnName("コンバージョンレート")		public String conversionRate;                   // NOT FOR DOMESTIC STOCK CASH TRANSACTION CASH TRANSACTION
 	@ColumnName("手数料")						public int    fee;
 	@ColumnName("手数料消費税")					public int    feeTax;
@@ -232,7 +232,7 @@ public class Activity extends Sheet {
 			String accountType,
 			String marginType,
 			int    tradeAmount,
-			int    tradeUnitPrice,
+			String tradeUnitPrice,
 			String conversionRate,
 			int    fee,
 			int    feeTax,
@@ -316,7 +316,7 @@ public class Activity extends Sheet {
 	public Activity() {
 		this(
 			null, null, null, null, null, null, null, null, null, null,
-			null, null, null, null, null, null,    0,    0, null,    0, 
+			null, null, null, null, null, null,    0, null, null,    0, 
 			0,    null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, null, null, 
 			null,    0, null, null, null, null, 0, null);
