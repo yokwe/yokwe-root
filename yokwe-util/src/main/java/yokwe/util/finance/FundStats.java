@@ -224,33 +224,38 @@ public final class FundStats {
 		return array;
 	}
 	
-	private void checkMonthValue(int nMonth) {
-		if (duration < nMonth) {
-			logger.error("Unexpected nMonth");
+	private void checkMonthOffsetValue(int nMonth, int nOffset) {
+		if (nMonth <= 0 || nOffset < 0 || duration < (nMonth + nOffset)) {
+			logger.error("Unexpected value");
 			logger.error("  nMonth    {}", nMonth);
+			logger.error("  nOffset   {}", nOffset);
 			logger.error("  duration  {}", duration);
-			throw new UnexpectedException("Unexpected nMonth");
+			throw new UnexpectedException("Unexpected value");
 		}
 	}
+	public boolean contains(int nMonth, int nOffset) {
+		checkMonthOffsetValue(nMonth, nOffset);
+		return (nMonth + nOffset) <= duration;
+	}
+	private int getStartIndex(int nMonth, int nOffset) {
+		return startIndexArray[startIndexArray.length - 1 - nMonth - nOffset];
+	}
+	private int getStopIndexPlusOne(int nMonth, int nOffset) {
+		return startIndexArray[startIndexArray.length - 1 - nOffset];
+	}
 	
-	private int getStartIndex(int nMonth) {
-		return startIndexArray[startIndexArray.length - 1 - nMonth];
-	}
-	private int getStopIndexPlusOne() {
-		return startIndexArray[startIndexArray.length - 1];
-	}
-	public double rateOfReturn(int nMonth) {
+	public double rateOfReturn(int nMonth, int nOffset) {
 		// sanity check
-		checkMonthValue(nMonth);
+		checkMonthOffsetValue(nMonth, nOffset);
 		
 		double value = 1;
 		for(int i = 0; i < nMonth; i++) {
-			value *= (1 + monthlyStats.rorReinvestArray[i]);
+			value *= (1 + monthlyStats.rorReinvestArray[nOffset + i]);
 		}
 		return Math.pow(value, MONTH_IN_YEAR / (double)nMonth) - 1;
 	}
 	
-	public double rateOfReturnNoReinvest(int nMonth) {
+	public double rateOfReturnNoReinvest(int nMonth, int nOffset) {
 		// https://www.nikkei.com/help/contents/markets/fund/#qf16
 		//
 		// 分配金受取ベースのリターン(年率)
@@ -262,10 +267,9 @@ public final class FundStats {
 		// n=6,12,36,60,120
 		
 		// sanity check
-		checkMonthValue(nMonth);
-
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
+		checkMonthOffsetValue(nMonth, nOffset);
+		final int startIndex       = getStartIndex(nMonth, nOffset);
+		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 		
 		double startValue       = priceArray[startIndex - 1];       // use previous day price as startValue
 		double endValue         = priceArray[stopIndexPlusOne - 1];
@@ -274,41 +278,41 @@ public final class FundStats {
 		return Math.pow((endValue + divTotal) / startValue, MONTH_IN_YEAR / (double)nMonth) - 1;
 	}
 	
-	public double dividend(int nMonth) {
+	public double dividend(int nMonth, int nOffset) {
 		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
+		checkMonthOffsetValue(nMonth, nOffset);
+		final int startIndex       = getStartIndex(nMonth, nOffset);
+		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 
 		return Arrays.stream(divArray, startIndex, stopIndexPlusOne).sum();
 	}
 	
-	public double yield(int nMonth) {
+	public double yield(int nMonth, int nOffset) {
 		// sanity check
-		checkMonthValue(nMonth);
+		checkMonthOffsetValue(nMonth, nOffset);
+//		final int startIndex       = getStartIndex(nMonth, nOffset);
+		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 		
 		double endPrice = priceArray[stopIndexPlusOne - 1];
-		return (dividend(nMonth) / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
+		return (dividend(nMonth, nOffset) / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
 	}
 	
-	public double riskDaily(int nMonth) {
+	public double riskDaily(int nMonth, int nOffset) {
 		// sanity check
-		checkMonthValue(nMonth);
+		checkMonthOffsetValue(nMonth, nOffset);
+		final int startIndex       = getStartIndex(nMonth, nOffset);
+		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 		
 		// calculate risk using daily price value
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
-		
 		return DoubleArray.standardDeviation(returnArray, startIndex, stopIndexPlusOne) * SQRT_DAY_IN_YEAR;
 	}
-	public double riskMonthly(int nMonth) {
+	public double riskMonthly(int nMonth, int nOffset) {
 		// sanity check
-		checkMonthValue(nMonth);
+		checkMonthOffsetValue(nMonth, nOffset);
 		
-		return DoubleArray.standardDeviation(monthlyStats.rorPriceArray, 0, nMonth) * SQRT_MONTH_IN_YEAR;
+		return DoubleArray.standardDeviation(monthlyStats.rorPriceArray, nOffset, nOffset + nMonth) * SQRT_MONTH_IN_YEAR;
 	}
-	public double risk(int nMonth) {
+	public double risk(int nMonth, int nOffset) {
 		// リスク・リスク(１年)・リスク(年率)
 		// 基準価格のブレ幅の大きさ表します。
 		// 過去の基準価格の一定間隔（日次、週次、月次）のリターンを統計処理した標準偏差の数値です。
@@ -323,18 +327,18 @@ public final class FundStats {
 		// √(nΣ月次リターン^2 - (Σ月次リターン)^2) / n(n-1) × √12　n=36,60,120,設定来月数
 		
 		// sanity check
-		checkMonthValue(nMonth);
+		checkMonthOffsetValue(nMonth, nOffset);
 		
 		double value;
 		if (nMonth < 12) {
-			value = riskDaily(nMonth);
+			value = riskDaily(nMonth, nOffset);
 		} else if (nMonth < 36) {
 			// use weeklyStats
 			double[] array;
 			{
 				List<Double> list = new ArrayList<>();
 				
-				LocalDate firstDate = lastDate.minusMonths(nMonth).plusDays(1); // inclusive
+				LocalDate firstDate = lastDate.minusMonths(nMonth + nOffset).plusDays(1); // inclusive
 				int[] startIndexArray = getStartIndexArray(dateArray, ChronoField.ALIGNED_WEEK_OF_YEAR);
 				for(int i = 1; i < startIndexArray.length; i++) {
 					int       startIndex       = startIndexArray[i - 1];
@@ -353,18 +357,17 @@ public final class FundStats {
 			}
 			value = DoubleArray.standardDeviation(array) * SQRT_WEEK_IN_YEAR;
 		} else {
-			value = riskMonthly(nMonth);
+			value = riskMonthly(nMonth, nOffset);
 		}
 		
 		return value;
 	}
 	
-	public double rsi(int nMonth) {
+	public double rsi(int nMonth, int nOffset) {
 		// sanity check
-		checkMonthValue(nMonth);
-
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
+		checkMonthOffsetValue(nMonth, nOffset);
+		final int startIndex       = getStartIndex(nMonth, nOffset);
+		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 		
 		RSI rsi = new RSI();
 		for(int i = startIndex; i < stopIndexPlusOne; i++) {
@@ -375,36 +378,34 @@ public final class FundStats {
 	}
 	
 	
-	private <T> T[] copyOfRange(int nMonth, T[] array) {
+	private <T> T[] copyOfRange(int nMonth, int nOffset, T[] array) {
 		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
+		checkMonthOffsetValue(nMonth, nOffset);
+		final int startIndex       = getStartIndex(nMonth, nOffset);
+		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 		
 		return Arrays.copyOfRange(array, startIndex, stopIndexPlusOne);
 	}
-	private double[] copyOfRange(int nMonth, double[] array) {
+	private double[] copyOfRange(int nMonth, int nOffset, double[] array) {
 		// sanity check
-		checkMonthValue(nMonth);
-		
-		int startIndex       = getStartIndex(nMonth);
-		int stopIndexPlusOne = getStopIndexPlusOne();
+		checkMonthOffsetValue(nMonth, nOffset);
+		final int startIndex       = getStartIndex(nMonth, nOffset);
+		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 		
 		return Arrays.copyOfRange(array, startIndex, stopIndexPlusOne);
 	}
 	
-	public LocalDate[] dateArray(int nMonth) {
-		return copyOfRange(nMonth, dateArray);
+	public LocalDate[] dateArray(int nMonth, int nOffset) {
+		return copyOfRange(nMonth, nOffset, dateArray);
 	}
-	public double[] priceArray(int nMonth) {
-		return copyOfRange(nMonth, priceArray);
+	public double[] priceArray(int nMonth, int nOffset) {
+		return copyOfRange(nMonth, nOffset, priceArray);
 	}
-	public double[] divArray(int nMonth) {
-		return copyOfRange(nMonth, divArray);
+	public double[] divArray(int nMonth, int nOffset) {
+		return copyOfRange(nMonth, nOffset, divArray);
 	}
-	public double[] returnArray(int nMonth) {
-		return copyOfRange(nMonth, returnArray);
+	public double[] returnArray(int nMonth, int nOffset) {
+		return copyOfRange(nMonth, nOffset, returnArray);
 	}
 	
 }
