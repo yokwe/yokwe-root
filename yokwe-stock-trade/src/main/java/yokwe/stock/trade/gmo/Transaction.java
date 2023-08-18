@@ -28,7 +28,7 @@ public class Transaction implements Comparable<Transaction> {
 	
 	public final String symbol;
 	public final int    quantity;
-	public final int    price;
+	public final double price;   // Not used in UpdateStockHistory
 	public final int    fee;
 	public final int    total;   // Actual amount subtract/add from/to account - contains fee
 	
@@ -39,7 +39,7 @@ public class Transaction implements Comparable<Transaction> {
 
 	private Transaction(
 		Type type, String date,
-		String symbol, int quantity, int price, int fee, int total,
+		String symbol, int quantity, String price, int fee, int total,
 		int  jpy,
 		String newSymbol, int newQuantity) {
 		this.type     = type;
@@ -50,7 +50,7 @@ public class Transaction implements Comparable<Transaction> {
 		
 		this.symbol   = stockCode;
 		this.quantity = quantity;
-		this.price    = price;
+		this.price    = price.isEmpty() ? 0 : Double.parseDouble(price);
 		this.fee      = fee;
 		this.total    = total;
 		
@@ -75,25 +75,25 @@ public class Transaction implements Comparable<Transaction> {
 	}
 
 	private static Transaction jpyIn(String date, int jpy) {
-		return new Transaction(Type.JPY_IN, date, "", 0, 0, 0, 0, jpy, "", 0);
+		return new Transaction(Type.JPY_IN, date, "", 0, "", 0, 0, jpy, "", 0);
 	}
 	private static Transaction jpyOut(String date, int jpy) {
-		return new Transaction(Type.JPY_OUT, date, "", 0, 0, 0, 0, jpy, "", 0);
+		return new Transaction(Type.JPY_OUT, date, "", 0, "", 0, 0, jpy, "", 0);
 	}
-	private static Transaction buy(String date, String symbol, int quantity, int price, int fee, int total) {
+	private static Transaction buy(String date, String symbol, int quantity, String price, int fee, int total) {
 		return new Transaction(Type.BUY, date, symbol, quantity, price, fee, total, 0, "", 0);
 	}
-	private static Transaction sell(String date, String symbol, int quantity, int price, int fee, int total) {
+	private static Transaction sell(String date, String symbol, int quantity, String price, int fee, int total) {
 		return new Transaction(Type.SELL, date, symbol, quantity, price, fee, total, 0, "", 0);
 	}
-	private static Transaction dividend(String date, String symbol, int quantity, int price, int fee, int total) {
+	private static Transaction dividend(String date, String symbol, int quantity, String price, int fee, int total) {
 		return new Transaction(Type.DIVIDEND, date, symbol, quantity, price, fee, total, 0, "", 0);
 	}
 	private static Transaction fee(String date, int jpy) {
-		return new Transaction(Type.FEE, date, "", 0, 0, 0, 0, jpy, "", 0);
+		return new Transaction(Type.FEE, date, "", 0, "", 0, 0, jpy, "", 0);
 	}
 	private static Transaction change(String date, String symbol, int quantity, String newSymbol, int newQuantity) {
-		return new Transaction(Type.CHANGE, date, symbol, quantity, 0, 0, 0, 0, newSymbol, newQuantity);
+		return new Transaction(Type.CHANGE, date, symbol, quantity, "", 0, 0, 0, newSymbol, newQuantity);
 	}
 
 	public static List<Transaction> getTransactionList(SpreadSheet docActivity) {
@@ -140,8 +140,7 @@ public class Transaction implements Comparable<Transaction> {
 					break;
 				case Activity.TRADE_DIVIDEND_DEPOSIT:
 					// no information for quantity and price
-					// FIXME Are quantity and price used in dividend calculation or reporting?
-					transactionList.add(Transaction.dividend(activity.settlementDate, activity.stockCode, 0, 0, 0, activity.settlementPrice));
+					transactionList.add(Transaction.dividend(activity.settlementDate, activity.stockCode, 0, "", 0, activity.settlementPrice));
 					break;
 				case Activity.TRADE_TRANSFER_TAX_COLLECTION:
 					transactionList.add(Transaction.fee(activity.settlementDate, activity.settlementPrice));
