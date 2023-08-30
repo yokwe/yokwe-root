@@ -109,6 +109,8 @@ public class Stats extends Sheet implements Comparable<Stats> {
 	@Sheet.ColumnName("SBI")     public BigDecimal sbi;
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
 	@Sheet.ColumnName("ソニー")    public BigDecimal sony;
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
+	@Sheet.ColumnName("SMBCTB")    public BigDecimal smbctb;
 	
 	
     @Override

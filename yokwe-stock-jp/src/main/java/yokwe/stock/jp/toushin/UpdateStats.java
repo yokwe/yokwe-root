@@ -15,6 +15,7 @@ import yokwe.stock.jp.nikko.NikkoFund;
 import yokwe.stock.jp.nomura.NomuraFund;
 import yokwe.stock.jp.rakuten.RakutenFund;
 import yokwe.stock.jp.sbi.SBIFund;
+import yokwe.stock.jp.smbctb.SMBCTBFund;
 import yokwe.stock.jp.sony.SonyFund;
 import yokwe.util.DoubleUtil;
 import yokwe.util.StringUtil;
@@ -51,12 +52,14 @@ public class UpdateStats {
 		var rakutenSet = RakutenFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		var sbiSet     = SBIFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		var sonySet    = SonyFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+		var smbctbSet  = SMBCTBFund.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 		logger.info("gmoSet     {}", gmoSet.size());
 		logger.info("nikkoSet   {}", nikkoSet.size());
 		logger.info("nomuraSet  {}", nomuraSet.size());
 		logger.info("rakutenSet {}", rakutenSet.size());
 		logger.info("sbiSet     {}", sbiSet.size());
 		logger.info("sonySet    {}", sonySet.size());
+		logger.info("smbctbSet  {}", smbctbSet.size());
 
 		int countNoPrice  = 0;
 		int countNoNikkei = 0;
@@ -172,6 +175,7 @@ public class UpdateStats {
 				stats.rakuten = rakutenSet.contains(fund.isinCode) ? BigDecimal.ZERO : null;
 				stats.sbi     = sbiSet.contains(fund.isinCode)     ? BigDecimal.ZERO : null;
 				stats.sony    = sonySet.contains(fund.isinCode)    ? BigDecimal.ZERO : null;
+				stats.smbctb  = smbctbSet.contains(fund.isinCode)  ? BigDecimal.ONE : null;
 			} else {
 				stats.gmo     = null;
 				stats.nikko   = null;
@@ -179,6 +183,7 @@ public class UpdateStats {
 				stats.rakuten = null;
 				stats.sbi     = null;
 				stats.sony    = null;
+				stats.smbctb  = null;
 			}
 			
 			// special case

@@ -269,6 +269,21 @@ public final class Storage {
 		}
 	}
 	
+	// SMBCTB
+	public static final class SMBCTB {
+		public static final String PREFIX = "smbctb";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 	// Yahoo
 	public static class Yahoo {
 		public static final String PREFIX = "yahoo";
