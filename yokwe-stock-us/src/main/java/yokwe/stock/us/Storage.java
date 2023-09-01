@@ -110,4 +110,16 @@ public final class Storage {
 		}
 	}
 	
+	// Webull
+	public static class Webull {
+		public static final String PREFIX = "webull";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 }

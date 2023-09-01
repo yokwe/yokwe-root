@@ -132,4 +132,14 @@
 		</java>
 	</target>
 	
+	<!-- WEBULL -->
+	<target name="webull-update-webull-stock">
+		<java module="yokwe.stock.us/yokwe.stock.us.webull.UpdateWebullStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
 </project>
