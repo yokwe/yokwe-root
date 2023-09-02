@@ -249,6 +249,21 @@ public final class FundStats {
 		return startIndexArray[startIndexArray.length - 1 - nOffset];
 	}
 	
+	public LocalDate startDate(int nMonth, int nOffset) {
+		// sanity check
+		checkMonthOffsetValue(nMonth, nOffset);
+		
+		final int startIndex = getStartIndex(nMonth, nOffset);
+		return dateArray[startIndex];
+	}
+	public LocalDate stopDate(int nMonth, int nOffset) {
+		// sanity check
+		checkMonthOffsetValue(nMonth, nOffset);
+		
+		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
+		return dateArray[stopIndexPlusOne - 1];
+	}
+	
 	public double rateOfReturn(int nMonth, int nOffset) {
 		// sanity check
 		checkMonthOffsetValue(nMonth, nOffset);
