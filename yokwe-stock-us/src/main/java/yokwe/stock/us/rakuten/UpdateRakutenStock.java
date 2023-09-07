@@ -193,10 +193,10 @@ public class UpdateRakutenStock {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		Map<String, Stock> stockMpa = Stock.getMap();
+		Map<String, Stock> stockMap = Stock.getMap();
 		
-		List<Stock> stockList = STOCK.getList(stockMpa);
-		List<Stock> etfList   = ETF.getList(stockMpa);
+		List<Stock> stockList = STOCK.getList(stockMap);
+		List<Stock> etfList   = ETF.getList(stockMap);
 		
 		logger.info("stock  {}", stockList.size());
 		logger.info("etf    {}", etfList.size());
