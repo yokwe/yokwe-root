@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import yokwe.stock.us.Stock.Type;
 import yokwe.stock.us.monex.MonexStock;
 import yokwe.stock.us.nikko.NikkoStock;
+import yokwe.stock.us.rakuten.RakutenBuyFreeETF;
 import yokwe.stock.us.rakuten.RakutenStock;
+import yokwe.stock.us.sbi.SBIBuyFreeETF;
 import yokwe.stock.us.sbi.SBIStock;
 
 public class UpdateTradingStock {
@@ -36,6 +38,11 @@ public class UpdateTradingStock {
 		logger.info("nikko   {}", nikkoSet.size());
 		logger.info("all     {}", allSet.size());
 		
+		var sbiBuyFreeETFSet     = SBIBuyFreeETF.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
+		var rakutenBuyFreeETFSet = RakutenBuyFreeETF.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
+		logger.info("buy free sbi     {}", sbiBuyFreeETFSet.size());
+		logger.info("buy free rakuten {}", rakutenBuyFreeETFSet.size());
+
 		// trading symbol
 		{
 			List<TradingStock> list = new ArrayList<>();
@@ -61,8 +68,14 @@ public class UpdateTradingStock {
 				if (sbiSet.contains(symbol)) {
 					sbi = "1";
 				}
+				if (sbiBuyFreeETFSet.contains(symbol)) {
+					sbi = "2";
+				}
 				if (rakutenSet.contains(symbol)) {
 					rakuten = "1";
+				}
+				if (rakutenBuyFreeETFSet.contains(symbol)) {
+					rakuten = "2";
 				}
 				if (nikkoSet.contains(symbol)) {
 					nikko = "1";
