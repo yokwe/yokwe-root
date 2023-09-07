@@ -121,10 +121,26 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="rakuten-update-rakuten-buy-free-etf">
+		<java module="yokwe.stock.us/yokwe.stock.us.rakuten.UpdateRakutenBuyFreeETF" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	<!-- SBI -->
 	<target name="sbi-update-sbi-stock">
 		<java module="yokwe.stock.us/yokwe.stock.us.sbi.UpdateSBIStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="sbi-update-sbi-buy-free-etf">
+		<java module="yokwe.stock.us/yokwe.stock.us.sbi.UpdateSBIBuyFreeETF" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
