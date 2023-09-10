@@ -14,58 +14,47 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateJPXETF {
+public class UpdateJPXETN {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// Current
-	// https://www.jpx.co.jp/equities/products/etfs/issues/01.html
-	// https://www.jpx.co.jp/equities/products/etfs/leveraged-inverse/01.html
-	
-	// Delist
-	// https://www.jpx.co.jp/equities/products/etfs/delisting/index.html
-	
-	// New
-	// https://www.jpx.co.jp/equities/products/etfs/issues/index.html
-	
-	private static final String URL_A = "https://www.jpx.co.jp/equities/products/etfs/issues/01.html";
-	private static final String URL_B = "https://www.jpx.co.jp/equities/products/etfs/leveraged-inverse/01.html";
+	// https://www.jpx.co.jp/equities/products/etns/issues/01.html
+	// https://www.jpx.co.jp/equities/products/etns/leveraged-inverse/01.html
+
+	private static final String URL_A = "https://www.jpx.co.jp/equities/products/etns/issues/01.html";
+	private static final String URL_B = "https://www.jpx.co.jp/equities/products/etns/leveraged-inverse/01.html";
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
 /*
 
-	<tr>
-	  
-    <td class="tb-color001">TOPIX</td>
-  
-<td class="a-center tb-color001">
-  <a href="https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&amp;MKTN=T&amp;QCODE=1305" rel="external">1305</a>
-</td>
-<td class="tb-color001">
-iFreeETF TOPIX（年1回決算型）
-    <div>
-      <a href="http://tse.factsetdigitalsolutions.com/iopv/table?language=jp" rel="external" class="inav-btn">iNAV</a>
-    </div>
-    
-</td>
-<td class="tb-color001">
-  <a href="https://www.daiwa-am.co.jp/" rel="external">大和アセットマネジメント(13054)</a>
-</td>
-<td class="a-right tb-color001 w-space">0.06%</td>
-<td class="a-center tb-color001">●</td>
-<td class="a-center tb-color001">
-  ●
-  
-</td>
-<td class="a-center tb-color001">
-  
-      <a href="./files/1305-j.pdf" rel="external"><img src="/common/images/icon/tvdivq000000019l-img/icon-pdf.png" alt="PDF" title="PDF" width="16" height="16" /></a>
-    
-</td>
-<td class="a-center tb-color001">
-  <a href="https://money-bu-jpx.com/search/1305/?utm_source=jpx.co.jp&utm_medium=referral&utm_campaign=etf-search&utm_content=etftable" rel="external"><img src="/common/images/icon/icon-money-bu.png" alt="銘柄詳細" title="銘柄詳細" width="16" height="16"></a>
+<tr>
+  <td class="a-center tb-color001 w-space">2013/10/28</td>
+  <td class="tb-color001">東証マザーズ指数</td>
+  <td class="a-center tb-color001">
+    <a href="https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&amp;MKTN=T&amp;QCODE=2042" rel="external">2042</a>
+  </td>
+  <td class="tb-color001">
+NEXT NOTES 東証マザーズ ETN
+      <div>
+        <a href="http://tse.factsetdigitalsolutions.com/iopv/table?language=jp" rel="external" class="inav-btn">iNAV</a>
+      </div>
       
-</td>
+  </td>
+  <td class="tb-color001">
+    <a href="http://nextnotes.com/" rel="external">ノムラ・ヨーロッパ・ファイナンス・エヌ・ブイ(20314)</a>
+  </td>
+  <td class="a-center tb-color001 w-space">2033/08/08</td>
+  <td class="a-right tb-color001 w-space">0.50%</td>
+  <td class="a-center tb-color001">
+    
+        <a href="./files/2042-j.pdf" rel="external"><img src="/common/images/icon/tvdivq000000019l-img/icon-pdf.png" alt="PDF" title="PDF" width="16" height="16" /></a>
+      
+  </td>
+  <td class="a-center tb-color001">
+    <a href="https://money-bu-jpx.com/search/2042/?utm_source=jpx.co.jp&utm_medium=referral&utm_campaign=etf-search&utm_content=etftable" rel="external"><img src="/common/images/icon/icon-money-bu.png" alt="銘柄詳細" title="銘柄詳細" width="16" height="16"></a>
+        
+  </td>
 </tr>
 
 */
@@ -73,6 +62,7 @@ iFreeETF TOPIX（年1回決算型）
 	public static class ETFInfo {
 		public static final Pattern PAT = Pattern.compile(
 				"<tr>\\s+" +
+				"<td .+?</td>\\s+" +
 				"<td class=\"tb-color00[12]\">(?<indexName>.+?)</td>\\s+" +
 				"<td class=\"a-center tb-color00[12]\">\\s+<a .+?>(?<stockCode>.+?)</a>\\s+</td>\\s+" +
 				"<td class=\"tb-color00[12]\">\\s*(?<name>.+?)\\s*(?:<div>.+?</div>)?\\s*</td>\\s+" +
@@ -103,7 +93,7 @@ iFreeETF TOPIX（年1回決算型）
 		}
 	}
 	
-	private static List<JPXETF> getList(String url, String pageFileName) {
+	private static List<JPXETN> getList(String url, String pageFileName) {
 		final String page;
 		{
 			File file = new File("tmp/" + pageFileName);
@@ -123,9 +113,9 @@ iFreeETF TOPIX（年1回決算型）
 			}
 		}
 		
-		List<JPXETF> list = new ArrayList<>();
+		List<JPXETN> list = new ArrayList<>();
 		for(var e: ETFInfo.getInstance(page)) {
-			JPXETF entry = new JPXETF();
+			JPXETN entry = new JPXETN();
 			entry.indexName    = e.indexName.replace("&amp;", "&");
 			entry.stockCode    = Stock.toStockCode5(e.stockCode);
 			entry.name         = e.name.replace("&amp;", "&").replace("(注2)", "").replace("(注5)", "").replace("(注6)", "");
@@ -144,12 +134,12 @@ iFreeETF TOPIX（年1回決算型）
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<JPXETF> listA = getList(URL_A, "jpx-etf-page-A.html");
+		List<JPXETN> listA = getList(URL_A, "jpx-etn-page-A.html");
 		logger.info("listA  {}", listA.size());
-		List<JPXETF> listB = getList(URL_B, "jpx-etf-page-B.html");
+		List<JPXETN> listB = getList(URL_B, "jpx-etn-page-B.html");
 		logger.info("listB  {}", listB.size());
 		
-		Map<String, JPXETF> map = new TreeMap<>();
+		Map<String, JPXETN> map = new TreeMap<>();
 		for(var e: listA) {
 			map.put(e.stockCode, e);
 		}
@@ -163,8 +153,8 @@ iFreeETF TOPIX（年1回決算型）
 			}
 		}
 		
-		logger.info("save   {}  {}", map.size(), JPXETF.getPath());
-		JPXETF.save(map.values());
+		logger.info("save   {}  {}", map.size(), JPXETN.getPath());
+		JPXETN.save(map.values());
 		
 		logger.info("STOP");
 	}

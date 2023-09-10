@@ -104,6 +104,15 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	
+	<target name="jpx-update-jpx-etn">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateJPXETN" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	<!-- MONEY BU JPX -->
 	<target name="moneybujpx-update-etf">
