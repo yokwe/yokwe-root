@@ -87,6 +87,24 @@
 		</java>
 	</target>
 	
+	<target name="jpx-update-jpx-listing">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateJPXListing" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<target name="jpx-update-jpx-etf">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateJPXETF" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
 	<!-- MONEY BU JPX -->
 	<target name="moneybujpx-update-etf">
 		<java module="yokwe.stock.jp/yokwe.stock.jp.moneybujpx.UpdateETF" fork="true">
