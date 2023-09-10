@@ -5,16 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import yokwe.stock.jp.Storage;
-import yokwe.util.CSVUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.libreoffice.Sheet;
-import yokwe.util.libreoffice.SpreadSheet;
 
-@Sheet.SheetName("Sheet1")
-@Sheet.HeaderRow(0)
-@Sheet.DataRow(1)
-public class Stock extends Sheet implements Comparable<Stock> {	
+public class Stock implements Comparable<Stock> {	
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String PATH_FILE = Storage.JPX.getPath("stock.csv");
@@ -79,94 +73,65 @@ public class Stock extends Sheet implements Comparable<Stock> {
 		}
 	}
 	
-	public static enum Market {
-		CERTIFICATE     ("出資証券"),
-		ETF_ETN         ("ETF・ETN"),
-		GROWTH          ("グロース（内国株式）"),
-		GROWTH_FOREIGN  ("グロース（外国株式）"),
-		PRIME           ("プライム（内国株式）"),
-		PRIME_FOREIGN   ("プライム（外国株式）"),
-		PRO_MARKET      ("PRO Market"),
-		REIT_FUND       ("REIT・ベンチャーファンド・カントリーファンド・インフラファンド"),
-		STANDARD        ("スタンダード（内国株式）"),
-		STANDARD_FOREIGN("スタンダード（外国株式）");
-		
-		public final String value;
-		Market(String value) {
-			this.value = value;
-		}
-		
-		@Override
-		public String toString() {
-			return value;
-		}
+	public static enum StockKind {
+		// STOCK
+		STOCK_PRIME,
+		STOCK_STANDARD,
+		STOCK_GROWTH,
+		FOREIGN_PRIME,
+		FOREIGN_STANDARD,
+		FOREIGN_GROWTH,
+		//
+		ETF,
+		ETN,
+		REIT,
+		COUNTRY_FUND,
+		INFRA_FUND,
+		PRO_MARKET,
+		CERTIFICATE,
+		//
+		UNKNOWN, // for new STOCK
 	}
 
-	@Sheet.ColumnName("日付")
-	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-	@CSVUtil.ColumnName("日付")
-	public String date;
-	
-	@Sheet.ColumnName("コード")
-	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-	@CSVUtil.ColumnName("コード")
-	public String stockCode;
-	
-	@Sheet.ColumnName("銘柄名")
-	@CSVUtil.ColumnName("銘柄名")
-	public String name;
-	
-	@Sheet.ColumnName("市場・商品区分")
-	@CSVUtil.ColumnName("市場・商品区分")
-	public Market market;
-	
-	@Sheet.ColumnName("33業種コード")
-	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-	@CSVUtil.ColumnName("33業種コード")
-	public String sector33Code;
-	
-	@Sheet.ColumnName("33業種区分")
-	@CSVUtil.ColumnName("33業種区分")
-	public String sector33;
-	
-	@Sheet.ColumnName("17業種コード")
-	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-	@CSVUtil.ColumnName("17業種コード")
-	public String sector17Code;
-	
-	@Sheet.ColumnName("17業種区分")
-	@CSVUtil.ColumnName("17業種区分")
-	public String sector17;
-	
-	@Sheet.ColumnName("規模コード")
-	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-	@CSVUtil.ColumnName("規模コード")
-	public String scaleCode;
-	
-	@Sheet.ColumnName("規模区分")
-	@CSVUtil.ColumnName("規模区分")
-	public String scale;
+	public final String     stockCode;
+	public final StockKind  stockKind;
+	public final String     sector33;
+	public final String     sector17;
+	public final String     scale;
+	public final String     name;
+
+	public Stock(
+		String     stockCode,
+		StockKind  stockKind,
+		String     sector33,
+		String     sector17,
+		String     scale,
+		String     name
+		) {
+		this.stockCode = stockCode;
+		this.stockKind = stockKind;
+		this.sector33  = sector33;
+		this.sector17  = sector17;
+		this.scale     = scale;
+		this.name      = name;
+	}
 	
 	@Override
 	public String toString() {
-		if (this.isETF() || this.isREIT()) {
-			return String.format("%s %s %s %s", date, stockCode, name, market);
-		} else {
-			return String.format("%s %s %s %s %s %s %s %s %s %s", date, stockCode, name, market, sector33Code, sector33, sector17Code, sector17, scale, scaleCode);
-		}
+		return String.format("%s %s %s %s %s %s", stockCode, stockKind, sector33, sector17, scale, name);
 	}
 	@Override
 	public boolean equals(Object o) {
 		if (o == null) return false;
 		if (o instanceof Stock) {
 			Stock that = (Stock)o;
-			return this.date.equals(that.date) &&
+			return
 					this.stockCode.equals(that.stockCode) &&
-					this.name.equals(that.name) &&
-					this.market.equals(that.market) &&
-					this.sector33.equals(that.sector33) && this.sector33Code.equals(that.sector33Code) &&
-					this.sector17.equals(that.sector17) && this.sector17Code.equals(that.sector17Code) &&
-					this.scale.equals(that.scale) && this.scaleCode.equals(that.scaleCode);
+					this.stockKind.equals(that.stockKind) &&
+					this.sector33.equals(that.sector33) &&
+					this.sector17.equals(that.sector17) &&
+					this.scale.equals(that.scale) &&
+					this.name.equals(that.name);
 		} else {
 			return false;
 		}
@@ -174,24 +139,22 @@ public class Stock extends Sheet implements Comparable<Stock> {
 
 	@Override
 	public int compareTo(Stock that) {
-		int ret = this.date.compareTo(that.date);
-		if (ret == 0) ret = this.stockCode.compareTo(that.stockCode);
-		return ret;
+		return this.stockCode.compareTo(that.stockCode);
 	}
 	
 	public boolean isETF() {
-		return market.equals(Market.ETF_ETN);
+		return stockKind == StockKind.ETF;
+	}
+	public boolean isETN() {
+		return stockKind == StockKind.ETN;
 	}
 	public boolean isREIT() {
-		return market.equals(Market.REIT_FUND);
+		return stockKind == StockKind.REIT;
 	}
 	public boolean isInfraFund() {
-		return market.equals(Market.REIT_FUND) && name.contains("インフラ");
-	}
-	public boolean isPROMarket() {
-		return market.equals(Market.PRO_MARKET);
+		return stockKind == StockKind.INFRA_FUND;
 	}
 	public boolean isCertificate() {
-		return market.equals(Market.CERTIFICATE);
+		return stockKind == StockKind.CERTIFICATE;
 	}
 }
