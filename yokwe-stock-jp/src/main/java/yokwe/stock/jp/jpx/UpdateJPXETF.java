@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -29,6 +30,10 @@ public class UpdateJPXETF {
 	
 	private static final String URL_A = "https://www.jpx.co.jp/equities/products/etfs/issues/01.html";
 	private static final String URL_B = "https://www.jpx.co.jp/equities/products/etfs/leveraged-inverse/01.html";
+	
+	private static final String PAGE_FILE_A = "jpx-etf-page-A.html";
+	private static final String PAGE_FILE_B = "jpx-etf-page-B.html";
+
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
@@ -103,10 +108,10 @@ iFreeETF TOPIX（年1回決算型）
 		}
 	}
 	
-	private static List<JPXETF> getList(String url, String pageFileName) {
+	private static List<JPXETF> getList(String url, String pageFile) {
 		final String page;
 		{
-			File file = new File("tmp/" + pageFileName);
+			File file = new File(Storage.JPX.getPath(pageFile));
 			if (DEBUG_USE_FILE && file.exists()) {
 				page = FileUtil.read().file(file);
 			} else {
@@ -144,9 +149,9 @@ iFreeETF TOPIX（年1回決算型）
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<JPXETF> listA = getList(URL_A, "jpx-etf-page-A.html");
+		List<JPXETF> listA = getList(URL_A, PAGE_FILE_A);
 		logger.info("listA  {}", listA.size());
-		List<JPXETF> listB = getList(URL_B, "jpx-etf-page-B.html");
+		List<JPXETF> listB = getList(URL_B, PAGE_FILE_B);
 		logger.info("listB  {}", listB.size());
 		
 		Map<String, JPXETF> map = new TreeMap<>();

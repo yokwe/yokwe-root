@@ -113,6 +113,42 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	
+	<target name="jpx-update-jpx-reit">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateJPXREIT" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<target name="jpx-update-jpx-infra">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateJPXInfra" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<target name="jpx-update-jpx-foreign">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateJPXForeign" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<target name="jpx-update-jpx-preferred">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.jpx.UpdateJPXPreferred" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	<!-- MONEY BU JPX -->
 	<target name="moneybujpx-update-etf">

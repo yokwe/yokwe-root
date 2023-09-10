@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
+import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -24,6 +25,9 @@ public class UpdateJPXETN {
 	private static final String URL_A = "https://www.jpx.co.jp/equities/products/etns/issues/01.html";
 	private static final String URL_B = "https://www.jpx.co.jp/equities/products/etns/leveraged-inverse/01.html";
 	
+	private static final String PAGE_FILE_A = "jpx-etn-page-A.html";
+	private static final String PAGE_FILE_B = "jpx-etn-page-B.html";
+
 	private static final boolean DEBUG_USE_FILE = false;
 	
 /*
@@ -93,10 +97,10 @@ NEXT NOTES 東証マザーズ ETN
 		}
 	}
 	
-	private static List<JPXETN> getList(String url, String pageFileName) {
+	private static List<JPXETN> getList(String url, String pageFile) {
 		final String page;
 		{
-			File file = new File("tmp/" + pageFileName);
+			File file = new File(Storage.JPX.getPath(pageFile));
 			if (DEBUG_USE_FILE && file.exists()) {
 				page = FileUtil.read().file(file);
 			} else {
@@ -134,9 +138,9 @@ NEXT NOTES 東証マザーズ ETN
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<JPXETN> listA = getList(URL_A, "jpx-etn-page-A.html");
+		List<JPXETN> listA = getList(URL_A, PAGE_FILE_A);
 		logger.info("listA  {}", listA.size());
-		List<JPXETN> listB = getList(URL_B, "jpx-etn-page-B.html");
+		List<JPXETN> listB = getList(URL_B, PAGE_FILE_B);
 		logger.info("listB  {}", listB.size());
 		
 		Map<String, JPXETN> map = new TreeMap<>();
