@@ -123,24 +123,18 @@ public class UpdateStockStats {
 			}
 			Price lastPrice = priceList.get(priceList.size() - 1);
 			
-			final ETF etf;
-			if (stock.isETF()) {
-				etf = etfMap.get(stockCode);
+			final ETF etf = etfMap.get(stockCode);
+			if (stock.isETF() || stock.isETN()) {
 				if (etf == null) {
 					logger.warn("No etf info  {}  {}", stockCode, stock.name);
 				}
-			} else {
-				etf = null;
 			}
 			
-			final REIT reit;
+			final REIT reit = reitMap.get(stockCode);
 			if (stock.isREIT() || stock.isInfraFund()) {
-				reit = reitMap.get(stockCode);
 				if (reit == null) {
 					logger.warn("No reit info  {}  {}", stockCode, stock.name);
 				}
-			} else {
-				reit = null;
 			}
 			
 			final Fund fund = fundMap.get(info.isinCode);
@@ -157,9 +151,15 @@ public class UpdateStockStats {
 				} else {
 					stockStats.category = "ETF";
 				}
+			} else if (stock.isETN()) {
+				if (etf != null) {
+					stockStats.category = "ETN-" + etf.categoryName.replace("ETF", "");
+				} else {
+					stockStats.category = "ETN";
+				}
 			} else {
 				if (stock.sector33.equals("-")) {
-					stockStats.category = stock.market.toString();
+					stockStats.category = stock.stockKind.toString();
 				} else {
 					stockStats.category = stock.sector33;
 				}
@@ -167,9 +167,6 @@ public class UpdateStockStats {
 			stockStats.unit      = info.tradeUnit;
 			stockStats.issued    = BigDecimal.valueOf(info.issued);
 			
-			if (etf != null) {
-				stockStats.category = "ETF-" + etf.categoryName.replace("ETF", "");
-			}
 			if (reit != null) {
 				stockStats.category = "REIT-" + reit.category.replace(" ", "");
 			}

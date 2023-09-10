@@ -55,8 +55,8 @@ public class UpdateStats {
 				ret.sector33 = "REIT";
 				ret.sector17 = (reit == null) ? "REIT" : reit.category;
 			} else {
-				ret.sector33 = stock.market.toString();
-				ret.sector17 = stock.market.toString();
+				ret.sector33 = stock.stockKind.toString();
+				ret.sector17 = stock.stockKind.toString();
 			}
 		} else {
 			ret.sector33 = stock.sector33;
