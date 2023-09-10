@@ -103,7 +103,7 @@ iFreeETF TOPIX（年1回決算型）
 		}
 	}
 	
-	private static List<JPXETF> getList( String url, String pageFileName) {
+	private static List<JPXETF> getList(String url, String pageFileName) {
 		final String page;
 		{
 			File file = new File("tmp/" + pageFileName);
