@@ -54,11 +54,10 @@ public final class StockStats extends Sheet implements Comparable<StockStats> {
 	// 20 <= pricec
 	@Sheet.ColumnName("vol21") public long  vol21;
 	
-	@Sheet.ColumnName("monex")   public String monex;
-	@Sheet.ColumnName("sbi")     public String sbi;
-	@Sheet.ColumnName("rakuten") public String rakuten;
-	@Sheet.ColumnName("nikko")   public String nikko;
-
+	@Sheet.ColumnName("MONEX") public String monex;
+	@Sheet.ColumnName("SBI")   public String sbi;
+	@Sheet.ColumnName("楽天")  public String rakuten;
+	@Sheet.ColumnName("日興")  public String nikko;
 
 	public StockStats() {
 		stockCode = null;
