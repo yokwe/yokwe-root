@@ -1,6 +1,5 @@
 package yokwe.stock.jp.jpx;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.TreeMap;
 import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.jpx.JPXListing.Market;
 import yokwe.util.FileUtil;
-import yokwe.util.HashCode;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -19,82 +17,65 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class UpdateJPXListing {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final String URL_DATAFILE  = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
+	private static final String URL = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	
-	private static final String PATH_DATAFILE      = Storage.JPX.getPath("data_j.xls");
-	private static final String URL_DATAFILE_LOCAL = StringUtil.toURLString(PATH_DATAFILE);
+	private static final String PATH_DATAFILE = Storage.JPX.getPath("data_j.xls");
+	private static final String URL_DATAFILE  = StringUtil.toURLString(PATH_DATAFILE);
 
 	private static void processRequest() {
-		logger.info("download {}", URL_DATAFILE);
+		logger.info("download {}", URL);
 		HttpUtil http = HttpUtil.getInstance().withRawData(true);
-		HttpUtil.Result result = http.download(URL_DATAFILE);
+		HttpUtil.Result result = http.download(URL);
 		
-		// Check file and download contents
-		{
-			boolean needsWrite = true;
-			File file = new File(PATH_DATAFILE);
-			if (file.exists()) {
-				final String hashOfDownload       = StringUtil.toHexString(HashCode.getHashCode(result.rawData));
-				final String hashOfDownlaodedFile = StringUtil.toHexString(HashCode.getHashCode(file));
-
-				if (hashOfDownlaodedFile.equals(hashOfDownload)) {
-					logger.info("Download same contents {}", hashOfDownload);
-					logger.info("  download  {}  {}", result.rawData.length, hashOfDownload);
-					logger.info("  file      {}  {}", file.length(), hashOfDownlaodedFile);
-					
-					// if file and download has same contents, no needs to write
-					needsWrite = false;
-				}
-			}
-			
-			if (needsWrite) {
-				logger.info("write {} {}", PATH_DATAFILE, result.rawData.length);
-				FileUtil.rawWrite().file(file, result.rawData);
-			}
+		if (result != null && result.rawData != null) {
+			logger.info("write {} {}", PATH_DATAFILE, result.rawData.length);
+			FileUtil.rawWrite().file(PATH_DATAFILE, result.rawData);
+		} else {
+			logger.error("Unexpected result");
+			logger.error("  result  {}", result);
+			throw new UnexpectedException("Unexpected result");
 		}
 
-		logger.info("open {}", URL_DATAFILE_LOCAL);
-		List<JPXListing> newList = new ArrayList<>();
+		logger.info("open {}", URL_DATAFILE);
+		List<JPXListing> list = new ArrayList<>();
 		
 		// Build newList
-		try (SpreadSheet spreadSheet = new SpreadSheet(URL_DATAFILE_LOCAL, true)) {
+		try (SpreadSheet spreadSheet = new SpreadSheet(URL_DATAFILE, true)) {
 			List<JPXListing> rawDataList = Sheet.extractSheet(spreadSheet, JPXListing.class);
 			logger.info("read {}", rawDataList.size());
 			
-			// Trim space
-			for(JPXListing value: rawDataList) {
-				JPXListing newValue = new JPXListing();
-				
-				String date = value.date.trim();
+			for(JPXListing rawData: rawDataList) {
+				// Trim space of rawData
+				String date = rawData.date.trim();
 				if (date.length() != 8) {
-					logger.error("Unexpected date value {}!", date);
-					throw new UnexpectedException("Unexpected date value");
+					logger.error("Unexpected date");
+					logger.error("  datte {}!", date);
+					throw new UnexpectedException("Unexpected date");
 				}
-				String newDate = String.format("%s-%s-%s", date.substring(0, 4), date.substring(4, 6), date.substring(6, 8));
 				
-				newValue.date         = newDate;
-				newValue.stockCode    = value.stockCode.trim();
-				newValue.name         = value.name.trim();
-				newValue.market       = value.market;
-				newValue.sector33Code = value.sector33Code.trim();
-				newValue.sector33     = value.sector33.trim();
-				newValue.sector17Code = value.sector17Code.trim();
-				newValue.sector17     = value.sector17.trim();
-				newValue.scale        = value.scale.trim();
-				newValue.scaleCode    = value.scaleCode.trim();
+				JPXListing value = new JPXListing();
 				
-				// Make stockCode 5 digits
-				newValue.stockCode = Stock.toStockCode5(newValue.stockCode);
+				value.date         = String.format("%s-%s-%s", date.substring(0, 4), date.substring(4, 6), date.substring(6, 8));;
+				value.stockCode    = Stock.toStockCode5(rawData.stockCode.trim());
+				value.name         = rawData.name.trim();
+				value.market       = rawData.market;
+				value.sector33Code = rawData.sector33Code.trim();
+				value.sector33     = rawData.sector33.trim();
+				value.sector17Code = rawData.sector17Code.trim();
+				value.sector17     = rawData.sector17.trim();
+				value.scale        = rawData.scale.trim();
+				value.scaleCode    = rawData.scaleCode.trim();
 				
-				newList.add(newValue);
+				list.add(value);
 			}
 			
+			// output count of data for each market
 			{
 				Map<Market, Integer> countMap = new TreeMap<>();
 				for(var e: Market.values()) {
 					countMap.put(e, 0);
 				}
-				for(var e: newList) {
+				for(var e: list) {
 					int count = countMap.get(e.market);
 					countMap.put(e.market, count + 1);
 				}
@@ -106,32 +87,14 @@ public class UpdateJPXListing {
 			}
 			
 			// Sanity check
-			if (newList.isEmpty()) {
+			if (list.isEmpty()) {
 				logger.error("Empty data");
 				throw new UnexpectedException("Empty data");
 			}
 			
-			// Save if necessary
-			{
-				boolean sameData = false;
-				String  newDate  = newList.get(0).date;
-				
-				List<JPXListing> oldList = JPXListing.getList();
-				if (oldList.isEmpty()) {
-					sameData = false;
-				} else {
-					// check date of first data
-					String oldDate = oldList.get(0).date;
-					sameData = newDate.equals(oldDate);
-				}
-				
-				if (sameData) {
-					logger.warn("same data  {}  {}", newDate, newList.size());
-				} else {
-					logger.info("save {}  {}  {}", newDate, newList.size(), JPXListing.getPath());
-					JPXListing.save(newList);
-				}
-			}
+			// save
+			logger.info("save  {}  {}", list.size(), JPXListing.getPath());
+			JPXListing.save(list);
 		}
 	}
 	
