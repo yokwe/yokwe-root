@@ -388,7 +388,7 @@ public class UpdateREIT {
 	}
 
 	private static void update() {
-		List<Stock> stockList = Stock.getList().stream().filter(o -> o.isREIT()).collect(Collectors.toList());
+		List<Stock> stockList = Stock.getList().stream().filter(o -> o.isREIT() || o.isInfraFund()).collect(Collectors.toList());
 		Collections.shuffle(stockList);
 		logger.info("reit {}", stockList.size());
 		

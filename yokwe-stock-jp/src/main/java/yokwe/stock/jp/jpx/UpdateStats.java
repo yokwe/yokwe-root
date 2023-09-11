@@ -51,7 +51,7 @@ public class UpdateStats {
 			if (stock.isETF() || stock.isETN()) {
 				ret.sector33 = "ETF";
 				ret.sector17 = (etf == null) ? "ETF" : etf.categoryName;
-			} else if (stock.isREIT()) {
+			} else if (stock.isREIT() || stock.isInfraFund()) {
 				ret.sector33 = "REIT";
 				ret.sector17 = (reit == null) ? "REIT" : reit.category;
 			} else {
@@ -119,7 +119,7 @@ public class UpdateStats {
 				ret.div   = ETFDiv.getAnnual(etf);
 				ret.divc  = etf.divFreq;
 				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
-			} else if (stock.isREIT()) {
+			} else if (stock.isREIT() || stock.isInfraFund()) {
 				ret.div   = REITDiv.getAnnual(reit);
 				ret.divc  = reit.divFreq;
 				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
@@ -345,7 +345,7 @@ public class UpdateStats {
 					etf = null;
 				}
 				
-				if (stock.isREIT()) {
+				if (stock.isREIT() || stock.isInfraFund()) {
 					if (reitMap.containsKey(stockCode)) {
 						reit = reitMap.get(stockCode);
 					} else {
