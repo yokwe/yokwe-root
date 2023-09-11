@@ -145,7 +145,7 @@ public class HttpUtil {
 		
 		@Override
 		public String toString() {
-			return String.format("{%s %s %d %s %s %s", timestamp, url, code, reasonPhrase, version, result);
+			return String.format("{%s %s %d %s %s %d}", timestamp, url, code, reasonPhrase, version, rawData.length);
 		}
 	}
 	
