@@ -5,8 +5,12 @@ import java.util.List;
 import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
+import yokwe.util.libreoffice.Sheet;
 
-public final class StockStats implements Comparable<StockStats> {
+@Sheet.SheetName("stock-stats")
+@Sheet.HeaderRow(0)
+@Sheet.DataRow(1)
+public final class StockStats extends Sheet implements Comparable<StockStats> {
 	private static final String PATH_FILE = Storage.NASDAQ.getPath("stock-stats.csv");
 
 	public static String getPath() {
@@ -16,46 +20,45 @@ public final class StockStats implements Comparable<StockStats> {
 		ListUtil.save(StockStats.class, getPath(), list);
 	}
 
-	public String stockCode;
+	@Sheet.ColumnName("stockCode") public String stockCode;
 	
-	public String monex;
-	public String sbi;
-	public String rakuten;
-	public String nikko;
-
-	public String type;
-	public String name;
-	public String date;
+	@Sheet.ColumnName("type") public String type;
+	@Sheet.ColumnName("name") public String name;
+	@Sheet.ColumnName("date") public String date;
 	
 	// current price and volume
-	public int    pricec;
-	public double price;
-	
+	@Sheet.ColumnName("pricec") public int    pricec;
+	@Sheet.ColumnName("price")  public double price;
 	// last price
-	public double last;
+	@Sheet.ColumnName("last")   public double last;
 	
 	// stats - sd hv rsi
 	//  30 < pricec
-	public double sd;
-	public double hv;
+	@Sheet.ColumnName("sd")  public double sd;
+	@Sheet.ColumnName("hv")  public double hv;
 	// 15 <= pricec
-	public double rsi;
+	@Sheet.ColumnName("rsi") public double rsi;
 	
 	// min max
-	public double min;
-	public double max;
+	@Sheet.ColumnName("min") public double min;
+	@Sheet.ColumnName("max") public double max;
 	
 	// dividend
-	public int    divc;
-	public double yield;
+	@Sheet.ColumnName("divc")  public int    divc;
+	@Sheet.ColumnName("yield") public double yield;
 
 	// volume
-	public long   vol;
+	@Sheet.ColumnName("vol")  public long   vol;
 	// 5 <= pricec
-	public long   vol5;
+	@Sheet.ColumnName("vol5") public long   vol5;
 	// 20 <= pricec
-	public long   vol21;
+	@Sheet.ColumnName("vol21") public long  vol21;
 	
+	@Sheet.ColumnName("monex")   public String monex;
+	@Sheet.ColumnName("sbi")     public String sbi;
+	@Sheet.ColumnName("rakuten") public String rakuten;
+	@Sheet.ColumnName("nikko")   public String nikko;
+
 
 	public StockStats() {
 		stockCode = null;

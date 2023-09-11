@@ -1,6 +1,8 @@
 package yokwe.stock.us.nasdaq;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,9 +11,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import yokwe.stock.us.Storage;
 import yokwe.stock.us.TradingStock;
 import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
+import yokwe.util.StringUtil;
+import yokwe.util.libreoffice.Sheet;
+import yokwe.util.libreoffice.SpreadSheet;
 import yokwe.util.stats.DoubleArray;
 import yokwe.util.stats.DoubleStreamUtil;
 import yokwe.util.stats.HV;
@@ -20,6 +26,9 @@ import yokwe.util.stats.RSI;
 
 public class UpdateStockStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	private static final String PREFIX_REPORT = "report";
+	private static final String URL_TEMPLATE  = StringUtil.toURLString(Storage.NASDAQ.getPath("TEMPLATE_NASDAQ_STOCK_STATS.ods"));
 
 	private static List<StockStats> getStatsList(Set<String> dateSet) {
 		List<StockStats> statsList = new ArrayList<>();
@@ -146,6 +155,7 @@ public class UpdateStockStats {
 		}
 		return statsList;
 	}
+	
 	private static Set<String> getDateSet() {
 		Set<String> dateSet = new TreeSet<>();
 		{
@@ -161,18 +171,57 @@ public class UpdateStockStats {
 		}
 		return dateSet;
 	}
+	
+	private static void generateReport(List<StockStats> statsList) {
+		String urlReport;
+		{
+			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
+			String name       = String.format("stock-stats-%s.ods", timestamp);
+			String pathReport = Storage.NASDAQ.getPath(PREFIX_REPORT, name);
+			urlReport  = StringUtil.toURLString(pathReport);
+		}
+
+		logger.info("urlReport {}", urlReport);
+		logger.info("docLoad   {}", URL_TEMPLATE);
+		try (
+			SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
+			SpreadSheet docSave = new SpreadSheet();) {				
+			String sheetName = Sheet.getSheetName(StockStats.class);
+			logger.info("sheet {}", sheetName);
+			docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
+			Sheet.fillSheet(docSave, statsList);
+			
+			// remove first sheet
+			docSave.removeSheet(docSave.getSheetName(0));
+
+			docSave.store(urlReport);
+			logger.info("output {}", urlReport);
+		}
+	}
+
+	
 	public static void main(String[] args) {
-		logger.info("START");
+		try {
+			logger.info("START");
+			
+			Set<String> dateSet = getDateSet();
+			logger.info("date {}  {} - {}", dateSet.size(), dateSet.stream().min(String::compareTo).get(), dateSet.stream().max(String::compareTo).get());
+			
+//			int dateCount = dateSet.size();
+			List<StockStats> statsList = getStatsList(dateSet);
+			
+			logger.info("save {} {}", statsList.size(), StockStats.getPath());
+			StockStats.save(statsList);
+			
+			generateReport(statsList);
+			
+			logger.info("STOP");
+		} catch (Throwable e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+		} finally {
+			System.exit(0);
+		}
 		
-		Set<String> dateSet = getDateSet();
-		logger.info("date {}  {} - {}", dateSet.size(), dateSet.stream().min(String::compareTo).get(), dateSet.stream().max(String::compareTo).get());
-		
-//		int dateCount = dateSet.size();
-		List<StockStats> statsList = getStatsList(dateSet);
-		
-		logger.info("save {} {}", statsList.size(), StockStats.getPath());
-		StockStats.save(statsList);
-		
-		logger.info("STOP");
 	}
 }
