@@ -343,7 +343,7 @@ public class UpdateETF {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<Stock> stockList = Stock.getList().stream().filter(o -> o.isETF()).collect(Collectors.toList());
+		List<Stock> stockList = Stock.getList().stream().filter(o -> o.isETF() || o.isETN()).collect(Collectors.toList());
 		logger.info("stockList {}", stockList.size());
 		Collections.shuffle(stockList);
 		

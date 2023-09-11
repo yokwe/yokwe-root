@@ -48,7 +48,7 @@ public class UpdateStats {
 		ret.name      = stock.name;
 		ret.unit      = stockInfo.tradeUnit;
 		if (stock.sector33.equals("-") && stock.sector17.equals("-")) {
-			if (stock.isETF()) {
+			if (stock.isETF() || stock.isETN()) {
 				ret.sector33 = "ETF";
 				ret.sector17 = (etf == null) ? "ETF" : etf.categoryName;
 			} else if (stock.isREIT()) {
@@ -115,7 +115,7 @@ public class UpdateStats {
 		
 		// dividend
 		{
-			if (stock.isETF()) {
+			if (stock.isETF() || stock.isETN()) {
 				ret.div   = ETFDiv.getAnnual(etf);
 				ret.divc  = etf.divFreq;
 				ret.yield = DoubleUtil.round(ret.div / ret.price, 3);
@@ -333,7 +333,7 @@ public class UpdateStats {
 				final ETF  etf;
 				final REIT reit;
 				
-				if (stock.isETF()) {
+				if (stock.isETF() || stock.isETF()) {
 					if (etfMap.containsKey(stockCode)) {
 						etf = etfMap.get(stockCode);
 					} else {

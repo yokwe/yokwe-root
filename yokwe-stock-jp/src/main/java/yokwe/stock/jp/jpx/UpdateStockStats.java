@@ -145,17 +145,11 @@ public class UpdateStockStats {
 			stockStats.isinCode  = info.isinCode;
 			stockStats.stockCode = stock.stockCode;
 			stockStats.name      = stock.name;
-			if (stock.isETF()) {
+			if (stock.isETF() || stock.isETN()) {
 				if (etf != null) {
 					stockStats.category = "ETF-" + etf.categoryName.replace("ETF", "");
 				} else {
 					stockStats.category = "ETF";
-				}
-			} else if (stock.isETN()) {
-				if (etf != null) {
-					stockStats.category = "ETN-" + etf.categoryName.replace("ETF", "");
-				} else {
-					stockStats.category = "ETN";
 				}
 			} else {
 				if (stock.sector33.equals("-")) {
