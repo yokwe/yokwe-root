@@ -10,12 +10,16 @@ build:
 
 # maintenance of save, log and crontab
 clear-save-file:
-	find /mnt/stock/us/save -mtime +30 -print -delete
+	find /mnt/stock/us/save     -mtime +30 -print -delete
+	find /mnt/stock/us/*/report -mtime +30 -print -delete
 	
 clear-log-file:
 	tar cfz /mnt/stock/us/save/log_$$(date +%Y%m%d).taz tmp/*.log
 	echo -n >tmp/yokwe-stock-us.log
 	echo -n >tmp/cron.log
+
+backup:
+	cp /mnt/stock/us/nasdaq/TEMPLATE_NASDAQ_STOCK_STATS.ods /mnt/stock/us/backup/TEMPLATE_NASDAQ_STOCK_STATS_$$(date +%Y%m%d).ods
 
 save:
 	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/nasdaq_$$(date +%Y%m%d).taz nasdaq
