@@ -20,6 +20,8 @@ import yokwe.stock.jp.japanreit.REIT;
 import yokwe.stock.jp.japanreit.REITDiv;
 import yokwe.stock.jp.moneybujpx.ETF;
 import yokwe.stock.jp.moneybujpx.ETFDiv;
+import yokwe.stock.jp.rakuten.RakutenFreeETF;
+import yokwe.stock.jp.sbi.SBIFreeETF;
 import yokwe.stock.jp.toushin.Fund;
 import yokwe.stock.jp.xbrl.tdnet.report.Dividend;
 import yokwe.util.DoubleUtil;
@@ -98,6 +100,9 @@ public class UpdateStockStats {
 		
 		Map<String, Fund> fundMap = Fund.getMap();
 		//  isinCode
+		
+		Set<String> sbiFreeSet     = SBIFreeETF.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		Set<String> rakutenFreeSet = RakutenFreeETF.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		
 		for(var stock: Stock.getList()) {
 			String      stockCode = stock.stockCode;
@@ -310,6 +315,12 @@ public class UpdateStockStats {
 				stockStats.vol   = BigDecimal.valueOf(lastPrice.volume);
 				stockStats.vol5  = DoubleUtil.toBigDecimal(vol5, 0);
 				stockStats.vol21 = DoubleUtil.toBigDecimal(vol21, 0);
+			}
+			
+			// free etf
+			{
+				stockStats.sbi     = sbiFreeSet.contains(stockCode) ? 1 : 0;
+				stockStats.rakuten = rakutenFreeSet.contains(stockCode) ? 1 : 0;
 			}
 			
 			statsList.add(stockStats);

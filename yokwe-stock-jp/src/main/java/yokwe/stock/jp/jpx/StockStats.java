@@ -54,6 +54,10 @@ public class StockStats extends Sheet implements Comparable<StockStats> {
     @Sheet.ColumnName("vol")   public BigDecimal vol;
     @Sheet.ColumnName("vol5")  public BigDecimal vol5;
     @Sheet.ColumnName("vol21") public BigDecimal vol21;
+    
+    // free etf
+    @Sheet.ColumnName("sbi")      public int sbi;
+    @Sheet.ColumnName("rakuten")  public int rakuten;
 
 
 	@Override
