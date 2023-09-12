@@ -38,10 +38,6 @@ update-toushin:
 	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/toushin_$$(date +%Y%m%d).taz toushin
 
 # JPX
-update-jpx-stock:
-	ant jpx-update-stock
-	cd /mnt/stock/jp ; tar cfz /mnt/stock/jp/save/jpx_$$(date +%Y%m%d).taz jpx
-
 update-jpx-stock-price:
 	ant jpx-update-stock-price
 	ant jpx-update-stock-stats
@@ -49,6 +45,14 @@ update-jpx-stock-price:
 
 # STOCK ETF REIT
 update-stock-etf-reit:
+	ant jpx-update-jpx-listing
+	ant jpx-update-jpx-etf
+	ant jpx-update-jpx-etn
+	ant jpx-update-jpx-reit
+	ant jpx-update-jpx-infra
+	ant jpx-update-jpx-foreign
+	ant jpx-update-jpx-preferred
+	ant jpx-update-stock
 	ant moneybujpx-update-etf
 	ant japanreit-update-reit
 	ant jpx-update-stock-stats
