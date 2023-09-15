@@ -6,6 +6,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import yokwe.util.http.HttpUtil;
@@ -49,25 +51,37 @@ public class Search {
 		}
 		public static class Quote {
 			@JSON.Name("symbol")                        public String     symbol;
-			@JSON.Name("quoteType")                     public String     quoteType;
+			@JSON.Name("prevTicker")       @JSON.Ignore public String     prevTicker;
+			@JSON.Name("tickerChangeDate") @JSON.Ignore public String     tickerChangeDate;
+			
+			@JSON.Name("quoteType")                     public String     type;
 			@JSON.Name("typeDisp")       @JSON.Ignore   public String     typeDisp;
+			
 			@JSON.Name("exchange")                      public String     exchange;
 			@JSON.Name("exchDisp")                      public String     exchDisp;
+			
 			@JSON.Name("shortname")      @JSON.Ignore   public String     shortname;
-			@JSON.Name("longname")                      public String     longname;
+			@JSON.Name("longname")       @JSON.Optional public String     longname;
+			@JSON.Name("prevName")       @JSON.Ignore   public String     prevName;
+			@JSON.Name("nameChangeDate") @JSON.Ignore   public String     nameChangeDate;
+
+			
 			@JSON.Name("index")          @JSON.Ignore   public String     index;
 			@JSON.Name("score")          @JSON.Ignore   public BigDecimal score;
 			@JSON.Name("isYahooFinance")                public boolean    isYahooFinance;
 
-			@JSON.Name("sector")         @JSON.Optional public String     sector;         // only for EQUITY
-			@JSON.Name("industry")       @JSON.Optional public String     industry;       // only for EQUITY
+			@JSON.Name("sector")         @JSON.Ignore   public String     sector;         // only for EQUITY
+			@JSON.Name("sectorDisp")     @JSON.Optional public String     sectorDisp;     // only for EQUITY
+			@JSON.Name("industry")       @JSON.Ignore   public String     industry;       // only for EQUITY
+			@JSON.Name("industryDisp")   @JSON.Optional public String     industryDisp;   // only for EQUITY
+			
 			@JSON.Name("newListingDate") @JSON.Ignore   public String     newListingDate; // only for EQUITY
 			@JSON.Name("dispSecIndFlag") @JSON.Ignore   public String     dispSecIndFlag; // only for EQUITY
 			
 			// dispSecIndFlag
 			@Override
 			public String toString() {
-				return String.format("{%s  %s  %s  \"%s\"  \"%s\"  \"%s\"  \"%s\"  %s}", symbol, quoteType, exchange, exchDisp, longname, sector, industry, isYahooFinance);
+				return String.format("{%s  %s  \"%s\"  \"%s\"  \"%s\"  \"%s\"  \"%s\"  %s}", symbol, type, exchange, exchDisp, longname, sector, industry, isYahooFinance);
 			}
 		}
 	}
@@ -75,7 +89,7 @@ public class Search {
 	private static String getURL(String q) {
 		LinkedHashMap<String, String> map = new LinkedHashMap<>();
 		map.put("q",  q);
-		map.put("quotesCount", "1");
+		map.put("quotesCount", "3");
 		map.put("newsCount",   "0");
 		map.put("listsCount",  "0");
 		String queryString = map.entrySet().stream().map(o -> o.getKey() + "=" + URLEncoder.encode(o.getValue(), CHARSET_UTF_8)).collect(Collectors.joining("&"));
@@ -99,58 +113,94 @@ public class Search {
 		return result.result;
 	}
 	
+	private static Map<String, String> exchangeMap = new TreeMap<>();
+	static {
+		// USA
+		exchangeMap.put("NYQ", "NYSE");
+		exchangeMap.put("PCX", "ARCA"); // NYSE ARCA
+		exchangeMap.put("ASE", "ASE");  // NYSE MKT
+
+		exchangeMap.put("NMS", "NASDAQ");
+		exchangeMap.put("NCM", "NASDAQ");
+		exchangeMap.put("NGM", "NASDAQ");
+		exchangeMap.put("NIM", "NASDAQ");
+		
+		exchangeMap.put("BTS", "BATS");
+		
+		exchangeMap.put("PNK", "OTC");    // pink -- over the counter
+		// JAPAN
+		exchangeMap.put("JPX", "JPX");
+		exchangeMap.put("OSA", "JPX");
+		// INDEX
+		exchangeMap.put("SNP", "S&P");
+		exchangeMap.put("CXI", "CBOE");
+		// EUROPE
+		exchangeMap.put("FRA", "FRANKFURT");
+	}
+	private static String getExchange(RAW.Quote quote) {
+		if (exchangeMap.containsKey(quote.exchange)) return exchangeMap.get(quote.exchange);
+		logger.info("getExchange  {}  {}", quote.exchange, quote.exchDisp);
+		return quote.exchDisp;
+	}
+	
 	public static Symbol getSymbol(String key) {
 		String string = getString(key);
 		
 		RAW.Result raw = JSON.unmarshal(RAW.Result.class, string);
 		if (raw.quotes == null) {
 			logger.warn("raw.quotes is null");
-			logger.warn("  string  {}", string);
+//			logger.warn("  string  {}", string);
 			return null;
 		}
-		if (raw.quotes.length != 1) {
-			logger.warn("raw.quotes.length is not one");
-			logger.warn("  string  {}", string);
+		if (raw.quotes.length == 0) {
+//			logger.warn("raw.quotes.length is zero");
+//			logger.warn("  string  {}", string);
 			return null;
 		}
-		var quote = raw.quotes[0];
-		if (!quote.isYahooFinance) {
-			logger.warn("isYahooFinance is not true");
-			logger.warn("  string  {}", string);
-			return null;
+		if (raw.quotes.length == 1) {
+			var e = raw.quotes[0];
+			return new Symbol(e.symbol, e.type, getExchange(e), e.sectorDisp, e.industryDisp, e.longname);
 		}
-		
-		return new Symbol(quote.symbol, quote.quoteType, quote.exchange, quote.exchDisp, quote.longname);
+		for(var e: raw.quotes) {
+			if (e.symbol.equals(key)) {
+				return new Symbol(e.symbol, e.type, getExchange(e), e.sectorDisp, e.industryDisp, e.longname);
+			}
+		}
+		logger.warn("key not found in quotes");
+		logger.warn("  key     {}", key);
+		logger.warn("  string  {}", string);
+		return null;
 	}
 	
-//	public static void test(String key) {
-//		Symbol symbol = getSymbol(key);
-//		logger.info("symbol  {}  --  {}", key, symbol);
-//	}
-//	public static void main(String[] args) {
-//		logger.info("START");
-//		
-////		test("JP3257200000");
-//		test("1301.T");
-////		
-////		test("JP3027710007");
-//		test("IE0030804631");
-//		
-//		test("QQQ");
-////		test("SBI");
-//		
+	public static void test(String key) {
+		Symbol symbol = getSymbol(key);
+		logger.info("symbol  {}  --  {}", key, symbol);
+	}
+	public static void main(String[] args) {
+		logger.info("START");
+		
+		// US - STOCK ETF
+//		test("QQQ");  // NASDAQ
+//		test("IBM");  // NYSE
+//		test("ZECP"); // BATS
+		
+		// INDEX
 //		test("^N225");
 //		test("^GSPC");
 //		test("^NDX");
 //		test("^VIX");
-//		
-//		test("LU0159489490");
-//		
-//		test("JP3048810000");
-//		test("2031.T");
-//		test("1568.T");
-//
-//		logger.info("STOP");
-//	}
+		
+		// FUND
+		test("JP3027710007"); // JPX ETF
+		test("IE0030804631"); // OTC MUTUALFUND
+		test("LU0159489490"); // FRANKFURT
+		
+		// JPX - STOCK ETF
+//		test("1301.T");
+//		test("JP3257200000"); // 1301.T
+//		test("JP3048810000"); // 2971.T
+		
+		logger.info("STOP");
+	}
 
 }

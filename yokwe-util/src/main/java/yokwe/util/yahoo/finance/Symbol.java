@@ -4,26 +4,29 @@ public final class Symbol implements Comparable<Symbol> {
 	public String symbol;
 	public String type;
 	public String exchange;
-	public String exchDisp;
+	public String sector;
+	public String industry;
 	public String name;
 	
 	public Symbol(
 		String symbol,
 		String type,
 		String exchange,
-		String exchDisp,
+		String sector,
+		String industry,
 		String name
 		) {
 		this.symbol   = symbol;
 		this.type     = type;
 		this.exchange = exchange;
-		this.exchDisp = exchDisp;
+		this.sector   = sector;
+		this.industry = industry;
 		this.name     = name;
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("{%s  %s  %s  \"%s\"  \"%s\"}", symbol, type, exchange, exchDisp, name);
+		return String.format("{%s  %s  %s  \"%s\"  \"%s\" \"%s\"}", symbol, type, exchange, sector, industry, name);
 	}
 	
 	@Override
