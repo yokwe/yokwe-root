@@ -14,6 +14,10 @@ public final class Stock implements Comparable<Stock> {
 		return Storage.getPath(FILE_NAME);
 	}
 	
+	public static String toYahooSymbol(String symbol) {
+		return symbol.replace("-", "-P").replace(".", "-");
+	}
+	
 	public static void save(Collection<Stock> collection) {
 		// sanity check
 		ListUtil.save(Stock.class, getPath(), collection);
