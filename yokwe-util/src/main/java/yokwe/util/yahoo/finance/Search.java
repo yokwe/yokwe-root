@@ -60,7 +60,7 @@ public class Search {
 			@JSON.Name("exchange")                      public String     exchange;
 			@JSON.Name("exchDisp")                      public String     exchDisp;
 			
-			@JSON.Name("shortname")      @JSON.Ignore   public String     shortname;
+			@JSON.Name("shortname")                     public String     shortname;
 			@JSON.Name("longname")       @JSON.Optional public String     longname;
 			@JSON.Name("prevName")       @JSON.Ignore   public String     prevName;
 			@JSON.Name("nameChangeDate") @JSON.Ignore   public String     nameChangeDate;
@@ -159,11 +159,13 @@ public class Search {
 		}
 		if (raw.quotes.length == 1) {
 			var e = raw.quotes[0];
-			return new Symbol(e.symbol, e.type, getExchange(e), e.sectorDisp, e.industryDisp, e.longname);
+			var name = e.longname.isEmpty() ? e.shortname : e.longname;
+			return new Symbol(e.symbol, e.type, getExchange(e), e.sectorDisp, e.industryDisp, name);
 		}
 		for(var e: raw.quotes) {
 			if (e.symbol.equals(key)) {
-				return new Symbol(e.symbol, e.type, getExchange(e), e.sectorDisp, e.industryDisp, e.longname);
+				var name = e.longname.isEmpty() ? e.shortname : e.longname;
+				return new Symbol(e.symbol, e.type, getExchange(e), e.sectorDisp, e.industryDisp, name);
 			}
 		}
 		logger.warn("key not found in quotes");
@@ -172,35 +174,37 @@ public class Search {
 		return null;
 	}
 	
-	public static void test(String key) {
-		Symbol symbol = getSymbol(key);
-		logger.info("symbol  {}  --  {}", key, symbol);
-	}
-	public static void main(String[] args) {
-		logger.info("START");
-		
-		// US - STOCK ETF
-//		test("QQQ");  // NASDAQ
-//		test("IBM");  // NYSE
-//		test("ZECP"); // BATS
-		
-		// INDEX
-//		test("^N225");
-//		test("^GSPC");
-//		test("^NDX");
-//		test("^VIX");
-		
-		// FUND
-		test("JP3027710007"); // JPX ETF
-		test("IE0030804631"); // OTC MUTUALFUND
-		test("LU0159489490"); // FRANKFURT
-		
-		// JPX - STOCK ETF
-//		test("1301.T");
-//		test("JP3257200000"); // 1301.T
-//		test("JP3048810000"); // 2971.T
-		
-		logger.info("STOP");
-	}
+//	public static void test(String key) {
+//		Symbol symbol = getSymbol(key);
+//		logger.info("symbol  {}  --  {}", key, symbol);
+//	}
+//	public static void main(String[] args) {
+//		logger.info("START");
+//		
+//		// US - STOCK ETF
+////		test("QQQ");  // NASDAQ
+////		test("IBM");  // NYSE
+////		test("ZECP"); // BATS
+//		
+//		// INDEX
+////		test("^N225");
+////		test("^GSPC");
+////		test("^NDX");
+////		test("^VIX");
+//		
+//		// FUND
+////		test("JP3027710007"); // JPX ETF
+////		test("IE0030804631"); // OTC MUTUALFUND
+////		test("LU0159489490"); // FRANKFURT
+//		
+//		// JPX - STOCK ETF
+////		test("1301.T");
+////		test("JP3257200000"); // 1301.T
+////		test("JP3048810000"); // 2971.T
+//		test("2593.T");  // ITO EN
+//		test("2593P.T"); // ITO EN PREF
+//		
+//		logger.info("STOP");
+//	}
 
 }
