@@ -449,5 +449,14 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>	
+	<target name="yahoo-update-yahoo-symbol">
+		<java module="yokwe.stock.jp/yokwe.stock.jp.yahoo.UpdateYahooSymbol" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+			<sysproperty key="kill-long-running-process" value="no" />
+		</java>
+	</target>	
 
 </project>
