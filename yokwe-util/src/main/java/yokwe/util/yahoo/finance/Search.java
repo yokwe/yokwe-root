@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -60,7 +61,7 @@ public class Search {
 			@JSON.Name("exchange")                      public String     exchange;
 			@JSON.Name("exchDisp")                      public String     exchDisp;
 			
-			@JSON.Name("shortname")                     public String     shortname;
+			@JSON.Name("shortname")      @JSON.Optional public String     shortname;
 			@JSON.Name("longname")       @JSON.Optional public String     longname;
 			@JSON.Name("prevName")       @JSON.Ignore   public String     prevName;
 			@JSON.Name("nameChangeDate") @JSON.Ignore   public String     nameChangeDate;
@@ -113,13 +114,14 @@ public class Search {
 		return result.result;
 	}
 	
-	private static Map<String, String> exchangeMap = new TreeMap<>();
+	private static final Map<String, String> exchangeMap = new TreeMap<>();
 	static {
 		// USA
 		exchangeMap.put("NYQ", "NYSE");
-		exchangeMap.put("PCX", "ARCA"); // NYSE ARCA
-		exchangeMap.put("ASE", "ASE");  // NYSE MKT
+		exchangeMap.put("PCX", "ARCA");     // NYSE ARCA
+		exchangeMap.put("ASE", "AMERICAN"); // NYSE AMERICAN
 
+		exchangeMap.put("NAS", "NASDAQ");
 		exchangeMap.put("NMS", "NASDAQ");
 		exchangeMap.put("NCM", "NASDAQ");
 		exchangeMap.put("NGM", "NASDAQ");
@@ -139,8 +141,12 @@ public class Search {
 	}
 	private static String getExchange(RAW.Quote quote) {
 		if (exchangeMap.containsKey(quote.exchange)) return exchangeMap.get(quote.exchange);
-		logger.info("getExchange  {}  {}", quote.exchange, quote.exchDisp);
-		return quote.exchDisp;
+		logger.warn("getExchange  {}  {}", quote.exchange, quote.exchDisp);
+		return null;
+	}
+	private static final Set<String> exchangeSet = exchangeMap.values().stream().collect(Collectors.toSet());
+	public static boolean isValidExchange(String value) {
+		return exchangeSet.contains(value);
 	}
 	
 	public static Symbol getSymbol(String key) {
@@ -157,20 +163,27 @@ public class Search {
 //			logger.warn("  string  {}", string);
 			return null;
 		}
-		if (raw.quotes.length == 1) {
-			var e = raw.quotes[0];
-			var name = e.longname.isEmpty() ? e.shortname : e.longname;
-			return new Symbol(e.symbol, e.type, getExchange(e), e.sectorDisp, e.industryDisp, name);
-		}
 		for(var e: raw.quotes) {
 			if (e.symbol.equals(key)) {
+				if (e.longname.isEmpty() && e.shortname.isEmpty()) {
+					logger.warn("no longname and no shortname");
+					logger.warn("  key     {}", key);
+					logger.warn("  quote   {}", e);
+					return null;
+				}
 				var name = e.longname.isEmpty() ? e.shortname : e.longname;
-				return new Symbol(e.symbol, e.type, getExchange(e), e.sectorDisp, e.industryDisp, name);
+				var exchange = getExchange(e);
+				if (exchange == null) {
+					return null;
+				}
+				return new Symbol(e.symbol, e.type, exchange, e.sectorDisp, e.industryDisp, name);
 			}
 		}
 		logger.warn("key not found in quotes");
 		logger.warn("  key     {}", key);
-		logger.warn("  string  {}", string);
+		for(var e: raw.quotes) {
+			logger.warn("  quote   {}", e);
+		}
 		return null;
 	}
 	
