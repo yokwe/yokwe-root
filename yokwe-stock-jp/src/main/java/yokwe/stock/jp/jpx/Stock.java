@@ -57,6 +57,22 @@ public class Stock implements Comparable<Stock> {
 			throw new UnexpectedException("Unexpected stockCode");
 		}
 	}
+	public static String toYahooSymbol(String stockCode) {
+		if (stockCode.length() == 4) {
+			return stockCode + ".T";
+		} else if (stockCode.length() == 5) {
+			if (stockCode.endsWith("0")) {
+				return stockCode.substring(0, 4) + ".T";
+			} else if (stockCode.endsWith("5")) {
+				// 25935 伊藤園 優先株式,市場第一部（内国株）
+				// 25935 => 2593P.T
+				return stockCode.substring(0, 4) + "P.T";
+			}
+		}
+		logger.error("Unexpected stockCode");
+		logger.error("  stockCode {}!", stockCode);
+		throw new UnexpectedException("Unexpected stockCode");
+	}
 	
 	public static boolean isPreferredStock(String stockCode) {
 		// https://www.jpx.co.jp/sicc/news/nlsgeu00000329fb-att/bessi2.pdf
