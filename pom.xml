@@ -13,6 +13,7 @@
         <module>yokwe-stock-jp</module>
         <module>yokwe-stock-us</module>
         <module>yokwe-stock-trade</module>
+        <module>yokwe-finance</module>
     </modules>
     
     <properties>
