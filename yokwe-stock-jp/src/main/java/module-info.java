@@ -33,4 +33,11 @@ open module yokwe.stock.jp {
 	
 	// yokwe-util
 	requires transitive yokwe.util;
+	
+	
+	// jfree chart
+	requires transitive org.jfree.jfreechart;
+	// for VetoableChangeListener used in jfreechart
+	requires java.desktop;
+	
 }
