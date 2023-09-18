@@ -14,7 +14,7 @@
 	</path>
 	
 	<!-- Application -->
-	<!-- JASDEC -->
+	<!-- Storage -->
 	<target name="storage">
 		<java module="yokwe.finance/yokwe.finance.Storage" fork="true">
 			<modulepath refid="build.classpath" />
@@ -24,4 +24,61 @@
 		</java>
 	</target>
 	
+	<!-- Provider JPX -->
+	<target name="provier-jpx-update-jpx-listring">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXListing" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provier-jpx-update-jpx-etf">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXETF" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provier-jpx-update-jpx-etn">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXETN" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provier-jpx-update-jpx-foreign">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXForeign" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provier-jpx-update-jpx-infra">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXInfra" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provier-jpx-update-jpx-reit">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXREIT" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provier-jpx-update-stock-info-jp">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockInfoJP" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 </project>
