@@ -5,8 +5,9 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import yokwe.finance.stock.StockInfoJP;
-import yokwe.finance.stock.StockInfoJP.Topix;
+import yokwe.finance.stock.JPXStockInfoJP;
+import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.type.StockInfoJP.Topix;
 import yokwe.util.UnexpectedException;
 
 public class UpdateStockInfoJP {
@@ -154,8 +155,8 @@ public class UpdateStockInfoJP {
 			}
 		}
 		
-		logger.info("save  {}  {}", map.size(), StockInfoJP.getPath());
-		StockInfoJP.save(map.values());
+		logger.info("save  {}  {}", map.size(), JPXStockInfoJP.getPath());
+		JPXStockInfoJP.save(map.values());
 		logger.info("STOP");
 	}
 }

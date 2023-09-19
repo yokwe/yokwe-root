@@ -17,9 +17,10 @@ import yokwe.finance.provider.jpx.StockPage.CompanyInfo;
 import yokwe.finance.provider.jpx.StockPage.Issued;
 import yokwe.finance.provider.jpx.StockPage.PriceVolume;
 import yokwe.finance.provider.jpx.StockPage.TradeUnit;
-import yokwe.finance.stock.StockInfoJP;
-import yokwe.finance.stock.StockPriceJP;
+import yokwe.finance.stock.JPXStockInfoJP;
+import yokwe.finance.stock.JPXStockPriceJP;
 import yokwe.finance.type.OHLCV;
+import yokwe.finance.type.StockInfoJP;
 import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
@@ -170,7 +171,7 @@ public class UpdateStockPriceJP {
 		// progress interval
 		download.setProgressInterval(progressInterval);
 
-		List<StockInfoJP> stockInfoList = StockInfoJP.getList();
+		List<StockInfoJP> stockInfoList = JPXStockInfoJP.getList();
 		Collections.shuffle(stockInfoList);
 		final int stockListSize = stockInfoList.size();
 		
@@ -231,7 +232,7 @@ public class UpdateStockPriceJP {
 			TreeMap<LocalDate, OHLCV> priceMap = new TreeMap<>();
 			
 			// Update priceMap with existing data
-			for(OHLCV price: StockPriceJP.getList(stockCode)) {
+			for(OHLCV price: JPXStockPriceJP.getList(stockCode)) {
 				// remove bogus data
 				if (MarketHoliday.JP.isClosed(price.date)) continue;
 				
@@ -287,7 +288,7 @@ public class UpdateStockPriceJP {
 				}
 			}
 			
-			StockPriceJP.save(stockCode, priceMap.values());
+			JPXStockPriceJP.save(stockCode, priceMap.values());
 		}
 		
 		logger.info("countTotal  {}", String.format("%4d", countTotal));
