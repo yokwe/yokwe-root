@@ -1,9 +1,7 @@
-package yokwe.finance.fund;
+package yokwe.finance.type;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-import yokwe.finance.stock.StockInfoJP;
 
 public class FundInfoJP implements Comparable<FundInfoJP> {
 	// "isinCd" : "JP90C000DJ15",
