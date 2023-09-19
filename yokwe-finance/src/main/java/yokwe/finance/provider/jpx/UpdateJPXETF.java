@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.StockInfoJP;
+import yokwe.finance.type.StockInfoJP;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;

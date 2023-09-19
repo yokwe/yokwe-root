@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 import yokwe.finance.Storage;
 import yokwe.finance.provider.jpx.JPXListing.Kind;
-import yokwe.finance.stock.StockInfoJP;
+import yokwe.finance.type.StockInfoJP;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
