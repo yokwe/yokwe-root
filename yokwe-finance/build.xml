@@ -81,4 +81,12 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="provier-jpx-update-stock-price-jp">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockPriceJP" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 </project>
