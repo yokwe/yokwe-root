@@ -11,7 +11,6 @@ import yokwe.util.UnexpectedException;
 public final class StockInfoJP implements Comparable<StockInfoJP> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	
 	private static final String PATH_FILE = Storage.Stock.getPath("stock-info-jp.csv");
 	public static String getPath() {
 		return PATH_FILE;
@@ -32,7 +31,6 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 		ListUtil.save(StockInfoJP.class, getPath(), list);
 	}
 
-	
 	
 	public static enum Kind {
 		// STOCK
@@ -201,9 +199,9 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 	public final String sector17;
 	public final Topix  topix;
 	
-//	public final String isinCode;
-//	public final int    tradeUnit;
-//	public final long   issued;
+	public final String isinCode;
+	public final int    tradeUnit;
+	public final long   issued;
 	
 	public final String name;
 	
@@ -214,9 +212,9 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 		String sector17,
 		Topix  topix,
 		//
-//		String isinCode,
-//		int    tradeUnit,
-//		long   issued,
+		String isinCode,
+		int    tradeUnit,
+		long   issued,
 		//
 		String name
 		) {
@@ -226,9 +224,9 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 		this.sector17  = sector17;
 		this.topix     = topix;
 		//
-//		this.isinCode  = isinCode;
-//		this.tradeUnit = tradeUnit;
-//		this.issued    = issued;
+		this.isinCode  = isinCode;
+		this.tradeUnit = tradeUnit;
+		this.issued    = issued;
 		//
 		this.name      = name;
 	}
