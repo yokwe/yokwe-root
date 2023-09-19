@@ -43,14 +43,21 @@ public class UpdateStockInfoJP {
 		Map<String, JPXInfra> infraMap = JPXInfra.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
 		Map<String, JPXREIT>  reitMap  = JPXREIT.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
 		
+		Map<String, JPXStockInfo> stockInfoMap = JPXStockInfo.getMap();
+		
 		Map<String, StockInfoJP> map = new TreeMap<>();
 		{
 			for(var jpxListing: JPXListing.getList()) {
-				String    stockCode = jpxListing.stockCode;
+				String stockCode = jpxListing.stockCode;
 				
 				// skip certificate and pro market
 				if (jpxListing.kind == JPXListing.Kind.CERTIFICATE || jpxListing.kind == JPXListing.Kind.PRO_MARKET) continue;
 				
+				if (!stockInfoMap.containsKey(stockCode)) {
+					logger.warn("no stockInfo  {}", stockCode);
+				}
+				JPXStockInfo jpxStockInfo = stockInfoMap.get(stockCode);
+
 				StockInfoJP.Kind kind = null;
 				if (kindMap.containsKey(jpxListing.kind)) {
 					kind = kindMap.get(jpxListing.kind);
@@ -74,51 +81,75 @@ public class UpdateStockInfoJP {
 					logger.error("  jpxListring  {}", jpxListing);
 					throw new UnexpectedException("Unexpected");
 				}
-				
-				StockInfoJP stockInfo = new StockInfoJP(jpxListing.stockCode, kind, jpxListing.sector33, jpxListing.sector17, topix, jpxListing.name);
+								
+				StockInfoJP stockInfo = new StockInfoJP(jpxListing.stockCode, kind, jpxListing.sector33, jpxListing.sector17, topix, jpxStockInfo.isinCode, jpxStockInfo.tradeUnit, jpxStockInfo.issued, jpxListing.name);
 				map.put(stockInfo.stockCode, stockInfo);
 			}
 			logger.info("map  {}", map.size());
 		}
 		{
 			for(var e: etfMap.entrySet()) {
-				var key   = e.getKey();
-				var value = e.getValue();
+				var stockCode = e.getKey();
+				var value     = e.getValue();
 				
-				if (map.containsKey(key)) continue;
-				logger.info("new ETF  {}  {}", value.stockCode, value.name);
+				if (map.containsKey(stockCode)) continue;
 				
-				StockInfoJP stockInfo = new StockInfoJP(value.stockCode, StockInfoJP.Kind.ETF, "NEW", "NEW", Topix.NEW, value.name);
+				JPXStockInfo jpxStockInfo = stockInfoMap.get(stockCode);
+				if (jpxStockInfo == null) {
+					logger.warn("no jpxStockInfo  {}", stockCode);
+				}
+
+				logger.info("new ETF    {}  {}", stockCode, value.name);
+				
+				StockInfoJP stockInfo = new StockInfoJP(value.stockCode, StockInfoJP.Kind.ETF, "NEW", "NEW", Topix.NEW, jpxStockInfo.isinCode, jpxStockInfo.tradeUnit, jpxStockInfo.issued, value.name);
 				map.put(stockInfo.stockCode, stockInfo);
 			}
 			for(var e: etnMap.entrySet()) {
-				var key   = e.getKey();
-				var value = e.getValue();
+				var stockCode = e.getKey();
+				var value     = e.getValue();
 				
-				if (map.containsKey(key)) continue;
-				logger.info("new ETN  {}  {}", value.stockCode, value.name);
+				if (map.containsKey(stockCode)) continue;
 				
-				StockInfoJP stockInfo = new StockInfoJP(value.stockCode, StockInfoJP.Kind.ETN, "NEW", "NEW", Topix.NEW, value.name);
+				JPXStockInfo jpxStockInfo = stockInfoMap.get(stockCode);
+				if (jpxStockInfo == null) {
+					logger.warn("no jpxStockInfo  {}", stockCode);
+				}
+
+				logger.info("new ETN    {}  {}", value.stockCode, value.name);
+				
+				StockInfoJP stockInfo = new StockInfoJP(value.stockCode, StockInfoJP.Kind.ETN, "NEW", "NEW", Topix.NEW, jpxStockInfo.isinCode, jpxStockInfo.tradeUnit, jpxStockInfo.issued, value.name);
 				map.put(stockInfo.stockCode, stockInfo);
 			}
 			for(var e: infraMap.entrySet()) {
-				var key   = e.getKey();
-				var value = e.getValue();
+				var stockCode = e.getKey();
+				var value     = e.getValue();
 				
-				if (map.containsKey(key)) continue;
-				logger.info("new infra  {}  {}", value.stockCode, value.name);
+				if (map.containsKey(stockCode)) continue;
 				
-				StockInfoJP stockInfo = new StockInfoJP(value.stockCode, StockInfoJP.Kind.INFRA_FUND, "NEW", "NEW", Topix.NEW, value.name);
+				JPXStockInfo jpxStockInfo = stockInfoMap.get(stockCode);
+				if (jpxStockInfo == null) {
+					logger.warn("no jpxStockInfo  {}", stockCode);
+				}
+
+				logger.info("new INFRA  {}  {}", value.stockCode, value.name);
+				
+				StockInfoJP stockInfo = new StockInfoJP(value.stockCode, StockInfoJP.Kind.INFRA_FUND, "NEW", "NEW", Topix.NEW, jpxStockInfo.isinCode, jpxStockInfo.tradeUnit, jpxStockInfo.issued, value.name);
 				map.put(stockInfo.stockCode, stockInfo);
 			}
 			for(var e: reitMap.entrySet()) {
-				var key   = e.getKey();
-				var value = e.getValue();
+				var stockCode = e.getKey();
+				var value     = e.getValue();
 				
-				if (map.containsKey(key)) continue;
-				logger.info("new reit  {}  {}", value.stockCode, value.name);
+				if (map.containsKey(stockCode)) continue;
 				
-				StockInfoJP stockInfo = new StockInfoJP(value.stockCode, StockInfoJP.Kind.REIT, "NEW", "NEW", Topix.NEW, value.name);
+				JPXStockInfo jpxStockInfo = stockInfoMap.get(stockCode);
+				if (jpxStockInfo == null) {
+					logger.warn("no jpxStockInfo  {}", stockCode);
+				}
+
+				logger.info("new REIT   {}  {}", value.stockCode, value.name);
+				
+				StockInfoJP stockInfo = new StockInfoJP(value.stockCode, StockInfoJP.Kind.REIT, "NEW", "NEW", Topix.NEW, jpxStockInfo.isinCode, jpxStockInfo.tradeUnit, jpxStockInfo.issued, value.name);
 				map.put(stockInfo.stockCode, stockInfo);
 			}
 		}
