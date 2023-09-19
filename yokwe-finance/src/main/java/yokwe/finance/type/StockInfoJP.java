@@ -1,37 +1,10 @@
-package yokwe.finance.stock;
+package yokwe.finance.type;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import yokwe.finance.Storage;
-import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
 public final class StockInfoJP implements Comparable<StockInfoJP> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	private static final String PATH_FILE = Storage.Stock.getPath("stock-info-jp.csv");
-	public static String getPath() {
-		return PATH_FILE;
-	}
-	
-	public static List<StockInfoJP> getList() {
-		return ListUtil.getList(StockInfoJP.class, getPath());
-	}
-	public static Map<String, StockInfoJP> getMap() {
-		//            stockCode
-		var list = getList();
-		return ListUtil.checkDuplicate(list, o -> o.stockCode);
-	}
-	public static void save(Collection<StockInfoJP> collection) {
-		ListUtil.save(StockInfoJP.class, getPath(), collection);
-	}
-	public static void save(List<StockInfoJP> list) {
-		ListUtil.save(StockInfoJP.class, getPath(), list);
-	}
-
-	
+		
 	public static enum Kind {
 		// STOCK
 		DOMESTIC_PRIME,

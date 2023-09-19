@@ -1,4 +1,4 @@
-package yokwe.finance.stock;
+package yokwe.finance.type;
 
 import yokwe.util.StringUtil;
 
@@ -13,11 +13,13 @@ public final class StockInfoUS implements Comparable<StockInfoUS> {
 		NYSE,
 		IEXG,
 	}
+	
 	public enum SimpleType {
 		STOCK,
 		ETF,
 		OTHER,
 	}
+	
 	public enum Type {
 		CEF    (SimpleType.STOCK), // CLOSED_END_FUND
 		COMMON (SimpleType.STOCK), // COMMON_STOCK
