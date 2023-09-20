@@ -12,25 +12,25 @@ import yokwe.util.libreoffice.SpreadSheet;
 @Sheet.SheetName("Sheet1")
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
-public class JPXListing extends Sheet implements Comparable<JPXListing> {	
-	private static final String PATH_FILE = Storage.Provider.JPX.getPath("jpx-listing.csv");
+public class Listing extends Sheet implements Comparable<Listing> {	
+	private static final String PATH_FILE = Storage.Provider.JPX.getPath("listing.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}
 	
-	public static List<JPXListing> getList() {
-		return ListUtil.getList(JPXListing.class, getPath());
+	public static List<Listing> getList() {
+		return ListUtil.getList(Listing.class, getPath());
 	}
-	public static Map<String, JPXListing> getMap() {
+	public static Map<String, Listing> getMap() {
 		//            stockCode
 		var list = getList();
 		return ListUtil.checkDuplicate(list, o -> o.stockCode);
 	}
-	public static void save(Collection<JPXListing> collection) {
-		ListUtil.save(JPXListing.class, getPath(), collection);
+	public static void save(Collection<Listing> collection) {
+		ListUtil.save(Listing.class, getPath(), collection);
 	}
-	public static void save(List<JPXListing> list) {
-		ListUtil.save(JPXListing.class, getPath(), list);
+	public static void save(List<Listing> list) {
+		ListUtil.save(Listing.class, getPath(), list);
 	}
 		
 	public static enum Kind {
@@ -117,8 +117,8 @@ public class JPXListing extends Sheet implements Comparable<JPXListing> {
 	@Override
 	public boolean equals(Object o) {
 		if (o == null) return false;
-		if (o instanceof JPXListing) {
-			JPXListing that = (JPXListing)o;
+		if (o instanceof Listing) {
+			Listing that = (Listing)o;
 			return this.date.equals(that.date) &&
 					this.stockCode.equals(that.stockCode) &&
 					this.name.equals(that.name) &&
@@ -132,7 +132,7 @@ public class JPXListing extends Sheet implements Comparable<JPXListing> {
 	}
 
 	@Override
-	public int compareTo(JPXListing that) {
+	public int compareTo(Listing that) {
 		int ret = this.date.compareTo(that.date);
 		if (ret == 0) ret = this.stockCode.compareTo(that.stockCode);
 		return ret;

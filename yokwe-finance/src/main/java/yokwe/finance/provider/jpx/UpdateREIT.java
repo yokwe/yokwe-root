@@ -13,14 +13,14 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateJPXREIT {
+public class UpdateREIT {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// Current
 	// https://www.jpx.co.jp/equities/products/reits/issues/index.html
 
 	private static final String URL       = "https://www.jpx.co.jp/equities/products/reits/issues/index.html";
-	private static final String PAGE_FILE = "jpx-reit-page.html";
+	private static final String PAGE_FILE = "reit-page.html";
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
@@ -79,7 +79,7 @@ public class UpdateJPXREIT {
 		}
 	}
 	
-	private static List<JPXREIT> getList(String url, String pageFile) {
+	private static List<REIT> getList(String url, String pageFile) {
 		final String page;
 		{
 			File file = new File(Storage.Provider.JPX.getPath(pageFile));
@@ -99,9 +99,9 @@ public class UpdateJPXREIT {
 			}
 		}
 		
-		List<JPXREIT> list = new ArrayList<>();
+		List<REIT> list = new ArrayList<>();
 		for(var e: REITInfo.getInstance(page)) {
-			JPXREIT entry = new JPXREIT();
+			REIT entry = new REIT();
 			entry.stockCode = StockInfoJP.toStockCode5(e.stockCode);
 			entry.name      = e.name;
 			
@@ -118,11 +118,11 @@ public class UpdateJPXREIT {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<JPXREIT> list = getList(URL, PAGE_FILE);
+		List<REIT> list = getList(URL, PAGE_FILE);
 		logger.info("list  {}", list.size());
 				
-		logger.info("save   {}  {}", list.size(), JPXREIT.getPath());
-		JPXREIT.save(list);
+		logger.info("save   {}  {}", list.size(), REIT.getPath());
+		REIT.save(list);
 		
 		logger.info("STOP");
 	}

@@ -21,3 +21,17 @@ clear-log-file:
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
 
+
+update-jpx:
+	ant provider-jpx-update-etf
+	ant provider-jpx-update-etn
+	ant provider-jpx-update-foreign-stock
+	ant provider-jpx-update-infra-fund
+	ant provider-jpx-update-listring
+	ant provider-jpx-update-reit
+	ant provider-jpx-update-stock-info
+	ant provider-jpx-update-stock-price
+
+
+	
+	

@@ -8,25 +8,25 @@ import yokwe.finance.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
-public class JPXREIT implements Comparable<JPXREIT> {
-	private static final String PATH_FILE = Storage.Provider.JPX.getPath("jpx-reit.csv");
+public class InfraFund implements Comparable<InfraFund> {
+	private static final String PATH_FILE = Storage.Provider.JPX.getPath("infra-fund.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}
 	
-	public static List<JPXREIT> getList() {
-		return ListUtil.getList(JPXREIT.class, getPath());
+	public static List<InfraFund> getList() {
+		return ListUtil.getList(InfraFund.class, getPath());
 	}
-	public static Map<String, JPXREIT> getMap() {
+	public static Map<String, InfraFund> getMap() {
 		//            stockCode
 		var list = getList();
 		return ListUtil.checkDuplicate(list, o -> o.stockCode);
 	}
-	public static void save(Collection<JPXREIT> collection) {
-		ListUtil.save(JPXREIT.class, getPath(), collection);
+	public static void save(Collection<InfraFund> collection) {
+		ListUtil.save(InfraFund.class, getPath(), collection);
 	}
-	public static void save(List<JPXREIT> list) {
-		ListUtil.save(JPXREIT.class, getPath(), list);
+	public static void save(List<InfraFund> list) {
+		ListUtil.save(InfraFund.class, getPath(), list);
 	}
 	
 	
@@ -39,14 +39,14 @@ public class JPXREIT implements Comparable<JPXREIT> {
 	}
 	
 	@Override
-	public int compareTo(JPXREIT that) {
+	public int compareTo(InfraFund that) {
 		return this.stockCode.compareTo(that.stockCode);
 	}
 	@Override
 	public boolean equals(Object o) {
 		if (o == null) return false;
-		if (o instanceof JPXREIT) {
-			JPXREIT that = (JPXREIT)o;
+		if (o instanceof InfraFund) {
+			InfraFund that = (InfraFund)o;
 			return 
 				this.stockCode.equals(that.stockCode) &&
 				this.name.equals(that.name);

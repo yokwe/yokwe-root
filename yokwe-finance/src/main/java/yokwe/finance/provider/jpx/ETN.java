@@ -9,25 +9,25 @@ import yokwe.finance.Storage;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
-public class JPXETF implements Comparable<JPXETF> {	
-	private static final String PATH_FILE = Storage.Provider.JPX.getPath("jpx-etf.csv");
+public class ETN implements Comparable<ETN> {	
+	private static final String PATH_FILE = Storage.Provider.JPX.getPath("etn.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}
 	
-	public static List<JPXETF> getList() {
-		return ListUtil.getList(JPXETF.class, getPath());
+	public static List<ETN> getList() {
+		return ListUtil.getList(ETN.class, getPath());
 	}
-	public static Map<String, JPXETF> getMap() {
+	public static Map<String, ETN> getMap() {
 		//            stockCode
 		var list = getList();
 		return ListUtil.checkDuplicate(list, o -> o.stockCode);
 	}
-	public static void save(Collection<JPXETF> collection) {
-		ListUtil.save(JPXETF.class, getPath(), collection);
+	public static void save(Collection<ETN> collection) {
+		ListUtil.save(ETN.class, getPath(), collection);
 	}
-	public static void save(List<JPXETF> list) {
-		ListUtil.save(JPXETF.class, getPath(), list);
+	public static void save(List<ETN> list) {
+		ListUtil.save(ETN.class, getPath(), list);
 	}
 	
 	
@@ -42,14 +42,14 @@ public class JPXETF implements Comparable<JPXETF> {
 	}
 	
 	@Override
-	public int compareTo(JPXETF that) {
+	public int compareTo(ETN that) {
 		return this.stockCode.compareTo(that.stockCode);
 	}
 	@Override
 	public boolean equals(Object o) {
 		if (o == null) return false;
-		if (o instanceof JPXETF) {
-			JPXETF that = (JPXETF)o;
+		if (o instanceof ETN) {
+			ETN that = (ETN)o;
 			return 
 				this.stockCode.equals(that.stockCode) &&
 				this.indexName.equals(that.indexName) &&

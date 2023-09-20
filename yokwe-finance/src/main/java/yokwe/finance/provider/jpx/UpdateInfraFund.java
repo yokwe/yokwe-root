@@ -13,14 +13,14 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateJPXInfra {
+public class UpdateInfraFund {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// Current
 	// https://www.jpx.co.jp/equities/products/infrastructure/issues/index.html
 
 	private static final String URL       = "https://www.jpx.co.jp/equities/products/infrastructure/issues/index.html";
-	private static final String PAGE_FILE = "jpx-infra-page.html";
+	private static final String PAGE_FILE = "infra-fund-page.html";
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
@@ -79,7 +79,7 @@ public class UpdateJPXInfra {
 		}
 	}
 	
-	private static List<JPXInfra> getList(String url, String pageFile) {
+	private static List<InfraFund> getList(String url, String pageFile) {
 		final String page;
 		{
 			File file = new File(Storage.Provider.JPX.getPath(pageFile));
@@ -99,9 +99,9 @@ public class UpdateJPXInfra {
 			}
 		}
 		
-		List<JPXInfra> list = new ArrayList<>();
+		List<InfraFund> list = new ArrayList<>();
 		for(var e: REITInfo.getInstance(page)) {
-			JPXInfra entry = new JPXInfra();
+			InfraFund entry = new InfraFund();
 			entry.stockCode = StockInfoJP.toStockCode5(e.stockCode);
 			entry.name      = e.name;
 			
@@ -118,11 +118,11 @@ public class UpdateJPXInfra {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<JPXInfra> list = getList(URL, PAGE_FILE);
+		List<InfraFund> list = getList(URL, PAGE_FILE);
 		logger.info("list  {}", list.size());
 				
-		logger.info("save   {}  {}", list.size(), JPXInfra.getPath());
-		JPXInfra.save(list);
+		logger.info("save   {}  {}", list.size(), InfraFund.getPath());
+		InfraFund.save(list);
 		
 		logger.info("STOP");
 	}

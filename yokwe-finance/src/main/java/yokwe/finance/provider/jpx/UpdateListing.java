@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import yokwe.finance.Storage;
-import yokwe.finance.provider.jpx.JPXListing.Kind;
+import yokwe.finance.provider.jpx.Listing.Kind;
 import yokwe.finance.type.StockInfoJP;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
@@ -15,7 +15,7 @@ import yokwe.util.http.HttpUtil;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
-public class UpdateJPXListing {
+public class UpdateListing {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String URL = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
@@ -38,14 +38,14 @@ public class UpdateJPXListing {
 		}
 
 		logger.info("open {}", URL_DATAFILE);
-		List<JPXListing> list = new ArrayList<>();
+		List<Listing> list = new ArrayList<>();
 		
 		// Build newList
 		try (SpreadSheet spreadSheet = new SpreadSheet(URL_DATAFILE, true)) {
-			List<JPXListing> rawDataList = Sheet.extractSheet(spreadSheet, JPXListing.class);
+			List<Listing> rawDataList = Sheet.extractSheet(spreadSheet, Listing.class);
 			logger.info("read {}", rawDataList.size());
 			
-			for(JPXListing rawData: rawDataList) {
+			for(Listing rawData: rawDataList) {
 				// Trim space of rawData
 				String date = rawData.date.trim();
 				if (date.length() != 8) {
@@ -54,7 +54,7 @@ public class UpdateJPXListing {
 					throw new UnexpectedException("Unexpected date");
 				}
 				
-				JPXListing value = new JPXListing();
+				Listing value = new Listing();
 				
 				value.date         = String.format("%s-%s-%s", date.substring(0, 4), date.substring(4, 6), date.substring(6, 8));;
 				value.stockCode    = StockInfoJP.toStockCode5(rawData.stockCode.trim());
@@ -94,8 +94,8 @@ public class UpdateJPXListing {
 			}
 			
 			// save
-			logger.info("save  {}  {}", list.size(), JPXListing.getPath());
-			JPXListing.save(list);
+			logger.info("save  {}  {}", list.size(), Listing.getPath());
+			Listing.save(list);
 		}
 	}
 	

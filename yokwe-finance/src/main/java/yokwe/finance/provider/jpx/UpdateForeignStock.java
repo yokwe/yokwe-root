@@ -13,14 +13,14 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateJPXForeign {
+public class UpdateForeignStock {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// Current
 	// https://www.jpx.co.jp/equities/products/foreign/issues/index.html
 	
 	private static final String URL       = "https://www.jpx.co.jp/equities/products/foreign/issues/index.html";
-	private static final String PAGE_FILE = "jpx-foreign-page.html";
+	private static final String PAGE_FILE = "foreign-stock-page.html";
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
@@ -66,7 +66,7 @@ public class UpdateJPXForeign {
 		}
 	}
 	
-	private static List<JPXForeign> getList(String url, String pageFile) {
+	private static List<ForeignStock> getList(String url, String pageFile) {
 		final String page;
 		{
 			File file = new File(Storage.Provider.JPX.getPath(pageFile));
@@ -86,9 +86,9 @@ public class UpdateJPXForeign {
 			}
 		}
 		
-		List<JPXForeign> list = new ArrayList<>();
+		List<ForeignStock> list = new ArrayList<>();
 		for(var e: ForeignInfo.getInstance(page)) {
-			JPXForeign entry = new JPXForeign();
+			ForeignStock entry = new ForeignStock();
 			entry.name      = e.name;
 			entry.stockCode = StockInfoJP.toStockCode5(e.stockCode);
 
@@ -101,11 +101,11 @@ public class UpdateJPXForeign {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<JPXForeign> list = getList(URL, PAGE_FILE);
+		List<ForeignStock> list = getList(URL, PAGE_FILE);
 		logger.info("list  {}", list.size());
 				
-		logger.info("save   {}  {}", list.size(), JPXForeign.getPath());
-		JPXForeign.save(list);
+		logger.info("save   {}  {}", list.size(), ForeignStock.getPath());
+		ForeignStock.save(list);
 		
 		logger.info("STOP");
 	}
