@@ -19,7 +19,6 @@ import yokwe.finance.provider.jpx.StockPage.PriceVolume;
 import yokwe.finance.provider.jpx.StockPage.TradeUnit;
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJP;
-import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -211,10 +210,16 @@ public class UpdateStockPrice {
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
+	
+	private static void updateDeail(Context context) {
+		List<StockDetail> list = context.stockDetailList;
+		logger.info("save  {}  {}", list.size(), StockDetail.getPath());
+		StockDetail.save(list);
+	}
+
 	private static void updatePrice(Context context) {
 		// update price using list (StockPrice)
 		int count       = 0;
-		int countZero   = 0;
 		int countTotal  = context.priceVolumeMap.size();
 		for(var entry: context.priceVolumeMap.entrySet()) {
 			String            stockCode       = entry.getKey();
@@ -236,7 +241,6 @@ public class UpdateStockPrice {
 				
 				OHLCV price = new OHLCV();
 				price.date   = priceDate;
-				price.volume = volume;
 				
 				if (volume == 0 || open == null || high == null || low == null || close == null) {
 					price.open   = BigDecimal.ZERO;
@@ -254,15 +258,10 @@ public class UpdateStockPrice {
 				
 				priceList.add(price);
 			}
-			if (priceList.size() != 0) {
-				StockPrice.save(stockCode, priceList);
-			} else {
-				countZero++;
-			}
+			if (priceList.size() != 0) StockPrice.save(stockCode, priceList);
 		}
 		
-		logger.info("countTotal  {}", String.format("%4d", countTotal));
-		logger.info("countZero   {}", String.format("%4d", countZero));
+		logger.info("count  {}", String.format("%4d", count));
 	}
 
 	private static void update() {
@@ -270,33 +269,7 @@ public class UpdateStockPrice {
 		
 		buildContext(context);
 		
-		// Save stockDetail
-		{
-			List<StockDetail> list = context.stockDetailList;
-			logger.info("save  {}  {}", list.size(), StockDetail.getPath());
-			StockDetail.save(list);
-		}
-		// update StockInfo with stockDetailList
-		{
-			var stockInfoList  = StockInfo.getList();
-			var stockDetailMap = ListUtil.checkDuplicate(context.stockDetailList, o -> o.stockCode);
-			
-			for(var stockInfo: stockInfoList) {
-				String stockCode = stockInfo.stockCode;
-				if (stockDetailMap.containsKey(stockCode)) {
-					StockDetail stockDetail = stockDetailMap.get(stockCode);
-					stockInfo.isinCode  = stockDetail.isinCode;
-					stockInfo.tradeUnit = stockDetail.tradeUnit;
-					stockInfo.issued    = stockDetail.issued;
-				} else {
-					logger.warn("Unexpected stockDetailMap stockCode  {}", stockCode);
-				}
-			}
-			logger.info("save  {}  {}", stockInfoList.size(), StockInfo.getPath());
-			StockInfo.save(stockInfoList);
-		}
-
-		// update each price file
+		updateDeail(context);
 		updatePrice(context);
 	}
 	
