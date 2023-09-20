@@ -166,17 +166,17 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 	}
 
 	
-	public final String stockCode;
-	public final Kind   kind;
-	public final String sector33;
-	public final String sector17;
-	public final Topix  topix;
+	public String stockCode;
+	public Kind   kind;
+	public String sector33;
+	public String sector17;
+	public Topix  topix;
 	
-	public final String isinCode;
-	public final int    tradeUnit;
-	public final long   issued;
+	public String isinCode;
+	public int    tradeUnit;
+	public long   issued;
 	
-	public final String name;
+	public String name;
 	
 	public StockInfoJP(
 		String stockCode,
@@ -232,9 +232,9 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 				this.sector33.equals(that.sector33) &&
 				this.sector17.equals(that.sector17) &&
 				this.topix.equals(that.topix) &&
-//				this.isinCode.equals(that.isinCode) &&
-//				this.tradeUnit == that.tradeUnit &&
-//				this.issued == that.issued &&
+				this.isinCode.equals(that.isinCode) &&
+				this.tradeUnit == that.tradeUnit &&
+				this.issued == that.issued &&
 				this.name.equals(that.name);
 		} else {
 			return false;
