@@ -167,43 +167,17 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 
 	
 	public String stockCode;
+	public String isinCode  = "";
+	
+	public int    tradeUnit = 0;
+	public long   issued    = 0;
+
 	public Kind   kind;
+	public Topix  topix;
 	public String sector33;
 	public String sector17;
-	public Topix  topix;
-	
-	public String isinCode;
-	public int    tradeUnit;
-	public long   issued;
 	
 	public String name;
-	
-	public StockInfoJP(
-		String stockCode,
-		Kind   kind,
-		String sector33,
-		String sector17,
-		Topix  topix,
-		//
-		String isinCode,
-		int    tradeUnit,
-		long   issued,
-		//
-		String name
-		) {
-		this.stockCode = stockCode;
-		this.kind      = kind;
-		this.sector33  = sector33;
-		this.sector17  = sector17;
-		this.topix     = topix;
-		//
-		this.isinCode  = isinCode;
-		this.tradeUnit = tradeUnit;
-		this.issued    = issued;
-		//
-		this.name      = name;
-	}
-	
 	
 	@Override
 	public String toString() {
