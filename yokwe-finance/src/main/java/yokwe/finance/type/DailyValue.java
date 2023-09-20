@@ -7,6 +7,11 @@ public class DailyValue implements Comparable<DailyValue> {
 	public LocalDate  date;
 	public BigDecimal value;
 	
+	public DailyValue(LocalDate date, BigDecimal value) {
+		this.date  = date;
+		this.value = value;
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("{%s %s}", date.toString(), value.toPlainString());
