@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.type.StockInfoJP.Kind;
 import yokwe.finance.type.StockInfoJP.Topix;
 import yokwe.util.UnexpectedException;
 
@@ -74,8 +75,15 @@ public class UpdateStockInfo {
 					logger.error("  jpxListring  {}", listing);
 					throw new UnexpectedException("Unexpected");
 				}
-								
-				StockInfoJP stockInfoJP = new StockInfoJP(listing.stockCode, kind, listing.sector33, listing.sector17, topix, "", 0, 0, listing.name);
+				
+				StockInfoJP stockInfoJP = new StockInfoJP();
+				stockInfoJP.stockCode = listing.stockCode;
+				stockInfoJP.kind      = kind;
+				stockInfoJP.sector33  = listing.sector33;
+				stockInfoJP.sector17  = listing.sector17;
+				stockInfoJP.topix     = topix;
+				stockInfoJP.name      = listing.name;
+				
 				map.put(stockInfoJP.stockCode, stockInfoJP);
 			}
 			logger.info("map  {}", map.size());
@@ -89,7 +97,14 @@ public class UpdateStockInfo {
 				
 				logger.info("new ETF    {}  {}", stockCode, value.name);
 				
-				StockInfoJP stockInfoJP = new StockInfoJP(value.stockCode, StockInfoJP.Kind.ETF, "NEW", "NEW", Topix.NEW, "", 0, 0, value.name);
+				StockInfoJP stockInfoJP = new StockInfoJP();
+				stockInfoJP.stockCode = value.stockCode;
+				stockInfoJP.kind      = Kind.ETF;
+				stockInfoJP.sector33  = "NEW";
+				stockInfoJP.sector17  = "NEW";
+				stockInfoJP.topix     = Topix.NEW;
+				stockInfoJP.name      = value.name;
+				
 				map.put(stockInfoJP.stockCode, stockInfoJP);
 			}
 			for(var e: etnMap.entrySet()) {
@@ -100,7 +115,14 @@ public class UpdateStockInfo {
 				
 				logger.info("new ETN    {}  {}", value.stockCode, value.name);
 				
-				StockInfoJP stockInfoJP = new StockInfoJP(value.stockCode, StockInfoJP.Kind.ETN, "NEW", "NEW", Topix.NEW, "", 0, 0, value.name);
+				StockInfoJP stockInfoJP = new StockInfoJP();
+				stockInfoJP.stockCode = value.stockCode;
+				stockInfoJP.kind      = Kind.ETN;
+				stockInfoJP.sector33  = "NEW";
+				stockInfoJP.sector17  = "NEW";
+				stockInfoJP.topix     = Topix.NEW;
+				stockInfoJP.name      = value.name;
+				
 				map.put(stockInfoJP.stockCode, stockInfoJP);
 			}
 			for(var e: infraMap.entrySet()) {
@@ -111,7 +133,14 @@ public class UpdateStockInfo {
 				
 				logger.info("new INFRA  {}  {}", value.stockCode, value.name);
 				
-				StockInfoJP stockInfoJP = new StockInfoJP(value.stockCode, StockInfoJP.Kind.INFRA_FUND, "NEW", "NEW", Topix.NEW, "", 0, 0, value.name);
+				StockInfoJP stockInfoJP = new StockInfoJP();
+				stockInfoJP.stockCode = value.stockCode;
+				stockInfoJP.kind      = Kind.INFRA_FUND;
+				stockInfoJP.sector33  = "NEW";
+				stockInfoJP.sector17  = "NEW";
+				stockInfoJP.topix     = Topix.NEW;
+				stockInfoJP.name      = value.name;
+				
 				map.put(stockInfoJP.stockCode, stockInfoJP);
 			}
 			for(var e: reitMap.entrySet()) {
@@ -122,7 +151,14 @@ public class UpdateStockInfo {
 				
 				logger.info("new REIT   {}  {}", value.stockCode, value.name);
 				
-				StockInfoJP stockInfoJP = new StockInfoJP(value.stockCode, StockInfoJP.Kind.REIT, "NEW", "NEW", Topix.NEW, "", 0, 0, value.name);
+				StockInfoJP stockInfoJP = new StockInfoJP();
+				stockInfoJP.stockCode = value.stockCode;
+				stockInfoJP.kind      = Kind.REIT;
+				stockInfoJP.sector33  = "NEW";
+				stockInfoJP.sector17  = "NEW";
+				stockInfoJP.topix     = Topix.NEW;
+				stockInfoJP.name      = value.name;
+				
 				map.put(stockInfoJP.stockCode, stockInfoJP);
 			}
 		}
