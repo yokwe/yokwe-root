@@ -89,8 +89,6 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	
-	
 	<target name="provider-jpx-update-jpx-stock-info-jp">
 		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXStockInfoJP" fork="true">
 			<modulepath refid="build.classpath" />
