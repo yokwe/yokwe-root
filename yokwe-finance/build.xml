@@ -73,20 +73,47 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provier-jpx-update-stock-info-jp">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockInfoJP" fork="true">
+	<target name="provier-jpx-update-jpx-stock-info-jp">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXStockInfoJP" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provier-jpx-update-stock-price-jp">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockPriceJP" fork="true">
+	<target name="provier-jpx-update-jpx-stock-price-jp">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXStockPriceJP" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	
+	<!-- Provider JITA -->
+	<target name="provier-jita-update-jita-fund-info-jp">
+		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateJITAFundInfoJP" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provier-jita-update-div-price">
+		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateDivPrice" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provier-jita-update-jita-fund-price-jp">
+		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateJITAFundPriceJP" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
 </project>

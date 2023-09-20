@@ -29,7 +29,7 @@ import yokwe.util.http.RequesterBuilder;
 import yokwe.util.http.StringTask;
 import yokwe.util.http.Task;
 
-public class UpdateStockPriceJP {
+public class UpdateJPXStockPriceJP {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static String getPageURL(String stockCode) {

@@ -10,7 +10,7 @@ import yokwe.finance.type.StockInfoJP;
 import yokwe.finance.type.StockInfoJP.Topix;
 import yokwe.util.UnexpectedException;
 
-public class UpdateStockInfoJP {
+public class UpdateJPXStockInfoJP {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static Map<JPXListing.Kind, StockInfoJP.Kind> kindMap = new TreeMap<>();
