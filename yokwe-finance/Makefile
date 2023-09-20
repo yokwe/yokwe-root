@@ -22,16 +22,18 @@ clear-log-file:
 	echo -n >tmp/cron.log
 
 
+update-jpx-listing:
+	ant provider-jpx-update-listring
+
 update-jpx:
 	ant provider-jpx-update-etf
 	ant provider-jpx-update-etn
 	ant provider-jpx-update-foreign-stock
 	ant provider-jpx-update-infra-fund
-	ant provider-jpx-update-listring
 	ant provider-jpx-update-reit
 	ant provider-jpx-update-stock-info
 	ant provider-jpx-update-stock-price
+	ant provider-jpx-update-stock-info
+	ant provider-jpx-update-jpx-stock-info-jp
+	ant provider-jpx-update-jpx-stock-price-jp 
 
-
-	
-	
