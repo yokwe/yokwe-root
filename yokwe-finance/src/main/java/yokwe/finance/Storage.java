@@ -45,11 +45,41 @@ public class Storage {
 				return getPath(String.format("%s/%s", prefix, path));
 			}
 		}
+		
+		// Provider jita
+		public static final class JITA {
+			public static final String PREFIX = "jita";
+			
+			public static String getPath() {
+				return Storage.Provider.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.Provider.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
+		}
 	}
 	
 	// Stock
 	public static final class Stock {
 		public static final String PREFIX = "stock";
+		
+		public static String getPath() {
+			return Storage.getPath(PREFIX);
+		}
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+
+	// Fund
+	public static final class Fund {
+		public static final String PREFIX = "fund";
 		
 		public static String getPath() {
 			return Storage.getPath(PREFIX);
