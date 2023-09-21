@@ -36,7 +36,7 @@ update-jpx-stock-info:
 	ant provider-jpx-update-stock-info
 	ant provider-jpx-update-jpx-stock-info-jp
 
-update-jpx-stock-price
+update-jpx-stock-price:
 	ant provider-jpx-update-jpx-stock-price-jp 
 
 
