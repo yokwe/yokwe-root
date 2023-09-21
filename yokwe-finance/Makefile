@@ -44,3 +44,10 @@ update-jita:
 	ant provider-jita-update-jita-fund-info-jp
 	ant provider-jita-update-div-price
 	ant provider-jita-update-jita-fund-price-jp
+
+
+update-stock-info-us:
+	ant provider-bats-update-stock-info
+	ant provider-nasdaq-update-stock-info
+	ant provider-nyse-update-stock-info
+
