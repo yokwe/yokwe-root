@@ -11,7 +11,6 @@ build:
 update-crontab:
 	crontab data/crontab
 
-##
 
 # maintenance of save, log and crontab
 clear-save-file:
