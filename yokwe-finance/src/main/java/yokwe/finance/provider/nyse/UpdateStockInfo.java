@@ -3,13 +3,12 @@ package yokwe.finance.provider.nyse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import yokwe.finance.type.StockInfoUS;
 import yokwe.finance.type.StockInfoUS.Market;
 import yokwe.finance.type.StockInfoUS.Type;
+import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -74,20 +73,25 @@ public class UpdateStockInfo {
 		var stockList = downloadFilter(TYPE_STOCK);
 		var etfList   = downloadFilter(TYPE_ETF);
 		
-		Set<Filter> set = new TreeSet<>();
-		set.addAll(stockList);
-		set.addAll(etfList);
-		
-		if (set.size() != (stockList.size() + etfList.size())) {
-			logger.error("Unpexpected size");
-			logger.error("  stock  {}", stockList.size());
-			logger.error("  etf    {}", etfList.size());
-			logger.error("  set    {}", set.size());
-			throw new UnexpectedException("Unpexpected size");
+		List<Filter> list = new ArrayList<>();
+		list.addAll(stockList);
+		list.addAll(etfList);
+
+		// sanity check
+		{
+			var map = ListUtil.checkDuplicate(list, o -> o.symbolTicker);
+			logger.info("stock  {}", stockList.size());
+			logger.info("etf    {}", etfList.size());
+			logger.info("total  {}", stockList.size() + etfList.size());
+			logger.info("map    {}", map.size());
+			if (map.size() != stockList.size() + etfList.size()) {
+				logger.error("Unexpected");
+				throw new UnexpectedException("Unexpected");
+			}
 		}
 		
-		logger.info("save   {}  {}", set.size(), Filter.getPath());
-		Filter.save(set);
+		logger.info("save   {}  {}", list.size(), Filter.getPath());
+		Filter.save(list);
 	}
 	
 	private static void update() {
