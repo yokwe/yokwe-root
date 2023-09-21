@@ -60,6 +60,51 @@ public class Storage {
 				return getPath(String.format("%s/%s", prefix, path));
 			}
 		}
+		
+		// Provider nasdaq
+		public static final class NASDAQ {
+			public static final String PREFIX = "nasdaq";
+			
+			public static String getPath() {
+				return Storage.Provider.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.Provider.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
+		}
+		
+		// Provider nyse
+		public static final class NYSE {
+			public static final String PREFIX = "nyse";
+			
+			public static String getPath() {
+				return Storage.Provider.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.Provider.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
+		}
+		
+		// Provider bats
+		public static final class BATS {
+			public static final String PREFIX = "bats";
+			
+			public static String getPath() {
+				return Storage.Provider.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.Provider.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
+		}
 	}
 	
 	// Stock
