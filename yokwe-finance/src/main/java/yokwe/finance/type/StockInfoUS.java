@@ -39,6 +39,13 @@ public final class StockInfoUS implements Comparable<StockInfoUS> {
 		Type(SimpleType simpleType) {
 			this.simpleType = simpleType;
 		}
+		
+		public boolean isETF() {
+			return simpleType == SimpleType.ETF;
+		}
+		public boolean isStock() {
+			return simpleType == SimpleType.STOCK;
+		}
 	}
 	
 	public final String stockCode; // normalized symbol like TRNT-A and RDS.A not like TRTN^A and RDS/A
@@ -52,7 +59,7 @@ public final class StockInfoUS implements Comparable<StockInfoUS> {
 		this.type   = type;
 		this.name   = name;
 	}
-	
+		
 	
 	@Override
 	public String toString() {
