@@ -19,7 +19,7 @@ clear-save-file:
 clear-log-file:
 	tar cfz /mnt/fiancnce/save/log_$$(date +%Y%m%d).taz tmp/*.log
 	echo -n >tmp/yokwe-finance.log
-	echo -n >tmp/cron.log 
+	echo -n >tmp/cron.log
 
 
 update-jpx-listing:
