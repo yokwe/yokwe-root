@@ -44,10 +44,7 @@ update-stock-jp:
 
 update-jita:
 	ant provider-jita-update-fund-info
-	ant provider-jita-update-div-price
-
-update-fund-jp:
-	ant fund-jp-update-fund-div-price
+	ant provider-jita-update-fund-div-price
 	
 
 update-stock-info-us:

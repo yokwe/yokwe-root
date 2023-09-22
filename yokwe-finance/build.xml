@@ -117,8 +117,8 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provider-jita-update-div-price">
-		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateDivPrice" fork="true">
+	<target name="provider-jita-update-fund-div-price">
+		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateFundDivPrice" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
@@ -129,16 +129,6 @@
 	<!-- Fund JP -->
 	<target name="fund-jp-update-fund-div-price">
 		<java module="yokwe.finance/yokwe.finance.fund.jp.UpdateFundDivPrice" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	
-	<!-- Provider NASDAQ -->
-	<target name="provider-nasdaq-update-stock-info">
-		<java module="yokwe.finance/yokwe.finance.provider.nasdaq.UpdateStockInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />

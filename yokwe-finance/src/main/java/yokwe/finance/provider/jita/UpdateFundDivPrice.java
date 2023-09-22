@@ -7,12 +7,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
+import yokwe.finance.fund.jp.FundDiv;
 import yokwe.finance.fund.jp.FundInfo;
+import yokwe.finance.fund.jp.FundPrice;
+import yokwe.finance.type.DailyValue;
+import yokwe.finance.type.FundPriceJP;
 import yokwe.util.CSVUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
@@ -21,7 +23,7 @@ import yokwe.util.http.DownloadSync;
 import yokwe.util.http.RequesterBuilder;
 import yokwe.util.http.StringTask;
 
-public class UpdateDivPrice {
+public class UpdateFundDivPrice {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String  URL       = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd=%s&associFundCd=%s";
@@ -86,8 +88,6 @@ public class UpdateDivPrice {
 		}
 	}
 	private static class DivPriceConsumer implements Consumer<String> {
-		private static final Pattern PAT_DATE = Pattern.compile("(?<yyyy>[12][09][0-9][0-9])年(?<mm>[01]?[0-9])月(?<dd>[0123]?[0-9])日");
-
 		public final String isinCode;
 		
 		public DivPriceConsumer(String isinCode) {
@@ -104,36 +104,39 @@ public class UpdateDivPrice {
 			}
 			
 			// build divList and priceList
-			var list  = new ArrayList<DivPrice>();
+			var divList   = new ArrayList<DailyValue>();
+			var priceList = new ArrayList<FundPriceJP>();
 			
 			for(var divPrice: divPriceList) {
 				LocalDate  date;
 				{
-					Matcher m = PAT_DATE.matcher(divPrice.date);
-					if (m.find()) {
-						int yyyy = Integer.parseInt(m.group("yyyy"));
-						int mm   = Integer.parseInt(m.group("mm"));
-						int dd   = Integer.parseInt(m.group("dd"));
+					String dateString = divPrice.date;
+					// 2000年01月01日
+					// 01234 567 890
+					if (dateString.length() == 11 && dateString.charAt(4) == '年' && dateString.charAt(7) == '月' && dateString.charAt(10) == '日') {
+						int yyyy = Integer.parseInt(dateString.substring(0, 4));
+						int mm   = Integer.parseInt(dateString.substring(5, 7));
+						int dd   = Integer.parseInt(dateString.substring(8, 10));
 						date = LocalDate.of(yyyy, mm, dd);
 					} else {
 						logger.error("Unexpected date");
-						logger.error("  isinCode {}", isinCode);
-						logger.error("  divPrice {}", divPrice);
+						logger.error("  isinCode   {}", isinCode);
+						logger.error("  dateString {}  !{}!", dateString.length(), dateString);
 						throw new UnexpectedException("Unexpected date");
 					}
 				}
 				BigDecimal price  = new BigDecimal(divPrice.price);
-				BigDecimal nav    = new BigDecimal(divPrice.nav);
+				BigDecimal nav    = new BigDecimal(divPrice.nav).scaleByPowerOfTen(6); // 純資産総額（百万円）
 				String     div    = divPrice.div.trim();
-				String     period = divPrice.period.trim();
 				
-				// add to priceList
-				list.add(new DivPrice(date, price, nav, div, period));
+				if (!div.isEmpty()) divList.add(new DailyValue(date, new BigDecimal(div)));
+				
+				priceList.add(new FundPriceJP(date, nav, price));
 			}
 			
-			if (!list.isEmpty()) {
-				DivPrice.save(isinCode, list);
-			}
+			// save divList and priceList
+			if (!divList.isEmpty())   FundDiv.save(isinCode, divList);
+			if (!priceList.isEmpty()) FundPrice.save(isinCode, priceList);
 		}
 	}
 
