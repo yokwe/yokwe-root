@@ -120,6 +120,36 @@ public class Storage {
 		public static String getPath(String prefix, String path) {
 			return getPath(String.format("%s/%s", prefix, path));
 		}
+		
+		// Provider JP
+		public static final class JP {
+			public static final String PREFIX = "jp";
+			
+			public static String getPath() {
+				return Storage.Stock.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.Stock.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
+		}
+		
+		// Provider US
+		public static final class US {
+			public static final String PREFIX = "us";
+			
+			public static String getPath() {
+				return Storage.Stock.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.Stock.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
+		}
 	}
 
 	// Fund
@@ -134,6 +164,21 @@ public class Storage {
 		}
 		public static String getPath(String prefix, String path) {
 			return getPath(String.format("%s/%s", prefix, path));
+		}
+		
+		// Fund JP
+		public static final class JP {
+			public static final String PREFIX = "jp";
+			
+			public static String getPath() {
+				return Storage.Fund.getPath(PREFIX);
+			}
+			public static String getPath(String path) {
+				return Storage.Fund.getPath(PREFIX, path);
+			}
+			public static String getPath(String prefix, String path) {
+				return getPath(String.format("%s/%s", prefix, path));
+			}
 		}
 	}
 
