@@ -9,7 +9,7 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class StockDetail implements Comparable<StockDetail> {
-	private static final String PATH_FILE = Storage.Provider.JPX.getPath("stock-detail.csv");
+	private static final String PATH_FILE = Storage.provider_jpx.getPath("stock-detail.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

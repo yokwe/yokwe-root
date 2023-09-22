@@ -33,19 +33,22 @@ update-jpx-stock-info:
 	ant provider-jpx-update-infra-fund
 	ant provider-jpx-update-reit
 	ant provider-jpx-update-stock-info
-	ant provider-jpx-update-stock-price
-	ant provider-jpx-update-stock-info
-	ant provider-jpx-update-jpx-stock-info-jp
 
 update-jpx-stock-price:
-	ant provider-jpx-update-jpx-stock-price-jp 
+	ant provider-jpx-update-stock-price
+
+update-stock-jp:
+	ant stock-jp-update-stock-info
+	ant stock-jp-update-stock-price
 
 
 update-jita:
-	ant provider-jita-update-jita-fund-info-jp
+	ant provider-jita-update-fund-info
 	ant provider-jita-update-div-price
-	ant provider-jita-update-jita-fund-price-jp
 
+update-fund-jp:
+	ant fund-jp-update-fund-div-price
+	
 
 update-stock-info-us:
 	ant provider-bats-update-stock-info

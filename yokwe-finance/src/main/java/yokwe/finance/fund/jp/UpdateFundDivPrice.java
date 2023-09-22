@@ -1,19 +1,17 @@
-package yokwe.finance.provider.jita;
+package yokwe.finance.fund.jp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import yokwe.finance.fund.JITAFundDivJP;
-import yokwe.finance.fund.JITAFundInfoJP;
-import yokwe.finance.fund.JITAFundPriceJP;
+import yokwe.finance.provider.jita.DivPrice;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.FundPriceJP;
 
-public class UpdateJITAFundPriceJP {
+public class UpdateFundDivPrice {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static void update() {
-		var fundInfoList = JITAFundInfoJP.getList();
+		var fundInfoList = FundInfo.getList();
 		logger.info("fundInfoList  {}", fundInfoList.size());
 		
 		int count = 0;
@@ -27,7 +25,7 @@ public class UpdateJITAFundPriceJP {
 			
 			// update div
 			{
-				var divMap      = JITAFundDivJP.getMap(isinCode);
+				var divMap      = FundDiv.getMap(isinCode);
 				int countModify = 0;
 				for(var divPrice: divPriceList) {					
 					if (divPrice.div.isEmpty()) continue;
@@ -41,11 +39,11 @@ public class UpdateJITAFundPriceJP {
 					divMap.put(date, newValue);
 					countModify++;
 				}
-				if (countModify != 0) JITAFundDivJP.save(isinCode, divMap.values());
+				if (countModify != 0) FundDiv.save(isinCode, divMap.values());
 			}
 			// update price
 			{
-				var priceMap    = JITAFundPriceJP.getMap(isinCode);
+				var priceMap    = FundPrice.getMap(isinCode);
 				int countModify = 0;
 				for(var divPrice: divPriceList) {
 					LocalDate   date     = divPrice.date;
@@ -58,7 +56,7 @@ public class UpdateJITAFundPriceJP {
 					priceMap.put(date, newValue);
 					countModify++;
 				}
-				if (countModify != 0) JITAFundPriceJP.save(isinCode, priceMap.values());
+				if (countModify != 0) FundPrice.save(isinCode, priceMap.values());
 			}
 		}
 		

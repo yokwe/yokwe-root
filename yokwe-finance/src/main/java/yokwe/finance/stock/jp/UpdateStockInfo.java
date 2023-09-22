@@ -1,16 +1,16 @@
-package yokwe.finance.provider.jpx;
+package yokwe.finance.stock.jp;
 
 import java.io.IOException;
 
-import yokwe.finance.stock.JPXStockInfoJP;
+import yokwe.finance.provider.jpx.StockDetail;
 
-public class UpdateJPXStockInfoJP {
+public class UpdateStockInfo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static void main(String[] args) throws IOException {
 		logger.info("START");
 		
-		var stockInfoList  = StockInfo.getList();
+		var stockInfoList  = yokwe.finance.provider.jpx.StockInfo.getList();
 		var stockDetailMap = StockDetail.getMap();
 		logger.info("stockInfo    {}", stockInfoList.size());
 		logger.info("stockDetail  {}", stockDetailMap.size());
@@ -28,8 +28,8 @@ public class UpdateJPXStockInfoJP {
 			}
 		}
 		
-		logger.info("save  {}  {}", stockInfoList.size(), JPXStockInfoJP.getPath());
-		JPXStockInfoJP.save(stockInfoList);
+		logger.info("save  {}  {}", stockInfoList.size(), StockInfo.getPath());
+		StockInfo.save(stockInfoList);
 		
 		logger.info("STOP");
 	}

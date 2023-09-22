@@ -20,7 +20,7 @@ public class UpdateListing {
 	
 	private static final String URL = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	
-	private static final String PATH_DATAFILE = Storage.Provider.JPX.getPath("data_j.xls");
+	private static final String PATH_DATAFILE = Storage.provider_jpx.getPath("data_j.xls");
 	private static final String URL_DATAFILE  = StringUtil.toURLString(PATH_DATAFILE);
 
 	private static void processRequest() {

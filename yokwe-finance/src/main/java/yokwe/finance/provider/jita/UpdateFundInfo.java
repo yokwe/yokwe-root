@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
-import yokwe.finance.fund.JITAFundInfoJP;
-import yokwe.finance.stock.JPXStockInfoJP;
+import yokwe.finance.fund.jp.FundInfo;
+import yokwe.finance.stock.jp.StockInfo;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
@@ -24,7 +24,7 @@ import yokwe.util.http.StringTask;
 import yokwe.util.http.Task;
 import yokwe.util.json.JSON;
 
-public class UpdateJITAFundInfoJP {
+public class UpdateFundInfo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String URL          = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST999900/fundDataSearch";
@@ -96,7 +96,7 @@ public class UpdateJITAFundInfoJP {
 	}
 	
 	
-	private static final Map<String, String> isinCodeMap = JPXStockInfoJP.getList().stream().collect(Collectors.toMap(o -> o.isinCode, o -> o.stockCode));
+	private static final Map<String, String> isinCodeMap = StockInfo.getList().stream().collect(Collectors.toMap(o -> o.isinCode, o -> o.stockCode));
 	//                       isinCode stockCode
 	private static final Pattern PAT_ESTABLISHED_DATE = Pattern.compile("(?<yyyy>[12][09][0-9][0-9])-(?<mm>[01]?[0-9])-(?<dd>[0123]?[0-9]) 00:00:00");
 	private static final Pattern PAT_REDEMPTION_DATE = Pattern.compile("(?<yyyy>[12][09][0-9][0-9])(?<mm>[01]?[0-9])(?<dd>[0123]?[0-9])");
@@ -227,8 +227,8 @@ public class UpdateJITAFundInfoJP {
 		download.startAndWait();
 		logger.info("AFTER  RUN");
 		
-		logger.info("fundList   {}  {}", consumer.fundList.size(), JITAFundInfoJP.getPath());
-		JITAFundInfoJP.save(consumer.fundList);
+		logger.info("save  {}  {}", consumer.fundList.size(), FundInfo.getPath());
+		FundInfo.save(consumer.fundList);
 	}
 
 	public static void main(String[] args) {

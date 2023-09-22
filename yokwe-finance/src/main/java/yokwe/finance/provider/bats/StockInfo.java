@@ -9,7 +9,7 @@ import yokwe.finance.type.StockInfoUS;
 import yokwe.util.ListUtil;
 
 public class StockInfo {
-	private static final String PATH_FILE = Storage.Provider.BATS.getPath("stock-info.csv");
+	private static final String PATH_FILE = Storage.provider_bats.getPath("stock-info.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

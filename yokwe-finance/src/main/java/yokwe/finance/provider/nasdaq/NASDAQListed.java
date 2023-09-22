@@ -42,8 +42,8 @@ public class NASDAQListed implements Comparable<NASDAQListed> {
 
 	public static final String URL = "ftp://ftp.nasdaqtrader.com/symboldirectory/nasdaqlisted.txt";
 	
-	public static final String PATH_TXT = Storage.Provider.NASDAQ.getPath("nasdaqlisted.txt");
-	public static final String PATH_CSV = Storage.Provider.NASDAQ.getPath("nasdaqlisted.csv");
+	public static final String PATH_TXT = Storage.provider_nasdaq.getPath("nasdaqlisted.txt");
+	public static final String PATH_CSV = Storage.provider_nasdaq.getPath("nasdaqlisted.csv");
 		
 	public static String getPath() {
 		return PATH_CSV;

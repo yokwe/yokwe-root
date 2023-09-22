@@ -132,7 +132,7 @@ public class ListedSecurityReport implements Comparable<ListedSecurityReport> {
 	// ----
 	
 	
-	private static final String PATH_FILE = Storage.Provider.BATS.getPath("listed-security-report.csv");
+	private static final String PATH_FILE = Storage.provider_bats.getPath("listed-security-report.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

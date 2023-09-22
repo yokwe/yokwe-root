@@ -25,7 +25,8 @@ public class UpdateStockInfo {
 	
 	private static final LocalDate TARGET_DATE = MarketHoliday.US.getLastTradingDate();
 	
-	private static final String PATH_TXT = Storage.Provider.BATS.getPath("listed-security-report.txt");
+	private static final String PATH_TXT = Storage.provider_bats.getPath("listed-security-report.txt");
+
 	
 	private static final Map<String, Type> typeMap = new TreeMap<>();
 	static {

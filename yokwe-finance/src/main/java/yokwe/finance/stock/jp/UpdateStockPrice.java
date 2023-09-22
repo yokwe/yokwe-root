@@ -1,17 +1,15 @@
-package yokwe.finance.provider.jpx;
+package yokwe.finance.stock.jp;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import yokwe.finance.stock.JPXStockPriceJP;
-
-public class UpdateJPXStockPriceJP {
+public class UpdateStockPrice {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static void main(String[] args) throws IOException {
 		logger.info("START");
 		
-		var stockInfoList = StockInfo.getList();
+		var stockInfoList = yokwe.finance.provider.jpx.StockInfo.getList();
 		logger.info("stockInfoList  {}", stockInfoList.size());
 		
 		int count = 0;
@@ -22,7 +20,7 @@ public class UpdateJPXStockPriceJP {
 			String     stockCode = stockInfo.stockCode;
 			BigDecimal lastClose = null;
 			
-			var list = StockPrice.getList(stockCode);
+			var list = yokwe.finance.provider.jpx.StockPrice.getList(stockCode);
 			for(var e: list) {
 				if (e.volume == 0) {
 					if (lastClose == null) continue;
@@ -31,7 +29,7 @@ public class UpdateJPXStockPriceJP {
 				}
 				lastClose = e.close;
 			}
-			JPXStockPriceJP.save(stockCode,list);
+			StockPrice.save(stockCode, list);
 		}
 		
 		logger.info("STOP");

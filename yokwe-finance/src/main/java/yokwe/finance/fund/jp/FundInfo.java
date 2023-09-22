@@ -9,7 +9,7 @@ import yokwe.finance.type.FundInfoJP;
 import yokwe.util.ListUtil;
 
 public class FundInfo {
-	private static final String PATH_FILE = Storage.Fund.JP.getPath("fund-info");
+	private static final String PATH_FILE = Storage.fund_jp.getPath("fund-info.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

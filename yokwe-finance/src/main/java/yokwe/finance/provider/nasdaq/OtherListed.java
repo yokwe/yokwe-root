@@ -58,8 +58,8 @@ public class OtherListed implements Comparable<OtherListed> {
 	
 	public static final String URL = "ftp://anonymous:anonymous@ftp.nasdaqtrader.com/symboldirectory/otherlisted.txt";
 	
-	public static final String PATH_TXT = Storage.Provider.NASDAQ.getPath("otherlisted.txt");
-	public static final String PATH_CSV = Storage.Provider.NASDAQ.getPath("otherlisted.csv");
+	public static final String PATH_TXT = Storage.provider_nasdaq.getPath("otherlisted.txt");
+	public static final String PATH_CSV = Storage.provider_nasdaq.getPath("otherlisted.csv");
 		
 	
 	public static String getPath() {

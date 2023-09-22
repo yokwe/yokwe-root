@@ -7,7 +7,7 @@ import yokwe.finance.Storage;
 import yokwe.util.ListUtil;
 
 public final class Filter implements Comparable<Filter> {
-	private static final String PATH_FILE = Storage.Provider.NYSE.getPath("filter.csv");
+	private static final String PATH_FILE = Storage.provider_nyse.getPath("filter.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

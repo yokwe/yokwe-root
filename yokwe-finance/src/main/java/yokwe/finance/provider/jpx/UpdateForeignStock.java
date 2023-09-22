@@ -69,7 +69,7 @@ public class UpdateForeignStock {
 	private static List<ForeignStock> getList(String url, String pageFile) {
 		final String page;
 		{
-			File file = new File(Storage.Provider.JPX.getPath(pageFile));
+			File file = new File(Storage.provider_jpx.getPath(pageFile));
 			if (DEBUG_USE_FILE && file.exists()) {
 				page = FileUtil.read().file(file);
 			} else {

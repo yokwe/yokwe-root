@@ -9,7 +9,7 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class InfraFund implements Comparable<InfraFund> {
-	private static final String PATH_FILE = Storage.Provider.JPX.getPath("infra-fund.csv");
+	private static final String PATH_FILE = Storage.provider_jpx.getPath("infra-fund.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

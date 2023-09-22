@@ -8,21 +8,23 @@ import java.util.List;
 import yokwe.finance.Storage;
 import yokwe.util.ListUtil;
 
-
 public class DivPrice implements Comparable<DivPrice> {
 	private static final String PREFIX = "div-price";
+	
+	private static final Storage storage = Storage.provider_jita;
+	
 	public static String getPath() {
-		return Storage.Provider.JITA.getPath(PREFIX);
+		return storage.getPath(PREFIX);
 	}
 	public static String getPath(String stockCode) {
-		return Storage.Provider.JITA.getPath(PREFIX, stockCode + ".csv");
+		return storage.getPath(PREFIX, stockCode + ".csv");
 	}
 	
 	private static final String PREFIX_DELIST = PREFIX + "-delist";
 	public static String getPathDelist() {
-		return Storage.Provider.JITA.getPath(PREFIX_DELIST);
+		return storage.getPath(PREFIX_DELIST);
 	}
-
+	
 	public static void save(String stockCode, Collection<DivPrice> collection) {
 		String path = getPath(stockCode);
 		ListUtil.save(DivPrice.class, path, collection);

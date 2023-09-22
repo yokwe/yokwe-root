@@ -89,16 +89,18 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provider-jpx-update-jpx-stock-info-jp">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXStockInfoJP" fork="true">
+	
+	<!-- Stock JP -->
+	<target name="stock-jp-update-stock-info">
+		<java module="yokwe.finance/yokwe.finance.stock.jp.UpdateStockInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provider-jpx-update-jpx-stock-price-jp">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateJPXStockPriceJP" fork="true">
+	<target name="stock-jp-update-stock-price">
+		<java module="yokwe.finance/yokwe.finance.stock.jp.UpdateStockPrice" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
@@ -107,8 +109,8 @@
 	</target>
 	
 	<!-- Provider JITA -->
-	<target name="provider-jita-update-jita-fund-info-jp">
-		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateJITAFundInfoJP" fork="true">
+	<target name="provider-jita-update-fund-info">
+		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateFundInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
@@ -123,8 +125,10 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provider-jita-update-jita-fund-price-jp">
-		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateJITAFundPriceJP" fork="true">
+	
+	<!-- Fund JP -->
+	<target name="fund-jp-update-fund-div-price">
+		<java module="yokwe.finance/yokwe.finance.fund.jp.UpdateFundDivPrice" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />

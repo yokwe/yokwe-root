@@ -13,7 +13,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class Listing extends Sheet implements Comparable<Listing> {	
-	private static final String PATH_FILE = Storage.Provider.JPX.getPath("listing.csv");
+	private static final String PATH_FILE = Storage.provider_jpx.getPath("listing.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

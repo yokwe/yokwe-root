@@ -10,7 +10,7 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class ETN implements Comparable<ETN> {	
-	private static final String PATH_FILE = Storage.Provider.JPX.getPath("etn.csv");
+	private static final String PATH_FILE = Storage.provider_jpx.getPath("etn.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

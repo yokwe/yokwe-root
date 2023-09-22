@@ -11,18 +11,16 @@ import yokwe.util.ListUtil;
 
 public class FundPrice {
 	private static final String PREFIX = "fund-price";
+	
+	private static final Storage storage = Storage.fund_jp;
+	
 	public static String getPath() {
-		return Storage.Fund.JP.getPath(PREFIX);
+		return storage.getPath(PREFIX);
 	}
 	public static String getPath(String stockCode) {
-		return Storage.Fund.JP.getPath(PREFIX, stockCode + ".csv");
+		return storage.getPath(PREFIX, stockCode + ".csv");
 	}
 	
-	private static final String PREFIX_DELIST = PREFIX + "-delist";
-	public static String getPathDelist() {
-		return Storage.Fund.JP.getPath(PREFIX_DELIST);
-	}
-
 	public static void save(String stockCode, Collection<FundPriceJP> collection) {
 		ListUtil.save(FundPriceJP.class, getPath(stockCode), collection);
 	}

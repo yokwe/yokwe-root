@@ -10,7 +10,7 @@ import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
 public class ETF implements Comparable<ETF> {	
-	private static final String PATH_FILE = Storage.Provider.JPX.getPath("etf.csv");
+	private static final String PATH_FILE = Storage.provider_jpx.getPath("etf.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

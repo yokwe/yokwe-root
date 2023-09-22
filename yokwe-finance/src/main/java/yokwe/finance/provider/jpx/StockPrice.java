@@ -12,15 +12,15 @@ import yokwe.util.ListUtil;
 public class StockPrice {
 	private static final String PREFIX = "stock-price";
 	public static String getPath() {
-		return Storage.Provider.JPX.getPath(PREFIX);
+		return Storage.provider_jpx.getPath(PREFIX);
 	}
 	public static String getPath(String stockCode) {
-		return Storage.Provider.JPX.getPath(PREFIX, stockCode + ".csv");
+		return Storage.provider_jpx.getPath(PREFIX, stockCode + ".csv");
 	}
 	
 	private static final String PREFIX_DELIST = PREFIX + "-delist";
 	public static String getPathDelist() {
-		return Storage.Provider.JPX.getPath(PREFIX_DELIST);
+		return Storage.provider_jpx.getPath(PREFIX_DELIST);
 	}
 
 	public static void save(String stockCode, Collection<OHLCV> collection) {

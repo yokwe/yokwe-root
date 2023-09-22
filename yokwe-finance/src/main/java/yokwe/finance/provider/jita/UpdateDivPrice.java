@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
-import yokwe.finance.fund.JITAFundInfoJP;
+import yokwe.finance.fund.jp.FundInfo;
 import yokwe.util.CSVUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
@@ -142,7 +142,7 @@ public class UpdateDivPrice {
 		Download download = new DownloadSync();
 		initialize(download);
 		
-		var fundList = JITAFundInfoJP.getList();
+		var fundList = FundInfo.getList();
 		Collections.shuffle(fundList); // shuffle fundList
 		for(var fund: fundList) {
 			String isinCode = fund.isinCode;
