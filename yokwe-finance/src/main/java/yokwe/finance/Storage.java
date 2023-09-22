@@ -2,192 +2,82 @@ package yokwe.finance;
 
 import yokwe.util.SystemUtil;
 
-public class Storage {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
+public interface Storage {
 	public static final String PREFIX    = "finance";
 	public static final String PATH_BASE = SystemUtil.getMountPoint(PREFIX);
 	
-	public static String getPath(String path) {
-		return String.format("%s/%s", PATH_BASE, path);
-	}
+	public String getPath();
+	public String getPath(String path);
+	public String getPath(String prefix, String path);
 	
-	public static String getPath(String prefix, String path) {
-		return getPath(String.format("%s/%s", prefix, path));
-	}
-	
-	
-	// Provider
-	public static final class Provider {
-		public static final String PREFIX = "provider";
+	public class Impl implements Storage {
+		private final String basePath;
 		
-		public static String getPath() {
-			return Storage.getPath(PREFIX);
+		public Impl(String basePath) {
+			this.basePath = basePath;
 		}
-		public static String getPath(String path) {
-			return Storage.getPath(PREFIX, path);
-		}
-		public static String getPath(String prefix, String path) {
-			return getPath(String.format("%s/%s", prefix, path));
+		public Impl(Storage storage, String prefix) {
+			this.basePath =storage.getPath() + "/" + prefix;
 		}
 		
-		// Provider jpx
-		public static final class JPX {
-			public static final String PREFIX = "jpx";
-			
-			public static String getPath() {
-				return Storage.Provider.getPath(PREFIX);
-			}
-			public static String getPath(String path) {
-				return Storage.Provider.getPath(PREFIX, path);
-			}
-			public static String getPath(String prefix, String path) {
-				return getPath(String.format("%s/%s", prefix, path));
-			}
+		@Override
+		public String getPath() {
+			return basePath;
 		}
-		
-		// Provider jita
-		public static final class JITA {
-			public static final String PREFIX = "jita";
-			
-			public static String getPath() {
-				return Storage.Provider.getPath(PREFIX);
-			}
-			public static String getPath(String path) {
-				return Storage.Provider.getPath(PREFIX, path);
-			}
-			public static String getPath(String prefix, String path) {
-				return getPath(String.format("%s/%s", prefix, path));
-			}
-		}
-		
-		// Provider nasdaq
-		public static final class NASDAQ {
-			public static final String PREFIX = "nasdaq";
-			
-			public static String getPath() {
-				return Storage.Provider.getPath(PREFIX);
-			}
-			public static String getPath(String path) {
-				return Storage.Provider.getPath(PREFIX, path);
-			}
-			public static String getPath(String prefix, String path) {
-				return getPath(String.format("%s/%s", prefix, path));
-			}
-		}
-		
-		// Provider nyse
-		public static final class NYSE {
-			public static final String PREFIX = "nyse";
-			
-			public static String getPath() {
-				return Storage.Provider.getPath(PREFIX);
-			}
-			public static String getPath(String path) {
-				return Storage.Provider.getPath(PREFIX, path);
-			}
-			public static String getPath(String prefix, String path) {
-				return getPath(String.format("%s/%s", prefix, path));
-			}
-		}
-		
-		// Provider bats
-		public static final class BATS {
-			public static final String PREFIX = "bats";
-			
-			public static String getPath() {
-				return Storage.Provider.getPath(PREFIX);
-			}
-			public static String getPath(String path) {
-				return Storage.Provider.getPath(PREFIX, path);
-			}
-			public static String getPath(String prefix, String path) {
-				return getPath(String.format("%s/%s", prefix, path));
-			}
-		}
-	}
-	
-	// Stock
-	public static final class Stock {
-		public static final String PREFIX = "stock";
-		
-		public static String getPath() {
-			return Storage.getPath(PREFIX);
-		}
-		public static String getPath(String path) {
-			return Storage.getPath(PREFIX, path);
-		}
-		public static String getPath(String prefix, String path) {
-			return getPath(String.format("%s/%s", prefix, path));
-		}
-		
-		// Provider JP
-		public static final class JP {
-			public static final String PREFIX = "jp";
-			
-			public static String getPath() {
-				return Storage.Stock.getPath(PREFIX);
-			}
-			public static String getPath(String path) {
-				return Storage.Stock.getPath(PREFIX, path);
-			}
-			public static String getPath(String prefix, String path) {
-				return getPath(String.format("%s/%s", prefix, path));
-			}
-		}
-		
-		// Provider US
-		public static final class US {
-			public static final String PREFIX = "us";
-			
-			public static String getPath() {
-				return Storage.Stock.getPath(PREFIX);
-			}
-			public static String getPath(String path) {
-				return Storage.Stock.getPath(PREFIX, path);
-			}
-			public static String getPath(String prefix, String path) {
-				return getPath(String.format("%s/%s", prefix, path));
-			}
-		}
-	}
 
-	// Fund
-	public static final class Fund {
-		public static final String PREFIX = "fund";
-		
-		public static String getPath() {
-			return Storage.getPath(PREFIX);
+		@Override
+		public String getPath(String path) {
+			return basePath + "/" + path;
 		}
-		public static String getPath(String path) {
-			return Storage.getPath(PREFIX, path);
-		}
-		public static String getPath(String prefix, String path) {
-			return getPath(String.format("%s/%s", prefix, path));
-		}
-		
-		// Fund JP
-		public static final class JP {
-			public static final String PREFIX = "jp";
-			
-			public static String getPath() {
-				return Storage.Fund.getPath(PREFIX);
-			}
-			public static String getPath(String path) {
-				return Storage.Fund.getPath(PREFIX, path);
-			}
-			public static String getPath(String prefix, String path) {
-				return getPath(String.format("%s/%s", prefix, path));
-			}
+
+		@Override
+		public String getPath(String prefix, String path) {
+			return basePath + "/" + prefix + "/" + path;
 		}
 	}
+	
+	public static Storage root            = new Impl(PATH_BASE);
+	
+	public static Storage provider        = new Impl(root, "provider");
+	public static Storage stock           = new Impl(root, "stock");
+	public static Storage fund            = new Impl(root, "fund");
 
+	// provider
+	public static Storage provider_jpx    = new Impl(provider, "jpx");
+	public static Storage provider_jita   = new Impl(provider, "jita");
+	public static Storage provider_bats   = new Impl(provider, "bats");
+	public static Storage provider_nasdaq = new Impl(provider, "nasdaq");
+	public static Storage provider_nyse   = new Impl(provider, "nyse");
+	
+	// stock
+	public static Storage stock_jp        = new Impl(stock, "jp");
+	public static Storage stock_us        = new Impl(stock, "us");
+
+	// fund
+	public static Storage fund_jp         = new Impl(fund, "jp");
+	
 	
 	public static void main(String[] args) {
+		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+		
 		logger.info("START");
-		logger.info("PATH_BASE     {}", PATH_BASE);
-		logger.info("Provider      {}", Storage.Provider.getPath());
-		logger.info("Provider.JPX  {}", Storage.Provider.JPX.getPath());
+		logger.info("PATH_BASE       {}", PATH_BASE);
+		
+		logger.info("root            {}", Storage.root.getPath());
+		logger.info("fund            {}", Storage.fund.getPath());
+		logger.info("stock           {}", Storage.stock.getPath());
+		logger.info("provider        {}", Storage.provider.getPath());
+		
+		logger.info("fund_jp         {}", Storage.fund_jp.getPath());
+		logger.info("stock_jp        {}", Storage.stock_jp.getPath());
+		logger.info("stock_us        {}", Storage.stock_us.getPath());
+		
+		logger.info("privider_jpx    {}", Storage.provider_jpx.getPath());
+		logger.info("privider_jita   {}", Storage.provider_jita.getPath());
+		logger.info("privider_bats   {}", Storage.provider_bats.getPath());
+		logger.info("privider_nasdaq {}", Storage.provider_nasdaq.getPath());
+		logger.info("privider_nyse   {}", Storage.provider_nyse.getPath());
+		
 		logger.info("STOP");
 	}
 }
