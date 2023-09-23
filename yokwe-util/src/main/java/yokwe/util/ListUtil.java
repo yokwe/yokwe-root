@@ -4,17 +4,17 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Map;
 import java.util.function.Function;
 
 public final class ListUtil {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	// To support List and Set, use Collection here.
-	public static <E, K> SortedMap<K, E> checkDuplicate(Collection<E> collection, Function<E, K> getKey) {
-		var map = new TreeMap<K, E>();
+	public static <E, K> Map<K, E> checkDuplicate(Collection<E> collection, Function<E, K> getKey) {
+		var map = new HashMap<K, E>(collection.size());
 		if (collection != null) {
 			for(var e: collection) {
 				var key = getKey.apply(e);
