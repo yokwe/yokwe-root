@@ -87,7 +87,8 @@ public class UpdateStockInfo {
 					continue;
 				}
 				// skip warrant and beneficial interest
-				if (e.name.contains("WARRANT") || e.name.contains("BENEFICIAL INTEREST")) {
+				var upperCaseName = e.name.toUpperCase();
+				if (upperCaseName.contains("WARRANT") || upperCaseName.contains("BENEFICIAL INTEREST")) {
 					countSkip++;
 					continue;
 				}
