@@ -48,6 +48,7 @@ public interface Storage {
 	public static Storage provider_bats   = new Impl(provider, "bats");
 	public static Storage provider_nasdaq = new Impl(provider, "nasdaq");
 	public static Storage provider_nyse   = new Impl(provider, "nyse");
+	public static Storage provider_yahoo  = new Impl(provider, "yahoo");
 	
 	// stock
 	public static Storage stock_jp        = new Impl(stock, "jp");
