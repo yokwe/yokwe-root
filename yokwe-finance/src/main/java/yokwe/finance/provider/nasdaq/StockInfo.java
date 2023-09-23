@@ -19,8 +19,7 @@ public class StockInfo {
 	}
 	public static Map<String, StockInfoUS> getMap() {
 		//            stockCode
-		var list = getList();
-		return ListUtil.checkDuplicate(list, o -> o.stockCode);
+		return ListUtil.checkDuplicate(getList(), o -> o.stockCode);
 	}
 	public static void save(Collection<StockInfoUS> collection) {
 		ListUtil.save(StockInfoUS.class, getPath(), collection);
