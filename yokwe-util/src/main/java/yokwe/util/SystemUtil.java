@@ -33,7 +33,7 @@ public final class SystemUtil {
 		logger.info("MOUNT_POINT {}", MOUNT_POINT);
 		if (!FileUtil.isDirectory(MOUNT_POINT)) {
 			logger.error("No directory");
-			throw new UnexpectedException("No dorectory");
+			throw new UnexpectedException("No directory");
 		}
 	}
 	
@@ -42,7 +42,7 @@ public final class SystemUtil {
 		if (!FileUtil.isDirectory(path)) {
 			logger.error("No directory");
 			logger.error("  path {}", path);
-			throw new UnexpectedException("No dorectory");
+			throw new UnexpectedException("No directory");
 		}
 		return path;
 	}
