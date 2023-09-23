@@ -51,4 +51,4 @@ update-stock-info-us:
 	ant provider-bats-update-stock-info
 	ant provider-nasdaq-update-stock-info
 	ant provider-nyse-update-stock-info
-
+	ant stock-us-update-stock-info
