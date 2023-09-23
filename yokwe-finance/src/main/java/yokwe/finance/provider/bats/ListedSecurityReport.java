@@ -173,6 +173,14 @@ public class ListedSecurityReport implements Comparable<ListedSecurityReport> {
 	@CSVUtil.ColumnName("Financial Status")       public String financialStatus;
 	
 	
+	public boolean isTestSymbol() {
+		return testSymbol.equals("Y");
+	}
+	public boolean isFinancialNormal() {
+		return financialStatus.equals("0");
+	}
+
+		
 	@Override
 	public String toString() {
 		return StringUtil.toString(this);

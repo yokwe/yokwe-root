@@ -91,6 +91,12 @@ public class UpdateStockInfo {
 					countSkip++;
 					continue;
 				}
+				// skip financial status is not normal
+				if (!e.isFinancialNormal()) {
+					logger.info("skip  financial status  {}  {}  {}", e.financialStatus, e.symbol, e.name);
+					countSkip++;
+					continue;
+				}
 				
 				String symbol = e.symbol;
 				Market market = Market.NASDAQ;

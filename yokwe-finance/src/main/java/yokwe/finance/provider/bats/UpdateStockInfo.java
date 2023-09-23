@@ -76,6 +76,14 @@ public class UpdateStockInfo {
 	private static void update() {
 		List<StockInfoUS> list = new ArrayList<>();
 		for(var e: ListedSecurityReport.getList()) {
+			if (e.isTestSymbol()) {
+//				logger.info("skip  test symbol       {}  {}", e.symbol, e.issueName);
+				continue;
+			}
+			if (!e.isFinancialNormal()) {
+				logger.info("skip  financial status  {}  {}  {}", e.financialStatus, e.symbol, e.issueName);
+				continue;
+			}
 			
 			String symbol = e.symbol;
 			Market market = Market.BATS;

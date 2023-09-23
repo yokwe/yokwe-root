@@ -110,6 +110,9 @@ public class NASDAQListed implements Comparable<NASDAQListed> {
 	public boolean isTestIssue() {
 		return !testIssue.equals("N");
 	}
+	public boolean isFinancialNormal() {
+		return financialStatus.equals("N");
+	}
 
 	
 	@Override
