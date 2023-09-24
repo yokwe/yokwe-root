@@ -11,6 +11,14 @@ public class OHLCV implements Comparable<OHLCV> {
 	public BigDecimal close;
 	public long       volume;
 	
+	public OHLCV(LocalDate date, BigDecimal open, BigDecimal high, BigDecimal low, BigDecimal close, long volume) {
+		this.date   = date;
+		this.open   = open;
+		this.high   = high;
+		this.low    = low;
+		this.volume = volume;
+	}
+	public OHLCV() {}
 	
 	@Override
 	public String toString() {
