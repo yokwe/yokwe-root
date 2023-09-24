@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -312,9 +313,11 @@ public abstract class MarketHoliday {
 	protected static final int YEAR_END_DEFAULT   = Year.now().getValue() + 1;
 	
 	public static class JP {
+		public static final LocalTime MARKET_OPEN_TIME  = LocalTime.of(9, 0);
+		public static final LocalTime MARKET_CLOSE_TIME = LocalTime.of(15, 0);
+		
 		private static final String PATH_MARKET_HOLIDAY = "/yokwe/util/market-holiday-jp.csv";
-		private static final ZoneId ZONE_ID           = ZoneId.of("Asia/Tokyo");
-		private static final int    HOUR_CLOSE_MARKET = 15; // market close at 1500
+		private static final ZoneId ZONE_ID             = ZoneId.of("Asia/Tokyo");
 		
 		private static final MarketHoliday marketHoliday = new MyMarketHoliday();
 		private static class MyMarketHoliday extends MarketHoliday {
@@ -363,10 +366,11 @@ public abstract class MarketHoliday {
 		
 		public static LocalDate getLastTradingDate() {
 			if (lastTradingDate == null) {
-				LocalDateTime now = LocalDateTime.now(ZONE_ID);
-				LocalDate date = now.toLocalDate();
-
-				if (now.getHour() < HOUR_CLOSE_MARKET) date = date.minusDays(1); // Move to yesterday if it is before market close
+				LocalDateTime now  = LocalDateTime.now(ZONE_ID);
+				LocalDate     date = now.toLocalDate();
+				LocalTime     time = now.toLocalTime();
+				
+				if (time.isBefore(MARKET_CLOSE_TIME)) date = date.minusDays(1); // Move to yesterday if it is before market close
 
 				if (marketHoliday.isClosed(date)) {
 					date = getPreviousTradingDate(date);
@@ -406,10 +410,12 @@ public abstract class MarketHoliday {
 		}
 	}
 	
-	public static class US {		
+	public static class US {
+		public static final LocalTime MARKET_OPEN_TIME  = LocalTime.of(9, 30);
+		public static final LocalTime MARKET_CLOSE_TIME = LocalTime.of(16, 0);
+
 		private static final String PATH_MARKET_HOLIDAY = "/yokwe/util/market-holiday-us.csv";
-		private static final int    HOUR_CLOSE_MARKET       = 16; // market close at 1600
-		private static final ZoneId ZONE_ID                 = ZoneId.of("America/New_York");
+		private static final ZoneId ZONE_ID             = ZoneId.of("America/New_York");
 		
 		private static final MarketHoliday marketHoliday = new MyMarketHoliday();
 		private static class MyMarketHoliday extends MarketHoliday {
@@ -467,11 +473,12 @@ public abstract class MarketHoliday {
 		
 		public static LocalDate getLastTradingDate() {
 			if (lastTradingDate == null) {
-				LocalDateTime now = LocalDateTime.now(ZONE_ID);
-				LocalDate date = now.toLocalDate();
-
-				if (now.getHour() < HOUR_CLOSE_MARKET) date = date.minusDays(1); // Move to yesterday if it is before market close
-
+				LocalDateTime now  = LocalDateTime.now(ZONE_ID);
+				LocalDate     date = now.toLocalDate();
+				LocalTime     time = now.toLocalTime();
+				
+				if (time.isBefore(MARKET_CLOSE_TIME)) date = date.minusDays(1); // Move to yesterday if it is before market close
+				
 				if (marketHoliday.isClosed(date)) {
 					date = getPreviousTradingDate(date);
 				}
