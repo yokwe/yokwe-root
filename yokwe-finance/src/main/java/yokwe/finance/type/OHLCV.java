@@ -16,6 +16,7 @@ public class OHLCV implements Comparable<OHLCV> {
 		this.open   = open;
 		this.high   = high;
 		this.low    = low;
+		this.close  = close;
 		this.volume = volume;
 	}
 	public OHLCV() {}
