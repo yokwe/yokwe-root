@@ -156,5 +156,32 @@
 		</java>
 	</target>
 	
+	<!-- Provider NASDAQ -->
+	<target name="provider-nasdaq-update-stock-info">
+		<java module="yokwe.finance/yokwe.finance.provider.nasdaq.UpdateStockInfo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provider-nasdaq-update-screener-stock">
+		<java module="yokwe.finance/yokwe.finance.provider.nasdaq.UpdateScreenerStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<!-- Stock US -->
+	<target name="stock-us-update-stock-info">
+		<java module="yokwe.finance/yokwe.finance.stock.us.UpdateStockInfo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 </project>
