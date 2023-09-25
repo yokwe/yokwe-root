@@ -35,7 +35,7 @@ public class UpdateStockInfo {
 	}
 	
 	
-	private static void downloadFile(String url, String path) {
+	private static void download(String url, String path) {
 		byte[] data = FTPUtil.download(url);
 		if (data == null) {
 			logger.error("Download failed  {}", NASDAQListed.URL);
@@ -46,7 +46,7 @@ public class UpdateStockInfo {
 		FileUtil.rawWrite().file(path, data);
 		logger.info("save  {}  {}", data.length, path);
 	}
-	private static <E extends Comparable<E>> void saveCSVFile(Class<E> clazz, String pathText, String pathCSV) {
+	private static <E extends Comparable<E>> void save(Class<E> clazz, String pathText, String pathCSV) {
 		List<E>	list;
 		{
 			String txtString = FileUtil.read().file(pathText);
@@ -64,11 +64,11 @@ public class UpdateStockInfo {
 	}
 	private static void download() {
 		// download txt file
-		downloadFile(NASDAQListed.URL, NASDAQListed.PATH_TXT);
-		downloadFile(OtherListed.URL,  OtherListed.PATH_TXT);
-		// save txt file as csv file
-		saveCSVFile(NASDAQListed.class, NASDAQListed.PATH_TXT, NASDAQListed.PATH_CSV);
-		saveCSVFile(OtherListed.class,  OtherListed.PATH_TXT,  OtherListed.PATH_CSV);
+		download(NASDAQListed.URL, NASDAQListed.PATH_TXT);
+		download(OtherListed.URL,  OtherListed.PATH_TXT);
+		// read txt file and save csv file
+		save(NASDAQListed.class, NASDAQListed.PATH_TXT, NASDAQListed.PATH_CSV);
+		save(OtherListed.class,  OtherListed.PATH_TXT,  OtherListed.PATH_CSV);
 	}
 	
 	private static void update() {
@@ -101,7 +101,7 @@ public class UpdateStockInfo {
 				
 				String symbol = e.symbol;
 				Market market = Market.NASDAQ;
-				Type   type   = e.etf.equals("Y") ? Type.ETF : Type.COMMON; // FIXME only ETF or other
+				Type   type   = e.etf.equals("Y") ? Type.ETF : Type.COMMON; // just ETF or COMMON for now
 				String name   = e.name.replace(",", "").toUpperCase(); // use upper case
 
 				list.add(new StockInfoUS(symbol, market, type, name));
@@ -117,7 +117,7 @@ public class UpdateStockInfo {
 				
 				String symbol = e.symbol;
 				Market market = marketMap.get(e.exchange);
-				Type   type   = e.etf.equals("Y") ? Type.ETF : Type.COMMON; // FIXME only ETF or other
+				Type   type   = e.etf.equals("Y") ? Type.ETF : Type.COMMON;  // just ETF or COMMON for now
 				String name   = e.name.replace(",", "").toUpperCase(); // use upper case
 				
 				list.add(new StockInfoUS(symbol, market, type, name));
