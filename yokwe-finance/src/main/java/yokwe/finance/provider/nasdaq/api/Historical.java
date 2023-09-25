@@ -8,11 +8,12 @@ public class Historical {
 	// https://api.nasdaq.com/api/quote/LMT/historical?assetclass=stocks&fromdate=2020-11-25&limit=9999&todate=2021-11-25
 	// https://api.nasdaq.com/api/quote/YYY/historical?assetclass=etf&fromdate=2020-11-25&limit=18&todate=2021-11-25
 
-	public static String getURL(String symbol, AssetClass assetClass, LocalDate fromDate, LocalDate toDate, long limit) {
+	private static String getURL(String symbol, AssetClass assetClass, LocalDate fromDate, LocalDate toDate, long limit) {
 		return String.format("https://api.nasdaq.com/api/quote/%s/historical?assetclass=%s&fromdate=%s&todate=%s&limit=%d",
 				API.encodeSymbolForURL(symbol), assetClass, fromDate.toString(), toDate.toString(), limit);
 	}
-
+	
+	// NOTE fromDate and toDate are inclusive
 	public static Historical getInstance(String symbol, AssetClass assetClass, LocalDate fromDate, LocalDate toDate) {
 		String url = getURL(symbol, assetClass, fromDate, toDate, 9999);
 		return API.getInstance(Historical.class, url);
@@ -37,9 +38,9 @@ public class Historical {
 	
 	public static class Data {
 		public static class TradesTable {
-			public String              asOf;
-			public Historical.Values   headers;
-			public Historical.Values[] rows;
+			public String   asOf;
+			public Values   headers;
+			public Values[] rows;
 			
 			@Override
 			public String toString() {
@@ -49,7 +50,7 @@ public class Historical {
 		
 		public String      symbol;
 		public int         totalRecords;
-		public Data.TradesTable tradesTable;
+		public TradesTable tradesTable;
 		
 		@Override
 		public String toString() {
@@ -57,7 +58,7 @@ public class Historical {
 		}
 	}
 	
-	public Historical.Data   data;
+	public Data   data;
 	public String message;
 	public Status status;
 	
