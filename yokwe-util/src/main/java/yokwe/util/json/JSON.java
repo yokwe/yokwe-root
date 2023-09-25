@@ -37,6 +37,7 @@ import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
 import jakarta.json.stream.JsonGenerator;
+import jakarta.json.stream.JsonParsingException;
 import yokwe.util.GenericInfo;
 import yokwe.util.UnexpectedException;
 
@@ -183,7 +184,16 @@ public final class JSON {
 	private static final LocalDateTime NULL_LOCAL_DATE_TIME = LocalDateTime.of(NULL_LOCAL_DATE, NULL_LOCAL_TIME);
 
 	public static <E> E unmarshal(Class<E> clazz, String jsonString) {
-		return unmarshal(clazz, new StringReader(jsonString));
+		try {
+			return unmarshal(clazz, new StringReader(jsonString));
+		} catch (JsonParsingException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			// FIXME
+			logger.warn("Exception {} {}", exceptionName, e.getMessage());
+			logger.warn("  message {}", e.getMessage());
+			logger.warn("  jsonString  {}!", jsonString);
+			return null;
+		}
 	}
 	public static <E> E unmarshal(Class<E> clazz, Reader reader) {
 		try (JsonReader jsonReader = Json.createReader(reader)) {
