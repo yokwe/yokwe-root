@@ -25,7 +25,7 @@ public final class StockInfoUS implements Comparable<StockInfoUS> {
 		COMMON (SimpleType.STOCK), // COMMON_STOCK
 		ADR    (SimpleType.STOCK), // DEPOSITORY_RECEIPT
 		ETF    (SimpleType.ETF),   // EXCHANGE_TRADED_FUND
-		ETN    (SimpleType.STOCK), // EXCHANGE_TRADED_NOTE
+		ETN    (SimpleType.ETF),   // EXCHANGE_TRADED_NOTE
 		LP     (SimpleType.STOCK), // LIMITED_PARTNERSHIP
 		PREF   (SimpleType.STOCK), // PREFERRED_STOCK
 		REIT   (SimpleType.STOCK), // REIT
