@@ -12,20 +12,17 @@ import yokwe.finance.type.StockInfoUS.Market;
 public class UpdateStockInfo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static void main(String[] args) throws IOException {
-		logger.info("START");
-		
+	private static void update() {
 		var batsList   = yokwe.finance.provider.bats.StockInfo.getList();
 		var nasdaqList = yokwe.finance.provider.nasdaq.StockInfo.getList();
 		var nyseList   = yokwe.finance.provider.nyse.StockInfo.getList();
-		logger.info("batsList   {}", batsList.size());
-		logger.info("nasdaqList {}", nasdaqList.size());
-		logger.info("nyseList   {}", nyseList.size());
-
+		logger.info("batsList    {}", batsList.size());
+		logger.info("nasdaqList  {}", nasdaqList.size());
+		logger.info("nyseList    {}", nyseList.size());
+		
+		// build stockInfo set from bats, nasdaq and nyse
 		var set = new HashSet<StockInfoUS>();
 		{
-						
-			// bats
 			long countBATS   = batsList.stream().filter(o -> o.market == Market.BATS).peek(o -> set.add(o)).count();
 			long countNASDAQ = nasdaqList.stream().filter(o -> o.market == Market.NASDAQ).peek(o -> set.add(o)).count();
 			long countNYSE   = nyseList.stream().filter(o -> o.market == Market.NYSE).peek(o -> set.add(o)).count();
@@ -35,6 +32,7 @@ public class UpdateStockInfo {
 			logger.info("set         {}", set.size());
 		}
 		
+		// build stockInfo set using nyase stockInfo
 		var list  = new ArrayList<StockInfoUS>();
 		{
 			var map = nyseList.stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
@@ -52,6 +50,12 @@ public class UpdateStockInfo {
 		
 		logger.info("save  {}  {}", list.size(), StockInfo.getPath());
 		StockInfo.save(list);
+	}
+	
+	public static void main(String[] args) throws IOException {
+		logger.info("START");
+		
+		update();
 		
 		logger.info("STOP");
 	}
