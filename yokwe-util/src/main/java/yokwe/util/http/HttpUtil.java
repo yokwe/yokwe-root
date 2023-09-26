@@ -344,6 +344,10 @@ public class HttpUtil {
 					}
 					return null;
 				}
+				if (code == HttpStatus.SC_SERVER_ERROR) { // 500
+					logger.warn("{} {}  {}", code, reasonPhrase, url);
+					return null;
+				}
 		        if (code == HttpStatus.SC_OK) {
 	    			byte[] rawData = myResponse.content;
 					
@@ -376,8 +380,12 @@ public class HttpUtil {
 						logger.error("entity RAW_DATA");
 					} else {
 		    			byte[]  rawData = myResponse.content;
-						Charset charset = myResponse.charset == null ? context.charset : myResponse.charset;
-				    	logger.error("entity  {}", new String(rawData, charset));
+		    			if (rawData == null) {
+		    				logger.error("entity  rawData == null");
+		    			} else {
+							Charset charset = myResponse.charset == null ? context.charset : myResponse.charset;
+					    	logger.error("entity  {}", new String(rawData, charset));
+		    			}
 					}
 				}
 				throw new UnexpectedException("download");
