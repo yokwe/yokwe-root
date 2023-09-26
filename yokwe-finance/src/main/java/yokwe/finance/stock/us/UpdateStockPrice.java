@@ -89,7 +89,7 @@ public class UpdateStockPrice {
 			int countMod = 0;
 			for(var task: taskList) {
 				String stockCode = task.stockCode;
-				if ((++count % 100) == 1) logger.info("{}  /  {}  {}", count, taskList.size(), stockCode);
+				if ((++count % 100) == 1) logger.info("{}  /  {}  {}", count, taskList.size(), task);
 				
 				// If starDate equals stopDate, Historical.getInstance() returns no data.
 				// So temporary decrease startDate and keep modified startDate as skipDate
