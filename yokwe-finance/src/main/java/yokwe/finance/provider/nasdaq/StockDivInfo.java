@@ -1,17 +1,20 @@
 package yokwe.finance.provider.nasdaq;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
 import yokwe.finance.Storage;
-import yokwe.util.CSVUtil;
+import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
-public class StockDivInfo {
+public class StockDivInfo implements Comparable<StockDivInfo> {
 	private static final String PREFIX = "stock-div-info";
 	
 	private static final Storage storage = Storage.provider_nasdaq;
+	
+	public static final LocalDate DATE_NA = LocalDate.of(2099, 1, 1);
 	
 	public static String getPath() {
 		return storage.getPath(PREFIX);
@@ -26,30 +29,31 @@ public class StockDivInfo {
 	}
 	
 	public static void save(String stockCode, Collection<StockDivInfo> collection) {
-//		ListUtil.save(StockDivInfo.class, getPath(stockCode), collection);
-		CSVUtil.write(StockDivInfo.class).file(getPath(stockCode), collection);
+		ListUtil.save(StockDivInfo.class, getPath(stockCode), collection);
 	}
 	public static void save(String stockCode, List<StockDivInfo> list) {
-//		ListUtil.save(StockDivInfo.class, getPath(stockCode), list);
-		CSVUtil.write(StockDivInfo.class).file(getPath(stockCode), list);
+		ListUtil.save(StockDivInfo.class, getPath(stockCode), list);
 	}
 	
 	public static List<StockDivInfo> getList(String stockCode) {
-		var result = CSVUtil.read(StockDivInfo.class).file(getPath(stockCode));
-		return result != null ? result : new ArrayList<>();
+		return ListUtil.getList(StockDivInfo.class, getPath(stockCode));
 	}
 	
-	public String exOrEffDate;
-	public String type;
-	public String amount;
-	public String declarationDate;
-	public String recordDate;
-	public String paymentDate;
-	public String currency;
+	public LocalDate  exOrEffDate;
+	public String     type;
+	public BigDecimal amount;
+	public LocalDate  declarationDate;
+	public LocalDate  recordDate;
+	public LocalDate  paymentDate;
+	public String     currency;
 	
 	@Override
 	public String toString() {
 		return StringUtil.toString(this);
+	}
+	@Override
+	public int compareTo(StockDivInfo that) {
+		return this.exOrEffDate.compareTo(that.exOrEffDate);
 	}
 	@Override
 	public boolean equals(Object o) {
