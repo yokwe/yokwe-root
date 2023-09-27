@@ -312,10 +312,14 @@ public class FileUtil {
 	}
 
 	//
-	// check directory
+	// convenience methods from File
 	//
 	public static boolean isDirectory(String path) {
 		File file = new File(path);
 		return file.isDirectory();
+	}
+	public static boolean canRead(String path) {
+		File file = new File(path);
+		return file.canRead();
 	}
 }
