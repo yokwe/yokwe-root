@@ -2,23 +2,42 @@
 #
 #
 
-all:
-	echo "all"
+
+DATA_PATH_FILE := data/DataPathLocation
+DATA_PATH := $(shell cat $(DATA_PATH_FILE))
+
+.PHONY: all build check_data_path
+
+
+all: check_data_path
+	@echo "all"
+
 
 build:
 	( cd ..; mvn clean ant:ant install )
+
+check_data_path:
+	@echo "DATA_PATH_FILE  !$(DATA_PATH_FILE)!"
+	@echo "DATA_PATH       !$(DATA_PATH)!"
+	@if [ ! -d $(DATA_PATH) ]; then \
+	  	  echo "no directory  !${DATA_PATH}!" ; \
+	  exit 1 ; \
+	fi
 
 update-crontab:
 	crontab data/crontab
 
 
+rync-to-sandisk2t:
+	rsync -a -P /Volumes/finance/ /Volumes/SanDisk2T/finance
+
+
 # maintenance of save, log and crontab
-clear-save-file:
-	find /mnt/finance/save     -mtime +30 -print -delete
-	find /mnt/finance/*/report -mtime +30 -print -delete
-	
-clear-log-file:
-	tar cfz /mnt/fiancnce/save/log_$$(date +%Y%m%d).taz tmp/*.log
+clear-save-file: check_data_path
+	find ${DATA_PATH}/save     -mtime +30 -print -delete
+
+clear-log-file: check_data_path
+	tar cfz $(DATA_PATH)/save/log_$$(date +%Y%m%d).taz tmp/*.log
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
 

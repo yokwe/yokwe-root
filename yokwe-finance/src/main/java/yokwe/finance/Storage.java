@@ -1,23 +1,58 @@
 package yokwe.finance;
 
-import yokwe.util.SystemUtil;
+import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 
 public interface Storage {
-	public static final String PREFIX    = "finance";
-	public static final String PATH_BASE = SystemUtil.getMountPoint(PREFIX);
+	public static final String DATA_PATH_FILE = "data/DataPathLocation";
+	public static  String getDataPath() {
+		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+		
+		logger.info("DATA_PATH_FILE  {}", DATA_PATH_FILE);
+		// Sanity check
+		if (!FileUtil.canRead(DATA_PATH_FILE)) {
+			throw new UnexpectedException("Cannot read file");
+		}
+		
+		String dataPath = FileUtil.read().file(DATA_PATH_FILE);
+		logger.info("dataPath        {}", dataPath);
+		// Sanity check
+		if (dataPath.isEmpty()) {
+			logger.error("Empty dataPath");
+			throw new UnexpectedException("Empty dataPath");
+		}		
+		if (!FileUtil.isDirectory(dataPath)) {
+			logger.error("Not directory");
+			throw new UnexpectedException("Not directory");
+		}		
+		return dataPath;
+	}
+	public static final String DATA_PATH = getDataPath();
+
 	
 	public String getPath();
 	public String getPath(String path);
 	public String getPath(String prefix, String path);
 	
 	public class Impl implements Storage {
+		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
 		private final String basePath;
 		
-		public Impl(String basePath) {
+		public Impl(String basePath) {			
+			if (!FileUtil.isDirectory(basePath)) {
+				logger.error("Not directory");
+				logger.error("  basePath  {}!", basePath);
+				throw new UnexpectedException("Not directory");
+			}
+
 			this.basePath = basePath;
 		}
-		public Impl(Storage storage, String prefix) {
-			this.basePath =storage.getPath() + "/" + prefix;
+		public Impl(String parent, String prefix) {
+			this(parent + "/" + prefix);
+		}
+		public Impl(Storage parent, String prefix) {
+			this(parent.getPath(), prefix);
 		}
 		
 		@Override
@@ -36,7 +71,7 @@ public interface Storage {
 		}
 	}
 	
-	public static Storage root            = new Impl(PATH_BASE);
+	public static Storage root            = new Impl(DATA_PATH);
 	
 	public static Storage provider        = new Impl(root, "provider");
 	public static Storage stock           = new Impl(root, "stock");
@@ -62,7 +97,7 @@ public interface Storage {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
 		logger.info("START");
-		logger.info("PATH_BASE       {}", PATH_BASE);
+		logger.info("DATA_PATH       {}", DATA_PATH);
 		
 		logger.info("root            {}", Storage.root.getPath());
 		logger.info("fund            {}", Storage.fund.getPath());
