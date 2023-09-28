@@ -36,11 +36,14 @@ rync-to-sandisk2t:
 clear-save-file: check_data_path
 	find ${DATA_PATH}/save     -mtime +30 -print -delete
 
+save-file: check_data_path
+	cd $(DATA_PATH); tar cfz save/stock_$$(date +%Y%m%d).taz    stock
+	cd $(DATA_PATH); tar cfz save/provider_$$(date +%Y%m%d).taz provider
+
 clear-log-file: check_data_path
 	tar cfz $(DATA_PATH)/save/log_$$(date +%Y%m%d).taz tmp/*.log
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
-
 
 update-jpx-listing:
 	ant provider-jpx-update-listring
