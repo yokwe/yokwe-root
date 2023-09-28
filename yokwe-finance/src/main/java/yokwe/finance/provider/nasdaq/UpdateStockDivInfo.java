@@ -1,7 +1,11 @@
 package yokwe.finance.provider.nasdaq;
 
-import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +19,8 @@ import yokwe.util.UnexpectedException;
 
 public class UpdateStockDivInfo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	public static long GRACE_PERIOD_IN_HOUR = 5;
 	
 	private static class Task {
 		public String     stockCode;
@@ -36,34 +42,44 @@ public class UpdateStockDivInfo {
 	private static List<Task> getTaskList(List<StockInfoUS> list) {
 		var taskList = new ArrayList<Task>();
 		
-		long now = System.currentTimeMillis();
-		long oneDay = 24 * 60 * 60 * 1000;
+		Instant now = Instant.now();
 		
 		int countA = 0;
 		int countB = 0;
 		int countC = 0;
-		for(var stockInfo: list) {
-			String     stockCode  = stockInfo.stockCode;
-			AssetClass assetClass = stockInfo.type.isETF() ? AssetClass.ETF : AssetClass.STOCK;
-			int        limit;
-			
-			File file = new File(StockDivInfo.getPath(stockCode));
-			if (file.canRead()) {
-				long fileTime = file.lastModified();
-				if (oneDay < (now - fileTime)) {
-					limit = 1;
-					countA++;
+		
+		try {
+			for (var stockInfo : list) {
+				String     stockCode  = stockInfo.stockCode;
+				AssetClass assetClass = stockInfo.type.isETF() ? AssetClass.ETF : AssetClass.STOCK;
+				int        limit;
+				
+				Path path = Path.of(StockDivInfo.getPath(stockCode));
+				
+				if (Files.isReadable(path)) {
+					Instant  lastModified = Files.getLastModifiedTime(path).toInstant();
+					Duration duration     = Duration.between(lastModified, now);
+					if (GRACE_PERIOD_IN_HOUR < duration.toHours()) {
+						limit = 1;
+						countA++;
+					} else {
+						countB++;
+						continue;
+					}
 				} else {
-					countB++;
-					continue;
+					limit = 9999;
+					countC++;
 				}
-			} else {
-				limit = 9999;
-				countC++;
+
+				taskList.add(new Task(stockCode, assetClass, limit));
 			}
-			
-			taskList.add(new Task(stockCode, assetClass, limit));
+		} catch (IOException e) {
+			// catch exception from Files.getLastModifiedTime
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
 		}
+		
 		logger.info("countA   {}", countA);
 		logger.info("countB   {}", countB);
 		logger.info("countC   {}", countC);
@@ -101,7 +117,6 @@ public class UpdateStockDivInfo {
 		int countC   = 0;
 		int countD   = 0;
 		int countE   = 0;
-		int countF   = 0;
 		Collections.shuffle(taskList);
 		for(var task: taskList) {
 			String stockCode = task.stockCode;
@@ -163,15 +178,10 @@ public class UpdateStockDivInfo {
 				list.add(divInfo);
 				countAdd++;
 			}
+			StockDivInfo.save(stockCode, list);
 			countE++;
-			if (countAdd != 0) {
-				StockDivInfo.save(stockCode, list);
-				countMod++;
-			}
-			if (list.isEmpty()) {
-				StockDivInfo.save(stockCode, list);
-				countF++;
-			}
+			
+			if (countAdd != 0) countMod++;
 		}
 		
 		logger.info("countA   {}", countA);
@@ -179,7 +189,6 @@ public class UpdateStockDivInfo {
 		logger.info("countC   {}", countC);
 		logger.info("countD   {}", countD);
 		logger.info("countE   {}", countE);
-		logger.info("countF   {}", countF);
 
 		logger.info("countMod {}", countMod);
 
