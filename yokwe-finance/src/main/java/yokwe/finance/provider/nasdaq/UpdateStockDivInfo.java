@@ -8,13 +8,16 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import yokwe.finance.Storage;
 import yokwe.finance.provider.nasdaq.api.AssetClass;
 import yokwe.finance.provider.nasdaq.api.Dividends;
 import yokwe.finance.type.StockInfoUS;
+import yokwe.finance.type.StockInfoUS.Market;
 import yokwe.util.UnexpectedException;
 
 public class UpdateStockDivInfo {
@@ -88,10 +91,10 @@ public class UpdateStockDivInfo {
 		return taskList;
 	}
 	
-	private static final String NA = "N/A";
+	private static final String NOT_AVAILABLEs = "N/A";
 	
 	private static LocalDate toLocalDate(String string) {
-		if (string.equals(NA)) return StockDivInfo.DATE_NA;
+		if (string.equals(NOT_AVAILABLEs)) return StockDivInfo.DATE_NOT_AVAILABLE;
 		// 03/22/2019
 		// 0123456789
 		if (string.length() == 10 && string.charAt(2) == '/' && string.charAt(5) == '/') {
@@ -114,46 +117,30 @@ public class UpdateStockDivInfo {
 		int countMod = 0;
 		int countA   = 0;
 		int countB   = 0;
-		int countC   = 0;
-		int countD   = 0;
-		int countE   = 0;
-		Collections.shuffle(taskList);
+		
+//		Collections.shuffle(taskList);
 		for(var task: taskList) {
 			String stockCode = task.stockCode;
 			if ((++count % 100) == 1) logger.info("{}  /  {}  {}", count, taskList.size(), task);
 			
-			var nasdaqSymbol = StockInfo.toNASDAQSymbol(stockCode);
-			var div = Dividends.getInstance(nasdaqSymbol, task.assetClass, task.limit);
-			if (div == null) {
-				logger.warn("div is null  {}", task);
-				StockDivInfo.save(stockCode, new ArrayList<StockDivInfo>());
-				countA++;
-				continue;
-			}
-			if (div.data == null) {
-				logger.warn("div.data is null  {}", task);
-				StockDivInfo.save(stockCode, new ArrayList<StockDivInfo>());
-				countB++;
-				continue;
-			}
-			if (div.data.dividends == null) {
-				logger.warn("div.data.dividends is null  {}", task);
-				StockDivInfo.save(stockCode, new ArrayList<StockDivInfo>());
-				countC++;
-				continue;
-			}
-			if (div.data.dividends.rows == null) {
-//				logger.warn("div.data.tradesTable.rows is null  {}", task);
-				StockDivInfo.save(stockCode, new ArrayList<StockDivInfo>());
-				countD++;
-				continue;
+			var list = StockDivInfo.getList(stockCode);
+			
+			var div = Dividends.getInstance(StockInfo.toNASDAQSymbol(stockCode), task.assetClass, task.limit);
+			if (div == null || div.data == null || div.data.dividends == null || div.data.dividends.rows == null) {
+				if (list.isEmpty()) {
+					StockDivInfo.save(stockCode, new ArrayList<StockDivInfo>());
+					countA++;
+					continue;
+				}
 			}
 			
-			var list = StockDivInfo.getList(stockCode);
-			var set  = list.stream().map(o -> o.exOrEffDate).collect(Collectors.toSet());
+			var map  = list.stream().collect(Collectors.toMap(o -> o.exOrEffDate, Function.identity()));
 			
 			int countAdd = 0;
 			for(var row: div.data.dividends.rows) {
+				// Skip if exOfEffDate is N/A
+				if (row.exOrEffDate.equals(NOT_AVAILABLEs)) continue;
+				
 				StockDivInfo divInfo = new StockDivInfo();
 				divInfo.exOrEffDate     = toLocalDate(row.exOrEffDate);
 				divInfo.type            = row.type;
@@ -163,43 +150,40 @@ public class UpdateStockDivInfo {
 				divInfo.paymentDate     = toLocalDate(row.paymentDate);
 				divInfo.currency        = row.currency;
 				
-				if (divInfo.exOrEffDate.equals(StockDivInfo.DATE_NA) && divInfo.recordDate.equals(StockDivInfo.DATE_NA)) {
-					logger.error("Unexpected date");
-					logger.error("  stockCode   {}", stockCode);
-					logger.error("  exOrEffDate {}", divInfo.exOrEffDate);
-					logger.error("  recordDate  {}", divInfo.recordDate);
-					throw new UnexpectedException("Unexpected date");
+				var key = divInfo.exOrEffDate;
+				if (map.containsKey(key)) {
+					var old = map.get(key);
+					if (old.equals(divInfo)) {
+						// ignore same value
+						logger.warn("Duplicate     {}  {}", stockCode, key);
+					} else {
+						logger.error("Duplicate key");
+						logger.error("  stockCode  {}", stockCode);
+						logger.error("  old        {}", old);
+						logger.error("  new        {}", divInfo);
+						throw new UnexpectedException("Duplicate key");
+					}
 				} else {
-					if (divInfo.exOrEffDate.equals(StockDivInfo.DATE_NA)) divInfo.exOrEffDate = divInfo.recordDate.minusDays(1);
-					if (divInfo.recordDate.equals(StockDivInfo.DATE_NA))  divInfo.recordDate  = divInfo.exOrEffDate.plusDays(1);
+					map.put(key, divInfo);
+					countAdd++;
 				}
-				
-				if (set.contains(divInfo.exOrEffDate)) continue;
-				list.add(divInfo);
-				countAdd++;
 			}
-			StockDivInfo.save(stockCode, list);
-			countE++;
+			StockDivInfo.save(stockCode, map.values());
+			countB++;
 			
 			if (countAdd != 0) countMod++;
 		}
 		
 		logger.info("countA   {}", countA);
 		logger.info("countB   {}", countB);
-		logger.info("countC   {}", countC);
-		logger.info("countD   {}", countD);
-		logger.info("countE   {}", countE);
-
 		logger.info("countMod {}", countMod);
 
 		return countMod;
 	}
-	private static void update() {
-		var list = yokwe.finance.stock.us.StockInfo.getList();
-		logger.info("list     {}", list.size());
-
+	private static void update(List<StockInfoUS> list) {
+		logger.info("start update");
 		for(int count = 1; count < 10; count++) {
-			logger.info("try      {}", count);
+			logger.info("loop     {}", count);
 			
 			// build task list
 			var taskList = getTaskList(list);
@@ -217,10 +201,69 @@ public class UpdateStockDivInfo {
 		}
 	}
 	
+	private static void check(List<StockInfoUS> list) {
+		logger.info("start check");
+		int countDiv = 0;
+		int countDup = 0;
+		for(var stockInfo: list) {
+			var stockCode = stockInfo.stockCode;
+			
+			var divInfoList = StockDivInfo.getList(stockCode);
+			if (divInfoList.isEmpty()) continue;
+			
+			countDiv++;
+			boolean hasDuplicate = false;
+
+			var map = new HashMap<LocalDate, StockDivInfo>();
+			for(var divInfo: divInfoList) {
+				var date = divInfo.exOrEffDate;
+				if (map.containsKey(date)) {
+					hasDuplicate = true;
+					var old = map.get(date);
+					if (old.equals(divInfo)) {
+						logger.info("same   {}  {}", stockCode, date);
+					} else {
+						logger.info("diff   {}  {}", stockCode, date);
+						logger.info("  old  {}", old);
+						logger.info("  new  {}", divInfo);
+					}
+					break;
+				} else {
+					map.put(date, divInfo);
+				}
+			}
+			if (hasDuplicate) {
+				logger.info("dup       {}", stockCode);
+				try {
+					Path path = Path.of(StockDivInfo.getPath(stockCode));
+					Files.delete(path);
+				} catch (IOException e) {
+				}
+				countDup++;
+			}
+		}
+		logger.info("stock     {}", list.size());
+		logger.info("countDiv  {}", countDiv);
+		logger.info("countDup  {}", countDup);
+		
+		if (countDup != 0) System.exit(0);
+//		System.exit(0);
+	}
+	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		update();
+		// initialize Storage
+		Storage.initialize();
+		
+		logger.info("grace period  {} hours", GRACE_PERIOD_IN_HOUR);
+		
+		var list = StockInfo.getList().stream().filter(o -> o.market == Market.NASDAQ).collect(Collectors.toList());
+		logger.info("list     {}", list.size());
+		
+		check(list);
+		
+		update(list);
 		
 		logger.info("STOP");
 	}
