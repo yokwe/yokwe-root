@@ -14,7 +14,7 @@ public class StockDivInfo implements Comparable<StockDivInfo> {
 	
 	private static final Storage storage = Storage.provider_nasdaq;
 	
-	public static final LocalDate DATE_NA = LocalDate.of(2099, 1, 1);
+	public static final LocalDate DATE_NOT_AVAILABLE = LocalDate.of(2099, 1, 1);
 	
 	public static String getPath() {
 		return storage.getPath(PREFIX);
