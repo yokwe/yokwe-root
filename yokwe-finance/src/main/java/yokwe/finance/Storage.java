@@ -5,6 +5,9 @@ import yokwe.util.UnexpectedException;
 
 public interface Storage {
 	public static final String DATA_PATH_FILE = "data/DataPathLocation";
+	
+	public static void initialize() {}
+	
 	public static  String getDataPath() {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
