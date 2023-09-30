@@ -3,10 +3,13 @@ package yokwe.finance.provider.rakuten;
 import java.io.File;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
 import yokwe.finance.type.TradingStockInfo;
@@ -298,30 +301,24 @@ public class UpdateTradingStock {
 		var buyFreeSet = BuyFreeETF.getSet();
 		logger.info("buyFree  {}", buyFreeSet.size());
 		
-		var stockList = STOCK.getList(buyFreeSet);
-		logger.info("stock    {}", stockList.size());
-
-		var etfList   = ETF.getList(buyFreeSet);
-		logger.info("etf      {}", etfList.size());
-		
-		// merger
-		List<TradingStockInfo> list = new ArrayList<>();
+		List<TradingStockInfo> list;
 		{
-			Set<String> set = new HashSet<>();
+			var stockList = STOCK.getList(buyFreeSet);
+			var etfList   = ETF.getList(buyFreeSet);
+			
+			Map<String, TradingStockInfo> map = new HashMap<>();
 			for(var e: stockList) {
-				String stockCode = e.stockCode;
-				if (set.contains(stockCode)) continue;
-				set.add(stockCode);
-				
-				list.add(e);
+				if (!map.containsKey(e.stockCode)) map.put(e.stockCode, e);
 			}
 			for(var e: etfList) {
-				String stockCode = e.stockCode;
-				if (set.contains(stockCode)) continue;
-				set.add(stockCode);
-				
-				list.add(e);
+				if (!map.containsKey(e.stockCode)) map.put(e.stockCode, e);
 			}
+			
+			logger.info("stock    {}", stockList.size());
+			logger.info("etf      {}", etfList.size());
+			logger.info("map      {}", map.size());
+			
+			list = map.values().stream().collect(Collectors.toList());
 		}
 		logger.info("list     {}", list.size());
 		
