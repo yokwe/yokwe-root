@@ -81,12 +81,21 @@ public interface Storage {
 	public static Storage fund            = new Impl(root, "fund");
 
 	// provider
-	public static Storage provider_jpx    = new Impl(provider, "jpx");
-	public static Storage provider_jita   = new Impl(provider, "jita");
 	public static Storage provider_bats   = new Impl(provider, "bats");
 	public static Storage provider_nasdaq = new Impl(provider, "nasdaq");
 	public static Storage provider_nyse   = new Impl(provider, "nyse");
-	public static Storage provider_yahoo  = new Impl(provider, "yahoo");
+	
+	public static Storage provider_jpx    = new Impl(provider, "jpx");
+	public static Storage provider_jita   = new Impl(provider, "jita");
+	
+	public static Storage provider_monex   = new Impl(provider, "monex");
+	public static Storage provider_moomoo  = new Impl(provider, "moomoo");
+	public static Storage provider_nikko   = new Impl(provider, "nikko");
+	public static Storage provider_nomura  = new Impl(provider, "nomura");
+	public static Storage provider_rakuten = new Impl(provider, "rakuten");
+	public static Storage provider_sbi     = new Impl(provider, "sbi");
+	
+	public static Storage provider_yahoo   = new Impl(provider, "yahoo");
 	
 	// stock
 	public static Storage stock_jp        = new Impl(stock, "jp");
