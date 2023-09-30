@@ -29,7 +29,9 @@ public class TradingStockInfo implements Comparable<TradingStockInfo>{
 		if (o instanceof TradingStockInfo) {
 			TradingStockInfo that = (TradingStockInfo)o;
 			return
-				this.stockCode.equals(that.stockCode);
+				this.stockCode.equals(that.stockCode) &&
+				this.feeType == that.feeType &&
+				this.tradeType == that.tradeType;
 		} else {
 			return false;
 		}
