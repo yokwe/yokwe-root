@@ -181,6 +181,46 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	
+	<!-- Provider MONEX -->
+	<target name="provider-monex-update-trading-stock">
+		<java module="yokwe.finance/yokwe.finance.provider.monex.UpdateTradingStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<!-- Provider MOOMOO -->
+	<target name="provider-moomoo-update-trading-stock">
+		<java module="yokwe.finance/yokwe.finance.provider.moomoo.UpdateTradingStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<!-- Provider RAKUTEN -->
+	<target name="provider-rakuten-update-trading-stock">
+		<java module="yokwe.finance/yokwe.finance.provider.rakuten.UpdateTradingStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	<!-- Provider SBI -->
+	<target name="provider-sbis-update-trading-stock">
+		<java module="yokwe.finance/yokwe.finance.provider.sbi.UpdateTradingStock" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 	
 	<!-- Stock US -->
