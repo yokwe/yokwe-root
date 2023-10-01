@@ -14,10 +14,34 @@ import yokwe.util.json.JSON;
 public class UpdateTradingStock {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final String URL     = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsMeigaraJsonGST";
-	private static final String CHARSET = "SHIFT_JIS";
-	
 	private static final boolean DEBUG_USE_FILE = false;
+	
+	private static final String  URL     = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsMeigaraJsonGST";
+	private static final String  CHARSET = "SHIFT_JIS";
+	private static final String  FILE_PATH = Storage.provider_monex.getPath("UsMeigaraJsonGST");
+	
+	private static String download(String url, String charset, String filePath, boolean useFile) {
+		final String page;
+		{
+			File file = new File(filePath);
+			if (useFile && file.exists()) {
+				page = FileUtil.read().file(file);
+			} else {
+				HttpUtil.Result result = HttpUtil.getInstance().withCharset(charset).download(url);
+				if (result == null || result.result == null) {
+					logger.error("Unexpected");
+					logger.error("  result  {}", result);
+					throw new UnexpectedException("Unexpected");
+				}
+				page = result.result;
+				// debug
+				if (DEBUG_USE_FILE) logger.info("save  {}  {}", page.length(), file.getPath());
+				FileUtil.write().file(file, page);
+			}
+		}
+		return page;
+	}
+	
 	
 	static class UsMeigara {
 		@JSON.Name("Ticker")
@@ -40,24 +64,7 @@ public class UpdateTradingStock {
 	}
 
 	private static void update() {
-		final String page;
-		{
-			File file = new File(Storage.provider_monex.getPath("UsMeigaraJsonGST"));
-			if (DEBUG_USE_FILE && file.exists()) {
-				page = FileUtil.read().file(file);
-			} else {
-				HttpUtil.Result result = HttpUtil.getInstance().withCharset(CHARSET).download(URL);
-				if (result == null || result.result == null) {
-					logger.error("Unexpected");
-					logger.error("  result  {}", result);
-					throw new UnexpectedException("Unexpected");
-				}
-				page = result.result;
-				// debug
-				if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), page.length());
-				FileUtil.write().file(file, page);
-			}
-		}
+		final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
 		
 		List<TradingStockInfo> list = new ArrayList<>();
 		{

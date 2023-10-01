@@ -21,9 +21,33 @@ public class UpdateTradingStock {
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
-	private static final class BuyFreeETF {
-		private static final String URL = "https://go.sbisec.co.jp/lp/lp_us_etf_selection_220331.html";
-		
+	private static String download(String url, String charset, String filePath, boolean useFile) {
+		final String page;
+		{
+			File file = new File(filePath);
+			if (useFile && file.exists()) {
+				page = FileUtil.read().file(file);
+			} else {
+				HttpUtil.Result result = HttpUtil.getInstance().withCharset(charset).download(url);
+				if (result == null || result.result == null) {
+					logger.error("Unexpected");
+					logger.error("  result  {}", result);
+					throw new UnexpectedException("Unexpected");
+				}
+				page = result.result;
+				// debug
+				if (DEBUG_USE_FILE) logger.info("save  {}  {}", page.length(), file.getPath());
+				FileUtil.write().file(file, page);
+			}
+		}
+		return page;
+	}
+
+	static final class BuyFreeETF {
+		private static final String URL       = "https://go.sbisec.co.jp/lp/lp_us_etf_selection_220331.html";
+		private static final String CHARSET   = "UTF-8";
+		private static final String FILE_PATH = Storage.provider_sbi.getPath("lp_us_etf_selection_220331.html");
+
 		// <p class="small">ティッカー：GLDM</p>
 		public static class ETFInfo {
 			public static final Pattern PAT = Pattern.compile(
@@ -46,28 +70,10 @@ public class UpdateTradingStock {
 		}
 		
 		private static Set<String> getSet() {
+			final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
+
 			Set<String> set = new HashSet<>();
-			
-			String string;
-			{
-				File file = new File(Storage.provider_sbi.getPath("lp_us_etf_selection_220331.html"));
-				if (DEBUG_USE_FILE && file.exists()) {
-					string = FileUtil.read().file(file);
-				} else {
-					HttpUtil.Result result = HttpUtil.getInstance().download(URL);
-					if (result == null || result.result == null) {
-						logger.error("Unexpected");
-						logger.error("  result  {}", result);
-						throw new UnexpectedException("Unexpected");
-					}
-					string = result.result;
-					// debug
-					if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), string.length());
-					FileUtil.write().file(file, string);
-				}
-			}
-			
-			for(var etfInfo: ETFInfo.getInstance(string)) {
+			for(var etfInfo: ETFInfo.getInstance(page)) {
 				set.add(etfInfo.symbol);
 			}
 			
@@ -77,7 +83,8 @@ public class UpdateTradingStock {
 	
 	
 	private static final String URL       = "https://search.sbisec.co.jp/v2/popwin/info/stock/pop6040_usequity_list.html";
-	private static final String ENCODING  = "SHIFT_JIS";
+	private static final String CHARSET   = "SHIFT_JIS";
+	private static final String FILE_PATH = Storage.provider_sbi.getPath("pop6040_usequity_list.html");
 	
 	public static class StockInfo {
 		// STOCK
@@ -235,29 +242,12 @@ public class UpdateTradingStock {
 		var buyFreeSet = BuyFreeETF.getSet();
 		logger.info("buyFree  {}", buyFreeSet.size());
 		
-		String string;
-		{
-			File file = new File(Storage.provider_sbi.getPath("pop6040_usequity_list.html"));
-			if (DEBUG_USE_FILE && file.exists()) {
-				string = FileUtil.read().file(file);
-			} else {
-				HttpUtil.Result result = HttpUtil.getInstance().withCharset(ENCODING).download(URL);
-				if (result == null || result.result == null) {
-					logger.error("Unexpected");
-					logger.error("  result  {}", result);
-					throw new UnexpectedException("Unexpected");
-				}
-				string = result.result;
-				// debug
-				if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), string.length());
-				FileUtil.write().file(file, string);
-			}
-		}
+		String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
 		
 		// remove XML comment
 		Pattern PAT_COMMENT = Pattern.compile("<!--.*?-->", Pattern.MULTILINE | Pattern.DOTALL);
 		MatcherFunction<String> OP_REMOVE_COMMENT = (m) -> "";
-		String page = StringUtil.replace(string, PAT_COMMENT, OP_REMOVE_COMMENT);
+		page = StringUtil.replace(page, PAT_COMMENT, OP_REMOVE_COMMENT);
 //		logger.info("string {}", string.length());
 //		logger.info("page   {}", page.length());
 		

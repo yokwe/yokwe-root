@@ -15,11 +15,35 @@ import yokwe.util.http.HttpUtil;
 
 public class UpdateTradingStock {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
-	private static String URL = "https://www.moomoo.com/jp/support/topic7_134";
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
+	private static final String URL       = "https://www.moomoo.com/jp/support/topic7_134";
+	private static final String CHARSET   = "UTF-8";
+	private static final String FILE_PATH = Storage.provider_moomoo.getPath("topic7_134.html");
+	
+	private static String download(String url, String charset, String filePath, boolean useFile) {
+		final String page;
+		{
+			File file = new File(filePath);
+			if (useFile && file.exists()) {
+				page = FileUtil.read().file(file);
+			} else {
+				HttpUtil.Result result = HttpUtil.getInstance().withCharset(charset).download(url);
+				if (result == null || result.result == null) {
+					logger.error("Unexpected");
+					logger.error("  result  {}", result);
+					throw new UnexpectedException("Unexpected");
+				}
+				page = result.result;
+				// debug
+				if (DEBUG_USE_FILE) logger.info("save  {}  {}", page.length(), file.getPath());
+				FileUtil.write().file(file, page);
+			}
+		}
+		return page;
+	}
+
 	//<tr>
 	//<td>A</td>
 	//<td>アジレント・テクノロジー</td>
@@ -60,24 +84,7 @@ public class UpdateTradingStock {
 	}
 
 	private static void update() {
-		final String page;
-		{
-			File file = new File(Storage.provider_moomoo.getPath("topic7_134.html"));
-			if (DEBUG_USE_FILE && file.exists()) {
-				page = FileUtil.read().file(file);
-			} else {
-				HttpUtil.Result result = HttpUtil.getInstance().download(URL);
-				if (result == null || result.result == null) {
-					logger.error("Unexpected");
-					logger.error("  result  {}", result);
-					throw new UnexpectedException("Unexpected");
-				}
-				page = result.result;
-				// debug
-				if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), page.length());
-				FileUtil.write().file(file, page);
-			}
-		}
+		final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
 		
 		List<TradingStockInfo> list = new ArrayList<>();
 		{

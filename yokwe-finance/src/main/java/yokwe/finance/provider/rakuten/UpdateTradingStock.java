@@ -26,8 +26,32 @@ public class UpdateTradingStock {
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
-	private static final class BuyFreeETF {
-		private static final String URL = "https://www.rakuten-sec.co.jp/web/foreign/etf/etf-etn-reit/lineup/0-etf.html";
+	private static String download(String url, String charset, String filePath, boolean useFile) {
+		final String page;
+		{
+			File file = new File(filePath);
+			if (useFile && file.exists()) {
+				page = FileUtil.read().file(file);
+			} else {
+				HttpUtil.Result result = HttpUtil.getInstance().withCharset(charset).download(url);
+				if (result == null || result.result == null) {
+					logger.error("Unexpected");
+					logger.error("  result  {}", result);
+					throw new UnexpectedException("Unexpected");
+				}
+				page = result.result;
+				// debug
+				if (DEBUG_USE_FILE) logger.info("save  {}  {}", page.length(), file.getPath());
+				FileUtil.write().file(file, page);
+			}
+		}
+		return page;
+	}
+
+	static final class BuyFreeETF {
+		private static final String URL       = "https://www.rakuten-sec.co.jp/web/foreign/etf/etf-etn-reit/lineup/0-etf.html";
+		private static final String CHARSET   = "UTF-8";
+		private static final String FILE_PATH = Storage.provider_rakuten.getPath("0-etf.html");
 		
 		//<tr>
 		//  <td class="ta-c va-m" rowspan="2"><a href="https://www.rakuten-sec.co.jp/web/market/search/us_search/quote.html?ric=AGG.P">AGG</a><br><strong>【NEW】</strong></td>
@@ -65,28 +89,10 @@ public class UpdateTradingStock {
 		}
 		
 		private static Set<String> getSet() {
+			final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
+			
 			Set<String> set = new HashSet<>();
-			
-			String string;
-			{
-				File file = new File(Storage.provider_rakuten.getPath("0-etf.html"));
-				if (DEBUG_USE_FILE && file.exists()) {
-					string = FileUtil.read().file(file);
-				} else {
-					HttpUtil.Result result = HttpUtil.getInstance().download(URL);
-					if (result == null || result.result == null) {
-						logger.error("Unexpected");
-						logger.error("  result  {}", result);
-						throw new UnexpectedException("Unexpected");
-					}
-					string = result.result;
-					// debug
-					if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), string.length());
-					FileUtil.write().file(file, string);
-				}
-			}
-			
-			for(var etfInfo: ETFInfo.getInstance(string)) {
+			for(var etfInfo: ETFInfo.getInstance(page)) {
 				set.add(etfInfo.symbol);
 			}
 			
@@ -95,7 +101,9 @@ public class UpdateTradingStock {
 	}
 	
 	private static final class STOCK {
-		private static final String URL = "https://www.trkd-asia.com/rakutensec/exportcsvus?all=on&vall=on&r1=on&forwarding=na&target=0&theme=na&returns=na&head_office=na&name=&sector=na&pageNo=&c=us&p=result";
+		private static final String URL       = "https://www.trkd-asia.com/rakutensec/exportcsvus?all=on&vall=on&r1=on&forwarding=na&target=0&theme=na&returns=na&head_office=na&name=&sector=na&pageNo=&c=us&p=result";
+		private static final String CHARSET   = "UTF-8";
+		private static final String FILE_PATH = Storage.provider_rakuten.getPath("exportcsvus.csv");
 
 		public static final String TRADEABLE_YES = "○";
 		
@@ -116,26 +124,9 @@ public class UpdateTradingStock {
 		}
 
 		private static List<TradingStockInfo> getList(Set<String> buyFreeSet) {
-			String string;
-			{
-				File file = new File(Storage.provider_rakuten.getPath("exportcsvus.csv"));
-				if (DEBUG_USE_FILE && file.exists()) {
-					string = FileUtil.read().file(file);
-				} else {
-					HttpUtil.Result result = HttpUtil.getInstance().download(URL);
-					if (result == null || result.result == null) {
-						logger.error("Unexpected");
-						logger.error("  result  {}", result);
-						throw new UnexpectedException("Unexpected");
-					}
-					string = result.result;
-					// debug
-					if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), string.length());
-					FileUtil.write().file(file, string);
-				}
-			}
-
-			List<Data> dataList = CSVUtil.read(Data.class).file(new StringReader(string));
+			final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
+			
+			List<Data> dataList = CSVUtil.read(Data.class).file(new StringReader(page));
 			
 			//  trading symbol
 			Set<String> set = new HashSet<>();
@@ -162,7 +153,9 @@ public class UpdateTradingStock {
 	}
 	
 	public static final class ETF {
-		public static final String URL = "https://www.rakuten-sec.co.jp/web/market/search/etf_search/ETFD.csv";
+		private static final String URL       = "https://www.rakuten-sec.co.jp/web/market/search/etf_search/ETFD.csv";
+		private static final String CHARSET   = "UTF-8";
+		private static final String FILE_PATH = Storage.provider_rakuten.getPath("etfd.csv");
 
 		static class Data {
 			public String f01;
@@ -231,26 +224,9 @@ public class UpdateTradingStock {
 		}
 
 		private static List<TradingStockInfo> getList(Set<String> buyFreeSet) {
-			String string;
-			{
-				File file = new File(Storage.provider_rakuten.getPath("etfd.csv"));
-				if (DEBUG_USE_FILE && file.exists()) {
-					string = FileUtil.read().file(file);
-				} else {
-					HttpUtil.Result result = HttpUtil.getInstance().download(URL);
-					if (result == null || result.result == null) {
-						logger.error("Unexpected");
-						logger.error("  result  {}", result);
-						throw new UnexpectedException("Unexpected");
-					}
-					string = result.result;
-					// debug
-					if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), string.length());
-					FileUtil.write().file(file, string);
-				}
-			}
+			final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
 			
-			List<Data> dataList = CSVUtil.read(Data.class).withHeader(false).file(new StringReader(string));
+			List<Data> dataList = CSVUtil.read(Data.class).withHeader(false).file(new StringReader(page));
 			
 			//  symbol
 			Set<String> set = new HashSet<>();
