@@ -213,7 +213,7 @@
 	</target>
 	
 	<!-- Provider SBI -->
-	<target name="provider-sbis-update-trading-stock">
+	<target name="provider-sbi-update-trading-stock">
 		<java module="yokwe.finance/yokwe.finance.provider.sbi.UpdateTradingStock" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
