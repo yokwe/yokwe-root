@@ -29,7 +29,7 @@ public class UpdateListing {
 		HttpUtil.Result result = http.download(URL);
 		
 		if (result != null && result.rawData != null) {
-			logger.info("write {} {}", PATH_DATAFILE, result.rawData.length);
+			logger.info("save  {}  {}", result.rawData.length, PATH_DATAFILE);
 			FileUtil.rawWrite().file(PATH_DATAFILE, result.rawData);
 		} else {
 			logger.error("Unexpected result");
@@ -37,13 +37,13 @@ public class UpdateListing {
 			throw new UnexpectedException("Unexpected result");
 		}
 
-		logger.info("open {}", URL_DATAFILE);
+		logger.info("open  {}", URL_DATAFILE);
 		List<Listing> list = new ArrayList<>();
 		
 		// Build newList
 		try (SpreadSheet spreadSheet = new SpreadSheet(URL_DATAFILE, true)) {
 			List<Listing> rawDataList = Sheet.extractSheet(spreadSheet, Listing.class);
-			logger.info("read {}", rawDataList.size());
+			logger.info("read  {}", rawDataList.size());
 			
 			for(Listing rawData: rawDataList) {
 				// Trim space of rawData
@@ -59,7 +59,7 @@ public class UpdateListing {
 				value.date         = String.format("%s-%s-%s", date.substring(0, 4), date.substring(4, 6), date.substring(6, 8));;
 				value.stockCode    = StockInfoJP.toStockCode5(rawData.stockCode.trim());
 				value.name         = rawData.name.trim();
-				value.kind       = rawData.kind;
+				value.kind         = rawData.kind;
 				value.sector33Code = rawData.sector33Code.trim();
 				value.sector33     = rawData.sector33.trim();
 				value.sector17Code = rawData.sector17Code.trim();
@@ -83,7 +83,7 @@ public class UpdateListing {
 				for(var e: countMap.entrySet()) {
 					String name  = e.getKey().name();
 					int    count = e.getValue();
-					logger.info("market {}", String.format("%-16s %4d", name, count));
+					logger.info("market {}", String.format("%-18s %4d", name, count));
 				}
 			}
 			
