@@ -152,8 +152,8 @@ public class UpdateTradingStock {
 				
 				TradingStockInfo tradingStock = new TradingStockInfo();
 				tradingStock.stockCode = stockCode;
-				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.NOT_FREE;
-				tradingStock.tradeType = data.tradeable.equals(TRADEABLE_YES) ? TradingStockInfo.TradeType.BUY_SELL : TradingStockInfo.TradeType.NONE;
+				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
+				tradingStock.tradeType = data.tradeable.equals(TRADEABLE_YES) ? TradingStockInfo.TradeType.BUY_SELL : TradingStockInfo.TradeType.PROHIBIT;
 				
 				list.add(tradingStock);
 			}
@@ -287,7 +287,7 @@ public class UpdateTradingStock {
 				
 				TradingStockInfo tradingStock = new TradingStockInfo();
 				tradingStock.stockCode = stockCode;
-				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.NOT_FREE;
+				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
 				tradingStock.tradeType = TradingStockInfo.TradeType.BUY_SELL;
 				
 				list.add(tradingStock);

@@ -288,7 +288,7 @@ public class UpdateTradingStock {
 				
 				TradingStockInfo tradingStock = new TradingStockInfo();
 				tradingStock.stockCode = stockCode;
-				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.NOT_FREE;
+				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
 				tradingStock.tradeType = TradingStockInfo.TradeType.BUY_SELL;
 				
 				list.add(tradingStock);

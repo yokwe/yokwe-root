@@ -2,19 +2,26 @@ package yokwe.finance.type;
 
 public class TradingStockInfo implements Comparable<TradingStockInfo>{
 	public enum FeeType {
-		NOT_FREE,
+		PAID,
 		BUY_FREE,
-		BUY_SELL_FREE,
+		FREE,
 	}
 	public enum TradeType {
 		BUY_SELL,
 		SELL,
-		NONE,
+		PROHIBIT,
 	}
 	
 	public String    stockCode;
 	public FeeType   feeType;
 	public TradeType tradeType;
+	
+	public TradingStockInfo(String stockCode, FeeType feeType, TradeType tradeType) {
+		this.stockCode = stockCode;
+		this.feeType   = feeType;
+		this.tradeType = tradeType;
+	}
+	public TradingStockInfo() {}
 	
 	@Override
 	public String toString() {

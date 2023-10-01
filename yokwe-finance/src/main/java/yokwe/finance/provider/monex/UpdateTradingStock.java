@@ -70,7 +70,7 @@ public class UpdateTradingStock {
 					
 					TradingStockInfo tradingStock = new TradingStockInfo();
 					tradingStock.stockCode = usMeigara.stockCode;
-					tradingStock.feeType   = TradingStockInfo.FeeType.NOT_FREE;
+					tradingStock.feeType   = TradingStockInfo.FeeType.PAID;
 					tradingStock.tradeType = TradingStockInfo.TradeType.BUY_SELL;
 					
 					list.add(tradingStock);

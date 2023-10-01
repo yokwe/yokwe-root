@@ -84,8 +84,8 @@ public class UpdateTradingStock {
 			for(var e: StockInfo.getInstance(page)) {
 				TradingStockInfo tradingStock = new TradingStockInfo();
 				tradingStock.stockCode = e.stockCode.replace("*", "");
-				tradingStock.feeType   = TradingStockInfo.FeeType.NOT_FREE;
-				tradingStock.tradeType = e.stockCode.contains("*") ?  TradingStockInfo.TradeType.NONE : TradingStockInfo.TradeType.BUY_SELL;
+				tradingStock.feeType   = TradingStockInfo.FeeType.PAID;
+				tradingStock.tradeType = e.stockCode.contains("*") ?  TradingStockInfo.TradeType.PROHIBIT : TradingStockInfo.TradeType.BUY_SELL;
 
 				list.add(tradingStock);
 			}
