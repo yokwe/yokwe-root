@@ -275,7 +275,7 @@ public class UpdateTradingStock {
 
 	private static void update() {
 		var buyFreeSet = BuyFreeETF.getSet();
-		logger.info("buyFree  {}", buyFreeSet.size());
+		logger.info("buyFree    {}", buyFreeSet.size());
 		
 		List<TradingStockInfo> list;
 		{
@@ -290,16 +290,22 @@ public class UpdateTradingStock {
 				if (!map.containsKey(e.stockCode)) map.put(e.stockCode, e);
 			}
 			
-			logger.info("stock    {}", stockList.size());
-			logger.info("etf      {}", etfList.size());
-			logger.info("map      {}", map.size());
+			logger.info("stock      {}", stockList.size());
+			logger.info("etf        {}", etfList.size());
+			logger.info("map        {}", map.size());
 			
 			list = map.values().stream().collect(Collectors.toList());
 		}
-		logger.info("list     {}", list.size());
+		logger.info("list       {}", list.size());
+
+		var stockCodeSet = yokwe.finance.stock.us.StockInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		logger.info("stockCode  {}", stockCodeSet.size());
+
+		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());
+		logger.info("list2      {}", list2.size());
 		
-		logger.info("save  {}  {}", list.size(), TradingStock.getPath());
-		TradingStock.save(list);
+		logger.info("save  {}  {}", list2.size(), TradingStock.getPath());
+		TradingStock.save(list2);
 	}
 	
 	public static void main(String[] args) {
