@@ -74,3 +74,10 @@ update-stock-info-us:
 	ant provider-nasdaq-update-stock-info
 	ant provider-nyse-update-stock-info
 	ant stock-us-update-stock-info
+
+
+update-trading-sock:
+	ant provider-monex-update-trading-stock
+	ant provider-moomoo-update-trading-stock
+	ant provider-rakuten-update-trading-stock
+	ant provider-sbi-update-trading-stock
