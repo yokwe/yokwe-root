@@ -40,6 +40,14 @@ public class UpdateStockDividend {
 		Dividends dividends = Dividends.getInstance(request.symbol, request.assetClass, 16); // up to 1 years  16 = 12 + 4
 		// {"data":{"exDividendDate":"N/A","dividendPaymentDate":"N/A","yield":"N/A","annualizedDividend":"N/A","payoutRatio":"N/A","dividends":{"headers":null,"rows":null}},
 		
+		if (dividends == null) {
+			logger.warn("dividend is null {}", request.symbol);
+			// Add dummy entry
+			StockDividend stockDividend = new StockDividend(request.symbol);
+			stockDividendMap.put(request.symbol, stockDividend);
+			StockDividend.save(stockDividendMap.values());
+			return;
+		}
 		if (dividends.data == null) {
 			logger.warn("data is null {}", request.symbol);
 			// Add dummy entry
