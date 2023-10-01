@@ -61,6 +61,7 @@ public class UpdateStockStats {
 			statsUS.sbi       = e.sbi;
 			statsUS.rakuten   = e.rakuten;
 			statsUS.nikko     = e.nikko;
+			statsUS.moomoo    = e.moomoo;
 			
 			statsUS.type      = e.type.toString();
 			statsUS.name      = e.name;

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.us.Stock.Type;
 import yokwe.stock.us.monex.MonexStock;
+import yokwe.stock.us.moomoo.MoomooStock;
 import yokwe.stock.us.nikko.NikkoStock;
 import yokwe.stock.us.rakuten.RakutenBuyFreeETF;
 import yokwe.stock.us.rakuten.RakutenStock;
@@ -25,17 +26,20 @@ public class UpdateTradingStock {
 		var sbiSet     = SBIStock.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
 		var rakutenSet = RakutenStock.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
 		var nikkoSet   = NikkoStock.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
+		var moomooSet  = MoomooStock.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
 		
 		Set<String> allSet = new TreeSet<>();
 		allSet.addAll(monexSet);
 		allSet.addAll(sbiSet);
 		allSet.addAll(rakutenSet);
 		allSet.addAll(nikkoSet);
+		allSet.addAll(moomooSet);
 		logger.info("stock   {}", stockMap.size());
 		logger.info("monex   {}", monexSet.size());
 		logger.info("sbi     {}", sbiSet.size());
 		logger.info("rakuten {}", rakutenSet.size());
 		logger.info("nikko   {}", nikkoSet.size());
+		logger.info("moomoo  {}", moomooSet.size());
 		logger.info("all     {}", allSet.size());
 		
 		var sbiBuyFreeETFSet     = SBIBuyFreeETF.getList().stream().map(o -> o.symbol).collect(Collectors.toSet());
@@ -59,6 +63,7 @@ public class UpdateTradingStock {
 				String sbi     = "0";
 				String rakuten = "0";
 				String nikko   = "0";
+				String moomoo  = "0";
 				Type   type    = stock.type;
 				String name    = stock.name;
 
@@ -80,8 +85,11 @@ public class UpdateTradingStock {
 				if (nikkoSet.contains(symbol)) {
 					nikko = "1";
 				}
+				if (moomooSet.contains(symbol)) {
+					moomoo = "1";
+				}
 
-				var tradingSymbol = new TradingStock(symbol, monex, sbi, rakuten, nikko, type, name);
+				var tradingSymbol = new TradingStock(symbol, monex, sbi, rakuten, nikko, moomoo, type, name);
 				list.add(tradingSymbol);
 			}
 			logger.info("save    {} {}", list.size(), TradingStock.getPath());

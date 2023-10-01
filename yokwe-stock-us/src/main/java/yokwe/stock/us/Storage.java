@@ -122,4 +122,16 @@ public final class Storage {
 		}
 	}
 	
+	// Moomoo
+	public static class Moomoo {
+		public static final String PREFIX = "moomoo";
+		
+		public static String getPath(String path) {
+			return Storage.getPath(PREFIX, path);
+		}
+		public static String getPath(String prefix, String path) {
+			return getPath(String.format("%s/%s", prefix, path));
+		}
+	}
+	
 }

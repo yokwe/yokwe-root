@@ -50,5 +50,6 @@ update-trading-stock:
 	ant monex-update-monex-stock
 	ant sbi-update-sbi-stock
 	ant rakuten-update-rakuten-stock
+	ant moomoo-update-moomoo-stock
 	ant update-trading-stock
 	cd /mnt/stock/us ; tar cfz /mnt/stock/us/save/trading_$$(date +%Y%m%d).taz monex nikko rakuten sbi *csv
