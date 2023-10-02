@@ -121,7 +121,7 @@ public class UpdateREIT {
 		List<REIT> list = getList(URL, PAGE_FILE);
 		logger.info("list  {}", list.size());
 				
-		logger.info("save   {}  {}", list.size(), REIT.getPath());
+		logger.info("save  {}  {}", list.size(), REIT.getPath());
 		REIT.save(list);
 		
 		logger.info("STOP");

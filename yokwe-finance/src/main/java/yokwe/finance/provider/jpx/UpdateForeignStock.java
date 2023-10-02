@@ -104,7 +104,7 @@ public class UpdateForeignStock {
 		List<ForeignStock> list = getList(URL, PAGE_FILE);
 		logger.info("list  {}", list.size());
 				
-		logger.info("save   {}  {}", list.size(), ForeignStock.getPath());
+		logger.info("save  {}  {}", list.size(), ForeignStock.getPath());
 		ForeignStock.save(list);
 		
 		logger.info("STOP");

@@ -121,7 +121,7 @@ public class UpdateInfraFund {
 		List<InfraFund> list = getList(URL, PAGE_FILE);
 		logger.info("list  {}", list.size());
 				
-		logger.info("save   {}  {}", list.size(), InfraFund.getPath());
+		logger.info("save  {}  {}", list.size(), InfraFund.getPath());
 		InfraFund.save(list);
 		
 		logger.info("STOP");
