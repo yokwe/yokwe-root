@@ -126,6 +126,26 @@
 		</java>
 	</target>
 	
+
+	<!-- Provider JREIT -->
+	<target name="provider-jreit-update-reit-info">
+		<java module="yokwe.finance/yokwe.finance.provider.jreit.UpdateREITInfo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provider-jreit-update-reit-div">
+		<java module="yokwe.finance/yokwe.finance.provider.jreit.UpdateREITDiv" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Fund JP -->
 	<target name="fund-jp-update-fund-div-price">
 		<java module="yokwe.finance/yokwe.finance.fund.jp.UpdateFundDivPrice" fork="true">
@@ -221,7 +241,7 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-
+	
 	
 	<!-- Stock US -->
 	<target name="stock-us-update-stock-info">
