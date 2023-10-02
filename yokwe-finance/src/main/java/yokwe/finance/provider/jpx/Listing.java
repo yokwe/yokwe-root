@@ -62,7 +62,7 @@ public class Listing extends Sheet implements Comparable<Listing> {
 		MID_400 ("TOPIX Mid400"),
 		SMALL_1 ("TOPIX Small 1"),
 		SMALL_2 ("TOPIX Small 2"),
-		ETF_ETN ("-");
+		OTHER   ("-");
 		
 		public final String value;
 		private Topix(String newValue) {

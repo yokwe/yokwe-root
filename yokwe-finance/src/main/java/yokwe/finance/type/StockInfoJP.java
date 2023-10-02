@@ -76,7 +76,7 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 		MID_400,
 		SMALL_1,
 		SMALL_2,
-		ETF_ENT,
+		OTHER,
 		NEW;
 		
 		// Core Large Mid Small

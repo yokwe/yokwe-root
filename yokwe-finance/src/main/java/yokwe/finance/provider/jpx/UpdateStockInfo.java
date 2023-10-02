@@ -33,7 +33,7 @@ public class UpdateStockInfo {
 		topixMap.put(Listing.Topix.MID_400,  StockInfoJP.Topix.MID_400);
 		topixMap.put(Listing.Topix.SMALL_1,  StockInfoJP.Topix.SMALL_1);
 		topixMap.put(Listing.Topix.SMALL_2,  StockInfoJP.Topix.SMALL_2);
-		topixMap.put(Listing.Topix.ETF_ETN,  StockInfoJP.Topix.ETF_ENT);
+		topixMap.put(Listing.Topix.OTHER,  StockInfoJP.Topix.OTHER);
 	}
 	
 	public static void main(String[] args) {
