@@ -18,72 +18,73 @@ public class UpdateETFInfo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class ETF {
+		public static class Data {
+			             public Category           category;
+			             public String             targetIndex;
+			             public String             stockCode;
+			             public String             stockName;
+			@JSON.Ignore public ManagementCompany  managementCompany;
+			
+			@JSON.Ignore public BigDecimal         minInvest;
+			@JSON.Ignore public BigDecimal         netAssets;
+			             public BigDecimal         managementFee;
+			@JSON.Ignore public BigDecimal         deviation;
+			@JSON.Ignore public BigDecimal         dividendYield;
+			@JSON.Ignore public int                isFavorite;
+			@JSON.Ignore public int                marketMake;
+			
+			@JSON.Ignore public Icons              icons;
+
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+		
+		public static class Category {
+			             public int    categoryCode;
+			             public String categoryName;
+			@JSON.Ignore public int    orderNum;
+			
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+		
+		public static class ManagementCompany {
+			public String code;
+			public String name;
+			public String url;
+			
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+		
+		public static class Icons {
+			public int genbutsu;
+			public int foreign;
+			public int otcswap;
+			public int linked;
+			public int etn;
+			public int lev;
+			public int inv;
+			public int jdr;
+			public int longterm;
+			public int financialfuture;
+			public int activefund;
+			public int newNISA;
+			
+			@Override
+			public String toString() {
+				return StringUtil.toString(this);
+			}
+		}
+
 		public String status;
 		public Data[] data;
-		
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-	}
-	
-	public static class Data {
-		             public Category           category;
-		             public String             targetIndex;
-		             public String             stockCode;
-		             public String             stockName;
-		@JSON.Ignore public ManagementCompany  managementCompany;
-		
-		@JSON.Ignore public BigDecimal         minInvest;
-		@JSON.Ignore public BigDecimal         netAssets;
-		             public BigDecimal         managementFee;
-		@JSON.Ignore public BigDecimal         deviation;
-		@JSON.Ignore public BigDecimal         dividendYield;
-		@JSON.Ignore public int                isFavorite;
-		@JSON.Ignore public int                marketMake;
-		
-		@JSON.Ignore public Icons              icons;
-
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-	}
-	
-	public static class Category {
-		             public int    categoryCode;
-		             public String categoryName;
-		@JSON.Ignore public int    orderNum;
-		
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-	}
-	
-	public static class ManagementCompany {
-		public String code;
-		public String name;
-		public String url;
-		
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-	}
-	public static class Icons {
-		public int genbutsu;
-		public int foreign;
-		public int otcswap;
-		public int linked;
-		public int etn;
-		public int lev;
-		public int inv;
-		public int jdr;
-		public int longterm;
-		public int financialfuture;
-		public int activefund;
-		public int newNISA;
 		
 		@Override
 		public String toString() {
