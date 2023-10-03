@@ -9,7 +9,6 @@ public class TradingStockInfo implements Comparable<TradingStockInfo>{
 	public enum TradeType {
 		BUY_SELL,
 		SELL,
-		PROHIBIT,
 	}
 	
 	public String    stockCode;
@@ -21,7 +20,6 @@ public class TradingStockInfo implements Comparable<TradingStockInfo>{
 		this.feeType   = feeType;
 		this.tradeType = tradeType;
 	}
-	public TradingStockInfo() {}
 	
 	@Override
 	public String toString() {
