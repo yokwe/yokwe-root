@@ -32,7 +32,6 @@ public class UpdateStockInfo {
 		}
 		{
 			// make set of trading stockCode of each broakerage
-
 			var monexList   = yokwe.finance.provider.monex.TradingStock.getList().stream().map(o -> o.stockCode).toList();
 			var moomooList  = yokwe.finance.provider.moomoo.TradingStock.getList().stream().map(o -> o.stockCode).toList();
 			var rakutenList = yokwe.finance.provider.rakuten.TradingStock.getList().stream().map(o -> o.stockCode).toList();
