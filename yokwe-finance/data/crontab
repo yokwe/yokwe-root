@@ -13,7 +13,7 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 
 # CLEAR LOG FILE
 #m   h     dom mon dow   command
-59   23    *   *     6   cd $YOKWE_FINANCE; ( make clear-log-file ) 1>>tmp/cron.log 2>&1
+59   23    *   *   6     cd $YOKWE_FINANCE; ( make clear-log-file ) 1>>tmp/cron.log 2>&1
 
 
 # CLEAR SAVE FILE
@@ -21,30 +21,29 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 02   1     *   *   *     cd $YOKWE_FINANCE; ( make clear-save-file ) 1>>tmp/cron.log 2>&1
 
 
-# DALY SAVE FILE
+# DAILY   --  SAVE FILE
 #m   h     dom mon dow   command
 5    5     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
+5   13     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
 5   23     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
 
 
-# WEEKLY  -- AFTER update-stock-jp-info
-10   4     *     * 6     cd $YOKWE_FINANCE; ( make update-etf-div-jp  ) 1>>tmp/cron.log 2>&1
-15   4     *     * 6     cd $YOKWE_FINANCE; ( make update-reit-div-jp ) 1>>tmp/cron.log 2>&1
-20   4     *     * 6     cd $YOKWE_FINANCE; ( make update-fund-jp     ) 1>>tmp/cron.log 2>&1
-
-
-# STOCK JP
+# WEEKLY  --  AFTER update-stock-jp-info
 #m   h     dom mon dow   command
-02   4     1-9   * 1-5   cd $YOKWE_FINANCE; ( make update-jpx-listing    ) 1>>tmp/cron.log 2>&1
-05   4     *     * 1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-info  ) 1>>tmp/cron.log 2>&1
-55   9     *     * 1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
-15   12    *     * 1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
-45   15    *     * 1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
+10   4     *   *   6     cd $YOKWE_FINANCE; ( make update-etf-div-jp  ) 1>>tmp/cron.log 2>&1
+15   4     *   *   6     cd $YOKWE_FINANCE; ( make update-reit-div-jp ) 1>>tmp/cron.log 2>&1
+20   4     *   *   6     cd $YOKWE_FINANCE; ( make update-fund-jp     ) 1>>tmp/cron.log 2>&1
 
 
+# DAILY  --  STOCK JP
+#m   h     dom mon dow   command
+02   4     1-9 *   1-5   cd $YOKWE_FINANCE; ( make update-jpx-listing    ) 1>>tmp/cron.log 2>&1
+05   4     *   *   1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-info  ) 1>>tmp/cron.log 2>&1
+55   9     *   *   1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
+15   12    *   *   1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
+45   15    *   *   1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
 
-# STOCK US
+
+# DAILY  --  STOCK US
 #m   h     dom mon dow   command
 03   11    *   *   2-6   cd $YOKWE_FINANCE; ( make update-stock-info-us update-trading-sock ) 1>>tmp/cron.log 2>&1
-
-
