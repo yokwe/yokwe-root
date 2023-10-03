@@ -87,12 +87,9 @@ public class UpdateStockPrice {
 	}
 	private static int processTask(List<Task> taskList) {
 		int count    = 0;
-		int countMod = 0;
 		int countA   = 0;
 		int countB   = 0;
-		int countC   = 0;
-		int countD   = 0;
-		int countE   = 0;
+		int countMod = 0;
 		Collections.shuffle(taskList);
 		for(var task: taskList) {
 			String stockCode = task.stockCode;
@@ -106,32 +103,20 @@ public class UpdateStockPrice {
 				task.startDate = task.startDate.minusDays(1);
 				skipDate = task.startDate;
 			}
-							
-			var historical = Historical.getInstance(stockCode, task.assetClass, task.startDate, task.stopDate);
 			
-			if (historical == null) {
-				logger.warn("historical is null  {}", task);
+			var list = StockPrice.getList(stockCode);
+
+			var historical = Historical.getInstance(stockCode, task.assetClass, task.startDate, task.stopDate);
+			if (historical == null || historical.data == null || historical.data.tradesTable == null || historical.data.tradesTable.rows == null) {
+				if (list.isEmpty()) {
+					// Write file to update last modified time
+					StockPrice.save(stockCode, new ArrayList<OHLCV>());
+				}
 				countA++;
-				continue;
-			}
-			if (historical.data == null) {
-				logger.warn("historical.data is null  {}", task);
-				countB++;
-				continue;
-			}
-			if (historical.data.tradesTable == null) {
-				logger.warn("historical.data.tradesTable is null  {}", task);
-				countC++;
-				continue;
-			}
-			if (historical.data.tradesTable.rows == null) {
-				logger.warn("historical.data.tradesTable.rows is null  {}", task);
-				countD++;
 				continue;
 			}
 			
 			// read existing data
-			var list = StockPrice.getList(stockCode);
 			var set  = list.stream().map(o -> o.date).collect(Collectors.toSet());
 			int countAdd = 0;
 			for(var row: historical.data.tradesTable.rows) {
@@ -161,7 +146,7 @@ public class UpdateStockPrice {
 					countAdd++;
 				}
 			}
-			countE++;
+			countB++;
 
 //			logger.info("save  {}  {}", list.size(), StockPrice.getPath(stockCode));
 			if (countAdd != 0) {
@@ -171,9 +156,6 @@ public class UpdateStockPrice {
 		}
 		logger.info("countA   {}", countA);
 		logger.info("countB   {}", countB);
-		logger.info("countC   {}", countC);
-		logger.info("countD   {}", countD);
-		logger.info("countE   {}", countE);
 
 		logger.info("countMod {}", countMod);
 		
