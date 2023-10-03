@@ -125,7 +125,7 @@ public class UpdateStockDivInfo {
 			
 			var list = StockDivInfo.getList(stockCode);
 			
-			var div = Dividends.getInstance(StockInfo.toNASDAQSymbol(stockCode), task.assetClass, task.limit);
+			var div = Dividends.getInstance(StockInfoUS.toNASDAQSymbol(stockCode), task.assetClass, task.limit);
 			if (div == null || div.data == null || div.data.dividends == null || div.data.dividends.rows == null) {
 				if (list.isEmpty()) {
 					StockDivInfo.save(stockCode, new ArrayList<StockDivInfo>());

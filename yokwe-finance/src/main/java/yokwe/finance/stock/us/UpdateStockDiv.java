@@ -17,7 +17,6 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import yokwe.finance.provider.nasdaq.StockInfo;
 import yokwe.finance.provider.nasdaq.api.AssetClass;
 import yokwe.finance.provider.nasdaq.api.Dividends;
 import yokwe.finance.type.DailyValue;
@@ -131,14 +130,14 @@ public class UpdateStockDiv {
 			
 			var list = StockDiv.getList(stockCode);
 
-			var div = Dividends.getInstance(StockInfo.toNASDAQSymbol(stockCode), task.assetClass, task.limit);
+			var div = Dividends.getInstance(StockInfoUS.toNASDAQSymbol(stockCode), task.assetClass, task.limit);
 			if (div == null || div.data == null || div.data.dividends == null || div.data.dividends.rows == null) {
 				if (list.isEmpty()) {
 					// Write file to update last modified time
 					StockDiv.save(stockCode, new ArrayList<DailyValue>());
-					countA++;
-					continue;
 				}
+				countA++;
+				continue;
 			}
 			
 			int countAdd = 0;
@@ -198,7 +197,7 @@ public class UpdateStockDiv {
 	
 	private static void update() {
 		// Use StockInfo of stock us
-		var stockList = yokwe.finance.stock.us.StockInfo.getList();
+		var stockList = StockInfo.getList();
 		logger.info("list     {}", stockList.size());
 
 		for(int count = 1; count < 10; count++) {
@@ -223,7 +222,7 @@ public class UpdateStockDiv {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: yokwe.finance.stock.us.StockInfo.getList()) {
+		for(var e: StockInfo.getList()) {
 			File file = new File(StockDiv.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
