@@ -1,11 +1,14 @@
 package yokwe.finance.stock.us;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import yokwe.finance.provider.nasdaq.api.API;
@@ -13,6 +16,7 @@ import yokwe.finance.provider.nasdaq.api.AssetClass;
 import yokwe.finance.provider.nasdaq.api.Historical;
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoUS;
+import yokwe.util.FileUtil;
 import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 
@@ -202,8 +206,22 @@ public class UpdateStockPrice {
 		}
 	}
 	
+	
+	private static void moveUnknownFile() {
+		Set<String> validNameSet = new TreeSet<>();
+		for(var e: yokwe.finance.stock.us.StockInfo.getList()) {
+			File file = new File(StockPrice.getPath(e.stockCode));
+			validNameSet.add(file.getName());
+		}
+		
+		FileUtil.moveUnknownFile(validNameSet, StockPrice.getPath(), StockPrice.getPathDelist());
+	}
+	
+	
 	public static void main(String[] args) throws IOException {
 		logger.info("START");
+		
+		moveUnknownFile();
 		
 		update();
 		
