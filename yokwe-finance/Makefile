@@ -21,7 +21,7 @@ build:
 	( cd ..; mvn ant:ant install )
 
 full-build:
-	( cd ..; mvn ant:ant install )
+	( cd ..; mvn clean ant:ant install )
 
 
 check_data_path:
@@ -99,7 +99,7 @@ update-fund-jp:
 #
 # STOCK US
 #
-update-stock-info-us:
+update-stock-info-us: update-trading-sock
 	ant provider-bats-update-stock-info
 	ant provider-nasdaq-update-stock-info
 	ant provider-nyse-update-stock-info
