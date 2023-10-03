@@ -1,5 +1,7 @@
 package yokwe.finance.provider.jpx;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +24,31 @@ public class UpdateListing {
 	
 	private static final String PATH_DATAFILE = Storage.provider_jpx.getPath("data_j.xls");
 	private static final String URL_DATAFILE  = StringUtil.toURLString(PATH_DATAFILE);
-
-	private static void processRequest() {
+	
+	private static final long GRACE_PERIOD_IN_DAY = 30;
+	
+	private static void update() {
+		final String lastDate;
+		{
+			var list = Listing.getList();
+			if (!list.isEmpty()) {
+				var string = list.get(0).date;
+				lastDate = string.replace("-", "");
+				
+				var today    = LocalDate.now();
+				var date     = LocalDate.parse(string);				
+				var duration = ChronoUnit.DAYS.between(date, today);
+				logger.info("duration  {}  {}  {} day", date, today, duration);
+				
+				if (duration < GRACE_PERIOD_IN_DAY) {
+					logger.info("No need to update  --  within grace period  {} days", GRACE_PERIOD_IN_DAY);
+					return;
+				}
+			} else {
+				lastDate = "XX";
+			}
+		}
+		
 		logger.info("download {}", URL);
 		HttpUtil http = HttpUtil.getInstance().withRawData(true);
 		HttpUtil.Result result = http.download(URL);
@@ -44,6 +69,16 @@ public class UpdateListing {
 		try (SpreadSheet spreadSheet = new SpreadSheet(URL_DATAFILE, true)) {
 			List<Listing> rawDataList = Sheet.extractSheet(spreadSheet, Listing.class);
 			logger.info("read  {}", rawDataList.size());
+			
+			{
+				if (!rawDataList.isEmpty()) {
+					String date = rawDataList.get(0).date;
+					if (date.equals(lastDate)) {
+						logger.info("No need to update  --  same date  {}", date);
+						return;
+					}
+				}
+			}
 			
 			for(Listing rawData: rawDataList) {
 				// Trim space of rawData
@@ -103,9 +138,12 @@ public class UpdateListing {
 		try {
 			logger.info("START");
 			
-			processRequest();
+			update();
 			
 			logger.info("STOP");
+		} catch (Throwable e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
 		} finally {
 			System.exit(0);
 		}
