@@ -26,6 +26,7 @@ public class UpdateStockInfo {
 	
 	// ISO 10381  MIC CODE
 	//   https://www.iso20022.org/market-identifier-codes
+	private static final String MIC_UNLISTED = "XXXX";
 	private static final Map<String, Market> marketMap = new TreeMap<>();
 	static {
 		marketMap.put("ARCX", Market.NYSE);   // NYSE ARCA
@@ -106,7 +107,11 @@ public class UpdateStockInfo {
 				countSkip++;
 				continue;
 			}
-
+			if (e.micCode.equals(MIC_UNLISTED)) {
+				// this stock is unlisted stock
+				countSkip++;
+				continue;
+			}
 			
 			String stockCode = e.symbolTicker;
 			Market market    = marketMap.get(e.micCode);
