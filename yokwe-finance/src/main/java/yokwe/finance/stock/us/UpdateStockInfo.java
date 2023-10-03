@@ -1,51 +1,57 @@
 package yokwe.finance.stock.us;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import yokwe.finance.type.StockInfoUS;
 import yokwe.finance.type.StockInfoUS.Market;
 
 public class UpdateStockInfo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static void update() {
-		var batsList   = yokwe.finance.provider.bats.StockInfo.getList();
-		var nasdaqList = yokwe.finance.provider.nasdaq.StockInfo.getList();
-		var nyseList   = yokwe.finance.provider.nyse.StockInfo.getList();
-		logger.info("batsList    {}", batsList.size());
-		logger.info("nasdaqList  {}", nasdaqList.size());
-		logger.info("nyseList    {}", nyseList.size());
-		
-		// build stockInfo set from bats, nasdaq and nyse
-		var set = new HashSet<StockInfoUS>();
+		var list = yokwe.finance.provider.nasdaq.StockInfo.getList();
+		logger.info("list        {}", list.size());
 		{
-			long countBATS   = batsList.stream().filter(o -> o.market == Market.BATS).peek(o -> set.add(o)).count();
-			long countNASDAQ = nasdaqList.stream().filter(o -> o.market == Market.NASDAQ).peek(o -> set.add(o)).count();
-			long countNYSE   = nyseList.stream().filter(o -> o.market == Market.NYSE).peek(o -> set.add(o)).count();
-			logger.info("countBATS   {}", countBATS);
-			logger.info("countNASDAQ {}", countNASDAQ);
-			logger.info("countNYSE   {}", countNYSE);
-			logger.info("set         {}", set.size());
-		}
-		
-		// build stockInfo set using nyase stockInfo
-		var list  = new ArrayList<StockInfoUS>();
-		{
-			var map = nyseList.stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
+			// make set of genuine stockCode from each market
+			var batsList   = yokwe.finance.provider.bats.StockInfo.getList().stream().filter(o -> o.market == Market.BATS).map(o -> o.stockCode).toList();
+			var nasdaqList = yokwe.finance.provider.nasdaq.StockInfo.getList().stream().filter(o -> o.market == Market.NASDAQ).map(o -> o.stockCode).toList();
+			var nyseList   = yokwe.finance.provider.nyse.StockInfo.getList().stream().filter(o -> o.market == Market.NYSE).map(o -> o.stockCode).toList();
+			logger.info("batsList    {}", batsList.size());
+			logger.info("nasdaqList  {}", nasdaqList.size());
+			logger.info("nyseList    {}", nyseList.size());
 			
-			for(var e: set) {
-				var stockInfo = map.get(e.stockCode);
-				if (stockInfo == null) {
-					logger.warn("not found in nyse  {}  {}", e.stockCode, e.name);
-				} else {
-					list.add(stockInfo);
-				}
-			}
-			logger.info("list        {}", list.size());
+			var set = new HashSet<String>();		
+			set.addAll(batsList);
+			set.addAll(nasdaqList);
+			set.addAll(nyseList);
+			logger.info("set         {}", set.size());
+			
+			// remove entry from list if stockCode is not in set
+			list.removeIf(o -> !set.contains(o.stockCode));
+			logger.info("list2       {}", list.size());
+		}
+		{
+			// make set of trading stockCode of each broakerage
+
+			var monexList   = yokwe.finance.provider.monex.TradingStock.getList().stream().map(o -> o.stockCode).toList();
+			var moomooList  = yokwe.finance.provider.moomoo.TradingStock.getList().stream().map(o -> o.stockCode).toList();
+			var rakutenList = yokwe.finance.provider.rakuten.TradingStock.getList().stream().map(o -> o.stockCode).toList();
+			var sbiList     = yokwe.finance.provider.sbi.TradingStock.getList().stream().map(o -> o.stockCode).toList();
+			
+			logger.info("monexList   {}", monexList.size());
+			logger.info("moomooList  {}", moomooList.size());
+			logger.info("rakutenList {}", rakutenList.size());
+			logger.info("sbiList     {}", sbiList.size());
+			var set = new HashSet<String>();		
+			set.addAll(monexList);
+			set.addAll(moomooList);
+			set.addAll(rakutenList);
+			set.addAll(sbiList);
+			logger.info("set         {}", set.size());
+			
+			// remove entry from list if stockCode is not appeared in set
+			list.removeIf(o -> !set.contains(o.stockCode));
+			logger.info("list3       {}", list.size());
 		}
 		
 		logger.info("save  {}  {}", list.size(), StockInfo.getPath());
