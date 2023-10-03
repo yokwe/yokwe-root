@@ -18,7 +18,19 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 
 # CLEAR SAVE FILE
 #m   h     dom mon dow   command
-02   1     *   *     *   cd $YOKWE_FINANCE; ( make clear-save-file ) 1>>tmp/cron.log 2>&1
+02   1     *   *   *     cd $YOKWE_FINANCE; ( make clear-save-file ) 1>>tmp/cron.log 2>&1
+
+
+# DALY SAVE FILE
+#m   h     dom mon dow   command
+5    5     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
+5   23     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
+
+
+# WEEKLY  -- AFTER update-stock-jp-info
+10   4     *     * 6     cd $YOKWE_FINANCE; ( make update-etf-div-jp  ) 1>>tmp/cron.log 2>&1
+15   4     *     * 6     cd $YOKWE_FINANCE; ( make update-reit-div-jp ) 1>>tmp/cron.log 2>&1
+20   4     *     * 6     cd $YOKWE_FINANCE; ( make update-fund-jp     ) 1>>tmp/cron.log 2>&1
 
 
 # STOCK JP
@@ -28,6 +40,7 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 55   9     *     * 1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
 15   12    *     * 1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
 45   15    *     * 1-5   cd $YOKWE_FINANCE; ( make update-stock-jp-price ) 1>>tmp/cron.log 2>&1
+
 
 
 # STOCK US
