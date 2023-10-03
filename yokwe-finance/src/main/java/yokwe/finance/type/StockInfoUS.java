@@ -7,6 +7,11 @@ public final class StockInfoUS implements Comparable<StockInfoUS> {
 		return symbol.replace("-", "-P").replace(".", "-");
 	}
 	
+	public static String toNASDAQSymbol(String stockCode) {
+		return stockCode.replace("-", ".PR"); // BC-A => BC.PRA
+	}
+	
+	
 	public enum Market {
 		BATS,
 		NASDAQ,

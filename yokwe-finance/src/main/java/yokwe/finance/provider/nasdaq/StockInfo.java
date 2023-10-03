@@ -27,10 +27,4 @@ public class StockInfo {
 	public static void save(List<StockInfoUS> list) {
 		ListUtil.save(StockInfoUS.class, getPath(), list);
 	}
-	
-	
-	public static String toNASDAQSymbol(String stockCode) {
-		return stockCode.replace("-", ".PR"); // BC-A => BC.PRA
-	}
-
 }
