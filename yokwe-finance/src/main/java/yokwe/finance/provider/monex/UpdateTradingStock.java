@@ -76,12 +76,11 @@ public class UpdateTradingStock {
 					UsMeigara usMeigara = JSON.unmarshal(UsMeigara.class, string);
 					if (usMeigara.name.isEmpty()) continue;
 					
-					TradingStockInfo tradingStock = new TradingStockInfo();
-					tradingStock.stockCode = usMeigara.stockCode;
-					tradingStock.feeType   = TradingStockInfo.FeeType.PAID;
-					tradingStock.tradeType = TradingStockInfo.TradeType.BUY_SELL;
+					var stockCode = usMeigara.stockCode;
+					var feeType   = TradingStockInfo.FeeType.PAID;
+					var tradeType = TradingStockInfo.TradeType.BUY_SELL;
 					
-					list.add(tradingStock);
+					list.add(new TradingStockInfo(stockCode, feeType, tradeType));
 				}
 			}
 		}

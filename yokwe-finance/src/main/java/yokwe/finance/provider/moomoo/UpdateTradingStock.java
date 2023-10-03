@@ -90,12 +90,14 @@ public class UpdateTradingStock {
 		List<TradingStockInfo> list = new ArrayList<>();
 		{
 			for(var e: StockInfo.getInstance(page)) {
-				TradingStockInfo tradingStock = new TradingStockInfo();
-				tradingStock.stockCode = e.stockCode.replace("*", "");
-				tradingStock.feeType   = TradingStockInfo.FeeType.PAID;
-				tradingStock.tradeType = e.stockCode.contains("*") ?  TradingStockInfo.TradeType.PROHIBIT : TradingStockInfo.TradeType.BUY_SELL;
-
-				list.add(tradingStock);
+				// skip prohibited stock
+				if (e.stockCode.contains("*")) continue;
+				
+				var stockCode = e.stockCode;
+				var feeType   = TradingStockInfo.FeeType.PAID;
+				var tradeType = TradingStockInfo.TradeType.BUY_SELL;
+				
+				list.add(new TradingStockInfo(stockCode, feeType, tradeType));
 			}
 		}
 		logger.info("list       {}", list.size());

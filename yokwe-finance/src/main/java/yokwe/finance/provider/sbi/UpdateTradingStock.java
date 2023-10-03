@@ -277,12 +277,10 @@ public class UpdateTradingStock {
 				if (stockCode.equals("ティッカー")) continue;
 				if (10 <= stockCode.length()) continue;
 				
-				TradingStockInfo tradingStock = new TradingStockInfo();
-				tradingStock.stockCode = stockCode;
-				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
-				tradingStock.tradeType = TradingStockInfo.TradeType.BUY_SELL;
+				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
+				var tradeType = TradingStockInfo.TradeType.BUY_SELL;
 				
-				list.add(tradingStock);
+				list.add(new TradingStockInfo(stockCode, feeType, tradeType));
 			}
 		}
 		logger.info("list       {}", list.size());

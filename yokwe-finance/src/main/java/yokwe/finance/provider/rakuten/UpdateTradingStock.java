@@ -139,14 +139,16 @@ public class UpdateTradingStock {
 					logger.info("sock duplicate  {}", stockCode);
 					continue;
 				}
+				if (!data.tradeable.equals(TRADEABLE_YES)) {
+					// skip not tradeable
+					continue;
+				}
 				set.add(stockCode);
 				
-				TradingStockInfo tradingStock = new TradingStockInfo();
-				tradingStock.stockCode = stockCode;
-				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
-				tradingStock.tradeType = data.tradeable.equals(TRADEABLE_YES) ? TradingStockInfo.TradeType.BUY_SELL : TradingStockInfo.TradeType.PROHIBIT;
+				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
+				var tradeType = TradingStockInfo.TradeType.BUY_SELL;
 				
-				list.add(tradingStock);
+				list.add(new TradingStockInfo(stockCode, feeType, tradeType));
 			}
 			return list;
 		}
@@ -261,12 +263,10 @@ public class UpdateTradingStock {
 					throw new UnexpectedException("Unexpected");
 				}
 				
-				TradingStockInfo tradingStock = new TradingStockInfo();
-				tradingStock.stockCode = stockCode;
-				tradingStock.feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
-				tradingStock.tradeType = TradingStockInfo.TradeType.BUY_SELL;
+				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
+				var tradeType = TradingStockInfo.TradeType.BUY_SELL;
 				
-				list.add(tradingStock);
+				list.add(new TradingStockInfo(stockCode, feeType, tradeType));
 			}
 			return list;
 		}
