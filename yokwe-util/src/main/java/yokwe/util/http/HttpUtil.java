@@ -26,6 +26,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
@@ -390,6 +391,10 @@ public class HttpUtil {
 				}
 				throw new UnexpectedException("download");
 			} catch (SocketTimeoutException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.warn("{}", exceptionName);
+				return null;
+			} catch (NoHttpResponseException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.warn("{}", exceptionName);
 				return null;
