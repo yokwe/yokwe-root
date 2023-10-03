@@ -45,8 +45,12 @@ clear-log-file: check_data_path
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
 
-save-file: check_data_path
+save-all: check_data_path save-stock save-provider
+
+save-stock: check_data_path
 	cd $(DATA_PATH); tar cfz save/stock_$$(date +%Y%m%d).taz    stock
+
+save-provider: check_data_path
 	cd $(DATA_PATH); tar cfz save/provider_$$(date +%Y%m%d).taz provider
 
 
@@ -54,7 +58,7 @@ save-file: check_data_path
 # STOCK JP
 #
 update-jpx-listing:
-	ant provider-jpx-update-listring
+	ant provider-jpx-update-listring	
 
 update-stock-jp-info:
 	ant provider-jpx-update-etf
@@ -70,19 +74,26 @@ update-stock-jp-price:
 
 
 #
-# JITA
+# REIT JP
 #
-update-jita:
-	ant provider-jita-update-fund-info
-	ant provider-jita-update-fund-div-price
+update-reit-div-jp:
+	ant provider-jreit-update-reit-info
+	ant provider-jreit-update-reit-div
 	
 
 #
-# JREIT
+# ETF JP
 #
-update-jreit:
-	ant provider-jreit-update-reit-info
-	ant provider-jreit-update-reit-div
+update-etf-div-jp:
+	ant provider-manebu-update-etf-div-info
+	
+
+#
+# FUND JP
+#
+update-fund-jp:
+	ant provider-jita-update-fund-info
+	ant provider-jita-update-fund-div-price
 	
 
 #
