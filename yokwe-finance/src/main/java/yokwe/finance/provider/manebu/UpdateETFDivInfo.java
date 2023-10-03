@@ -220,7 +220,7 @@ public class UpdateETFDivInfo {
 		var list = new ArrayList<ETFInfo>();
 		int count = 0;
 		for(var stockCode: stockCodeList) {
-			if ((++count % 10) == 1) logger.info("{}  /  {}", count, stockCodeList.size());
+			if ((++count % 20) == 1) logger.info("{}  /  {}", count, stockCodeList.size());
 			
 			String stockCode4 = StockInfoJP.toStockCode4(stockCode);
 
