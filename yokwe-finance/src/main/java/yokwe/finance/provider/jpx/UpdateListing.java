@@ -1,8 +1,10 @@
 package yokwe.finance.provider.jpx;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -11,6 +13,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.provider.jpx.Listing.Kind;
 import yokwe.finance.type.StockInfoJP;
 import yokwe.util.FileUtil;
+import yokwe.util.HashCode;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -28,38 +31,47 @@ public class UpdateListing {
 	private static final long GRACE_PERIOD_IN_DAY = 30;
 	
 	private static void update() {
-		final String lastDate;
+		logger.info("download {}", URL);
 		{
-			var list = Listing.getList();
-			if (!list.isEmpty()) {
-				var string = list.get(0).date;
-				lastDate = string.replace("-", "");
+			File file = new File(PATH_DATAFILE);
+			
+			byte[] oldHashCode;
+			// check last modified date of file
+			{
+				if (file.canRead()) {
+					Instant  now          = Instant.now();
+					Instant  lastModified = FileUtil.getLastModified(PATH_DATAFILE);
+					Duration duration     = Duration.between(lastModified, now);
+					if (duration.toDays() <= GRACE_PERIOD_IN_DAY) {
+						logger.info("No need to update  --  within grace period  {} days", GRACE_PERIOD_IN_DAY);
+						return;
+					}
+					oldHashCode = HashCode.getHashCode(file);
+				} else {
+					oldHashCode = new byte[] {0};
+				}
+			}
+			
+			HttpUtil http = HttpUtil.getInstance().withRawData(true);
+			HttpUtil.Result result = http.download(URL);
+			
+			if (result != null && result.rawData != null) {
+				byte[] newHashCode = HashCode.getHashCode(result.rawData);
 				
-				var today    = LocalDate.now();
-				var date     = LocalDate.parse(string);				
-				var duration = ChronoUnit.DAYS.between(date, today);
-				logger.info("duration  {}  {}  {} day", date, today, duration);
+				logger.info("oldHashCode  {}", StringUtil.toHexString(oldHashCode));
+				logger.info("newHashCode  {}", StringUtil.toHexString(newHashCode));
 				
-				if (duration < GRACE_PERIOD_IN_DAY) {
-					logger.info("No need to update  --  within grace period  {} days", GRACE_PERIOD_IN_DAY);
+				if (Arrays.equals(oldHashCode, newHashCode)) {
+					logger.info("No need to update  --  same file contents");
 					return;
 				}
+				logger.info("save  {}  {}", result.rawData.length, PATH_DATAFILE);
+				FileUtil.rawWrite().file(file, result.rawData);
 			} else {
-				lastDate = "XX";
+				logger.error("Unexpected result");
+				logger.error("  result  {}", result);
+				throw new UnexpectedException("Unexpected result");
 			}
-		}
-		
-		logger.info("download {}", URL);
-		HttpUtil http = HttpUtil.getInstance().withRawData(true);
-		HttpUtil.Result result = http.download(URL);
-		
-		if (result != null && result.rawData != null) {
-			logger.info("save  {}  {}", result.rawData.length, PATH_DATAFILE);
-			FileUtil.rawWrite().file(PATH_DATAFILE, result.rawData);
-		} else {
-			logger.error("Unexpected result");
-			logger.error("  result  {}", result);
-			throw new UnexpectedException("Unexpected result");
 		}
 
 		logger.info("open  {}", URL_DATAFILE);
@@ -69,16 +81,6 @@ public class UpdateListing {
 		try (SpreadSheet spreadSheet = new SpreadSheet(URL_DATAFILE, true)) {
 			List<Listing> rawDataList = Sheet.extractSheet(spreadSheet, Listing.class);
 			logger.info("read  {}", rawDataList.size());
-			
-			{
-				if (!rawDataList.isEmpty()) {
-					String date = rawDataList.get(0).date;
-					if (date.equals(lastDate)) {
-						logger.info("No need to update  --  same date  {}", date);
-						return;
-					}
-				}
-			}
 			
 			for(Listing rawData: rawDataList) {
 				// Trim space of rawData
