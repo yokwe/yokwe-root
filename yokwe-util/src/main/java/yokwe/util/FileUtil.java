@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -314,12 +315,22 @@ public class FileUtil {
 	//
 	// convenience methods from File
 	//
-	public static boolean isDirectory(String path) {
-		File file = new File(path);
-		return file.isDirectory();
+	public static boolean isDirectory(String stringPath) {
+		Path path = Path.of(stringPath);
+		return Files.isDirectory(path);
 	}
-	public static boolean canRead(String path) {
-		File file = new File(path);
-		return file.canRead();
+	public static boolean canRead(String stringPath) {
+		Path path = Path.of(stringPath);
+		return Files.isReadable(path);
+	}
+	public static Instant getLastModified(String stringPath) {		
+		try {
+			Path path = Path.of(stringPath);
+			return Files.getLastModifiedTime(path).toInstant();
+		} catch (IOException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		}
 	}
 }
