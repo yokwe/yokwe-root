@@ -99,7 +99,7 @@ update-fund-jp:
 #
 # STOCK US
 #
-update-stock-info-us: update-trading-sock
+update-stock-us-info: update-trading-sock
 	ant provider-bats-update-stock-info
 	ant provider-nasdaq-update-stock-info
 	ant provider-nyse-update-stock-info
@@ -110,3 +110,9 @@ update-trading-sock:
 	ant provider-moomoo-update-trading-stock
 	ant provider-rakuten-update-trading-stock
 	ant provider-sbi-update-trading-stock
+
+update-stock-us-price:
+	ant stock-us-update-stock-price
+
+update-stock-us-div:
+	ant stock-us-update-stock-div
