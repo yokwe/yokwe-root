@@ -31,6 +31,8 @@ public class UpdateListing {
 	private static final long GRACE_PERIOD_IN_DAY = 30;
 	
 	private static void update() {
+		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAY);
+		
 		logger.info("download {}", URL);
 		{
 			File file = new File(PATH_DATAFILE);
