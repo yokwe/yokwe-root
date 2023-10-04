@@ -23,9 +23,9 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 
 # DAILY   --  SAVE FILE
 #m   h     dom mon dow   command
-5    5     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
-5   13     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
-5   23     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
+05   5     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
+05  13     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
+05  23     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1
 
 
 # WEEKLY  --  AFTER update-stock-jp-info
@@ -46,4 +46,8 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 
 # DAILY  --  STOCK US
 #m   h     dom mon dow   command
-03   11    *   *   2-6   cd $YOKWE_FINANCE; ( make update-stock-info-us update-trading-sock ) 1>>tmp/cron.log 2>&1
+20   12    *   *   2-6   cd $YOKWE_FINANCE; ( make update-stock-us-info  ) 1>>tmp/cron.log 2>&1
+# update-stock-us-price takes about 40 minutes
+20   13    *   *   2-6   cd $YOKWE_FINANCE; ( make update-stock-us-price ) 1>>tmp/cron.log 2>&1
+# update-stock-us-div takes 48 minutes first time. second time is 9 minutes
+20   14    *   *   2-6   cd $YOKWE_FINANCE; ( make update-stock-us-div   ) 1>>tmp/cron.log 2>&1
