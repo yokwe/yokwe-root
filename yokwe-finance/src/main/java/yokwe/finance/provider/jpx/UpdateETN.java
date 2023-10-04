@@ -31,40 +31,60 @@ public class UpdateETN {
 
 	private static final boolean DEBUG_USE_FILE = false;
 	
-/*
-
-<tr>
-  <td class="a-center tb-color001 w-space">2013/10/28</td>
-  <td class="tb-color001">東証マザーズ指数</td>
-  <td class="a-center tb-color001">
-    <a href="https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&amp;MKTN=T&amp;QCODE=2042" rel="external">2042</a>
-  </td>
-  <td class="tb-color001">
-NEXT NOTES 東証マザーズ ETN
-      <div>
-        <a href="http://tse.factsetdigitalsolutions.com/iopv/table?language=jp" rel="external" class="inav-btn">iNAV</a>
-      </div>
-      
-  </td>
-  <td class="tb-color001">
-    <a href="http://nextnotes.com/" rel="external">ノムラ・ヨーロッパ・ファイナンス・エヌ・ブイ(20314)</a>
-  </td>
-  <td class="a-center tb-color001 w-space">2033/08/08</td>
-  <td class="a-right tb-color001 w-space">0.50%</td>
-  <td class="a-center tb-color001">
-    
-        <a href="./files/2042-j.pdf" rel="external"><img src="/common/images/icon/tvdivq000000019l-img/icon-pdf.png" alt="PDF" title="PDF" width="16" height="16" /></a>
-      
-  </td>
-  <td class="a-center tb-color001">
-    <a href="https://money-bu-jpx.com/search/2042/?utm_source=jpx.co.jp&utm_medium=referral&utm_campaign=etf-search&utm_content=etftable" rel="external"><img src="/common/images/icon/icon-money-bu.png" alt="銘柄詳細" title="銘柄詳細" width="16" height="16"></a>
-        
-  </td>
-</tr>
-
-*/
+	private static String download(String url, String charset, String filePath, boolean useFile) {
+		final String page;
+		{
+			File file = new File(filePath);
+			if (useFile && file.exists()) {
+				page = FileUtil.read().file(file);
+			} else {
+				HttpUtil.Result result = HttpUtil.getInstance().withCharset(charset).download(url);
+				if (result == null || result.result == null) {
+					logger.error("Unexpected");
+					logger.error("  result  {}", result);
+					throw new UnexpectedException("Unexpected");
+				}
+				page = result.result;
+				// debug
+				if (DEBUG_USE_FILE) logger.info("save  {}  {}", page.length(), file.getPath());
+				FileUtil.write().file(file, page);
+			}
+		}
+		return page;
+	}
 
 	public static class ETFInfo {
+		/*
+		<tr>
+		  <td class="a-center tb-color001 w-space">2013/10/28</td>
+		  <td class="tb-color001">東証マザーズ指数</td>
+		  <td class="a-center tb-color001">
+		    <a href="https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&amp;MKTN=T&amp;QCODE=2042" rel="external">2042</a>
+		  </td>
+		  <td class="tb-color001">
+		NEXT NOTES 東証マザーズ ETN
+		      <div>
+		        <a href="http://tse.factsetdigitalsolutions.com/iopv/table?language=jp" rel="external" class="inav-btn">iNAV</a>
+		      </div>
+		      
+		  </td>
+		  <td class="tb-color001">
+		    <a href="http://nextnotes.com/" rel="external">ノムラ・ヨーロッパ・ファイナンス・エヌ・ブイ(20314)</a>
+		  </td>
+		  <td class="a-center tb-color001 w-space">2033/08/08</td>
+		  <td class="a-right tb-color001 w-space">0.50%</td>
+		  <td class="a-center tb-color001">
+		    
+		        <a href="./files/2042-j.pdf" rel="external"><img src="/common/images/icon/tvdivq000000019l-img/icon-pdf.png" alt="PDF" title="PDF" width="16" height="16" /></a>
+		      
+		  </td>
+		  <td class="a-center tb-color001">
+		    <a href="https://money-bu-jpx.com/search/2042/?utm_source=jpx.co.jp&utm_medium=referral&utm_campaign=etf-search&utm_content=etftable" rel="external"><img src="/common/images/icon/icon-money-bu.png" alt="銘柄詳細" title="銘柄詳細" width="16" height="16"></a>
+		        
+		  </td>
+		</tr>
+		*/
+		
 		public static final Pattern PAT = Pattern.compile(
 				"<tr>\\s+" +
 				"<td .+?</td>\\s+" +
@@ -99,24 +119,9 @@ NEXT NOTES 東証マザーズ ETN
 	}
 	
 	private static List<ETN> getList(String url, String pageFile) {
-		final String page;
-		{
-			File file = new File(Storage.provider_jpx.getPath(pageFile));
-			if (DEBUG_USE_FILE && file.exists()) {
-				page = FileUtil.read().file(file);
-			} else {
-				HttpUtil.Result result = HttpUtil.getInstance().download(url);
-				if (result == null || result.result == null) {
-					logger.error("Unexpected");
-					logger.error("  result  {}", result);
-					throw new UnexpectedException("Unexpected");
-				}
-				page = result.result;
-				// debug
-				if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), page.length());
-				FileUtil.write().file(file, page);
-			}
-		}
+		String charset  = "UTF-8";
+		String filePath = Storage.provider_jpx.getPath(pageFile);
+		String page     = download(url, charset, filePath, DEBUG_USE_FILE);
 		
 		List<ETN> list = new ArrayList<>();
 		for(var e: ETFInfo.getInstance(page)) {

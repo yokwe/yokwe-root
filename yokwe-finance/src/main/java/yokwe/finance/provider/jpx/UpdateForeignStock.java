@@ -24,24 +24,44 @@ public class UpdateForeignStock {
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
-/*
-
-<tr>
-  
-     <td width="22%" class="a-center a-middle ">ビート・ホールディングス・リミテッド</td>
-     <td width="10%" class="a-center a-middle "><a href="https://www2.jpx.co.jp/tseHpFront/StockSearch.do?method=topsearch&topSearchStr=9399" target="_blank">9399</a></td>
-     <td width="14%" class="a-center a-middle "><a href="https://beatholdings.com/for-investors-info/" target="_blank">日本語サイト</a></td>
-     <td width="12%" class="a-center a-middle ">1</td>
-     <td width="16%" class="a-center a-middle ">英領ケイマン諸島 </td>
-     <td width="10%" class="a-center a-middle ">情報・通信</td>
-     <td width="8%" class="a-center a-middle ">12月</td>
-     <td width="8%" class="a-center a-middle ">-</td>
-</tr>
-
-
-*/
-
+	private static String download(String url, String charset, String filePath, boolean useFile) {
+		final String page;
+		{
+			File file = new File(filePath);
+			if (useFile && file.exists()) {
+				page = FileUtil.read().file(file);
+			} else {
+				HttpUtil.Result result = HttpUtil.getInstance().withCharset(charset).download(url);
+				if (result == null || result.result == null) {
+					logger.error("Unexpected");
+					logger.error("  result  {}", result);
+					throw new UnexpectedException("Unexpected");
+				}
+				page = result.result;
+				// debug
+				if (DEBUG_USE_FILE) logger.info("save  {}  {}", page.length(), file.getPath());
+				FileUtil.write().file(file, page);
+			}
+		}
+		return page;
+	}
+	
+	
 	public static class ForeignInfo {
+		/*
+		<tr>
+		  
+		     <td width="22%" class="a-center a-middle ">ビート・ホールディングス・リミテッド</td>
+		     <td width="10%" class="a-center a-middle "><a href="https://www2.jpx.co.jp/tseHpFront/StockSearch.do?method=topsearch&topSearchStr=9399" target="_blank">9399</a></td>
+		     <td width="14%" class="a-center a-middle "><a href="https://beatholdings.com/for-investors-info/" target="_blank">日本語サイト</a></td>
+		     <td width="12%" class="a-center a-middle ">1</td>
+		     <td width="16%" class="a-center a-middle ">英領ケイマン諸島 </td>
+		     <td width="10%" class="a-center a-middle ">情報・通信</td>
+		     <td width="8%" class="a-center a-middle ">12月</td>
+		     <td width="8%" class="a-center a-middle ">-</td>
+		</tr>
+		*/
+
 		public static final Pattern PAT = Pattern.compile(
 				"<tr.*?>\\s+" +
 				"<td width=\"22%\" .+?>(?<name>.+?)</td>\\s+" +
@@ -67,24 +87,9 @@ public class UpdateForeignStock {
 	}
 	
 	private static List<ForeignStock> getList(String url, String pageFile) {
-		final String page;
-		{
-			File file = new File(Storage.provider_jpx.getPath(pageFile));
-			if (DEBUG_USE_FILE && file.exists()) {
-				page = FileUtil.read().file(file);
-			} else {
-				HttpUtil.Result result = HttpUtil.getInstance().download(url);
-				if (result == null || result.result == null) {
-					logger.error("Unexpected");
-					logger.error("  result  {}", result);
-					throw new UnexpectedException("Unexpected");
-				}
-				page = result.result;
-				// debug
-				if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), page.length());
-				FileUtil.write().file(file, page);
-			}
-		}
+		String charset  = "UTF-8";
+		String filePath = Storage.provider_jpx.getPath(pageFile);
+		String page     = download(url, charset, filePath, DEBUG_USE_FILE);
 		
 		List<ForeignStock> list = new ArrayList<>();
 		for(var e: ForeignInfo.getInstance(page)) {

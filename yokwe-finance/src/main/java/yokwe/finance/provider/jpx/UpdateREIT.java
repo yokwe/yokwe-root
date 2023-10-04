@@ -24,35 +24,55 @@ public class UpdateREIT {
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
-/*
-
-                  <tr>
-                    <td class="a-center w-space 
-  tb-color001
+	private static String download(String url, String charset, String filePath, boolean useFile) {
+		final String page;
+		{
+			File file = new File(filePath);
+			if (useFile && file.exists()) {
+				page = FileUtil.read().file(file);
+			} else {
+				HttpUtil.Result result = HttpUtil.getInstance().withCharset(charset).download(url);
+				if (result == null || result.result == null) {
+					logger.error("Unexpected");
+					logger.error("  result  {}", result);
+					throw new UnexpectedException("Unexpected");
+				}
+				page = result.result;
+				// debug
+				if (DEBUG_USE_FILE) logger.info("save  {}  {}", page.length(), file.getPath());
+				FileUtil.write().file(file, page);
+			}
+		}
+		return page;
+	}
+	
+	
+	public static class REITInfo {
+		/*
+        <tr>
+          <td class="a-center w-space 
+tb-color001
 " rowspan="2">2021/06/22</td>
-                    <td class="a-left 
-  tb-color001
+          <td class="a-left 
+tb-color001
 "><a href="https://www.tokaido-reit.co.jp/" rel="external">東海道リート投資法人　投資証券</a>
-                    </td>
-                    <td class="a-center w-space 
-  tb-color001
+          </td>
+          <td class="a-center w-space 
+tb-color001
 " rowspan="2">
-                      <a href="https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=2989" rel="external">2989<br />（JP3049110004）</a></td>
-                    <td class="a-center w-space 
-  tb-color001
+            <a href="https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=2989" rel="external">2989<br />（JP3049110004）</a></td>
+          <td class="a-center w-space 
+tb-color001
 " rowspan="2"><div><p class="component-text">1月末<br/>
 7月末</p></div></td>
-                    <td class="a-center 
-  tb-color001
+          <td class="a-center 
+tb-color001
 ">-</td>
-                    <td class="a-center 
-  tb-color001
+          <td class="a-center 
+tb-color001
 " rowspan="2">-</td>
-
-
 */
-
-	public static class REITInfo {
+		
 		public static final Pattern PAT = Pattern.compile(
 				"<tr>\\s+" +
 				"<td class=\"a-center w-space.+?</td>\\s+" +
@@ -80,24 +100,9 @@ public class UpdateREIT {
 	}
 	
 	private static List<REIT> getList(String url, String pageFile) {
-		final String page;
-		{
-			File file = new File(Storage.provider_jpx.getPath(pageFile));
-			if (DEBUG_USE_FILE && file.exists()) {
-				page = FileUtil.read().file(file);
-			} else {
-				HttpUtil.Result result = HttpUtil.getInstance().download(url);
-				if (result == null || result.result == null) {
-					logger.error("Unexpected");
-					logger.error("  result  {}", result);
-					throw new UnexpectedException("Unexpected");
-				}
-				page = result.result;
-				// debug
-				if (DEBUG_USE_FILE) logger.info("save  {}  {}", file.getPath(), page.length());
-				FileUtil.write().file(file, page);
-			}
-		}
+		String charset  = "UTF-8";
+		String filePath = Storage.provider_jpx.getPath(pageFile);
+		String page     = download(url, charset, filePath, DEBUG_USE_FILE);
 		
 		List<REIT> list = new ArrayList<>();
 		for(var e: REITInfo.getInstance(page)) {
