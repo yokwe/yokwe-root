@@ -3,8 +3,6 @@ package yokwe.finance.stock.us;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -27,8 +25,7 @@ import yokwe.util.UnexpectedException;
 public class UpdateStockDiv {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	
-	public static long GRACE_PERIOD_IN_HOUR = 5;
+	private static long GRACE_PERIOD_IN_DAYS = 7;
 	
 	private static LocalDate toLocalDate(String string) {
 		// 03/22/2019
@@ -78,36 +75,28 @@ public class UpdateStockDiv {
 		int countB = 0;
 		int countC = 0;
 		
-		try {
-			for (var stockInfo : stockList) {
-				String     stockCode  = stockInfo.stockCode;
-				AssetClass assetClass = stockInfo.type.isETF() ? AssetClass.ETF : AssetClass.STOCK;
-				int        limit;
-				
-				Path path = Path.of(StockDiv.getPath(stockCode));
-				
-				if (Files.isReadable(path)) {
-					Instant  lastModified = Files.getLastModifiedTime(path).toInstant();
-					Duration duration     = Duration.between(lastModified, now);
-					if (GRACE_PERIOD_IN_HOUR < duration.toHours()) {
-						limit = 1;
-						countA++;
-					} else {
-						countB++;
-						continue;
-					}
+		for (var stockInfo : stockList) {
+			String     stockCode  = stockInfo.stockCode;
+			AssetClass assetClass = stockInfo.type.isETF() ? AssetClass.ETF : AssetClass.STOCK;
+			int        limit;
+			
+			String path = StockDiv.getPath(stockCode);
+			if (FileUtil.canRead(path)) {
+				Instant  lastModified = FileUtil.getLastModified(path);
+				Duration duration     = Duration.between(lastModified, now);
+				if (GRACE_PERIOD_IN_DAYS < duration.toDays()) {
+					limit = 1;
+					countA++;
 				} else {
-					limit = 9999;
-					countC++;
+					countB++;
+					continue;
 				}
-
-				taskList.add(new Task(stockCode, assetClass, limit, stockInfo.name));
+			} else {
+				limit = 9999;
+				countC++;
 			}
-		} catch (IOException e) {
-			// catch exception from Files.getLastModifiedTime
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
+
+			taskList.add(new Task(stockCode, assetClass, limit, stockInfo.name));
 		}
 		
 		logger.info("countA   {}", countA);
@@ -196,6 +185,8 @@ public class UpdateStockDiv {
 	}
 	
 	private static void update() {
+		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAYS);
+
 		// Use StockInfo of stock us
 		var stockList = StockInfo.getList();
 		logger.info("list     {}", stockList.size());
