@@ -10,6 +10,10 @@ import yokwe.finance.type.DailyValue;
 import yokwe.util.ListUtil;
 
 public class YahooStockDiv {
+	//
+	// NOTE: dividend amount is split adjusted. Not raw amount.
+	//
+	
 	private static final String PREFIX = "yahoo-stock-div";
 	
 	private static final Storage storage = Storage.provider_yahoo;
