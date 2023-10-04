@@ -55,25 +55,6 @@ save-provider: check_data_path
 
 
 #
-# STOCK JP
-#
-update-jpx-listing:
-	ant provider-jpx-update-listring	
-
-update-stock-jp-info:
-	ant provider-jpx-update-etf
-	ant provider-jpx-update-etn
-	ant provider-jpx-update-foreign-stock
-	ant provider-jpx-update-infra-fund
-	ant provider-jpx-update-reit
-	ant provider-jpx-update-stock-info
-
-update-stock-jp-price:
-	ant provider-jpx-update-stock-price
-	ant stock-jp-update-stock-price
-
-
-#
 # REIT JP
 #
 update-reit-div-jp:
@@ -95,6 +76,25 @@ update-fund-jp:
 	ant provider-jita-update-fund-info
 	ant provider-jita-update-fund-div-price
 	
+
+#
+# STOCK JP
+#
+update-jpx-listing:
+	ant provider-jpx-update-listring	
+
+update-stock-jp-info:
+	ant provider-jpx-update-etf
+	ant provider-jpx-update-etn
+	ant provider-jpx-update-foreign-stock
+	ant provider-jpx-update-infra-fund
+	ant provider-jpx-update-reit
+	ant provider-jpx-update-stock-info
+
+update-stock-jp-price:
+	ant provider-jpx-update-stock-price
+	ant stock-jp-update-stock-price
+
 
 #
 # STOCK US
