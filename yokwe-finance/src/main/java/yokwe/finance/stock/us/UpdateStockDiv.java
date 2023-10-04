@@ -26,6 +26,9 @@ import yokwe.util.UnexpectedException;
 public class UpdateStockDiv {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	// First time takes 48 minutes
+	// Second time takes 9 minutes
+	
 	private static long GRACE_PERIOD_IN_DAYS = 7;
 	
 	private static LocalDate toLocalDate(String string) {
