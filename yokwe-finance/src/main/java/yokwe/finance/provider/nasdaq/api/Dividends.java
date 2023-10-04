@@ -20,7 +20,8 @@ public class Dividends {
 		return API.getInstance(Dividends.class, url);
 	}
 	public static Dividends getInstance(String symbol, AssetClass assetClass) {
-		return getInstance(symbol, assetClass);
+		String url  = getURL(symbol, assetClass);
+		return API.getInstance(Dividends.class, url);
 	}
 
 	
