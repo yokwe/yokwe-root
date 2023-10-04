@@ -22,6 +22,8 @@ public final class API {
 	// https://api.nasdaq.com/api/quote/FR10UK/chart?assetclass=index
 	// https://api.nasdaq.com/api/quote/FR10UK/info?assetclass=index
 	
+	public static final String NOT_AVAILABLE = "N/A";
+	
 	public static String normalizeSymbol(String symbol) {
 		// TRTN^A => TRTN-A
 		// BRK/A  => BRK.A
@@ -35,7 +37,7 @@ public final class API {
 	}
 	
 	public static String convertDate(String string) {
-		string = string.trim().replace("N/A", "");
+		string = string.trim().replace(NOT_AVAILABLE, "");
 		if (string.isEmpty()) return "";
 		
 		// 12/27/2021 => 2021-12-07

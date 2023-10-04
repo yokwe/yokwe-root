@@ -72,6 +72,7 @@ public class UpdateStockPrice {
 						countB++;
 						continue;
 					} else {
+						// needs data after lastDate
 						startDate = lastDate.plusDays(1);
 						countC++;
 					}
@@ -104,19 +105,14 @@ public class UpdateStockPrice {
 				skipDate = task.startDate;
 			}
 			
-			var list = StockPrice.getList(stockCode);
-
 			var historical = Historical.getInstance(stockCode, task.assetClass, task.startDate, task.stopDate);
 			if (historical == null || historical.data == null || historical.data.tradesTable == null || historical.data.tradesTable.rows == null) {
-				if (list.isEmpty()) {
-					// Write file to update last modified time
-					StockPrice.save(stockCode, new ArrayList<OHLCV>());
-				}
 				countA++;
 				continue;
 			}
 			
 			// read existing data
+			var list = StockPrice.getList(stockCode);
 			var set  = list.stream().map(o -> o.date).collect(Collectors.toSet());
 			int countAdd = 0;
 			for(var row: historical.data.tradesTable.rows) {
@@ -132,7 +128,7 @@ public class UpdateStockPrice {
 				BigDecimal high   = new BigDecimal(row.high.replace(",", "").replace("$", ""));
 				BigDecimal low    = new BigDecimal(row.low.replace(",", "").replace("$", ""));
 				BigDecimal close  = new BigDecimal(row.close.replace(",", "").replace("$", ""));
-				long       volume = Long.parseLong(row.volume.replace(",", "").replace("N/A", "0"));
+				long       volume = Long.parseLong(row.volume.replace(",", "").replace(API.NOT_AVAILABLE, "0"));
 				
 				var price = new OHLCV(date, open, high, low, close, volume);
 				

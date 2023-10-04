@@ -15,6 +15,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import yokwe.finance.provider.nasdaq.api.API;
 import yokwe.finance.provider.nasdaq.api.AssetClass;
 import yokwe.finance.provider.nasdaq.api.Dividends;
 import yokwe.finance.type.DailyValue;
@@ -135,7 +136,7 @@ public class UpdateStockDiv {
 			// build myMap
 			for(var row: div.data.dividends.rows) {
 				// Skip if exOfEffDate is N/A
-				if (row.exOrEffDate.equals(Dividends.NOT_AVAILABLE)) continue;
+				if (row.exOrEffDate.equals(API.NOT_AVAILABLE)) continue;
 				
 				LocalDate  date  = toLocalDate(row.exOrEffDate);
 				BigDecimal value = toBigDecimal(row.amount);

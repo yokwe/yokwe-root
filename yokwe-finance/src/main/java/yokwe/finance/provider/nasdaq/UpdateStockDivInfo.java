@@ -14,6 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
+import yokwe.finance.provider.nasdaq.api.API;
 import yokwe.finance.provider.nasdaq.api.AssetClass;
 import yokwe.finance.provider.nasdaq.api.Dividends;
 import yokwe.finance.type.StockInfoUS;
@@ -91,10 +92,8 @@ public class UpdateStockDivInfo {
 		return taskList;
 	}
 	
-	private static final String NOT_AVAILABLEs = "N/A";
-	
 	private static LocalDate toLocalDate(String string) {
-		if (string.equals(NOT_AVAILABLEs)) return StockDivInfo.DATE_NOT_AVAILABLE;
+		if (string.equals(API.NOT_AVAILABLE)) return StockDivInfo.DATE_NOT_AVAILABLE;
 		// 03/22/2019
 		// 0123456789
 		if (string.length() == 10 && string.charAt(2) == '/' && string.charAt(5) == '/') {
@@ -139,7 +138,7 @@ public class UpdateStockDivInfo {
 			int countAdd = 0;
 			for(var row: div.data.dividends.rows) {
 				// Skip if exOfEffDate is N/A
-				if (row.exOrEffDate.equals(NOT_AVAILABLEs)) continue;
+				if (row.exOrEffDate.equals(API.NOT_AVAILABLE)) continue;
 				
 				StockDivInfo divInfo = new StockDivInfo();
 				divInfo.exOrEffDate     = toLocalDate(row.exOrEffDate);
