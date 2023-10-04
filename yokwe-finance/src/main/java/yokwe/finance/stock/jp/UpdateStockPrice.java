@@ -1,15 +1,18 @@
 package yokwe.finance.stock.jp;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Set;
+import java.util.TreeSet;
+
+import yokwe.util.FileUtil;
 
 public class UpdateStockPrice {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static void main(String[] args) throws IOException {
-		logger.info("START");
-		
-		var stockInfoList = yokwe.finance.provider.jpx.StockInfo.getList();
+	private static void update() {
+		var stockInfoList = StockInfo.getList();
 		logger.info("stockInfoList  {}", stockInfoList.size());
 		
 		int count = 0;
@@ -31,6 +34,24 @@ public class UpdateStockPrice {
 			}
 			StockPrice.save(stockCode, list);
 		}
+	}
+	
+	private static void moveUnknownFile() {
+		Set<String> validNameSet = new TreeSet<>();
+		for(var e: StockInfo.getList()) {
+			File file = new File(StockPrice.getPath(e.stockCode));
+			validNameSet.add(file.getName());
+		}
+		
+		FileUtil.moveUnknownFile(validNameSet, StockPrice.getPath(), StockPrice.getPathDelist());
+	}
+
+	public static void main(String[] args) throws IOException {
+		logger.info("START");
+		
+		moveUnknownFile();
+		
+		update();
 		
 		logger.info("STOP");
 	}

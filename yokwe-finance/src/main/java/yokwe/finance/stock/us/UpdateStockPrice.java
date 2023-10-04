@@ -187,7 +187,7 @@ public class UpdateStockPrice {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: yokwe.finance.stock.us.StockInfo.getList()) {
+		for(var e: StockInfo.getList()) {
 			File file = new File(StockPrice.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
