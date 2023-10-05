@@ -3,9 +3,7 @@ package yokwe.finance.stock.jp;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -233,10 +231,15 @@ public class UpdateStockPrice {
 			var stockCode       = entry.getKey();
 			var priceVolumeList = entry.getValue();
 			
-			// build list from priceVolueList
-			List<OHLCV> list = new ArrayList<>();
+			int countChange = 0;
+			
+			// build list
+			List<OHLCV> list;
 			{
-				var map = new HashMap<LocalDate, OHLCV>();
+				// read existing data in map
+				var map = StockPrice.getMap(stockCode);
+				
+				// replace map with priceVolumeList
 				for(PriceVolume priceVolume: priceVolumeList) {
 					LocalDate  priceDate = priceVolume.getDate();
 					BigDecimal open      = priceVolume.getOpen();
@@ -249,10 +252,7 @@ public class UpdateStockPrice {
 					price.date   = priceDate;
 					
 					if (volume == 0 || open == null || high == null || low == null || close == null) {
-						price.open   = BigDecimal.ZERO;
-						price.high   = BigDecimal.ZERO;
-						price.low    = BigDecimal.ZERO;
-						price.close  = BigDecimal.ZERO;
+						price.open = price.high = price.low = price.close  = BigDecimal.ZERO;
 						price.volume = 0;
 					} else {
 						price.open   = open;
@@ -262,72 +262,47 @@ public class UpdateStockPrice {
 						price.volume = volume;
 					}
 					
-					map.put(priceDate, price);
+					{
+						var oldPrice = map.get(price.date);
+						if (oldPrice != null && oldPrice.equals(price)) {
+							// same price
+						} else {
+							map.put(price.date, price);
+							countChange++;
+						}
+					}
 				}
 				
-				// today price
+				// add today price
 				OHLCV today = context.ohlcvMap.get(stockCode);
 				if (today != null) {
 					// if today data is not in map, add today data.
-					if (!map.containsKey(today.date)) map.put(today.date, today);
+					if (!map.containsKey(today.date)) {
+						map.put(today.date, today);
+						countChange++;
+					}
 				}
 				
 				list = map.values().stream().collect(Collectors.toList());
+				// sort list
 				Collections.sort(list);
 			}
 			
-			// merger map with list
-			var map = StockPrice.getMap(stockCode);
+			if (countChange != 0) countMod++;
+			
+			// fix list when volume is zero
 			{
-				int        countChange = 0;
 				BigDecimal lastClose   = null;
 				for(var price: list) {
-					var date     = price.date;
-					var oldPrice = map.get(date);
-					
-					if (oldPrice == null) {
-						// new entry
-						if (price.volume == 0) {
-							if (lastClose == null) continue;
-							
-							price.open  = lastClose;
-							price.high  = lastClose;
-							price.low   = lastClose;
-							price.close = lastClose;
-						}
-						// add new entry
-						map.put(date, price);
-						//
-						lastClose = price.close;
-						countChange++;
-					} else {
-						// existing entry
-						// sanity check
-						if (oldPrice.equals(price)) {
-							// same value
-						} else {
-							if (price.volume == 0 && oldPrice.volume == 0) {
-								// expected
-								//   price of no volume is using previous close price
-							} else {
-								// expected
-								//   price of today is real time, so value can be changed
-								//   price of today is not updated same day
-								//   stock has split
-								
-								// new price has correct value
-								map.put(date, price);
-								countChange++;
-							}
-						}
-						// use close of oldPrice
-						lastClose = oldPrice.close;
+					if (price.volume == 0) {
+						if (lastClose == null) continue;
+						price.open = price.high = price.low = price.close = lastClose;
 					}
+					lastClose = price.close;
 				}
-				if (countChange != 0) countMod++;
 			}
-
-			StockPrice.save(stockCode, map.values());
+			
+			StockPrice.save(stockCode, list);
 		}
 		
 		logger.info("count    {}", count);
