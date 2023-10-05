@@ -279,8 +279,8 @@ public class UpdateStockPrice {
 			// merger map with list
 			var map = StockPrice.getMap(stockCode);
 			{
-				int        countAdd  = 0;
-				BigDecimal lastClose = null;
+				int        countChange = 0;
+				BigDecimal lastClose   = null;
 				for(var price: list) {
 					var date     = price.date;
 					var oldPrice = map.get(date);
@@ -299,7 +299,7 @@ public class UpdateStockPrice {
 						map.put(date, price);
 						//
 						lastClose = price.close;
-						countAdd++;
+						countChange++;
 					} else {
 						// existing entry
 						// sanity check
@@ -315,6 +315,7 @@ public class UpdateStockPrice {
 								
 								// update with new price
 								map.put(date, price);
+								countChange++;
 							} else {
 								logger.error("Unexpeced  price");
 								logger.error("  oldPrice  {}", oldPrice);
@@ -326,7 +327,7 @@ public class UpdateStockPrice {
 						lastClose = oldPrice.close;
 					}
 				}
-				if (countAdd != 0) countMod++;
+				if (countChange != 0) countMod++;
 			}
 
 			StockPrice.save(stockCode, map.values());
