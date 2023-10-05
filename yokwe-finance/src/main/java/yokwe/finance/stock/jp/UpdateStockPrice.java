@@ -186,7 +186,7 @@ public class UpdateStockPrice {
 		context.today = today;
 		
 		for(var stockInfo: stockInfoList) {
-			String stockCode = stockInfo.stockCode;
+			String stockCode = stockInfo.stockCode;			
 			String uriString = getPageURL(stockCode);
 			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode));
 			download.addTask(task);
@@ -228,9 +228,7 @@ public class UpdateStockPrice {
 		int countMod   = 0;
 		int countTotal = context.priceVolumeMap.size();
 		for(var entry: context.priceVolumeMap.entrySet()) {
-			if ((++count % 1000) == 1) {
-				logger.info("{}  /  {}", count, countTotal);
-			}
+			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, countTotal);
 			
 			var stockCode       = entry.getKey();
 			var priceVolumeList = entry.getValue();
