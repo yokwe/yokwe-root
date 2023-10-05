@@ -36,10 +36,10 @@ public class OHLCV implements Comparable<OHLCV> {
 			OHLCV that = (OHLCV)o;
 			return
 				this.date.equals(that.date) &&
-				this.open.compareTo(that.open) == 0 &&
-				this.high.compareTo(that.high) == 0 &&
-				this.low.compareTo(that.low) == 0 &&
-				this.close.compareTo(that.close) == 0 &&
+				this.open.equals(that.open) &&
+				this.high.equals(that.high) &&
+				this.low.equals(that.low) &&
+				this.close.equals(that.close) &&
 				this.volume == that.volume;
 		} else {
 			return false;
