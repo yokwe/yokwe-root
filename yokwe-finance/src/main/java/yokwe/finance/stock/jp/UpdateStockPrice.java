@@ -308,19 +308,16 @@ public class UpdateStockPrice {
 						} else {
 							if (price.volume == 0 && oldPrice.volume == 0) {
 								// expected
-								// price of no volume use previous close price
-							} else if (price.date.equals(context.today)) {
+								//   price of no volume is using previous close price
+							} else {
 								// expected
-								// price of today is real time
+								//   price of today is real time, so value can be changed
+								//   price of today is not updated same day
+								//   stock has split
 								
-								// update with new price
+								// new price has correct value
 								map.put(date, price);
 								countChange++;
-							} else {
-								logger.error("Unexpeced  price");
-								logger.error("  oldPrice  {}", oldPrice);
-								logger.error("  newPrice  {}", price);
-								throw new UnexpectedException("Unexpeced  price");
 							}
 						}
 						// use close of oldPrice
