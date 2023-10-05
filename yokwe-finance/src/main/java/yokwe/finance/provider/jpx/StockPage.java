@@ -155,4 +155,121 @@ public class StockPage {
 			return String.format("{%s %s %s %s %s %s %s %s}", yyyy, mm, dd, open, high, low, close, volume);
 		}
 	}
+
+	// 現在値
+	public static class CurrentPriceTime {
+		public static final Pattern PAT = Pattern.compile(
+			"<td .+?><b>現在値 \\(時刻\\)</b></td>\\s*" +
+			"<td .+?><b>(?<price>[0-9,.]*) \\((?<time>.+?)\\)</b></td>\\s*"
+		);
+		public static CurrentPriceTime getInstance(String page) {
+			return ScrapeUtil.get(CurrentPriceTime.class, PAT, page);
+		}
+
+		@ScrapeUtil.AsNumber
+		public final Optional<String> price;
+		public final Optional<String> time;
+		
+		public CurrentPriceTime(Optional<String> price, Optional<String> time) {
+			this.price = price;
+			this.time  = time;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s,%s}", price, time);
+		}
+	}
+
+	// 始値
+	public static class OpenPrice {
+		public static final Pattern PAT = Pattern.compile(
+			"<td .+?><font .+?>始値</font></td>\\s*" +
+			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
+		);
+		public static OpenPrice getInstance(String page) {
+			return ScrapeUtil.get(OpenPrice.class, PAT, page);
+		}
+
+		@ScrapeUtil.AsNumber
+		public final Optional<String> value;
+		
+		public OpenPrice(Optional<String> value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s}", value);
+		}
+	}
+
+	// 高値
+	public static class HighPrice {
+		public static final Pattern PAT = Pattern.compile(
+			"<td .+?><font .+?>高値</font></td>\\s*" +
+			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
+		);
+		public static HighPrice getInstance(String page) {
+			return ScrapeUtil.get(HighPrice.class, PAT, page);
+		}
+
+		@ScrapeUtil.AsNumber
+		public final Optional<String> value;
+		
+		public HighPrice(Optional<String> value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s}", value);
+		}
+	}
+	
+	// 安値
+	public static class LowPrice {
+		public static final Pattern PAT = Pattern.compile(
+			"<td .+?><font .+?>安値</font></td>\\s*" +
+			"<td .+?><font .+?>(?<value>.*?)<br></font></td>\\s*"
+		);
+		public static LowPrice getInstance(String page) {
+			return ScrapeUtil.get(LowPrice.class, PAT, page);
+		}
+
+		@ScrapeUtil.AsNumber
+		public final Optional<String> value;
+		
+		public LowPrice(Optional<String> value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s}", value);
+		}
+	}
+
+	// 売買高
+	public static class TradeVolume {
+		public static final Pattern PAT = Pattern.compile(
+			"<td .+?><font .+?>売買高</font></td>\\s*" +
+			"<td .+?><font .+?>(?<value>.*?)株<br></font></td>\\s*"
+		);
+		public static TradeVolume getInstance(String page) {
+			return ScrapeUtil.get(TradeVolume.class, PAT, page);
+		}
+		
+		@ScrapeUtil.AsNumber
+		public final Optional<String> value;
+		
+		public TradeVolume(Optional<String> value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s}", value);
+		}
+	}
 }
