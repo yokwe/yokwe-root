@@ -89,23 +89,22 @@ update-stock-jp-info:
 	ant provider-jpx-update-foreign-stock
 	ant provider-jpx-update-infra-fund
 	ant provider-jpx-update-reit
-	ant provider-jpx-update-stock-info
+	ant stock-jp-update-stock-info
 
 update-stock-jp-price:
-	ant provider-jpx-update-stock-price
 	ant stock-jp-update-stock-price
 
 
 #
 # STOCK US
 #
-update-stock-us-info: update-trading-sock
+update-stock-us-info: update-trading-stock
 	ant provider-bats-update-stock-info
 	ant provider-nasdaq-update-stock-info
 	ant provider-nyse-update-stock-info
 	ant stock-us-update-stock-info
 
-update-trading-sock:
+update-trading-stock:
 	ant provider-monex-update-trading-stock
 	ant provider-moomoo-update-trading-stock
 	ant provider-rakuten-update-trading-stock
