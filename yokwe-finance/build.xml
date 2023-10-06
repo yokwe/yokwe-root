@@ -179,6 +179,18 @@
 		</java>
 	</target>
 	
+	
+	<!-- Provider YAHOO -->
+	<target name="provider-yahoo-update-stock-div-jp">
+		<java module="yokwe.finance/yokwe.finance.provider.yahoo.UpdateStockDivJP" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Provider MONEX -->
 	<target name="provider-monex-update-trading-stock">
 		<java module="yokwe.finance/yokwe.finance.provider.monex.UpdateTradingStock" fork="true">
