@@ -59,7 +59,7 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 		public boolean isInfraFund() {
 			return this == Kind.INFRA_FUND;
 		}
-		public boolean isCountryFUnd() {
+		public boolean isCountryFund() {
 			return this == Kind.COUNTRY_FUND;
 		}
 		public boolean isProMarket() {
