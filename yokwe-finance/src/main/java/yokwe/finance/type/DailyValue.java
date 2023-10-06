@@ -26,7 +26,7 @@ public class DailyValue implements Comparable<DailyValue> {
 			DailyValue that = (DailyValue)o;
 			return
 				this.date.equals(that.date) &&
-				this.value.compareTo(that.value) == 0;
+				this.value.equals(that.value);
 		} else {
 			return false;
 		}
