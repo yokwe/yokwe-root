@@ -349,6 +349,10 @@ public class HttpUtil {
 					logger.warn("{} {}  {}", code, reasonPhrase, url);
 					return null;
 				}
+				if (code == HttpStatus.SC_UNAUTHORIZED) { // 401
+					logger.warn("{} {}  {}", code, reasonPhrase, url);
+					return null;
+				}
 		        if (code == HttpStatus.SC_OK) {
 	    			byte[] rawData = myResponse.content;
 					
