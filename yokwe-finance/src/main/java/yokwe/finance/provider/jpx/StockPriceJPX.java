@@ -11,16 +11,19 @@ import yokwe.util.ListUtil;
 
 public class StockPriceJPX {
 	private static final String PREFIX = "stock-price-jpx";
+	
+	private static final Storage storage = Storage.provider_jpx;
+	
 	public static String getPath() {
-		return Storage.provider_jpx.getPath(PREFIX);
+		return storage.getPath(PREFIX);
 	}
 	public static String getPath(String stockCode) {
-		return Storage.provider_jpx.getPath(PREFIX, stockCode + ".csv");
+		return storage.getPath(PREFIX, stockCode + ".csv");
 	}
 	
 	private static final String PREFIX_DELIST = PREFIX + "-delist";
 	public static String getPathDelist() {
-		return Storage.provider_jpx.getPath(PREFIX_DELIST);
+		return storage.getPath(PREFIX_DELIST);
 	}
 
 	public static void save(String stockCode, Collection<OHLCV> collection) {
