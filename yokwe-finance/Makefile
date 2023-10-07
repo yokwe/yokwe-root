@@ -95,7 +95,7 @@ update-stock-jp-info:
 	ant provider-jpx-update-infra-fund
 	ant provider-jpx-update-reit
 	ant provider-jpx-update-stock-info-jpx
-	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/jp/stock-info.csv
+	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/jp/stock-info-jp.csv
 	
 update-stock-jp-price:
 	ant provider-jpx-update-stock-price-jpx
