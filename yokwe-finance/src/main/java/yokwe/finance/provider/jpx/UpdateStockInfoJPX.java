@@ -57,11 +57,15 @@ public class UpdateStockInfoJPX {
 			logger.info("reit       {}", reitMap.size());
 
 			// from listing
+			int countSkip = 0;
 			for(var listing: listingList) {
 				String stockCode = listing.stockCode;
 				
 				// skip certificate and pro market
-				if (listing.kind == Listing.Kind.CERTIFICATE || listing.kind == Listing.Kind.PRO_MARKET) continue;
+				if (listing.kind == Listing.Kind.CERTIFICATE || listing.kind == Listing.Kind.PRO_MARKET) {
+					countSkip++;
+					continue;
+				}
 				
 				StockInfoJPType.Kind kind = kindMap.get(listing.kind);
 				if (kind == null) {
@@ -96,6 +100,8 @@ public class UpdateStockInfoJPX {
 				
 				map.put(stockInfoJP.stockCode, stockInfoJP);
 			}
+			logger.info("skip       {}", countSkip);
+
 			// not in listing but in etf
 			for(var e: etfMap.entrySet()) {
 				var stockCode = e.getKey();
