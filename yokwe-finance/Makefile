@@ -99,9 +99,9 @@ update-stock-jp-info:
 	
 update-stock-jp-price:
 	ant provider-jpx-update-stock-price-jpx
-	mkdir -p $(DATA_PATH)/stock/jp/stock-price
-	rm -f $(DATA_PATH)/stock/jp/stock-price/*.csv
-	cp -p $(DATA_PATH)/provider/jpx/stock-price-jpx/*.csv $(DATA_PATH)/stock/jp/stock-price
+	mkdir -p $(DATA_PATH)/stock/jp/stock-price-jp
+	rm    -f $(DATA_PATH)/stock/jp/stock-price-jp/*.csv
+	cp    -p $(DATA_PATH)/provider/jpx/stock-price-jpx/*.csv $(DATA_PATH)/stock/jp/stock-price-jp
 
 
 #
@@ -111,7 +111,7 @@ update-stock-us-info: update-trading-stock
 	ant provider-bats-update-stock-info-bats
 	ant provider-nasdaq-update-stock-info-nasdaq
 	ant provider-nyse-update-stock-info-nyse
-	ant stock-us-update-stock-info
+	ant stock-us-update-stock-info-us
 
 update-trading-stock:
 	ant provider-monex-update-trading-stock-monex
@@ -120,7 +120,7 @@ update-trading-stock:
 	ant provider-sbi-update-trading-stock-sbi
 
 update-stock-us-price:
-	ant stock-us-update-stock-price
+	ant stock-us-update-stock-price-us
 
 update-stock-us-div:
-	ant stock-us-update-stock-div
+	ant stock-us-update-stock-div-us

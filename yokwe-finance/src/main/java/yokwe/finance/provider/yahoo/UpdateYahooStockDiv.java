@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import yokwe.finance.type.StockInfoJP;
-import yokwe.finance.type.StockInfoUS;
+import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockInfoUSType;
 import yokwe.util.MarketHoliday;
 
 public class UpdateYahooStockDiv {
@@ -95,12 +95,12 @@ public class UpdateYahooStockDiv {
 		
 		{
 			var lastTradingDate = MarketHoliday.US.getLastTradingDate();
-			var list = yokwe.finance.stock.us.StockInfo.getList().stream().map(o -> StockInfoUS.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
+			var list = yokwe.finance.stock.us.StockInfoUS.getList().stream().map(o -> StockInfoUSType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
 			buildTaskList(taskList, lastTradingDate, list);
 		}
 		{
 			var lastTradingDate = MarketHoliday.JP.getLastTradingDate();
-			var list = yokwe.finance.stock.jp.StockInfo.getList().stream().map(o -> StockInfoJP.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
+			var list = yokwe.finance.stock.jp.StockInfoJP.getList().stream().map(o -> StockInfoJPType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
 			buildTaskList(taskList, lastTradingDate, list);
 		}
 		

@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import yokwe.finance.Storage;
-import yokwe.finance.type.StockInfoUS;
-import yokwe.finance.type.StockInfoUS.Market;
-import yokwe.finance.type.StockInfoUS.Type;
+import yokwe.finance.type.StockInfoUSType;
+import yokwe.finance.type.StockInfoUSType.Market;
+import yokwe.finance.type.StockInfoUSType.Type;
 import yokwe.util.CSVUtil;
 import yokwe.util.FTPUtil;
 import yokwe.util.FileUtil;
@@ -79,7 +79,7 @@ public class UpdateStockInfoBATS {
 		ListedSecurityReport.save(reportList);
 		
 		
-		List<StockInfoUS> list = new ArrayList<>();
+		List<StockInfoUSType> list = new ArrayList<>();
 		{
 			int countSkip = 0;
 			for(var e: reportList) {
@@ -107,7 +107,7 @@ public class UpdateStockInfoBATS {
 					throw new UnexpectedException("Unexpected issueType");
 				}
 
-				list.add(new StockInfoUS(symbol, market, type, name));
+				list.add(new StockInfoUSType(symbol, market, type, name));
 			}
 			logger.info("skip  {}", countSkip);
 		}

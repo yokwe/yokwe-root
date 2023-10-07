@@ -9,8 +9,8 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
 import yokwe.util.ListUtil;
 
-public class StockDiv {
-	private static final String PREFIX = "stock-div";
+public class StockDivUS {
+	private static final String PREFIX = "stock-div-us";
 	
 	private static final Storage storage = Storage.stock_us;
 	

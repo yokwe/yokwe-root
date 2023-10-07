@@ -10,9 +10,9 @@ import yokwe.finance.provider.nasdaq.StockInfoNasdaq;
 import yokwe.finance.provider.nyse.StockInfoNYSE;
 import yokwe.finance.provider.rakuten.TradingStockRakuten;
 import yokwe.finance.provider.sbi.TradingStockSBI;
-import yokwe.finance.type.StockInfoUS.Market;
+import yokwe.finance.type.StockInfoUSType.Market;
 
-public class UpdateStockInfo {
+public class UpdateStockInfoUS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static void update() {
@@ -60,8 +60,8 @@ public class UpdateStockInfo {
 			logger.info("list3       {}", list.size());
 		}
 		
-		logger.info("save  {}  {}", list.size(), StockInfo.getPath());
-		StockInfo.save(list);
+		logger.info("save  {}  {}", list.size(), StockInfoUS.getPath());
+		StockInfoUS.save(list);
 	}
 	
 	public static void main(String[] args) throws IOException {

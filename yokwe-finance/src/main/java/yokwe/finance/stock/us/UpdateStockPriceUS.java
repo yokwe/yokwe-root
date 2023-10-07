@@ -15,12 +15,12 @@ import yokwe.finance.provider.nasdaq.api.API;
 import yokwe.finance.provider.nasdaq.api.AssetClass;
 import yokwe.finance.provider.nasdaq.api.Historical;
 import yokwe.finance.type.OHLCV;
-import yokwe.finance.type.StockInfoUS;
+import yokwe.finance.type.StockInfoUSType;
 import yokwe.util.FileUtil;
 import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 
-public class UpdateStockPrice {
+public class UpdateStockPriceUS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// Historical returns 10 years data maximum
@@ -48,7 +48,7 @@ public class UpdateStockPrice {
 		}
 	}
 	
-	private static List<Task> getTaskList(LocalDate lastTradingDate, List<StockInfoUS> stockList) {
+	private static List<Task> getTaskList(LocalDate lastTradingDate, List<StockInfoUSType> stockList) {
 		var taskList = new ArrayList<Task>();
 		{
 			int countA = 0;
@@ -61,7 +61,7 @@ public class UpdateStockPrice {
 				LocalDate  stopDate   = lastTradingDate;
 				String     name       = e.name;
 				
-				var list = StockPrice.getList(stockCode);
+				var list = StockPriceUS.getList(stockCode);
 				if (list.isEmpty()) {
 					startDate = EPOCH_DATE;
 					countA++;
@@ -112,7 +112,7 @@ public class UpdateStockPrice {
 			}
 			
 			// read existing data
-			var list = StockPrice.getList(stockCode);
+			var list = StockPriceUS.getList(stockCode);
 			var set  = list.stream().map(o -> o.date).collect(Collectors.toSet());
 			int countAdd = 0;
 			for(var row: historical.data.tradesTable.rows) {
@@ -146,7 +146,7 @@ public class UpdateStockPrice {
 
 //			logger.info("save  {}  {}", list.size(), StockPrice.getPath(stockCode));
 			if (countAdd != 0) {
-				StockPrice.save(stockCode, list);
+				StockPriceUS.save(stockCode, list);
 				countMod++;
 			}
 		}
@@ -162,7 +162,7 @@ public class UpdateStockPrice {
 	private static void update() {
 		var lastTradingDate = MarketHoliday.US.getLastTradingDate();
 		logger.info("date     {}", lastTradingDate);
-		var stockList       = StockInfo.getList();
+		var stockList       = StockInfoUS.getList();
 		logger.info("list     {}", stockList.size());
 
 		for(int count = 1; count < 10; count++) {
@@ -187,12 +187,12 @@ public class UpdateStockPrice {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StockInfo.getList()) {
-			File file = new File(StockPrice.getPath(e.stockCode));
+		for(var e: StockInfoUS.getList()) {
+			File file = new File(StockPriceUS.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StockPrice.getPath(), StockPrice.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StockPriceUS.getPath(), StockPriceUS.getPathDelist());
 	}
 	
 	

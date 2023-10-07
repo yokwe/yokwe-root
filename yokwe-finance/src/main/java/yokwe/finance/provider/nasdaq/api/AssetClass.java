@@ -1,6 +1,6 @@
 package yokwe.finance.provider.nasdaq.api;
 
-import yokwe.finance.type.StockInfoUS.Type;
+import yokwe.finance.type.StockInfoUSType.Type;
 
 public enum AssetClass {
 	STOCK("stocks"),

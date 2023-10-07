@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.jp.StockInfo;
-import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.stock.jp.StockInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -203,7 +203,7 @@ public class UpdateREITInfo {
 			throw new UnexpectedException("list is empty");
 		}
 		
-		return list.stream().collect(Collectors.toMap(o -> StockInfoJP.toStockCode5(o.stockCode), o -> o.category));
+		return list.stream().collect(Collectors.toMap(o -> StockInfoJPType.toStockCode5(o.stockCode), o -> o.category));
 	}
 	
 	
@@ -224,7 +224,7 @@ public class UpdateREITInfo {
 		final List<String> reitList;
 		final List<String> infraList;
 		{
-			var list = StockInfo.getList();
+			var list = StockInfoJP.getList();
 			reitList  = list.stream().filter(o -> o.kind.isREIT()).map(o -> o.stockCode).collect(Collectors.toList());
 			infraList = list.stream().filter(o -> o.kind.isInfraFund()).map(o -> o.stockCode).collect(Collectors.toList());
 		}
@@ -239,7 +239,7 @@ public class UpdateREITInfo {
 			for(var stockCode: reitList) {
 				if ((++count % 10) == 1) logger.info("reit   {}  /  {}  {}", count, reitList.size(), stockCode);
 				
-				String url      = String.format("https://www.japan-reit.com/meigara/%s/info/", StockInfoJP.toStockCode4(stockCode));			
+				String url      = String.format("https://www.japan-reit.com/meigara/%s/info/", StockInfoJPType.toStockCode4(stockCode));			
 				String category = categoryMap.get(stockCode);
 				if (category == null) {
 					logger.error("Unexpected stockCode");
@@ -257,7 +257,7 @@ public class UpdateREITInfo {
 			for(var stockCode: infraList) {
 				if ((++count % 10) == 1) logger.info("infra  {}  /  {}  {}", count, reitList.size(), stockCode);
 				
-				String url      = String.format("https://www.japan-reit.com/infra/%s/info/", StockInfoJP.toStockCode4(stockCode));			
+				String url      = String.format("https://www.japan-reit.com/infra/%s/info/", StockInfoJPType.toStockCode4(stockCode));			
 				String category = REITInfo.CATEGORY_INFRA_FUND;
 
 				final REITInfo reitInfo = getREIT(stockCode, url, category);

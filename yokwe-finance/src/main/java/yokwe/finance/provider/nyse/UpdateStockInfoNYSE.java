@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import yokwe.finance.type.StockInfoUS;
-import yokwe.finance.type.StockInfoUS.Market;
-import yokwe.finance.type.StockInfoUS.Type;
+import yokwe.finance.type.StockInfoUSType;
+import yokwe.finance.type.StockInfoUSType.Market;
+import yokwe.finance.type.StockInfoUSType.Type;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -96,7 +96,7 @@ public class UpdateStockInfoNYSE {
 	}
 	
 	private static void update() {
-		List<StockInfoUS> list = new ArrayList<>();
+		List<StockInfoUSType> list = new ArrayList<>();
 		
 		int count = 0;
 		int countSkip = 0;
@@ -130,7 +130,7 @@ public class UpdateStockInfoNYSE {
 			}
 			
 			if (type.isETF() || type.isStock()) {
-				list.add(new StockInfoUS(stockCode, market, type, name));
+				list.add(new StockInfoUSType(stockCode, market, type, name));
 			} else {
 				countSkip++;
 			}

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.finance.Storage;
-import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -95,7 +95,7 @@ public class UpdateForeignStock {
 		for(var e: ForeignInfo.getInstance(page)) {
 			ForeignStock entry = new ForeignStock();
 			entry.name      = e.name;
-			entry.stockCode = StockInfoJP.toStockCode5(e.stockCode);
+			entry.stockCode = StockInfoJPType.toStockCode5(e.stockCode);
 
 			list.add(entry);
 		}

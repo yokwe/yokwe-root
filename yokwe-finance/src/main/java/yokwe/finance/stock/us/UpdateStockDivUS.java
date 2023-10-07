@@ -19,11 +19,11 @@ import yokwe.finance.provider.nasdaq.api.API;
 import yokwe.finance.provider.nasdaq.api.AssetClass;
 import yokwe.finance.provider.nasdaq.api.Dividends;
 import yokwe.finance.type.DailyValue;
-import yokwe.finance.type.StockInfoUS;
+import yokwe.finance.type.StockInfoUSType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateStockDiv {
+public class UpdateStockDivUS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// First time takes 48 minutes
@@ -73,7 +73,7 @@ public class UpdateStockDiv {
 		}
 	}
 	
-	private static List<Task> getTaskList(List<StockInfoUS> stockList) {
+	private static List<Task> getTaskList(List<StockInfoUSType> stockList) {
 		var taskList = new ArrayList<Task>();
 		
 		Instant now = Instant.now();
@@ -88,13 +88,13 @@ public class UpdateStockDiv {
 			AssetClass assetClass = stockInfo.type.isETF() ? AssetClass.ETF : AssetClass.STOCK;
 			TaskType   taskType;
 			
-			String path = StockDiv.getPath(stockCode);
+			String path = StockDivUS.getPath(stockCode);
 			if (FileUtil.canRead(path)) {
 				Instant  lastModified = FileUtil.getLastModified(path);
 				Duration duration     = Duration.between(lastModified, now);
 				if (GRACE_PERIOD_IN_DAYS < duration.toDays()) {
 					// after grace period
-					var list = StockDiv.getList(stockCode);
+					var list = StockDivUS.getList(stockCode);
 					if (list.isEmpty()) {
 						taskType = TaskType.WHOLE;
 						countA++;
@@ -137,20 +137,20 @@ public class UpdateStockDiv {
 			
 			if ((++count % 100) == 1) logger.info("{}  /  {}  {}", count, taskList.size(), task);
 			
-			var list = StockDiv.getList(stockCode);
+			var list = StockDivUS.getList(stockCode);
 			
 			Dividends div;
 			{
 				if (task.taskType == TaskType.WHOLE) {
-					div = Dividends.getInstance(StockInfoUS.toNASDAQSymbol(stockCode), task.assetClass);
+					div = Dividends.getInstance(StockInfoUSType.toNASDAQSymbol(stockCode), task.assetClass);
 				} else {
-					div = Dividends.getInstance(StockInfoUS.toNASDAQSymbol(stockCode), task.assetClass, 2);
+					div = Dividends.getInstance(StockInfoUSType.toNASDAQSymbol(stockCode), task.assetClass, 2);
 				}
 			}
 			if (div == null || div.data == null || div.data.dividends == null || div.data.dividends.rows == null) {
 				if (list.isEmpty()) {
 					// Update last modified time of file
-					StockDiv.save(stockCode, list);
+					StockDivUS.save(stockCode, list);
 				}
 				countA++;
 				continue;
@@ -207,7 +207,7 @@ public class UpdateStockDiv {
 				}
 			}
 			
-			StockDiv.save(stockCode, map.values());
+			StockDivUS.save(stockCode, map.values());
 			countC++;
 			
 			if (countAdd != 0) countMod++;
@@ -225,7 +225,7 @@ public class UpdateStockDiv {
 		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAYS);
 
 		// Use StockInfo of stock us
-		var stockList = StockInfo.getList();
+		var stockList = StockInfoUS.getList();
 		logger.info("list     {}", stockList.size());
 
 		for(int count = 1; count < 10; count++) {
@@ -250,12 +250,12 @@ public class UpdateStockDiv {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StockInfo.getList()) {
-			File file = new File(StockDiv.getPath(e.stockCode));
+		for(var e: StockInfoUS.getList()) {
+			File file = new File(StockDivUS.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StockDiv.getPath(), StockDiv.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StockDivUS.getPath(), StockDivUS.getPathDelist());
 	}
 
 	

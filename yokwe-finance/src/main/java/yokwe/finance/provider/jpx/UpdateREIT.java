@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.finance.Storage;
-import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -107,7 +107,7 @@ tb-color001
 		List<REIT> list = new ArrayList<>();
 		for(var e: REITInfo.getInstance(page)) {
 			REIT entry = new REIT();
-			entry.stockCode = StockInfoJP.toStockCode5(e.stockCode);
+			entry.stockCode = StockInfoJPType.toStockCode5(e.stockCode);
 			entry.name      = e.name;
 			
 			if (entry.name.contains("注")) {

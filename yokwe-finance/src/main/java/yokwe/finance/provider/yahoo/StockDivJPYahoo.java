@@ -1,4 +1,4 @@
-package yokwe.finance.stock.jp;
+package yokwe.finance.provider.yahoo;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -9,10 +9,10 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
 import yokwe.util.ListUtil;
 
-public class StockDiv {
-	private static final String PREFIX = "stock-div";
+public class StockDivJPYahoo {
+	private static final String PREFIX = "stock-div-jp";
 	
-	private static final Storage storage = Storage.stock_jp;
+	private static final Storage storage = Storage.provider_yahoo;
 	
 	public static String getPath() {
 		return storage.getPath(PREFIX);
@@ -38,5 +38,5 @@ public class StockDiv {
 	}
 	public static Map<LocalDate, DailyValue> getMap(String stockCode) {
 		return ListUtil.checkDuplicate(getList(stockCode), o -> o.date);
-	}	
+	}
 }

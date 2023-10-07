@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import yokwe.finance.Storage;
-import yokwe.finance.type.TradingStockInfo;
+import yokwe.finance.type.TradingStockType;
 import yokwe.util.ListUtil;
 
 public class TradingStockRakuten {
@@ -14,17 +14,17 @@ public class TradingStockRakuten {
 		return PATH_FILE;
 	}
 	
-	public static List<TradingStockInfo> getList() {
-		return ListUtil.getList(TradingStockInfo.class, getPath());
+	public static List<TradingStockType> getList() {
+		return ListUtil.getList(TradingStockType.class, getPath());
 	}
-	public static Map<String, TradingStockInfo> getMap() {
+	public static Map<String, TradingStockType> getMap() {
 		//            stockCode
 		return ListUtil.checkDuplicate(getList(), o -> o.stockCode);
 	}
-	public static void save(Collection<TradingStockInfo> collection) {
-		ListUtil.save(TradingStockInfo.class, getPath(), collection);
+	public static void save(Collection<TradingStockType> collection) {
+		ListUtil.save(TradingStockType.class, getPath(), collection);
 	}
-	public static void save(List<TradingStockInfo> list) {
-		ListUtil.save(TradingStockInfo.class, getPath(), list);
+	public static void save(List<TradingStockType> list) {
+		ListUtil.save(TradingStockType.class, getPath(), list);
 	}
 }

@@ -86,7 +86,7 @@ public class FundInfoJP implements Comparable<FundInfoJP> {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof StockInfoJP) {
+		if (o instanceof StockInfoJPType) {
 			FundInfoJP that = (FundInfoJP)o;
 			return
 				this.isinCode.equals(that.isinCode) &&

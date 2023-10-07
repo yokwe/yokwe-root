@@ -1,4 +1,4 @@
-package yokwe.finance.provider.nasdaq;
+package yokwe.finance.stock.us;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,8 +8,8 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoUSType;
 import yokwe.util.ListUtil;
 
-public class StockInfoNasdaq {
-	private static final String PATH_FILE = Storage.provider_nasdaq.getPath("stock-info-nasdaq.csv");
+public final class StockInfoUS {
+	private static final String PATH_FILE = Storage.stock_us.getPath("stock-info-us.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

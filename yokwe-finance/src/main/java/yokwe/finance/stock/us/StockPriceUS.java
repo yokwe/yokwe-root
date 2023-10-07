@@ -1,4 +1,4 @@
-package yokwe.finance.stock.jp;
+package yokwe.finance.stock.us;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -9,10 +9,10 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.OHLCV;
 import yokwe.util.ListUtil;
 
-public class StockPrice {
-	private static final String PREFIX = "stock-price";
+public class StockPriceUS {
+	private static final String PREFIX = "stock-price-us";
 	
-	private static final Storage storage = Storage.stock_jp;
+	private static final Storage storage = Storage.stock_us;
 	
 	public static String getPath() {
 		return storage.getPath(PREFIX);

@@ -14,13 +14,13 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import yokwe.finance.stock.jp.StockInfo;
-import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.stock.jp.StockInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 
-public class UpdateStockDivJP {
+public class UpdateStockDivJPYahoo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final long      GRACE_PERIOD_IN_DAYS = 7;
@@ -51,7 +51,7 @@ public class UpdateStockDivJP {
 	}
 	
 	
-	private static List<Task> getTaskList(List<StockInfoJP> stockList) {
+	private static List<Task> getTaskList(List<StockInfoJPType> stockList) {
 		var taskList = new ArrayList<Task>();
 		
 		Instant now = Instant.now();
@@ -67,13 +67,13 @@ public class UpdateStockDivJP {
 			LocalDate  startDate;
 			LocalDate  stopDatePlusOne = LocalDate.ofInstant(now, ZONE_ID).plusDays(1);
 			
-			String path = StockDivJP.getPath(stockCode);
+			String path = StockDivJPYahoo.getPath(stockCode);
 			if (FileUtil.canRead(path)) {
 				Instant  lastModified = FileUtil.getLastModified(path);
 				Duration duration     = Duration.between(lastModified, now);
 				if (GRACE_PERIOD_IN_DAYS < duration.toDays()) {
 					// after grace period
-					var list = StockDivJP.getList(stockCode);
+					var list = StockDivJPYahoo.getList(stockCode);
 					if (list.isEmpty()) {
 						startDate = EPOCH_DATE;
 						countA++;
@@ -130,7 +130,7 @@ public class UpdateStockDivJP {
 			
 			String stockCode = task.stockCode;
 			
-			var divList = Download.getDividend(StockInfoJP.toYahooSymbol(stockCode), task.startDate, task.stopDatePlusOne);
+			var divList = Download.getDividend(StockInfoJPType.toYahooSymbol(stockCode), task.startDate, task.stopDatePlusOne);
 			if (divList == null) {
 				logger.warn("divList is null  {}", task);
 				try {
@@ -143,11 +143,11 @@ public class UpdateStockDivJP {
 			}
 			
 			// list has existing values
-			var list = StockDivJP.getList(stockCode);
+			var list = StockDivJPYahoo.getList(stockCode);
 			if (divList.isEmpty()) {
 				if (list.isEmpty()) {
 					// Update last modified time of file
-					StockDivJP.save(stockCode, list);
+					StockDivJPYahoo.save(stockCode, list);
 				}
 				countB++;
 				continue;
@@ -176,7 +176,7 @@ public class UpdateStockDivJP {
 			countC++;
 			if (countChange != 0) countMod++;
 
-			StockDivJP.save(stockCode, map.values());
+			StockDivJPYahoo.save(stockCode, map.values());
 		}
 		
 		logger.info("countA   {}", countA);
@@ -191,7 +191,7 @@ public class UpdateStockDivJP {
 		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAYS);
 
 		// Use StockInfo of stock us
-		var stockList = StockInfo.getList().stream().filter(o -> o.kind.isDomesticStock() || o.kind.isForeignStock()).collect(Collectors.toList());
+		var stockList = StockInfoJP.getList().stream().filter(o -> o.kind.isDomesticStock() || o.kind.isForeignStock()).collect(Collectors.toList());
 		logger.info("stock     {}", stockList.size());
 		
 		for(int count = 1; count < 10; count++) {
@@ -215,12 +215,12 @@ public class UpdateStockDivJP {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StockInfo.getList()) {
-			File file = new File(StockDivJP.getPath(e.stockCode));
+		for(var e: StockInfoJP.getList()) {
+			File file = new File(StockDivJPYahoo.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StockDivJP.getPath(), StockDivJP.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StockDivJPYahoo.getPath(), StockDivJPYahoo.getPathDelist());
 	}
 
 	public static void main(String[] args) throws IOException {

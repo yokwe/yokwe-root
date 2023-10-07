@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.us.StockInfo;
-import yokwe.finance.type.TradingStockInfo;
+import yokwe.finance.stock.us.StockInfoUS;
+import yokwe.finance.type.TradingStockType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -272,21 +272,21 @@ public class UpdateTradingStockSBI {
 			logger.info("set        {}", set.size());
 		}
 		
-		var list = new ArrayList<TradingStockInfo>();
+		var list = new ArrayList<TradingStockType>();
 		{
 			for(var stockCode: stockCodeList) {
 				if (stockCode.equals("ティッカー")) continue;
 				if (10 <= stockCode.length()) continue;
 				
-				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
-				var tradeType = TradingStockInfo.TradeType.BUY_SELL;
+				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockType.FeeType.BUY_FREE : TradingStockType.FeeType.PAID;
+				var tradeType = TradingStockType.TradeType.BUY_SELL;
 				
-				list.add(new TradingStockInfo(stockCode, feeType, tradeType));
+				list.add(new TradingStockType(stockCode, feeType, tradeType));
 			}
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = StockInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 
 		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());

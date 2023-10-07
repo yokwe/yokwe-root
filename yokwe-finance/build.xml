@@ -219,8 +219,8 @@
 	
 	
 	<!-- Stock JP -->
-	<target name="stock-jp-update-stock-div">
-		<java module="yokwe.finance/yokwe.finance.stock.jp.UpdateStockDiv" fork="true">
+	<target name="stock-jp-update-stock-div-jp">
+		<java module="yokwe.finance/yokwe.finance.stock.jp.UpdateStockDivJP" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
@@ -230,24 +230,24 @@
 	
 	
 	<!-- Stock US -->
-	<target name="stock-us-update-stock-info">
-		<java module="yokwe.finance/yokwe.finance.stock.us.UpdateStockInfo" fork="true">
+	<target name="stock-us-update-stock-info-us">
+		<java module="yokwe.finance/yokwe.finance.stock.us.UpdateStockInfoUS" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="stock-us-update-stock-price">
-		<java module="yokwe.finance/yokwe.finance.stock.us.UpdateStockPrice" fork="true">
+	<target name="stock-us-update-stock-price-us">
+		<java module="yokwe.finance/yokwe.finance.stock.us.UpdateStockPriceUS" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="stock-us-update-stock-div">
-		<java module="yokwe.finance/yokwe.finance.stock.us.UpdateStockDiv" fork="true">
+	<target name="stock-us-update-stock-div-us">
+		<java module="yokwe.finance/yokwe.finance.stock.us.UpdateStockDivUS" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />

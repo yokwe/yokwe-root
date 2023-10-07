@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
-import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.ScrapeUtil.AsNumber;
@@ -125,7 +125,7 @@ public class UpdateREITDiv {
 	private static void updateInfra(REITInfo reit) {
 		String stockCode = reit.stockCode;
 		
-		String url      = String.format("https://www.japan-reit.com/infra/%s/dividend/", StockInfoJP.toStockCode4(stockCode));			
+		String url      = String.format("https://www.japan-reit.com/infra/%s/dividend/", StockInfoJPType.toStockCode4(stockCode));			
 		String charset  = "UTF-8";
 		String filePath = Storage.provider_jreit.getPath("page-div", stockCode + ".html");
 		
@@ -149,7 +149,7 @@ public class UpdateREITDiv {
 	private static void updateREIT(REITInfo reit) {
 		String stockCode = reit.stockCode;
 
-		String url      = String.format("https://www.japan-reit.com/meigara/%s/bunpai.json", StockInfoJP.toStockCode4(stockCode));
+		String url      = String.format("https://www.japan-reit.com/meigara/%s/bunpai.json", StockInfoJPType.toStockCode4(stockCode));
 		String charset  = "UTF-8";
 		String filePath = Storage.provider_jreit.getPath("page-div", stockCode + ".json");
 		

@@ -2,7 +2,7 @@ package yokwe.finance.type;
 
 import yokwe.util.StringUtil;
 
-public final class StockInfoUS implements Comparable<StockInfoUS> {
+public final class StockInfoUSType implements Comparable<StockInfoUSType> {
 	public static String toYahooSymbol(String symbol) {
 		return symbol.replace("-", "-P").replace(".", "-");
 	}
@@ -58,7 +58,7 @@ public final class StockInfoUS implements Comparable<StockInfoUS> {
 	public final Type   type;
 	public final String name;
 	
-	public StockInfoUS(String symbol, Market market, Type type, String name) {
+	public StockInfoUSType(String symbol, Market market, Type type, String name) {
 		this.stockCode = symbol.trim();
 		this.market = market;
 		this.type   = type;
@@ -75,7 +75,7 @@ public final class StockInfoUS implements Comparable<StockInfoUS> {
 		return this.stockCode;
 	}
 	@Override
-	public int compareTo(StockInfoUS that) {
+	public int compareTo(StockInfoUSType that) {
 		return this.getKey().compareTo(that.getKey());
 	}
 	@Override
@@ -88,8 +88,8 @@ public final class StockInfoUS implements Comparable<StockInfoUS> {
 		if (o == null) {
 			return false;
 		} else {
-			if (o instanceof StockInfoUS) {
-				StockInfoUS that = (StockInfoUS)o;
+			if (o instanceof StockInfoUSType) {
+				StockInfoUSType that = (StockInfoUSType)o;
 				return this.compareTo(that) == 0;
 			} else {
 				return false;

@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import yokwe.finance.type.StockInfoJP;
-import yokwe.finance.type.StockInfoUS;
+import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockInfoUSType;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
@@ -187,9 +187,9 @@ public class UpdateSearch {
 	public static String toYahooSymbol(String stockCode) {
 		Character c0 = Character.valueOf(stockCode.charAt(0));
 		if (Character.isDigit(c0)) {
-			return StockInfoJP.toYahooSymbol(stockCode);
+			return StockInfoJPType.toYahooSymbol(stockCode);
 		} else {
-			return StockInfoUS.toYahooSymbol(stockCode);
+			return StockInfoUSType.toYahooSymbol(stockCode);
 		}
 	}
 	
@@ -231,7 +231,7 @@ public class UpdateSearch {
 		{
 			String label = "stock-us";
 			
-			var list = yokwe.finance.stock.us.StockInfo.getList().stream().map(o -> StockInfoUS.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
+			var list = yokwe.finance.stock.us.StockInfoUS.getList().stream().map(o -> StockInfoUSType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
 			logger.info("{}  list  {}", label, list.size());
 			list.removeIf(o -> map.containsKey(o));
 			logger.info("{}  list  {}", label, list.size());
@@ -243,7 +243,7 @@ public class UpdateSearch {
 		{
 			String label = "stock-jp";
 			
-			var list = yokwe.finance.stock.jp.StockInfo.getList().stream().map(o -> StockInfoJP.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
+			var list = yokwe.finance.stock.jp.StockInfoJP.getList().stream().map(o -> StockInfoJPType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
 			logger.info("{}  list  {}", label, list.size());
 			list.removeIf(o -> map.containsKey(o));
 			logger.info("{}  list  {}", label, list.size());

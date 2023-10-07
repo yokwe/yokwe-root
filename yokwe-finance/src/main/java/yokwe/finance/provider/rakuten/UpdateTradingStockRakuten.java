@@ -12,8 +12,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.us.StockInfo;
-import yokwe.finance.type.TradingStockInfo;
+import yokwe.finance.stock.us.StockInfoUS;
+import yokwe.finance.type.TradingStockType;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
 import yokwe.util.FileUtil;
@@ -124,14 +124,14 @@ public class UpdateTradingStockRakuten {
 			public String tradeable;
 		}
 
-		private static List<TradingStockInfo> getList(Set<String> buyFreeSet) {
+		private static List<TradingStockType> getList(Set<String> buyFreeSet) {
 			final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
 			
 			List<Data> dataList = CSVUtil.read(Data.class).file(new StringReader(page));
 			
 			//  trading symbol
 			Set<String> set = new HashSet<>();
-			List<TradingStockInfo> list = new ArrayList<>();
+			List<TradingStockType> list = new ArrayList<>();
 			for(var data: dataList) {
 				String stockCode = data.ticker;
 				
@@ -146,10 +146,10 @@ public class UpdateTradingStockRakuten {
 				}
 				set.add(stockCode);
 				
-				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
-				var tradeType = TradingStockInfo.TradeType.BUY_SELL;
+				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockType.FeeType.BUY_FREE : TradingStockType.FeeType.PAID;
+				var tradeType = TradingStockType.TradeType.BUY_SELL;
 				
-				list.add(new TradingStockInfo(stockCode, feeType, tradeType));
+				list.add(new TradingStockType(stockCode, feeType, tradeType));
 			}
 			return list;
 		}
@@ -226,14 +226,14 @@ public class UpdateTradingStockRakuten {
 			public String f58;			
 		}
 
-		private static List<TradingStockInfo> getList(Set<String> buyFreeSet) {
+		private static List<TradingStockType> getList(Set<String> buyFreeSet) {
 			final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
 			
 			List<Data> dataList = CSVUtil.read(Data.class).withHeader(false).file(new StringReader(page));
 			
 			//  symbol
 			Set<String> set = new HashSet<>();
-			List<TradingStockInfo> list = new ArrayList<>();
+			List<TradingStockType> list = new ArrayList<>();
 			for(var data: dataList) {
 				String stockCode = data.symbol;
 				
@@ -264,10 +264,10 @@ public class UpdateTradingStockRakuten {
 					throw new UnexpectedException("Unexpected");
 				}
 				
-				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockInfo.FeeType.BUY_FREE : TradingStockInfo.FeeType.PAID;
-				var tradeType = TradingStockInfo.TradeType.BUY_SELL;
+				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockType.FeeType.BUY_FREE : TradingStockType.FeeType.PAID;
+				var tradeType = TradingStockType.TradeType.BUY_SELL;
 				
-				list.add(new TradingStockInfo(stockCode, feeType, tradeType));
+				list.add(new TradingStockType(stockCode, feeType, tradeType));
 			}
 			return list;
 		}
@@ -278,12 +278,12 @@ public class UpdateTradingStockRakuten {
 		var buyFreeSet = BuyFreeETF.getSet();
 		logger.info("buyFree    {}", buyFreeSet.size());
 		
-		List<TradingStockInfo> list;
+		List<TradingStockType> list;
 		{
 			var stockList = STOCK.getList(buyFreeSet);
 			var etfList   = ETF.getList(buyFreeSet);
 			
-			Map<String, TradingStockInfo> map = new HashMap<>();
+			Map<String, TradingStockType> map = new HashMap<>();
 			for(var e: stockList) {
 				if (!map.containsKey(e.stockCode)) map.put(e.stockCode, e);
 			}
@@ -299,7 +299,7 @@ public class UpdateTradingStockRakuten {
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = StockInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 
 		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());

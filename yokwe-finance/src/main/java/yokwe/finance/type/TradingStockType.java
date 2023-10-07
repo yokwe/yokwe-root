@@ -1,6 +1,6 @@
 package yokwe.finance.type;
 
-public class TradingStockInfo implements Comparable<TradingStockInfo>{
+public class TradingStockType implements Comparable<TradingStockType>{
 	public enum FeeType {
 		PAID,
 		BUY_FREE,
@@ -15,7 +15,7 @@ public class TradingStockInfo implements Comparable<TradingStockInfo>{
 	public FeeType   feeType;
 	public TradeType tradeType;
 	
-	public TradingStockInfo(String stockCode, FeeType feeType, TradeType tradeType) {
+	public TradingStockType(String stockCode, FeeType feeType, TradeType tradeType) {
 		this.stockCode = stockCode;
 		this.feeType   = feeType;
 		this.tradeType = tradeType;
@@ -26,13 +26,13 @@ public class TradingStockInfo implements Comparable<TradingStockInfo>{
 		return String.format("{%s  %s  %s}", stockCode, feeType, tradeType);
 	}
 	@Override
-	public int compareTo(TradingStockInfo that) {
+	public int compareTo(TradingStockType that) {
 		return this.stockCode.compareTo(that.stockCode);
 	}
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof TradingStockInfo) {
-			TradingStockInfo that = (TradingStockInfo)o;
+		if (o instanceof TradingStockType) {
+			TradingStockType that = (TradingStockType)o;
 			return
 				this.stockCode.equals(that.stockCode) &&
 				this.feeType == that.feeType &&

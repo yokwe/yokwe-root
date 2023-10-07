@@ -2,7 +2,7 @@ package yokwe.finance.type;
 
 import yokwe.util.UnexpectedException;
 
-public final class StockInfoJP implements Comparable<StockInfoJP> {
+public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
 	public static enum Kind {
@@ -188,7 +188,7 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 		return this.stockCode;
 	}
 	@Override
-	public int compareTo(StockInfoJP that) {
+	public int compareTo(StockInfoJPType that) {
 		return this.getKey().compareTo(that.getKey());
 	}
 	@Override
@@ -198,8 +198,8 @@ public final class StockInfoJP implements Comparable<StockInfoJP> {
 	
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof StockInfoJP) {
-			StockInfoJP that = (StockInfoJP)o;
+		if (o instanceof StockInfoJPType) {
+			StockInfoJPType that = (StockInfoJPType)o;
 			return
 				this.stockCode.equals(that.stockCode) &&
 				this.kind.equals(that.kind) &&

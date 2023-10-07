@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import yokwe.finance.type.StockInfoUS;
-import yokwe.finance.type.StockInfoUS.Market;
-import yokwe.finance.type.StockInfoUS.Type;
+import yokwe.finance.type.StockInfoUSType;
+import yokwe.finance.type.StockInfoUSType.Market;
+import yokwe.finance.type.StockInfoUSType.Type;
 import yokwe.util.CSVUtil;
 import yokwe.util.FTPUtil;
 import yokwe.util.FileUtil;
@@ -73,7 +73,7 @@ public class UpdateStockInfoNasdaq {
 	
 	private static void update() {
 		// FIXME
-		List<StockInfoUS> list = new ArrayList<>();
+		List<StockInfoUSType> list = new ArrayList<>();
 		
 		int countTotal = 0;
 		int countSkip  = 0;
@@ -104,7 +104,7 @@ public class UpdateStockInfoNasdaq {
 				Type   type   = e.etf.equals("Y") ? Type.ETF : Type.COMMON; // just ETF or COMMON for now
 				String name   = e.name.replace(",", "").toUpperCase(); // use upper case
 
-				list.add(new StockInfoUS(symbol, market, type, name));
+				list.add(new StockInfoUSType(symbol, market, type, name));
 			}
 			for(var e: OtherListed.getList()) {
 				countTotal++;
@@ -120,7 +120,7 @@ public class UpdateStockInfoNasdaq {
 				Type   type   = e.etf.equals("Y") ? Type.ETF : Type.COMMON;  // just ETF or COMMON for now
 				String name   = e.name.replace(",", "").toUpperCase(); // use upper case
 				
-				list.add(new StockInfoUS(symbol, market, type, name));
+				list.add(new StockInfoUSType(symbol, market, type, name));
 			}
 		}
 		

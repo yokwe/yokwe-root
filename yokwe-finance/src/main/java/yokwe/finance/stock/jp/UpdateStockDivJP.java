@@ -11,11 +11,11 @@ import yokwe.finance.fund.jp.FundDiv;
 import yokwe.finance.fund.jp.FundInfo;
 import yokwe.finance.provider.jreit.REITDiv;
 import yokwe.finance.provider.jreit.REITInfo;
-import yokwe.finance.provider.yahoo.StockDivJP;
+import yokwe.finance.provider.yahoo.StockDivJPYahoo;
 import yokwe.finance.type.DailyValue;
 import yokwe.util.FileUtil;
 
-public class UpdateStockDiv {
+public class UpdateStockDivJP {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	
@@ -24,7 +24,7 @@ public class UpdateStockDiv {
 		// stockCode isinCode
 		var reitSet = REITInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		
-		var list = StockInfo.getList();
+		var list = StockInfoJP.getList();
 		int count = 0;
 		for(var stock: list) {
 			if ((++count % 100) == 1) logger.info("{}  /  {}", count, list.size());
@@ -38,7 +38,7 @@ public class UpdateStockDiv {
 				} else if (reitSet.contains(stockCode)) {
 					divList = REITDiv.getList(stockCode);
 				} else {
-					divList = StockDivJP.getList(stockCode);
+					divList = StockDivJPYahoo.getList(stockCode);
 				}
 			}
 			if (divList == null) {
@@ -53,12 +53,12 @@ public class UpdateStockDiv {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StockInfo.getList()) {
-			File file = new File(StockDiv.getPath(e.stockCode));
+		for(var e: StockInfoJP.getList()) {
+			File file = new File(StockDivJP.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StockDiv.getPath(), StockDiv.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StockDivJP.getPath(), StockDivJP.getPathDelist());
 	}
 	
 	public static void main(String[] args) throws IOException {

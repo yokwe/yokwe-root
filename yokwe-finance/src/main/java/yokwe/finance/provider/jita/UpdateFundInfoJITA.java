@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
-import yokwe.finance.stock.jp.StockInfo;
+import yokwe.finance.stock.jp.StockInfoJP;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
@@ -95,7 +95,7 @@ public class UpdateFundInfoJITA {
 	}
 	
 	
-	private static final Map<String, String> isinCodeMap = StockInfo.getList().stream().collect(Collectors.toMap(o -> o.isinCode, o -> o.stockCode));
+	private static final Map<String, String> isinCodeMap = StockInfoJP.getList().stream().collect(Collectors.toMap(o -> o.isinCode, o -> o.stockCode));
 	//                       isinCode stockCode
 	private static final Pattern PAT_ESTABLISHED_DATE = Pattern.compile("(?<yyyy>[12][09][0-9][0-9])-(?<mm>[01]?[0-9])-(?<dd>[0123]?[0-9]) 00:00:00");
 	private static final Pattern PAT_REDEMPTION_DATE = Pattern.compile("(?<yyyy>[12][09][0-9][0-9])(?<mm>[01]?[0-9])(?<dd>[0123]?[0-9])");

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.us.StockInfo;
-import yokwe.finance.type.TradingStockInfo;
+import yokwe.finance.stock.us.StockInfoUS;
+import yokwe.finance.type.TradingStockType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -68,7 +68,7 @@ public class UpdateTradingStockMonex {
 	private static void update() {
 		final String page = download(URL, CHARSET, FILE_PATH, DEBUG_USE_FILE);
 		
-		List<TradingStockInfo> list = new ArrayList<>();
+		List<TradingStockType> list = new ArrayList<>();
 		{
 			for(String line: page.split("\n")) {
 				line = line.trim();
@@ -78,16 +78,16 @@ public class UpdateTradingStockMonex {
 					if (usMeigara.name.isEmpty()) continue;
 					
 					var stockCode = usMeigara.stockCode;
-					var feeType   = TradingStockInfo.FeeType.PAID;
-					var tradeType = TradingStockInfo.TradeType.BUY_SELL;
+					var feeType   = TradingStockType.FeeType.PAID;
+					var tradeType = TradingStockType.TradeType.BUY_SELL;
 					
-					list.add(new TradingStockInfo(stockCode, feeType, tradeType));
+					list.add(new TradingStockType(stockCode, feeType, tradeType));
 				}
 			}
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = StockInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 
 		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());

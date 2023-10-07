@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import yokwe.finance.Storage;
-import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -127,7 +127,7 @@ public class UpdateETN {
 		for(var e: ETFInfo.getInstance(page)) {
 			ETN entry = new ETN();
 			entry.indexName    = e.indexName.replace("&amp;", "&");
-			entry.stockCode    = StockInfoJP.toStockCode5(e.stockCode);
+			entry.stockCode    = StockInfoJPType.toStockCode5(e.stockCode);
 			entry.name         = e.name.replace("&amp;", "&").replace("(注2)", "").replace("(注5)", "").replace("(注6)", "");
 			entry.expenseRatio = new BigDecimal(e.expenseRatio).movePointLeft(2);
 			

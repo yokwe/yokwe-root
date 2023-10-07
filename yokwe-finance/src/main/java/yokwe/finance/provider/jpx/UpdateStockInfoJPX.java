@@ -6,36 +6,36 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import yokwe.finance.type.StockInfoJP;
-import yokwe.finance.type.StockInfoJP.Kind;
-import yokwe.finance.type.StockInfoJP.Topix;
+import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockInfoJPType.Kind;
+import yokwe.finance.type.StockInfoJPType.Topix;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateStockInfoJPX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static Map<Listing.Kind, StockInfoJP.Kind> kindMap = new TreeMap<>();
+	private static Map<Listing.Kind, StockInfoJPType.Kind> kindMap = new TreeMap<>();
 	static {
-		kindMap.put(Listing.Kind.DOMESTIC_GROWTH,   StockInfoJP.Kind.DOMESTIC_GROWTH);
-		kindMap.put(Listing.Kind.DOMESTIC_STANDARD, StockInfoJP.Kind.DOMESTIC_STANDARD);
-		kindMap.put(Listing.Kind.DOMESTIC_PRIME,    StockInfoJP.Kind.DOMESTIC_PRIME);
-		kindMap.put(Listing.Kind.FOREIGN_GROWTH,    StockInfoJP.Kind.FOREIGN_GROWTH);
-		kindMap.put(Listing.Kind.FOREIGN_STANDARD,  StockInfoJP.Kind.FOREIGN_STANDARD);
-		kindMap.put(Listing.Kind.FOREIGN_PRIME,     StockInfoJP.Kind.FOREIGN_PRIME);
+		kindMap.put(Listing.Kind.DOMESTIC_GROWTH,   StockInfoJPType.Kind.DOMESTIC_GROWTH);
+		kindMap.put(Listing.Kind.DOMESTIC_STANDARD, StockInfoJPType.Kind.DOMESTIC_STANDARD);
+		kindMap.put(Listing.Kind.DOMESTIC_PRIME,    StockInfoJPType.Kind.DOMESTIC_PRIME);
+		kindMap.put(Listing.Kind.FOREIGN_GROWTH,    StockInfoJPType.Kind.FOREIGN_GROWTH);
+		kindMap.put(Listing.Kind.FOREIGN_STANDARD,  StockInfoJPType.Kind.FOREIGN_STANDARD);
+		kindMap.put(Listing.Kind.FOREIGN_PRIME,     StockInfoJPType.Kind.FOREIGN_PRIME);
 		//
 //		kindMap.put(JPXListing.Kind.CERTIFICATE,       StockInfoJP.Kind.CERTIFICATE);
 //		kindMap.put(JPXListing.Kind.PRO_MARKET,        StockInfoJP.Kind.PRO_MARKET);
 	}
 	
-	private static Map<Listing.Topix, StockInfoJP.Topix> topixMap = new TreeMap<>();
+	private static Map<Listing.Topix, StockInfoJPType.Topix> topixMap = new TreeMap<>();
 	static {
-		topixMap.put(Listing.Topix.CORE_30,  StockInfoJP.Topix.CORE_30);
-		topixMap.put(Listing.Topix.LARGE_70, StockInfoJP.Topix.LARGE_70);
-		topixMap.put(Listing.Topix.MID_400,  StockInfoJP.Topix.MID_400);
-		topixMap.put(Listing.Topix.SMALL_1,  StockInfoJP.Topix.SMALL_1);
-		topixMap.put(Listing.Topix.SMALL_2,  StockInfoJP.Topix.SMALL_2);
-		topixMap.put(Listing.Topix.OTHER,    StockInfoJP.Topix.OTHER);
+		topixMap.put(Listing.Topix.CORE_30,  StockInfoJPType.Topix.CORE_30);
+		topixMap.put(Listing.Topix.LARGE_70, StockInfoJPType.Topix.LARGE_70);
+		topixMap.put(Listing.Topix.MID_400,  StockInfoJPType.Topix.MID_400);
+		topixMap.put(Listing.Topix.SMALL_1,  StockInfoJPType.Topix.SMALL_1);
+		topixMap.put(Listing.Topix.SMALL_2,  StockInfoJPType.Topix.SMALL_2);
+		topixMap.put(Listing.Topix.OTHER,    StockInfoJPType.Topix.OTHER);
 	}
 	
 	
@@ -43,7 +43,7 @@ public class UpdateStockInfoJPX {
 		logger.info("START");
 		
 		// build map using listing, etf, etn, infrafund and reit of jpx
-		Map<String, StockInfoJP> map = new TreeMap<>();
+		Map<String, StockInfoJPType> map = new TreeMap<>();
 		{
 			var listingList = Listing.getList();
 			var etfMap      = ETF.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
@@ -63,12 +63,12 @@ public class UpdateStockInfoJPX {
 				// skip certificate and pro market
 				if (listing.kind == Listing.Kind.CERTIFICATE || listing.kind == Listing.Kind.PRO_MARKET) continue;
 				
-				StockInfoJP.Kind kind = kindMap.get(listing.kind);
+				StockInfoJPType.Kind kind = kindMap.get(listing.kind);
 				if (kind == null) {
-					if (etfMap.containsKey(stockCode))        kind = StockInfoJP.Kind.ETF;
-					else if (etnMap.containsKey(stockCode))   kind = StockInfoJP.Kind.ETN;
-					else if (reitMap.containsKey(stockCode))  kind = StockInfoJP.Kind.REIT;
-					else if (infraMap.containsKey(stockCode)) kind = StockInfoJP.Kind.INFRA_FUND;
+					if (etfMap.containsKey(stockCode))        kind = StockInfoJPType.Kind.ETF;
+					else if (etnMap.containsKey(stockCode))   kind = StockInfoJPType.Kind.ETN;
+					else if (reitMap.containsKey(stockCode))  kind = StockInfoJPType.Kind.REIT;
+					else if (infraMap.containsKey(stockCode)) kind = StockInfoJPType.Kind.INFRA_FUND;
 					else {
 						logger.error("Unexpected");
 						logger.error("  jpxListring  {}", listing);
@@ -76,14 +76,14 @@ public class UpdateStockInfoJPX {
 					}
 				}
 								
-				StockInfoJP.Topix topix = topixMap.get(listing.topix);
+				StockInfoJPType.Topix topix = topixMap.get(listing.topix);
 				if (topix == null) {
 					logger.error("Unexpected");
 					logger.error("  jpxListring  {}", listing);
 					throw new UnexpectedException("Unexpected");
 				}
 				
-				StockInfoJP stockInfoJP = new StockInfoJP();
+				StockInfoJPType stockInfoJP = new StockInfoJPType();
 				stockInfoJP.stockCode = listing.stockCode;
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
@@ -105,7 +105,7 @@ public class UpdateStockInfoJPX {
 				
 				logger.info("new ETF    {}  {}", stockCode, value.name);
 				
-				StockInfoJP stockInfoJP = new StockInfoJP();
+				StockInfoJPType stockInfoJP = new StockInfoJPType();
 				stockInfoJP.stockCode = value.stockCode;
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
@@ -127,7 +127,7 @@ public class UpdateStockInfoJPX {
 				
 				logger.info("new ETN    {}  {}", value.stockCode, value.name);
 				
-				StockInfoJP stockInfoJP = new StockInfoJP();
+				StockInfoJPType stockInfoJP = new StockInfoJPType();
 				stockInfoJP.stockCode = value.stockCode;
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
@@ -149,7 +149,7 @@ public class UpdateStockInfoJPX {
 				
 				logger.info("new INFRA  {}  {}", value.stockCode, value.name);
 				
-				StockInfoJP stockInfoJP = new StockInfoJP();
+				StockInfoJPType stockInfoJP = new StockInfoJPType();
 				stockInfoJP.stockCode = value.stockCode;
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
@@ -171,7 +171,7 @@ public class UpdateStockInfoJPX {
 				
 				logger.info("new REIT   {}  {}", value.stockCode, value.name);
 				
-				StockInfoJP stockInfoJP = new StockInfoJP();
+				StockInfoJPType stockInfoJP = new StockInfoJPType();
 				stockInfoJP.stockCode = value.stockCode;
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
@@ -189,7 +189,7 @@ public class UpdateStockInfoJPX {
 		}
 		// fix isinCode, tradeUnit and issued using current stock info
 		{
-			var unknownList = new ArrayList<StockInfoJP>();
+			var unknownList = new ArrayList<StockInfoJPType>();
 
 			var oldMap = StockInfoJPX.getMap();
 			for(var entry: map.entrySet()) {

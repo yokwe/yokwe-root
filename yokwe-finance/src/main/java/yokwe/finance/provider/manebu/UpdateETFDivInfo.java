@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.jp.StockInfo;
+import yokwe.finance.stock.jp.StockInfoJP;
 import yokwe.finance.type.DailyValue;
-import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
@@ -214,7 +214,7 @@ public class UpdateETFDivInfo {
 	
 	
 	private static void update() {
-		var stockCodeList = StockInfo.getList().stream().filter(o -> o.kind.isETF()).map(o -> o.stockCode).collect(Collectors.toList());
+		var stockCodeList = StockInfoJP.getList().stream().filter(o -> o.kind.isETF()).map(o -> o.stockCode).collect(Collectors.toList());
 		
 		logger.info("etf  {}", stockCodeList.size());
 		
@@ -223,7 +223,7 @@ public class UpdateETFDivInfo {
 		for(var stockCode: stockCodeList) {
 			if ((++count % 20) == 1) logger.info("{}  /  {}", count, stockCodeList.size());
 			
-			String stockCode4 = StockInfoJP.toStockCode4(stockCode);
+			String stockCode4 = StockInfoJPType.toStockCode4(stockCode);
 
 			final String page;
 			{

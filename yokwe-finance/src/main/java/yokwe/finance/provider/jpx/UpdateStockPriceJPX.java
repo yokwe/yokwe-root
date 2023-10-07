@@ -19,7 +19,7 @@ import yokwe.finance.provider.jpx.StockPage.OpenPrice;
 import yokwe.finance.provider.jpx.StockPage.PriceVolume;
 import yokwe.finance.provider.jpx.StockPage.TradeVolume;
 import yokwe.finance.type.OHLCV;
-import yokwe.finance.type.StockInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
@@ -32,7 +32,7 @@ public class UpdateStockPriceJPX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static String getPageURL(String stockCode) {
-		String stockCode4 = StockInfoJP.toStockCode4(stockCode);
+		String stockCode4 = StockInfoJPType.toStockCode4(stockCode);
 		return String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode4);
 	}
 
@@ -172,7 +172,7 @@ public class UpdateStockPriceJPX {
 		download.setProgressInterval(progressInterval);
 		
 		// NOTE Use StockInfo
-		List<StockInfoJP> stockInfoList = StockInfoJPX.getList();
+		List<StockInfoJPType> stockInfoList = StockInfoJPX.getList();
 		Collections.shuffle(stockInfoList);
 		final int stockListSize = stockInfoList.size();
 		
