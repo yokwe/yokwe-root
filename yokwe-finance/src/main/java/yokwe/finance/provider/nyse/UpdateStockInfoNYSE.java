@@ -13,7 +13,7 @@ import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
-public class UpdateStockInfo {
+public class UpdateStockInfoNYSE {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String TYPE_STOCK = "EQUITY";
@@ -139,8 +139,8 @@ public class UpdateStockInfo {
 		logger.info("total  {}", count);
 		logger.info("skip   {}", countSkip);
 		
-		logger.info("save   {}  {}", list.size(), StockInfo.getPath());
-		StockInfo.save(list);
+		logger.info("save   {}  {}", list.size(), StockInfoNYSE.getPath());
+		StockInfoNYSE.save(list);
 	}
 	
 	public static void main(String[] args) {

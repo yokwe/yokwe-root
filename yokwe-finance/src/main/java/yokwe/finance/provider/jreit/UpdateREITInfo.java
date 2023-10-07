@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
+import yokwe.finance.stock.jp.StockInfo;
 import yokwe.finance.type.StockInfoJP;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -223,7 +224,7 @@ public class UpdateREITInfo {
 		final List<String> reitList;
 		final List<String> infraList;
 		{
-			var list = yokwe.finance.stock.jp.StockInfo.getList();
+			var list = StockInfo.getList();
 			reitList  = list.stream().filter(o -> o.kind.isREIT()).map(o -> o.stockCode).collect(Collectors.toList());
 			infraList = list.stream().filter(o -> o.kind.isInfraFund()).map(o -> o.stockCode).collect(Collectors.toList());
 		}

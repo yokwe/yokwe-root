@@ -16,7 +16,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateStockInfo {
+public class UpdateStockInfoNasdaq {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Map<String, Market> marketMap = new TreeMap<>();
@@ -38,7 +38,7 @@ public class UpdateStockInfo {
 	private static void download(String url, String path) {
 		byte[] data = FTPUtil.download(url);
 		if (data == null) {
-			logger.error("Download failed  {}", NASDAQListed.URL);
+			logger.error("Download failed  {}", NasdaqListed.URL);
 			throw new UnexpectedException("Download failed");
 		}
 		
@@ -64,10 +64,10 @@ public class UpdateStockInfo {
 	}
 	private static void download() {
 		// download txt file
-		download(NASDAQListed.URL, NASDAQListed.PATH_TXT);
+		download(NasdaqListed.URL, NasdaqListed.PATH_TXT);
 		download(OtherListed.URL,  OtherListed.PATH_TXT);
 		// read txt file and save csv file
-		save(NASDAQListed.class, NASDAQListed.PATH_TXT, NASDAQListed.PATH_CSV);
+		save(NasdaqListed.class, NasdaqListed.PATH_TXT, NasdaqListed.PATH_CSV);
 		save(OtherListed.class,  OtherListed.PATH_TXT,  OtherListed.PATH_CSV);
 	}
 	
@@ -78,7 +78,7 @@ public class UpdateStockInfo {
 		int countTotal = 0;
 		int countSkip  = 0;
 		{
-			for(var e: NASDAQListed.getList()) {
+			for(var e: NasdaqListed.getList()) {
 				countTotal++;
 				
 				// skip test issue, right, unit and warrant
@@ -128,8 +128,8 @@ public class UpdateStockInfo {
 		logger.info("skip   {}", countSkip);
 		
 		// save
-		logger.info("save   {}  {}", list.size(), StockInfo.getPath());
-		StockInfo.save(list);
+		logger.info("save   {}  {}", list.size(), StockInfoNasdaq.getPath());
+		StockInfoNasdaq.save(list);
 	}
 	
 	public static void main(String[] args) {

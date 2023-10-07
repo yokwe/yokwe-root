@@ -1,4 +1,4 @@
-package yokwe.finance.provider.moomoo;
+package yokwe.finance.provider.sbi;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,8 +8,8 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.TradingStockInfo;
 import yokwe.util.ListUtil;
 
-public class TradingStock {
-	private static final String PATH_FILE = Storage.provider_moomoo.getPath("trading-stock.csv");
+public class TradingStockSBI {
+	private static final String PATH_FILE = Storage.provider_sbi.getPath("trading-stock-sbi.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

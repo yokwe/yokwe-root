@@ -10,9 +10,6 @@ import java.util.function.Consumer;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
-import yokwe.finance.fund.jp.FundDiv;
-import yokwe.finance.fund.jp.FundInfo;
-import yokwe.finance.fund.jp.FundPrice;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.FundPriceJP;
 import yokwe.util.CSVUtil;
@@ -23,7 +20,7 @@ import yokwe.util.http.DownloadSync;
 import yokwe.util.http.RequesterBuilder;
 import yokwe.util.http.StringTask;
 
-public class UpdateFundDivPrice {
+public class UpdateFundDivPriceJITA {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String  URL       = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST030000/csv-file-download?isinCd=%s&associFundCd=%s";
@@ -135,8 +132,8 @@ public class UpdateFundDivPrice {
 			}
 			
 			// save divList and priceList
-			if (!divList.isEmpty())   FundDiv.save(isinCode, divList);
-			if (!priceList.isEmpty()) FundPrice.save(isinCode, priceList);
+			if (!divList.isEmpty())   FundDivJITA.save(isinCode, divList);
+			if (!priceList.isEmpty()) FundPriceJITA.save(isinCode, priceList);
 		}
 	}
 
@@ -145,7 +142,7 @@ public class UpdateFundDivPrice {
 		Download download = new DownloadSync();
 		initialize(download);
 		
-		var fundList = FundInfo.getList();
+		var fundList = FundInfoJITA.getList();
 		Collections.shuffle(fundList); // shuffle fundList
 		for(var fund: fundList) {
 			String isinCode = fund.isinCode;

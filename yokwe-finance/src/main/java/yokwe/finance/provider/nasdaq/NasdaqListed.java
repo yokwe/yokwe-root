@@ -8,7 +8,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 
-public class NASDAQListed implements Comparable<NASDAQListed> {
+public class NasdaqListed implements Comparable<NasdaqListed> {
 	// Symbol|Security Name|Market Category|Test Issue|Financial Status|Round Lot Size|ETF|NextShares
 	// AACG|ATA Creativity Global - American Depositary Shares, each representing two common shares|G|N|N|100|N|N
 	// ZYXI|Zynex, Inc. - Common Stock|Q|N|N|100|N|N
@@ -49,25 +49,25 @@ public class NASDAQListed implements Comparable<NASDAQListed> {
 		return PATH_CSV;
 	}
 	
-	public static void save(Collection<NASDAQListed> collection) {
+	public static void save(Collection<NasdaqListed> collection) {
 		// sanity check
 		ListUtil.checkDuplicate(collection, o -> o.symbol);
-		ListUtil.save(NASDAQListed.class, getPath(), collection);
+		ListUtil.save(NasdaqListed.class, getPath(), collection);
 	}
-	public static void save(List<NASDAQListed> list) {
+	public static void save(List<NasdaqListed> list) {
 		// Sanity check
 		ListUtil.checkDuplicate(list, o -> o.symbol);
-		ListUtil.save(NASDAQListed.class, getPath(), list);
+		ListUtil.save(NasdaqListed.class, getPath(), list);
 	}
 	
-	public static List<NASDAQListed> load() {
-		var list = ListUtil.load(NASDAQListed.class, getPath());
+	public static List<NasdaqListed> load() {
+		var list = ListUtil.load(NasdaqListed.class, getPath());
 		// Sanity check
 		ListUtil.checkDuplicate(list, o -> o.symbol);
 		return list;
 	}
-	public static List<NASDAQListed> getList() {
-		var list = ListUtil.getList(NASDAQListed.class, getPath());
+	public static List<NasdaqListed> getList() {
+		var list = ListUtil.getList(NasdaqListed.class, getPath());
 		// Sanity check
 		ListUtil.checkDuplicate(list, o -> o.symbol);
 		return list;
@@ -121,7 +121,7 @@ public class NASDAQListed implements Comparable<NASDAQListed> {
 	}
 	
 	@Override
-	public int compareTo(NASDAQListed that) {
+	public int compareTo(NasdaqListed that) {
 		return this.symbol.compareTo(that.symbol);
 	}
 

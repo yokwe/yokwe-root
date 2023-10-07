@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
-import yokwe.finance.fund.jp.FundInfo;
 import yokwe.finance.stock.jp.StockInfo;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.UnexpectedException;
@@ -24,7 +23,7 @@ import yokwe.util.http.StringTask;
 import yokwe.util.http.Task;
 import yokwe.util.json.JSON;
 
-public class UpdateFundInfo {
+public class UpdateFundInfoJITA {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String URL          = "https://toushin-lib.fwg.ne.jp/FdsWeb/FDST999900/fundDataSearch";
@@ -227,8 +226,8 @@ public class UpdateFundInfo {
 		download.startAndWait();
 		logger.info("AFTER  RUN");
 		
-		logger.info("save  {}  {}", consumer.fundList.size(), FundInfo.getPath());
-		FundInfo.save(consumer.fundList);
+		logger.info("save  {}  {}", consumer.fundList.size(), FundInfoJITA.getPath());
+		FundInfoJITA.save(consumer.fundList);
 	}
 
 	public static void main(String[] args) {

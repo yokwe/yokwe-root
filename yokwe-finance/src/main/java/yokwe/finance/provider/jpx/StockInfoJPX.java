@@ -8,8 +8,8 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoJP;
 import yokwe.util.ListUtil;
 
-public class StockInfo {
-	private static final String PATH_FILE = Storage.provider_jpx.getPath("stock-info.csv");
+public class StockInfoJPX {
+	private static final String PATH_FILE = Storage.provider_jpx.getPath("stock-info-jpx.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

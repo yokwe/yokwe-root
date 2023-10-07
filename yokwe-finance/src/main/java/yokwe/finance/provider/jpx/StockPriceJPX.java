@@ -9,8 +9,8 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.OHLCV;
 import yokwe.util.ListUtil;
 
-public class StockPrice {
-	private static final String PREFIX = "stock-price";
+public class StockPriceJPX {
+	private static final String PREFIX = "stock-price-jpx";
 	public static String getPath() {
 		return Storage.provider_jpx.getPath(PREFIX);
 	}

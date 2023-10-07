@@ -1,4 +1,4 @@
-package yokwe.finance.stock.jp;
+package yokwe.finance.provider.jpx;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -28,7 +28,7 @@ import yokwe.util.http.RequesterBuilder;
 import yokwe.util.http.StringTask;
 import yokwe.util.http.Task;
 
-public class UpdateStockPrice {
+public class UpdateStockPriceJPX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static String getPageURL(String stockCode) {
@@ -172,7 +172,7 @@ public class UpdateStockPrice {
 		download.setProgressInterval(progressInterval);
 		
 		// NOTE Use StockInfo
-		List<StockInfoJP> stockInfoList = StockInfo.getList();
+		List<StockInfoJP> stockInfoList = StockInfoJPX.getList();
 		Collections.shuffle(stockInfoList);
 		final int stockListSize = stockInfoList.size();
 		
@@ -237,7 +237,7 @@ public class UpdateStockPrice {
 			List<OHLCV> list;
 			{
 				// read existing data in map
-				var map = StockPrice.getMap(stockCode);
+				var map = StockPriceJPX.getMap(stockCode);
 				
 				// replace map with priceVolumeList
 				for(PriceVolume priceVolume: priceVolumeList) {
@@ -302,7 +302,7 @@ public class UpdateStockPrice {
 				}
 			}
 			
-			StockPrice.save(stockCode, list);
+			StockPriceJPX.save(stockCode, list);
 		}
 		
 		logger.info("count    {}", count);

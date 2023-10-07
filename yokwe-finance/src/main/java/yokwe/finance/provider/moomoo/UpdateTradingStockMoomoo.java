@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
+import yokwe.finance.stock.us.StockInfo;
 import yokwe.finance.type.TradingStockInfo;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -14,7 +15,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateTradingStock {
+public class UpdateTradingStockMoomoo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final boolean DEBUG_USE_FILE = false;
@@ -52,7 +53,7 @@ public class UpdateTradingStock {
 	//<td>NYSE</td>
 	//</tr>
 
-	public static class StockInfo {
+	public static class StockInfoX {
 		public static final Pattern PAT = Pattern.compile(
 				"<tr>\\s+" +
 				"<td>(?<stockCode>.+?)</td>\\s+" +
@@ -62,8 +63,8 @@ public class UpdateTradingStock {
 				"</tr>",
 				Pattern.DOTALL
 		);
-		public static List<StockInfo> getInstance(String page) {
-			return ScrapeUtil.getList(StockInfo.class, PAT, page);
+		public static List<StockInfoX> getInstance(String page) {
+			return ScrapeUtil.getList(StockInfoX.class, PAT, page);
 		}
 		
 		public String stockCode;
@@ -71,7 +72,7 @@ public class UpdateTradingStock {
 		public String industry;
 		public String market;
 		
-		public StockInfo(String stockCode, String name, String industry, String market) {
+		public StockInfoX(String stockCode, String name, String industry, String market) {
 			this.stockCode = stockCode;
 			this.name      = name;
 			this.industry  = industry;
@@ -89,7 +90,7 @@ public class UpdateTradingStock {
 		
 		List<TradingStockInfo> list = new ArrayList<>();
 		{
-			for(var e: StockInfo.getInstance(page)) {
+			for(var e: StockInfoX.getInstance(page)) {
 				// skip prohibited stock
 				if (e.stockCode.contains("*")) continue;
 				
@@ -102,14 +103,14 @@ public class UpdateTradingStock {
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = yokwe.finance.stock.us.StockInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StockInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 
 		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());
 		logger.info("list2      {}", list2.size());
 		
-		logger.info("save  {}  {}", list2.size(), TradingStock.getPath());
-		TradingStock.save(list2);
+		logger.info("save  {}  {}", list2.size(), TradingStockMoomoo.getPath());
+		TradingStockMoomoo.save(list2);
 	}
 	
 	

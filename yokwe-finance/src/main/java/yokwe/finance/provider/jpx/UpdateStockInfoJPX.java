@@ -1,4 +1,4 @@
-package yokwe.finance.stock.jp;
+package yokwe.finance.provider.jpx;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -6,19 +6,13 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import yokwe.finance.provider.jpx.ETF;
-import yokwe.finance.provider.jpx.ETN;
-import yokwe.finance.provider.jpx.InfraFund;
-import yokwe.finance.provider.jpx.Listing;
-import yokwe.finance.provider.jpx.REIT;
-import yokwe.finance.provider.jpx.StockPage;
 import yokwe.finance.type.StockInfoJP;
 import yokwe.finance.type.StockInfoJP.Kind;
 import yokwe.finance.type.StockInfoJP.Topix;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateStockInfo {
+public class UpdateStockInfoJPX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static Map<Listing.Kind, StockInfoJP.Kind> kindMap = new TreeMap<>();
@@ -41,7 +35,7 @@ public class UpdateStockInfo {
 		topixMap.put(Listing.Topix.MID_400,  StockInfoJP.Topix.MID_400);
 		topixMap.put(Listing.Topix.SMALL_1,  StockInfoJP.Topix.SMALL_1);
 		topixMap.put(Listing.Topix.SMALL_2,  StockInfoJP.Topix.SMALL_2);
-		topixMap.put(Listing.Topix.OTHER,  StockInfoJP.Topix.OTHER);
+		topixMap.put(Listing.Topix.OTHER,    StockInfoJP.Topix.OTHER);
 	}
 	
 	
@@ -197,7 +191,7 @@ public class UpdateStockInfo {
 		{
 			var unknownList = new ArrayList<StockInfoJP>();
 
-			var oldMap = StockInfo.getMap();
+			var oldMap = StockInfoJPX.getMap();
 			for(var entry: map.entrySet()) {
 				var stockCode    = entry.getKey();
 				var stockInfo    = entry.getValue();
@@ -220,7 +214,7 @@ public class UpdateStockInfo {
 				var stockCode = stockInfo.stockCode;
 				String page;
 				{
-					String url = UpdateStockPrice.getPageURL(stockCode);
+					String url = UpdateStockPriceJPX.getPageURL(stockCode);
 
 					HttpUtil.Result result = HttpUtil.getInstance().withReferer(referer).withUserAgent(userAgent).download(url);
 					if (result == null || result.result == null) {
@@ -258,8 +252,8 @@ public class UpdateStockInfo {
 			}
 		}
 		
-		logger.info("save  {}  {}", map.size(), StockInfo.getPath());
-		StockInfo.save(map.values());
+		logger.info("save  {}  {}", map.size(), StockInfoJPX.getPath());
+		StockInfoJPX.save(map.values());
 		logger.info("STOP");
 	}
 }

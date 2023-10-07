@@ -8,8 +8,8 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.TradingStockInfo;
 import yokwe.util.ListUtil;
 
-public class TradingStock {
-	private static final String PATH_FILE = Storage.provider_monex.getPath("trading-stock.csv");
+public class TradingStockMonex {
+	private static final String PATH_FILE = Storage.provider_monex.getPath("trading-stock-monex.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

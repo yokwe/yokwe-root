@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
+import yokwe.finance.stock.us.StockInfo;
 import yokwe.finance.type.TradingStockInfo;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
@@ -21,7 +22,7 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class UpdateTradingStock {
+public class UpdateTradingStockRakuten {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final boolean DEBUG_USE_FILE = false;
@@ -298,14 +299,14 @@ public class UpdateTradingStock {
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = yokwe.finance.stock.us.StockInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StockInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 
 		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());
 		logger.info("list2      {}", list2.size());
 		
-		logger.info("save  {}  {}", list2.size(), TradingStock.getPath());
-		TradingStock.save(list2);
+		logger.info("save  {}  {}", list2.size(), TradingStockRakuten.getPath());
+		TradingStockRakuten.save(list2);
 	}
 	
 	public static void main(String[] args) {

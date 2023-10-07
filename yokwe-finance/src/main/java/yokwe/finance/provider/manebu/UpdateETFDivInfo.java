@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
+import yokwe.finance.stock.jp.StockInfo;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.StockInfoJP;
 import yokwe.util.FileUtil;
@@ -213,7 +214,7 @@ public class UpdateETFDivInfo {
 	
 	
 	private static void update() {
-		var stockCodeList = yokwe.finance.provider.jpx.StockInfo.getList().stream().filter(o -> o.kind.isETF()).map(o -> o.stockCode).collect(Collectors.toList());
+		var stockCodeList = StockInfo.getList().stream().filter(o -> o.kind.isETF()).map(o -> o.stockCode).collect(Collectors.toList());
 		
 		logger.info("etf  {}", stockCodeList.size());
 		
