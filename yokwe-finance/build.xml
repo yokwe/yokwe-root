@@ -56,7 +56,7 @@
 	
 	
 	<!-- Provider JPX -->
-	<target name="provider-jpx-update-listring">
+	<target name="provider-jpx-update-listing">
 		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateListing" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />

@@ -86,7 +86,7 @@ update-fund-jp:
 # STOCK JP
 #
 update-jpx-listing:
-	ant provider-jpx-update-listring	
+	ant provider-jpx-update-listing	
 
 update-stock-jp-info:
 	ant provider-jpx-update-etf
