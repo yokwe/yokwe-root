@@ -159,7 +159,9 @@ public class Result {
 					if (charsetMap.containsKey(mimeType)) {
 						this.charset = charsetMap.get(mimeType);
 					} else {
-						if (mimeType.startsWith("text/")) {
+						if (mimeType.equals("text/html")) {
+							this.charset = StandardCharsets.UTF_8;
+						} else if (mimeType.startsWith("text/")) {
 							logger.warn("assume charset UTF_8 for contet type of text/*");
 							this.charset = StandardCharsets.UTF_8;
 						} else {
