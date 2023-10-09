@@ -7,7 +7,7 @@ import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
 
 public class KessanPage {
-	public static final String NO_INFORMATION = "指定された銘柄が見つかりません";
+	public static final String NO_INFORMATION = "該当するデータはありません";
 	
 	public static final String TERM_1 = "第１";
 	public static final String TERM_2 = "第２";
