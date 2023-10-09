@@ -63,7 +63,7 @@ update-jreit:
 	
 
 #
-# MANEBUs
+# MANEBU
 #
 update-manebu:
 	ant provider-manebu-update-etf-div-info
