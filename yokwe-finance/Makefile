@@ -38,7 +38,7 @@ rync-to-sandisk2t:
 
 # maintenance of save and log
 clear-save-file: check_data_path
-	find ${DATA_PATH}/save     -mtime +30 -print -delete
+	find ${DATA_PATH}/save     -mtime +7d -print -delete
 
 clear-log-file: check_data_path
 	tar cfz $(DATA_PATH)/save/log_$$(date +%Y%m%d).taz tmp/*.log
@@ -103,6 +103,12 @@ update-stock-jp-price:
 	rm    -f $(DATA_PATH)/stock/jp/stock-price-jp/*.csv
 	cp    -p $(DATA_PATH)/provider/jpx/stock-price-jpx/*.csv $(DATA_PATH)/stock/jp/stock-price-jp
 
+update-stock-jp-div:
+	ant provider-jpx-update-stock-div-jpx
+	mkdir -p $(DATA_PATH)/stock/jp/stock-div-jp
+	rm    -f $(DATA_PATH)/stock/jp/stock-div-jp/*.csv
+	cp    -p $(DATA_PATH)/provider/jpx/stock-div-jpx/*.csv $(DATA_PATH)/stock/jp/stock-div-jp
+	
 
 #
 # STOCK US
