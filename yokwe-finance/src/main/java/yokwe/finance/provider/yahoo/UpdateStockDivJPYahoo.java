@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import yokwe.finance.stock.jp.StockInfoJP;
+import yokwe.finance.stock.StockInfoJP;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;

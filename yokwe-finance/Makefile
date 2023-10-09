@@ -55,31 +55,31 @@ save-provider: check_data_path
 
 
 #
-# REIT JP
+# JREIT
 #
-update-reit-div-jp:
+update-jreit:
 	ant provider-jreit-update-reit-info
 	ant provider-jreit-update-reit-div
 	
 
 #
-# ETF JP
+# MANEBUs
 #
-update-etf-div-jp:
+update-manebu:
 	ant provider-manebu-update-etf-div-info
 	
 
 #
-# FUND JP
+# FUND
 #
-update-fund-jp:
+update-fund:
 	ant provider-jita-update-fund-info-jita
 	ant provider-jita-update-fund-div-price-jita
-	cp -p $(DATA_PATH)/provider/jita/fund-info-jita.csv $(DATA_PATH)/fund/jp/fund-info.csv
-	rm -f $(DATA_PATH)/fund/jp/fund-price/*.csv
-	cp -p $(DATA_PATH)/provider/jita/fund-price-jita/*.csv $(DATA_PATH)/fund/jp/fund-price
-	rm -f $(DATA_PATH)/fund/jp/fund-div/*.csv
-	cp -p $(DATA_PATH)/provider/jita/fund-div-jita/*.csv $(DATA_PATH)/fund/jp/fund-div
+	cp -p $(DATA_PATH)/provider/jita/fund-info-jita.csv $(DATA_PATH)/fund/fund-info.csv
+	rm -f $(DATA_PATH)/fund/fund-price/*.csv
+	cp -p $(DATA_PATH)/provider/jita/fund-price-jita/*.csv $(DATA_PATH)/fund/fund-price
+	rm -f $(DATA_PATH)/fund/fund-div/*.csv
+	cp -p $(DATA_PATH)/provider/jita/fund-div-jita/*.csv $(DATA_PATH)/fund/fund-div
 	
 
 #
@@ -88,36 +88,36 @@ update-fund-jp:
 update-jpx-listing:
 	ant provider-jpx-update-listing	
 
-update-stock-jp-info:
+update-stock-info-jp:
 	ant provider-jpx-update-etf
 	ant provider-jpx-update-etn
 	ant provider-jpx-update-foreign-stock
 	ant provider-jpx-update-infra-fund
 	ant provider-jpx-update-reit
 	ant provider-jpx-update-stock-info-jpx
-	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/jp/stock-info-jp.csv
+	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/stock-info-jp.csv
 	
-update-stock-jp-price:
+update-stock-price-jp:
 	ant provider-jpx-update-stock-price-jpx
-	mkdir -p $(DATA_PATH)/stock/jp/stock-price-jp
-	rm    -f $(DATA_PATH)/stock/jp/stock-price-jp/*.csv
-	cp    -p $(DATA_PATH)/provider/jpx/stock-price-jpx/*.csv $(DATA_PATH)/stock/jp/stock-price-jp
+	mkdir -p $(DATA_PATH)/stock/stock-price-jp
+	rm    -f $(DATA_PATH)/stock/stock-price-jp/*.csv
+	cp    -p $(DATA_PATH)/provider/jpx/stock-price-jpx/*.csv $(DATA_PATH)/stock/stock-price-jp
 
-update-stock-jp-div:
+update-stock-div-jp:
 	ant provider-jpx-update-stock-div-jpx
-	mkdir -p $(DATA_PATH)/stock/jp/stock-div-jp
-	rm    -f $(DATA_PATH)/stock/jp/stock-div-jp/*.csv
-	cp    -p $(DATA_PATH)/provider/jpx/stock-div-jpx/*.csv $(DATA_PATH)/stock/jp/stock-div-jp
+	mkdir -p $(DATA_PATH)/stock/stock-div-jp
+	rm    -f $(DATA_PATH)/stock/stock-div-jp/*.csv
+	cp    -p $(DATA_PATH)/provider/jpx/stock-div-jpx/*.csv $(DATA_PATH)/stock/stock-div-jp
 	
 
 #
 # STOCK US
 #
-update-stock-us-info: update-trading-stock
+update-stock-info-us: update-trading-stock
 	ant provider-bats-update-stock-info-bats
 	ant provider-nasdaq-update-stock-info-nasdaq
 	ant provider-nyse-update-stock-info-nyse
-	ant stock-us-update-stock-info-us
+	ant stock-update-stock-info-us
 
 update-trading-stock:
 	ant provider-monex-update-trading-stock-monex
@@ -125,8 +125,8 @@ update-trading-stock:
 	ant provider-rakuten-update-trading-stock-rakuten
 	ant provider-sbi-update-trading-stock-sbi
 
-update-stock-us-price:
-	ant stock-us-update-stock-price-us
+update-stock-price-us:
+	ant stock-update-stock-price-us
 
-update-stock-us-div:
-	ant stock-us-update-stock-div-us
+update-stock-div-us:
+	ant stock-update-stock-div-us

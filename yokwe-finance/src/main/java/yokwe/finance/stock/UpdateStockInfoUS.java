@@ -1,4 +1,4 @@
-package yokwe.finance.stock.us;
+package yokwe.finance.stock;
 
 import java.io.IOException;
 import java.util.HashSet;

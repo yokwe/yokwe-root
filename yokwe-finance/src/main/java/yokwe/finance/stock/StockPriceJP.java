@@ -1,4 +1,4 @@
-package yokwe.finance.stock.jp;
+package yokwe.finance.stock;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import yokwe.util.ListUtil;
 public class StockPriceJP {
 	private static final String PREFIX = "stock-price-jp";
 	
-	private static final Storage storage = Storage.stock_jp;
+	private static final Storage storage = Storage.stock;
 	
 	public static String getPath() {
 		return storage.getPath(PREFIX);

@@ -95,12 +95,12 @@ public class UpdateYahooStockDiv {
 		
 		{
 			var lastTradingDate = MarketHoliday.US.getLastTradingDate();
-			var list = yokwe.finance.stock.us.StockInfoUS.getList().stream().map(o -> StockInfoUSType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
+			var list = yokwe.finance.stock.StockInfoUS.getList().stream().map(o -> StockInfoUSType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
 			buildTaskList(taskList, lastTradingDate, list);
 		}
 		{
 			var lastTradingDate = MarketHoliday.JP.getLastTradingDate();
-			var list = yokwe.finance.stock.jp.StockInfoJP.getList().stream().map(o -> StockInfoJPType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
+			var list = yokwe.finance.stock.StockInfoJP.getList().stream().map(o -> StockInfoJPType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
 			buildTaskList(taskList, lastTradingDate, list);
 		}
 		

@@ -99,13 +99,6 @@ public interface Storage {
 	
 	public static Storage provider_yahoo   = new Impl(provider, "yahoo");
 	
-	// stock
-	public static Storage stock_jp        = new Impl(stock, "jp");
-	public static Storage stock_us        = new Impl(stock, "us");
-
-	// fund
-	public static Storage fund_jp         = new Impl(fund, "jp");
-	
 	
 	public static void main(String[] args) {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -117,11 +110,7 @@ public interface Storage {
 		logger.info("fund            {}", Storage.fund.getPath());
 		logger.info("stock           {}", Storage.stock.getPath());
 		logger.info("provider        {}", Storage.provider.getPath());
-		
-		logger.info("fund_jp         {}", Storage.fund_jp.getPath());
-		logger.info("stock_jp        {}", Storage.stock_jp.getPath());
-		logger.info("stock_us        {}", Storage.stock_us.getPath());
-		
+				
 		logger.info("privider_jpx    {}", Storage.provider_jpx.getPath());
 		logger.info("privider_jita   {}", Storage.provider_jita.getPath());
 		logger.info("privider_bats   {}", Storage.provider_bats.getPath());

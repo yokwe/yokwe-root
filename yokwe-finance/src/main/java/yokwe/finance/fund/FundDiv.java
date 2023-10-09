@@ -1,4 +1,4 @@
-package yokwe.finance.stock.us;
+package yokwe.finance.fund;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -9,10 +9,10 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
 import yokwe.util.ListUtil;
 
-public class StockDivUS {
-	private static final String PREFIX = "stock-div-us";
+public class FundDiv {
+	private static final String PREFIX = "fund-div";
 	
-	private static final Storage storage = Storage.stock_us;
+	private static final Storage storage = Storage.fund;
 	
 	public static String getPath() {
 		return storage.getPath(PREFIX);

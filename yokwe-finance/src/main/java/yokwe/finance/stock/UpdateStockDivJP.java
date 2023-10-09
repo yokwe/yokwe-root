@@ -1,4 +1,4 @@
-package yokwe.finance.stock.jp;
+package yokwe.finance.stock;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,11 +7,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import yokwe.finance.fund.jp.FundDiv;
-import yokwe.finance.fund.jp.FundInfo;
+import yokwe.finance.fund.FundDiv;
+import yokwe.finance.fund.FundInfo;
 import yokwe.finance.provider.jreit.REITDiv;
 import yokwe.finance.provider.jreit.REITInfo;
-import yokwe.finance.provider.yahoo.StockDivJPYahoo;
 import yokwe.finance.type.DailyValue;
 import yokwe.util.FileUtil;
 
@@ -25,9 +24,12 @@ public class UpdateStockDivJP {
 		var reitSet = REITInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		
 		var list = StockInfoJP.getList();
-		int count = 0;
+		logger.info("list   {}", list.size());
+		int countETF   = 0;
+		int countREIT  = 0;
+		int countStock = 0;
+		int countSave  = 0;
 		for(var stock: list) {
-			if ((++count % 100) == 1) logger.info("{}  /  {}", count, list.size());
 			String stockCode = stock.stockCode;
 			
 			List<DailyValue> divList = null;
@@ -35,20 +37,26 @@ public class UpdateStockDivJP {
 				if (etfMap.containsKey(stockCode)) {
 					String isinCode = etfMap.get(stockCode);
 					divList = FundDiv.getList(isinCode);
+					countETF++;
 				} else if (reitSet.contains(stockCode)) {
 					divList = REITDiv.getList(stockCode);
+					countREIT++;
 				} else {
-					divList = StockDivJPYahoo.getList(stockCode);
+					divList = StockDivJP.getList(stockCode);
+					countStock++;
 				}
 			}
-			if (divList == null) {
-				logger.warn("No data  {}  {}", stockCode, stock.name);
-				continue;
+//			logger.info("save  {}  {}", stockCode, StockDivJP.getPath(stockCode));
+			if (!divList.isEmpty()) {
+				StockDivJP.save(stockCode, divList);
+				countSave++;
 			}
-			
-			logger.info("save  {}  {}", stockCode, StockDivJP.getPath(stockCode));
-			StockDivJP.save(stockCode, divList);
 		}
+		
+		logger.info("etf    {}", countETF);
+		logger.info("reit   {}", countREIT);
+		logger.info("stock  {}", countStock);
+		logger.info("save   {}", countSave);
 	}
 	
 	private static void moveUnknownFile() {

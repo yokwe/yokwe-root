@@ -1,4 +1,4 @@
-package yokwe.finance.fund.jp;
+package yokwe.finance.fund;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import yokwe.util.ListUtil;
 public class FundPrice {
 	private static final String PREFIX = "fund-price";
 	
-	private static final Storage storage = Storage.fund_jp;
+	private static final Storage storage = Storage.fund;
 	
 	public static String getPath() {
 		return storage.getPath(PREFIX);

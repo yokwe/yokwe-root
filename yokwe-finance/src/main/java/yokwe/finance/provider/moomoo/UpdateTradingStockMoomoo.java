@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.us.StockInfoUS;
+import yokwe.finance.stock.StockInfoUS;
 import yokwe.finance.type.TradingStockType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;

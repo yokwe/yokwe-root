@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
-import yokwe.finance.stock.jp.StockInfoJP;
+import yokwe.finance.stock.StockInfoJP;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;

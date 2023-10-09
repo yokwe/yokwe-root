@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.jp.StockInfoJP;
+import yokwe.finance.stock.StockInfoJP;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;

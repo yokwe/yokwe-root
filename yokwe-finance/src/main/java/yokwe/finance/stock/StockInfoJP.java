@@ -1,4 +1,4 @@
-package yokwe.finance.stock.jp;
+package yokwe.finance.stock;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +9,7 @@ import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.ListUtil;
 
 public final class StockInfoJP {
-	private static final String PATH_FILE = Storage.stock_jp.getPath("stock-info-jp.csv");
+	private static final String PATH_FILE = Storage.stock.getPath("stock-info-jp.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

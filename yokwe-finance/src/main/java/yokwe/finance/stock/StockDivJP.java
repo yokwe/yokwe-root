@@ -1,4 +1,4 @@
-package yokwe.finance.fund.jp;
+package yokwe.finance.stock;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -9,10 +9,10 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
 import yokwe.util.ListUtil;
 
-public class FundDiv {
-	private static final String PREFIX = "fund-div";
+public class StockDivJP {
+	private static final String PREFIX = "stock-div-jp";
 	
-	private static final Storage storage = Storage.fund_jp;
+	private static final Storage storage = Storage.stock;
 	
 	public static String getPath() {
 		return storage.getPath(PREFIX);
@@ -25,7 +25,7 @@ public class FundDiv {
 	public static String getPathDelist() {
 		return storage.getPath(PREFIX_DELIST);
 	}
-
+	
 	public static void save(String stockCode, Collection<DailyValue> collection) {
 		ListUtil.save(DailyValue.class, getPath(stockCode), collection);
 	}
