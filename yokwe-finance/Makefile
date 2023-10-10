@@ -105,9 +105,7 @@ update-stock-price-jp:
 
 update-stock-div-jp:
 	ant provider-jpx-update-stock-div-jpx
-	mkdir -p $(DATA_PATH)/stock/stock-div-jp
-	rm    -f $(DATA_PATH)/stock/stock-div-jp/*.csv
-	cp    -p $(DATA_PATH)/provider/jpx/stock-div-jpx/*.csv $(DATA_PATH)/stock/stock-div-jp
+	ant stock-update-stock-div-jp
 	
 
 #
