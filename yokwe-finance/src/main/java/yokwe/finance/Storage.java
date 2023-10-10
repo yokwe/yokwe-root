@@ -11,14 +11,14 @@ public interface Storage {
 	public static  String getDataPath() {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
-		logger.info("DATA_PATH_FILE  {}", DATA_PATH_FILE);
+		logger.info("DATA_PATH_FILE  !{}!", DATA_PATH_FILE);
 		// Sanity check
 		if (!FileUtil.canRead(DATA_PATH_FILE)) {
 			throw new UnexpectedException("Cannot read file");
 		}
 		
 		String dataPath = FileUtil.read().file(DATA_PATH_FILE);
-		logger.info("dataPath        {}", dataPath);
+		logger.info("DATA_PATH       !{}!", dataPath);
 		// Sanity check
 		if (dataPath.isEmpty()) {
 			logger.error("Empty dataPath");
