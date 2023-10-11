@@ -79,6 +79,7 @@ public interface Storage {
 	public static Storage provider        = new Impl(root, "provider");
 	public static Storage stock           = new Impl(root, "stock");
 	public static Storage fund            = new Impl(root, "fund");
+	public static Storage report          = new Impl(root, "report");
 
 	// provider
 	public static Storage provider_bats   = new Impl(provider, "bats");
