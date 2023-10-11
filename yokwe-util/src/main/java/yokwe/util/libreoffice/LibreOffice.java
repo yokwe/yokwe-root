@@ -53,6 +53,12 @@ public class LibreOffice implements Closeable {
 		}
 	}
 	
+	
+	public static void terminate() {
+		desktop.terminate();
+	}
+	
+	
 	protected final XComponent component;
 		
 	protected LibreOffice(String url, boolean readOnly) {
@@ -103,9 +109,5 @@ public class LibreOffice implements Closeable {
 			logger.info("Exception {}", e.toString());
 			throw new UnexpectedException("Unexpected exception");
 		}
-	}
-	
-	public void terminate() {
-		desktop.terminate();
 	}
 }
