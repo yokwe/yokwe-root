@@ -186,12 +186,15 @@ public class UpdateStockStatsUS {
 
 		logger.info("urlReport {}", urlReport);
 		logger.info("docLoad   {}", URL_TEMPLATE);
-		{
+		try {
+			// start LibreOffice process
+			LibreOffice.initialize();
+			
 			SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
 			SpreadSheet docSave = new SpreadSheet();
 			
 			String sheetName = Sheet.getSheetName(StockStatsUS.class);
-			logger.info("sheet {}", sheetName);
+			logger.info("sheet     {}", sheetName);
 			docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
 			Sheet.fillSheet(docSave, statsList);
 			
@@ -199,17 +202,14 @@ public class UpdateStockStatsUS {
 			docSave.removeSheet(docSave.getSheetName(0));
 
 			docSave.store(urlReport);
-			logger.info("output {}", urlReport);
+			logger.info("output    {}", urlReport);
 			
 			docLoad.close();
+			logger.info("close     docLoad");
 			docSave.close();
-			
-			// sleep before terminate
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				//
-			}
+			logger.info("close     docSave");
+		} finally {
+			// stop LibreOffice process
 			LibreOffice.terminate();
 		}
 	}
