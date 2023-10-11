@@ -16,8 +16,8 @@ public class UpdateStockInfoUS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static void update() {
-		var list = StockInfoNasdaq.getList();
-		logger.info("list        {}", list.size());
+		var list = StockInfoNYSE.getList();
+		logger.info("list1       {}", list.size());
 		{
 			// make set of genuine stockCode from each market
 			var batsList   = StockInfoBATS.getList().stream().filter(o -> o.market == Market.BATS).map(o -> o.stockCode).toList();
