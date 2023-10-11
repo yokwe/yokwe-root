@@ -100,6 +100,9 @@ public interface Storage {
 	
 	public static Storage provider_yahoo   = new Impl(provider, "yahoo");
 	
+	// report
+	public static Storage report_stock_stats_us   = new Impl(report, "stock-stats-us");
+
 	
 	public static void main(String[] args) {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
