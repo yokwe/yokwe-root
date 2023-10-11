@@ -21,6 +21,11 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 02   1     *   *   *     cd $YOKWE_FINANCE; ( make clear-save-file ) 1>>tmp/cron.log 2>&1
 
 
+# CLEAR REPORT FILE
+#m   h     dom mon dow   command
+03   1     *   *   *     cd $YOKWE_FINANCE; ( make clear-report-file ) 1>>tmp/cron.log 2>&1
+
+
 # DAILY   --  SAVE FILE
 #m   h     dom mon dow   command
 05   5     *   *   *     cd $YOKWE_FINANCE; ( make save-all ) 1>>tmp/cron.log 2>&1

@@ -6,10 +6,10 @@
 DATA_PATH_FILE := data/DataPathLocation
 DATA_PATH := $(shell cat $(DATA_PATH_FILE))
 
-.PHONY: all build check_data_path
+.PHONY: all build check-data-path
 
 
-all: check_data_path
+all: check-data-path
 	@echo "all"
 
 
@@ -24,7 +24,7 @@ full-build:
 	( cd ..; mvn clean ant:ant install )
 
 
-check_data_path:
+check-data-path:
 	@echo "DATA_PATH_FILE  !$(DATA_PATH_FILE)!"
 	@echo "DATA_PATH       !$(DATA_PATH)!"
 	@if [ ! -d $(DATA_PATH) ]; then \
@@ -37,21 +37,27 @@ rync-to-sandisk2t:
 
 
 # maintenance of save and log
-clear-save-file: check_data_path
-	find ${DATA_PATH}/save     -mtime +7d -print -delete
+clear-save-file: check-data-path
+	find ${DATA_PATH}/save -mtime +7d -print -delete
 
-clear-log-file: check_data_path
+clear-report-file: check-data-path
+	find ${DATA_PATH}/report -name '*ods' -and -mtime +7d -print -delete
+
+clear-log-file: check-data-path
 	tar cfz $(DATA_PATH)/save/log_$$(date +%Y%m%d).taz tmp/*.log
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
 
-save-all: check_data_path save-stock save-provider
+save-all: check-data-path save-stock save-provider save-report
 
-save-stock: check_data_path
+save-stock: check-data-path
 	cd $(DATA_PATH); tar cfz save/stock_$$(date +%Y%m%d).taz    stock
 
-save-provider: check_data_path
+save-provider: check-data-path
 	cd $(DATA_PATH); tar cfz save/provider_$$(date +%Y%m%d).taz provider
+
+save-report: check-data-path
+	cd $(DATA_PATH); tar cfz save/report_$$(date +%Y%m%d).taz report
 
 
 #
