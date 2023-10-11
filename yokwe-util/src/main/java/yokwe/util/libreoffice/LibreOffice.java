@@ -8,6 +8,7 @@ import com.sun.star.comp.helper.Bootstrap;
 import com.sun.star.comp.helper.BootstrapException;
 import com.sun.star.document.UpdateDocMode;
 import com.sun.star.frame.XComponentLoader;
+import com.sun.star.frame.XDesktop;
 import com.sun.star.frame.XModel;
 import com.sun.star.frame.XStorable;
 import com.sun.star.io.IOException;
@@ -31,19 +32,24 @@ public class LibreOffice implements Closeable {
 	};
 	
 	private static final XComponentLoader componentLoader;
+	private static final XDesktop         desktop;
 
 	static {
-		XComponentLoader temp = null;
+		XComponentLoader tempC = null;
+		XDesktop         tempD = null;
 		try {
 			XComponentContext componentContext = Bootstrap.bootstrap(bootstrapOptions);
 			XMultiComponentFactory serviceManager = componentContext.getServiceManager();
 			Object desktop = serviceManager.createInstanceWithContext("com.sun.star.frame.Desktop", componentContext);
-			temp = UnoRuntime.queryInterface(XComponentLoader.class, desktop);
+			tempC = UnoRuntime.queryInterface(XComponentLoader.class, desktop);
+			tempD = UnoRuntime.queryInterface(XDesktop.class, desktop);
 		} catch (BootstrapException | com.sun.star.uno.Exception e) {
 			logger.info("Exception {}", e.toString());
-			temp = null;
+			tempC = null;
+			tempD = null;
 		} finally {
-			componentLoader = temp;
+			componentLoader = tempC;
+			desktop         = tempD;
 		}
 	}
 	
@@ -98,5 +104,8 @@ public class LibreOffice implements Closeable {
 			throw new UnexpectedException("Unexpected exception");
 		}
 	}
-
+	
+	public void terminate() {
+		desktop.terminate();
+	}
 }
