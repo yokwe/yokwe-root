@@ -51,11 +51,29 @@ public class LibreOffice implements Closeable {
 			componentLoader = tempC;
 			desktop         = tempD;
 		}
+		
+		if (componentLoader == null || desktop == null) {
+			logger.error("Unexpected null");
+			logger.error("  componentLoader  {}", componentLoader);
+			logger.error("  desktop          {}", desktop);
+			throw new UnexpectedException("Unexpected null");
+		}
 	}
 	
+	// initialize is dummy function that call static initializer
+	public static void initialize() {}
 	
+	// terminate to stop LibreOffice (soffice) process started by static initializer
 	public static void terminate() {
-		desktop.terminate();
+		if (desktop != null) {
+			// sleep before terminate
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				//
+			}
+			desktop.terminate();
+		}
 	}
 	
 	
