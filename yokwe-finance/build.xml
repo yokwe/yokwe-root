@@ -226,6 +226,17 @@
 	</target>
 	
 	
+	<!-- Report stock stats us -->
+	<target name="reprot-update-stock-stats-us">
+		<java module="yokwe.finance/yokwe.finance.report.UpdateStockStatsUS" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Stock -->
 	<target name="stock-update-stock-div-jp">
 		<java module="yokwe.finance/yokwe.finance.stock.UpdateStockDivJP" fork="true">
