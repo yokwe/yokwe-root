@@ -21,6 +21,7 @@ import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 import yokwe.util.finance.online.SimpleReturn;
+import yokwe.util.libreoffice.LibreOffice;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 import yokwe.util.stats.DoubleArray;
@@ -185,9 +186,10 @@ public class UpdateStockStatsUS {
 
 		logger.info("urlReport {}", urlReport);
 		logger.info("docLoad   {}", URL_TEMPLATE);
-		try (
+		{
 			SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
-			SpreadSheet docSave = new SpreadSheet();) {				
+			SpreadSheet docSave = new SpreadSheet();
+			
 			String sheetName = Sheet.getSheetName(StockStatsUS.class);
 			logger.info("sheet {}", sheetName);
 			docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
@@ -198,27 +200,27 @@ public class UpdateStockStatsUS {
 
 			docSave.store(urlReport);
 			logger.info("output {}", urlReport);
+			
+			docLoad.close();
+			docSave.close();
+			
+			// sleep before terminate
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				//
+			}
+			LibreOffice.terminate();
 		}
 	}
 	
 	
 	private static void update() {
-		try {
-			logger.info("START");
-			
-			var statsList = getStatsList();
-			logger.info("save {} {}", statsList.size(), StockStatsUS.getPath());
-			StockStatsUS.save(statsList);
-			
-			generateReport(statsList);
-			
-			logger.info("STOP");
-		} catch (Throwable e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-		} finally {
-			System.exit(0);
-		}		
+		var statsList = getStatsList();
+		logger.info("save {} {}", statsList.size(), StockStatsUS.getPath());
+		StockStatsUS.save(statsList);
+		
+		generateReport(statsList);
 	}
 	
 	public static void main(String[] args) {
