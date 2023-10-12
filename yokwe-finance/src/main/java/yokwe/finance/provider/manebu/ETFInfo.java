@@ -44,6 +44,8 @@ public class ETFInfo implements Comparable<ETFInfo> {
 	public int        divFreq;
 	
 	public BigDecimal shintakuRyuhogaku;
+	
+	public BigDecimal fundUnit; // can be 1, 10, 100, 1000
 
 	public String     name;
 
@@ -51,7 +53,7 @@ public class ETFInfo implements Comparable<ETFInfo> {
 	public ETFInfo(
 		String stockCode, String category, BigDecimal expenseRatio, String name,
 		int  divFreq, LocalDate listintDate,
-		String productType, BigDecimal shintakuRyuhogaku) {
+		String productType, BigDecimal shintakuRyuhogaku, BigDecimal fundUnit) {
 		this.stockCode    = stockCode;
 		this.category     = category;
 		this.expenseRatio = expenseRatio;
@@ -62,7 +64,7 @@ public class ETFInfo implements Comparable<ETFInfo> {
 		
 		this.productType        = productType;
 		this.shintakuRyuhogaku  = shintakuRyuhogaku;
-
+		this.fundUnit           = fundUnit;
 	}
 	public ETFInfo() {}
 	

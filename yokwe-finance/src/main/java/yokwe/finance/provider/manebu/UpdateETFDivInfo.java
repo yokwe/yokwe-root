@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
+import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.FundPrice;
 import yokwe.finance.stock.StockInfoJP;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.StockInfoJPType;
@@ -133,7 +135,7 @@ public class UpdateETFDivInfo {
 	                     public BigDecimal        managementFee;     // 信託報酬 in percent
 	        @JSON.Ignore public int               marketMake;
 	        @JSON.Ignore public int               minInvest;
-	        @JSON.Ignore public String            nav;               // 基準価額 "2,042.94"
+	                     public String            nav;               // 基準価額 "2,042.94"
 	        @JSON.Ignore public long              netAssets;         // 純資産総額
 	        @JSON.Ignore public String            netAssetsDate;     // YYYY/MM/DD
 	        @JSON.Ignore public String            notice;
@@ -212,11 +214,21 @@ public class UpdateETFDivInfo {
 		categoryMap.put("商品（外国投資法人債）ETF", "商品");
 	}
 	
+	private static final BigDecimal N_10   = BigDecimal.valueOf(10);
+	private static final BigDecimal N_100  = BigDecimal.valueOf(100);
+	private static final BigDecimal N_1000 = BigDecimal.valueOf(1000);
+	
+	private static boolean almostEqual(BigDecimal a, BigDecimal b, BigDecimal error) {
+		return a.subtract(b).abs().compareTo(error) < 0;
+	}
 	
 	private static void update() {
-		var stockCodeList = StockInfoJP.getList().stream().filter(o -> o.kind.isETF()).map(o -> o.stockCode).collect(Collectors.toList());
+		var stockCodeList = StockInfoJP.getList().stream().filter(o -> o.type.isETF()).map(o -> o.stockCode).collect(Collectors.toList());
 		
 		logger.info("etf  {}", stockCodeList.size());
+		
+		var stockCodeMap = FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
+		//  stockCode to isinCode
 		
 		var list = new ArrayList<ETFInfo>();
 		int count = 0;
@@ -224,7 +236,7 @@ public class UpdateETFDivInfo {
 			if ((++count % 20) == 1) logger.info("{}  /  {}", count, stockCodeList.size());
 			
 			String stockCode4 = StockInfoJPType.toStockCode4(stockCode);
-
+			
 			final String page;
 			{
 				String body     = "{\"stockCode\":\"" + stockCode4 + "\"}";
@@ -257,7 +269,54 @@ public class UpdateETFDivInfo {
 					LocalDate  listingDate       = toLocalDate(info.data.listingDate);
 					String     productType       = info.data.productType;
 					BigDecimal shintakuRyuhogaku = info.data.shintakuRyuhogaku.isEmpty() ? BigDecimal.ZERO : new BigDecimal(info.data.shintakuRyuhogaku).movePointLeft(2);
+					BigDecimal fundUnit;
+					
+					{
+						String isinCode = stockCodeMap.get(stockCode);
+						if (isinCode == null) {
+							// can be happen for very new ETF?
+							fundUnit = BigDecimal.ONE;
+							logger.warn("No isinCode  {}  {}", stockCode, name);
+						} else {
+							var fundPriceMap = FundPrice.getMap(isinCode);
+							if (fundPriceMap.isEmpty()) {
+								// empty fund price map
+								fundUnit = BigDecimal.ONE;
+								logger.warn("Empty fund price map  {}  {}  {}  {}", stockCode, isinCode, name);
+							} else {
+								LocalDate  date = toLocalDate(info.data.date);
+								BigDecimal nav  = new BigDecimal(info.data.nav.replace(",", ""));
 
+								if (fundPriceMap.containsKey(date)) {
+									var fundPrice = fundPriceMap.get(date).price;
+									var error = fundPrice.multiply(BigDecimal.valueOf(0.05));
+									if (almostEqual(nav, fundPrice, error)) {
+										fundUnit = BigDecimal.ONE;
+									} else if (almostEqual(nav.multiply(N_10), fundPrice, error)) {
+										fundUnit = N_10;
+									} else if (almostEqual(nav.multiply(N_100), fundPrice, error)) {
+										fundUnit = N_100;
+									} else if (almostEqual(nav.multiply(N_1000), fundPrice, error)) {
+										fundUnit = N_1000;
+									} else {
+										logger.error("Unexpected fundPrice");
+										logger.error("  info  {}  {}  {}", stockCode, isinCode, name);
+										logger.error("  fund  {}  {}", date, fundPrice);
+										logger.error("  etf   {}  {}", date, nav);
+//										throw new UnexpectedException("Unexpected fundPrice");
+										fundUnit = BigDecimal.ONE;
+									}
+								} else {
+									// no fund price
+									// can be happen for very new ETF?
+									fundUnit = BigDecimal.ONE;
+									logger.warn("No fund price  {}  {}  {}  {}", stockCode, isinCode, date, name);
+								}
+							}
+						}
+					}
+					
+					
 					// sanity check
 					if (category == null) {
 						logger.error("Unexpected categoryName");
@@ -278,7 +337,7 @@ public class UpdateETFDivInfo {
 						}
 					}
 					
-					list.add(new ETFInfo(stockCode, category, expenseRatio, name, divFreq, listingDate, productType, shintakuRyuhogaku));
+					list.add(new ETFInfo(stockCode, category, expenseRatio, name, divFreq, listingDate, productType, shintakuRyuhogaku, fundUnit));
 				} else if (info.status.equals("-1") && info.message.equals("銘柄が見つかりませんでした。")) {
 					// not found
 				} else {
