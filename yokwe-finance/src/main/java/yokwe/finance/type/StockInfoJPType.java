@@ -4,69 +4,84 @@ import yokwe.util.UnexpectedException;
 
 public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-		
-	public static enum Kind {
-		// STOCK
-		DOMESTIC_PRIME,
-		DOMESTIC_STANDARD,
-		DOMESTIC_GROWTH,
-		FOREIGN_PRIME,
-		FOREIGN_STANDARD,
-		FOREIGN_GROWTH,
-		// ETF
+	
+	public enum SimpleType {
+		STOCK,
 		ETF,
 		ETN,
-		// REIT
 		REIT,
-		INFRA_FUND,
+		INFRA,
+		OTHER,
+		NEW,
+	}
+	public static enum Type {
+		// STOCK
+		DOMESTIC_PRIME(SimpleType.STOCK),
+		DOMESTIC_STANDARD(SimpleType.STOCK),
+		DOMESTIC_GROWTH(SimpleType.STOCK),
+		FOREIGN_PRIME(SimpleType.STOCK),
+		FOREIGN_STANDARD(SimpleType.STOCK),
+		FOREIGN_GROWTH(SimpleType.STOCK),
+		// ETF
+		ETF(SimpleType.ETF),
+		ETN(SimpleType.ETN),
+		// REIT
+		REIT(SimpleType.REIT),
+		INFRA_FUND(SimpleType.INFRA),
 		// OTHER
-		COUNTRY_FUND,
-		PRO_MARKET,
-		CERTIFICATE,
+		COUNTRY_FUND(SimpleType.OTHER),
+		PRO_MARKET(SimpleType.OTHER),
+		CERTIFICATE(SimpleType.OTHER),
 		// NEW
-		NEW;
+		NEW(SimpleType.NEW);
+		
+		public final SimpleType simpleType;
+		
+		private Type(SimpleType simpleType) {
+			this.simpleType = simpleType;
+		}
 		
 		public boolean isPrimeStock() {
-			return this == Kind.DOMESTIC_PRIME || this == Kind.FOREIGN_PRIME;
+			return this == Type.DOMESTIC_PRIME || this == Type.FOREIGN_PRIME;
 		}
 		public boolean isStandardStock() {
-			return this == Kind.DOMESTIC_STANDARD || this == Kind.FOREIGN_STANDARD;
+			return this == Type.DOMESTIC_STANDARD || this == Type.FOREIGN_STANDARD;
 		}
 		public boolean isGrowthStock() {
-			return this == Kind.DOMESTIC_GROWTH || this == Kind.FOREIGN_GROWTH;
+			return this == Type.DOMESTIC_GROWTH || this == Type.FOREIGN_GROWTH;
 		}
 		
 		public boolean isForeignStock() {
-			return this == Kind.FOREIGN_PRIME || this == Kind.FOREIGN_STANDARD || this == Kind.FOREIGN_GROWTH ;
+			return this == Type.FOREIGN_PRIME || this == Type.FOREIGN_STANDARD || this == Type.FOREIGN_GROWTH ;
 		}
 		public boolean isDomesticStock() {
-			return this == Kind.DOMESTIC_PRIME || this == Kind.DOMESTIC_STANDARD || this == Kind.DOMESTIC_GROWTH ;
+			return this == Type.DOMESTIC_PRIME || this == Type.DOMESTIC_STANDARD || this == Type.DOMESTIC_GROWTH ;
 		}
 		public boolean isStock() {
-			return this == Kind.DOMESTIC_PRIME || this == Kind.DOMESTIC_STANDARD || this == Kind.DOMESTIC_GROWTH ||
-				   this == Kind.FOREIGN_PRIME || this == Kind.FOREIGN_STANDARD || this == Kind.FOREIGN_GROWTH ;
+			return this == Type.DOMESTIC_PRIME || this == Type.DOMESTIC_STANDARD || this == Type.DOMESTIC_GROWTH ||
+				   this == Type.FOREIGN_PRIME || this == Type.FOREIGN_STANDARD || this == Type.FOREIGN_GROWTH ;
 		}
 		
 		public boolean isETF() {
-			return this == Kind.ETF;
+			return this == Type.ETF;
 		}
 		public boolean isETN() {
-			return this == Kind.ETN;
+			return this == Type.ETN;
 		}
 		public boolean isREIT() {
-			return this == Kind.REIT;
+			return this == Type.REIT;
 		}
 		public boolean isInfraFund() {
-			return this == Kind.INFRA_FUND;
+			return this == Type.INFRA_FUND;
 		}
 		public boolean isCountryFund() {
-			return this == Kind.COUNTRY_FUND;
+			return this == Type.COUNTRY_FUND;
 		}
 		public boolean isProMarket() {
-			return this == Kind.PRO_MARKET;
+			return this == Type.PRO_MARKET;
 		}
 		public boolean isCertificate() {
-			return this == Kind.CERTIFICATE;
+			return this == Type.CERTIFICATE;
 		}
 	}
 	
@@ -172,7 +187,7 @@ public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 	public int    tradeUnit = 0;
 	public long   issued    = 0;
 
-	public Kind   kind;
+	public Type   type;
 	public Topix  topix;
 	public String sector33;
 	public String sector17;
@@ -202,7 +217,7 @@ public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 			StockInfoJPType that = (StockInfoJPType)o;
 			return
 				this.stockCode.equals(that.stockCode) &&
-				this.kind.equals(that.kind) &&
+				this.type.equals(that.type) &&
 				this.sector33.equals(that.sector33) &&
 				this.sector17.equals(that.sector17) &&
 				this.topix.equals(that.topix) &&

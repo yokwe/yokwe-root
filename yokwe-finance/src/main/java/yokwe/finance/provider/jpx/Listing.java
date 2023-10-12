@@ -33,7 +33,7 @@ public class Listing extends Sheet implements Comparable<Listing> {
 		ListUtil.save(Listing.class, getPath(), list);
 	}
 		
-	public static enum Kind {
+	public static enum Type {
 		DOMESTIC_GROWTH  ("グロース（内国株式）"),
 		DOMESTIC_STANDARD("スタンダード（内国株式）"),
 		DOMESTIC_PRIME   ("プライム（内国株式）"),
@@ -46,7 +46,7 @@ public class Listing extends Sheet implements Comparable<Listing> {
 		PRO_MARKET       ("PRO Market");
 		
 		public final String value;
-		Kind(String value) {
+		Type(String value) {
 			this.value = value;
 		}
 		
@@ -87,7 +87,7 @@ public class Listing extends Sheet implements Comparable<Listing> {
 	public String name;
 	
 	@Sheet.ColumnName("市場・商品区分")
-	public Kind kind;
+	public Type type;
 	
 	@Sheet.ColumnName("33業種コード")
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
@@ -112,7 +112,7 @@ public class Listing extends Sheet implements Comparable<Listing> {
 	
 	@Override
 	public String toString() {
-		return String.format("%s %s %s %s %s %s %s %s %s %s", date, stockCode, name, kind, sector33Code, sector33, sector17Code, sector17, topix, scaleCode);
+		return String.format("%s %s %s %s %s %s %s %s %s %s", date, stockCode, name, type, sector33Code, sector33, sector17Code, sector17, topix, scaleCode);
 	}
 	@Override
 	public boolean equals(Object o) {
@@ -122,7 +122,7 @@ public class Listing extends Sheet implements Comparable<Listing> {
 			return this.date.equals(that.date) &&
 					this.stockCode.equals(that.stockCode) &&
 					this.name.equals(that.name) &&
-					this.kind.equals(that.kind) &&
+					this.type.equals(that.type) &&
 					this.sector33.equals(that.sector33) && this.sector33Code.equals(that.sector33Code) &&
 					this.sector17.equals(that.sector17) && this.sector17Code.equals(that.sector17Code) &&
 					this.topix.equals(that.topix) && this.scaleCode.equals(that.scaleCode);

@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import yokwe.finance.type.StockInfoJPType;
-import yokwe.finance.type.StockInfoJPType.Kind;
+import yokwe.finance.type.StockInfoJPType.Type;
 import yokwe.finance.type.StockInfoJPType.Topix;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -15,14 +15,14 @@ import yokwe.util.http.HttpUtil;
 public class UpdateStockInfoJPX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static Map<Listing.Kind, StockInfoJPType.Kind> kindMap = new TreeMap<>();
+	private static Map<Listing.Type, StockInfoJPType.Type> typeMap = new TreeMap<>();
 	static {
-		kindMap.put(Listing.Kind.DOMESTIC_GROWTH,   StockInfoJPType.Kind.DOMESTIC_GROWTH);
-		kindMap.put(Listing.Kind.DOMESTIC_STANDARD, StockInfoJPType.Kind.DOMESTIC_STANDARD);
-		kindMap.put(Listing.Kind.DOMESTIC_PRIME,    StockInfoJPType.Kind.DOMESTIC_PRIME);
-		kindMap.put(Listing.Kind.FOREIGN_GROWTH,    StockInfoJPType.Kind.FOREIGN_GROWTH);
-		kindMap.put(Listing.Kind.FOREIGN_STANDARD,  StockInfoJPType.Kind.FOREIGN_STANDARD);
-		kindMap.put(Listing.Kind.FOREIGN_PRIME,     StockInfoJPType.Kind.FOREIGN_PRIME);
+		typeMap.put(Listing.Type.DOMESTIC_GROWTH,   StockInfoJPType.Type.DOMESTIC_GROWTH);
+		typeMap.put(Listing.Type.DOMESTIC_STANDARD, StockInfoJPType.Type.DOMESTIC_STANDARD);
+		typeMap.put(Listing.Type.DOMESTIC_PRIME,    StockInfoJPType.Type.DOMESTIC_PRIME);
+		typeMap.put(Listing.Type.FOREIGN_GROWTH,    StockInfoJPType.Type.FOREIGN_GROWTH);
+		typeMap.put(Listing.Type.FOREIGN_STANDARD,  StockInfoJPType.Type.FOREIGN_STANDARD);
+		typeMap.put(Listing.Type.FOREIGN_PRIME,     StockInfoJPType.Type.FOREIGN_PRIME);
 		//
 //		kindMap.put(JPXListing.Kind.CERTIFICATE,       StockInfoJP.Kind.CERTIFICATE);
 //		kindMap.put(JPXListing.Kind.PRO_MARKET,        StockInfoJP.Kind.PRO_MARKET);
@@ -62,17 +62,17 @@ public class UpdateStockInfoJPX {
 				String stockCode = listing.stockCode;
 				
 				// skip certificate and pro market
-				if (listing.kind == Listing.Kind.CERTIFICATE || listing.kind == Listing.Kind.PRO_MARKET) {
+				if (listing.type == Listing.Type.CERTIFICATE || listing.type == Listing.Type.PRO_MARKET) {
 					countSkip++;
 					continue;
 				}
 				
-				StockInfoJPType.Kind kind = kindMap.get(listing.kind);
-				if (kind == null) {
-					if (etfMap.containsKey(stockCode))        kind = StockInfoJPType.Kind.ETF;
-					else if (etnMap.containsKey(stockCode))   kind = StockInfoJPType.Kind.ETN;
-					else if (reitMap.containsKey(stockCode))  kind = StockInfoJPType.Kind.REIT;
-					else if (infraMap.containsKey(stockCode)) kind = StockInfoJPType.Kind.INFRA_FUND;
+				StockInfoJPType.Type type = typeMap.get(listing.type);
+				if (type == null) {
+					if (etfMap.containsKey(stockCode))        type = StockInfoJPType.Type.ETF;
+					else if (etnMap.containsKey(stockCode))   type = StockInfoJPType.Type.ETN;
+					else if (reitMap.containsKey(stockCode))  type = StockInfoJPType.Type.REIT;
+					else if (infraMap.containsKey(stockCode)) type = StockInfoJPType.Type.INFRA_FUND;
 					else {
 						logger.error("Unexpected");
 						logger.error("  jpxListring  {}", listing);
@@ -92,7 +92,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
-				stockInfoJP.kind      = kind;
+				stockInfoJP.type      = type;
 				stockInfoJP.sector33  = listing.sector33;
 				stockInfoJP.sector17  = listing.sector17;
 				stockInfoJP.topix     = topix;
@@ -116,7 +116,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
-				stockInfoJP.kind      = Kind.ETF;
+				stockInfoJP.type      = Type.ETF;
 				stockInfoJP.sector33  = "NEW";
 				stockInfoJP.sector17  = "NEW";
 				stockInfoJP.topix     = Topix.NEW;
@@ -138,7 +138,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
-				stockInfoJP.kind      = Kind.ETN;
+				stockInfoJP.type      = Type.ETN;
 				stockInfoJP.sector33  = "NEW";
 				stockInfoJP.sector17  = "NEW";
 				stockInfoJP.topix     = Topix.NEW;
@@ -160,7 +160,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
-				stockInfoJP.kind      = Kind.INFRA_FUND;
+				stockInfoJP.type      = Type.INFRA_FUND;
 				stockInfoJP.sector33  = "NEW";
 				stockInfoJP.sector17  = "NEW";
 				stockInfoJP.topix     = Topix.NEW;
@@ -182,7 +182,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
-				stockInfoJP.kind      = Kind.REIT;
+				stockInfoJP.type      = Type.REIT;
 				stockInfoJP.sector33  = "NEW";
 				stockInfoJP.sector17  = "NEW";
 				stockInfoJP.topix     = Topix.NEW;

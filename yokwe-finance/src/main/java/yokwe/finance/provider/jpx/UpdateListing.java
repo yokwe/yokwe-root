@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import yokwe.finance.Storage;
-import yokwe.finance.provider.jpx.Listing.Kind;
+import yokwe.finance.provider.jpx.Listing.Type;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.HashCode;
@@ -98,7 +98,7 @@ public class UpdateListing {
 				value.date         = String.format("%s-%s-%s", date.substring(0, 4), date.substring(4, 6), date.substring(6, 8));;
 				value.stockCode    = StockInfoJPType.toStockCode5(rawData.stockCode.trim());
 				value.name         = rawData.name.trim();
-				value.kind         = rawData.kind;
+				value.type         = rawData.type;
 				value.sector33Code = rawData.sector33Code.trim();
 				value.sector33     = rawData.sector33.trim();
 				value.sector17Code = rawData.sector17Code.trim();
@@ -111,13 +111,13 @@ public class UpdateListing {
 			
 			// output count of data for each market
 			{
-				Map<Kind, Integer> countMap = new TreeMap<>();
-				for(var e: Kind.values()) {
+				Map<Type, Integer> countMap = new TreeMap<>();
+				for(var e: Type.values()) {
 					countMap.put(e, 0);
 				}
 				for(var e: list) {
-					int count = countMap.get(e.kind);
-					countMap.put(e.kind, count + 1);
+					int count = countMap.get(e.type);
+					countMap.put(e.type, count + 1);
 				}
 				for(var e: countMap.entrySet()) {
 					String name  = e.getKey().name();

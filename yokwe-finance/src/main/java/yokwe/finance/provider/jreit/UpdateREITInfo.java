@@ -225,8 +225,8 @@ public class UpdateREITInfo {
 		final List<String> infraList;
 		{
 			var list = StockInfoJP.getList();
-			reitList  = list.stream().filter(o -> o.kind.isREIT()).map(o -> o.stockCode).collect(Collectors.toList());
-			infraList = list.stream().filter(o -> o.kind.isInfraFund()).map(o -> o.stockCode).collect(Collectors.toList());
+			reitList  = list.stream().filter(o -> o.type.isREIT()).map(o -> o.stockCode).collect(Collectors.toList());
+			infraList = list.stream().filter(o -> o.type.isInfraFund()).map(o -> o.stockCode).collect(Collectors.toList());
 		}
 		logger.info("reit  {}", reitList.size());
 		logger.info("infra {}", infraList.size());

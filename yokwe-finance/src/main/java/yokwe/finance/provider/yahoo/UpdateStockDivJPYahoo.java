@@ -191,7 +191,7 @@ public class UpdateStockDivJPYahoo {
 		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAYS);
 
 		// Use StockInfo of stock us
-		var stockList = StockInfoJP.getList().stream().filter(o -> o.kind.isDomesticStock() || o.kind.isForeignStock()).collect(Collectors.toList());
+		var stockList = StockInfoJP.getList().stream().filter(o -> o.type.isDomesticStock() || o.type.isForeignStock()).collect(Collectors.toList());
 		logger.info("stock     {}", stockList.size());
 		
 		for(int count = 1; count < 10; count++) {
