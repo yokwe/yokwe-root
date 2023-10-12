@@ -17,21 +17,21 @@ public class FundPrice {
 	public static String getPath() {
 		return storage.getPath(PREFIX);
 	}
-	public static String getPath(String stockCode) {
-		return storage.getPath(PREFIX, stockCode + ".csv");
+	public static String getPath(String isinCode) {
+		return storage.getPath(PREFIX, isinCode + ".csv");
 	}
 	
-	public static void save(String stockCode, Collection<FundPriceJP> collection) {
-		ListUtil.save(FundPriceJP.class, getPath(stockCode), collection);
+	public static void save(String isinCode, Collection<FundPriceJP> collection) {
+		ListUtil.save(FundPriceJP.class, getPath(isinCode), collection);
 	}
-	public static void save(String stockCode, List<FundPriceJP> list) {
-		ListUtil.save(FundPriceJP.class, getPath(stockCode), list);
+	public static void save(String isinCode, List<FundPriceJP> list) {
+		ListUtil.save(FundPriceJP.class, getPath(isinCode), list);
 	}
 	
-	public static List<FundPriceJP> getList(String stockCode) {
-		return ListUtil.getList(FundPriceJP.class, getPath(stockCode));
+	public static List<FundPriceJP> getList(String isinCode) {
+		return ListUtil.getList(FundPriceJP.class, getPath(isinCode));
 	}
-	public static Map<LocalDate, FundPriceJP> getMap(String stockCode) {
-		return ListUtil.checkDuplicate(getList(stockCode), o -> o.date);
+	public static Map<LocalDate, FundPriceJP> getMap(String isinCode) {
+		return ListUtil.checkDuplicate(getList(isinCode), o -> o.date);
 	}	
 }

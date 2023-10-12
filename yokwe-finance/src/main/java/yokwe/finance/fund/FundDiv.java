@@ -17,8 +17,8 @@ public class FundDiv {
 	public static String getPath() {
 		return storage.getPath(PREFIX);
 	}
-	public static String getPath(String stockCode) {
-		return storage.getPath(PREFIX, stockCode + ".csv");
+	public static String getPath(String isinCode) {
+		return storage.getPath(PREFIX, isinCode + ".csv");
 	}
 	
 	private static final String PREFIX_DELIST = PREFIX + "-delist";
@@ -26,17 +26,17 @@ public class FundDiv {
 		return storage.getPath(PREFIX_DELIST);
 	}
 
-	public static void save(String stockCode, Collection<DailyValue> collection) {
-		ListUtil.save(DailyValue.class, getPath(stockCode), collection);
+	public static void save(String isinCode, Collection<DailyValue> collection) {
+		ListUtil.save(DailyValue.class, getPath(isinCode), collection);
 	}
-	public static void save(String stockCode, List<DailyValue> list) {
-		ListUtil.save(DailyValue.class, getPath(stockCode), list);
+	public static void save(String isinCode, List<DailyValue> list) {
+		ListUtil.save(DailyValue.class, getPath(isinCode), list);
 	}
 	
-	public static List<DailyValue> getList(String stockCode) {
-		return ListUtil.getList(DailyValue.class, getPath(stockCode));
+	public static List<DailyValue> getList(String isinCode) {
+		return ListUtil.getList(DailyValue.class, getPath(isinCode));
 	}
-	public static Map<LocalDate, DailyValue> getMap(String stockCode) {
-		return ListUtil.checkDuplicate(getList(stockCode), o -> o.date);
+	public static Map<LocalDate, DailyValue> getMap(String isinCode) {
+		return ListUtil.checkDuplicate(getList(isinCode), o -> o.date);
 	}	
 }
