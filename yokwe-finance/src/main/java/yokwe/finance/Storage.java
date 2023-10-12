@@ -101,6 +101,7 @@ public interface Storage {
 	public static Storage provider_yahoo   = new Impl(provider, "yahoo");
 	
 	// report
+	public static Storage report_stock_stats_jp   = new Impl(report, "stock-stats-jp");
 	public static Storage report_stock_stats_us   = new Impl(report, "stock-stats-us");
 
 	
