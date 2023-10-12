@@ -11,17 +11,21 @@ import yokwe.finance.fund.FundDiv;
 import yokwe.finance.fund.FundInfo;
 import yokwe.finance.provider.jreit.REITDiv;
 import yokwe.finance.provider.jreit.REITInfo;
+import yokwe.finance.provider.manebu.ETFInfo;
 import yokwe.finance.type.DailyValue;
 import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 
 public class UpdateStockDivJP {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	
 	private static void update() {
-		var etfMap = FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
+		var stockCodeMap = FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
 		// stockCode isinCode
 		var reitSet = REITInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		
+		var etfInfoMap = ETFInfo.getMap();
 		
 		var list = StockInfoJP.getList();
 		logger.info("list   {}", list.size());
@@ -34,9 +38,22 @@ public class UpdateStockDivJP {
 			
 			List<DailyValue> divList = null;
 			{
-				if (etfMap.containsKey(stockCode)) {
-					String isinCode = etfMap.get(stockCode);
+				if (stockCodeMap.containsKey(stockCode)) {
+					String isinCode = stockCodeMap.get(stockCode);
 					divList = FundDiv.getList(isinCode);
+					
+					// NOTE FundDiv and FundPrice is not always per 1 unit. It can be 1, 10, 100 or 1000 units.
+					var etfInfo = etfInfoMap.get(stockCode);
+					if (etfInfo == null) {
+						logger.error("no etfInfo");
+						logger.error("  {}  {}", stockCode, stock.name);
+						throw new UnexpectedException("no etfInfo");
+					} else {
+						// adjust div using etfInfo.fundUnit to get per 1 unit.
+						for(var div: divList) {
+							div.value = div.value.divide(etfInfo.fundUnit);
+						}
+					}
 					countETF++;
 				} else if (reitSet.contains(stockCode)) {
 					divList = REITDiv.getList(stockCode);
