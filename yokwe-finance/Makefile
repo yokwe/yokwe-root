@@ -35,6 +35,8 @@ check-data-path:
 rync-to-sandisk2t:
 	rsync -a -P /Volumes/finance/ /Volumes/SanDisk2T/finance
 
+rsync-to-truenas:
+	rsync -avhn --delete /Volumes/SanDisk2T/finance/ /Volumes/finance
 
 # maintenance of save and log
 clear-save-file: check-data-path

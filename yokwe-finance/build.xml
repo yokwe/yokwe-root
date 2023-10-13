@@ -169,6 +169,14 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="provider-monex-update-trading-fund-monex">
+		<java module="yokwe.finance/yokwe.finance.provider.monex.UpdateTradingFundMonex" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 	
 	<!-- Provider MOOMOO -->
