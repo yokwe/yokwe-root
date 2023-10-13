@@ -129,7 +129,7 @@ public class UpdateStockDivUS {
 		int count    = 0;
 		int countA   = 0;
 		int countB   = 0;
-		int countC   = 0;
+		int countOld = 0;
 		int countMod = 0;
 		Collections.shuffle(taskList);
 		for(var task: taskList) {
@@ -195,11 +195,14 @@ public class UpdateStockDivUS {
 					if (newValue.equals(oldValue)) {
 						//
 					} else {
-						logger.error("Unexpected oldValue");
-						logger.error("  task      {}", task);
-						logger.error("  oldValue  {}", oldValue);
-						logger.error("  newValue  {}", newValue);
-						throw new UnexpectedException("Unexpected oldValue");
+						logger.warn("Unexpected oldValue");
+						logger.warn("  task      {}", task);
+						logger.warn("  oldValue  {}", oldValue);
+						logger.warn("  newValue  {}", newValue);
+						countOld++;
+						
+						map.put(date, newValue);
+						countAdd++;
 					}
 				} else {
 					map.put(date, newValue);
@@ -208,14 +211,14 @@ public class UpdateStockDivUS {
 			}
 			
 			StockDivUS.save(stockCode, map.values());
-			countC++;
+			countB++;
 			
 			if (countAdd != 0) countMod++;
 		}
 		
 		logger.info("countA   {}", countA);
 		logger.info("countB   {}", countB);
-		logger.info("countC   {}", countC);
+		logger.info("countOld {}", countOld);
 		logger.info("countMod {}", countMod);
 
 		return countMod;
