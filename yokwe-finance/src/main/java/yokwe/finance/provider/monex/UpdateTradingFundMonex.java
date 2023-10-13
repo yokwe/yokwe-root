@@ -22,7 +22,7 @@ public class UpdateTradingFundMonex {
 	
 	// NOTE Manex use obsolete fundCode and altered fund name, So some fund cannot find in master fund list.
 	
-	private static final boolean DEBUG_USE_FILE = true;
+	private static final boolean DEBUG_USE_FILE = false;
 	
 	private static final String CHARSET = "UTF-8";
 	
