@@ -33,10 +33,10 @@ check-data-path:
 	fi
 
 rync-to-sandisk2t:
-	rsync -a -P /Volumes/finance/ /Volumes/SanDisk2T/finance
+	rsync -ah --delete --dry-run /Volumes/finance/ /Volumes/SanDisk2T/finance
 
 rsync-to-truenas:
-	rsync -avhn --delete /Volumes/SanDisk2T/finance/ /Volumes/finance
+	rsync -ah --delete /Volumes/SanDisk2T/finance/ /Volumes/finance
 
 # maintenance of save and log
 clear-save-file: check-data-path
@@ -50,7 +50,7 @@ clear-log-file: check-data-path
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
 
-save-all: check-data-path save-stock save-provider save-report
+save-all: check-data-path save-stock save-provider save-report rsync-to-truenas
 
 save-stock: check-data-path
 	cd $(DATA_PATH); tar cfz save/stock_$$(date +%Y%m%d).taz    stock
