@@ -84,6 +84,17 @@ public class UpdateTradingFundRakuten {
 			return String.format("{record %s - %s  %s / %s  %d}", pageInfo.startRecord, pageInfo.endRecord, pageInfo.pageSelected, pageInfo.pagesTotal, data.length);
 		}
 	}
+	
+	private static String getPostBody() {
+		LinkedHashMap<String, String> map = new LinkedHashMap<>();
+		map.put("result", "ファンド名称,actual_charge");
+		map.put("pg", "0");
+		map.put("count", "9999");
+		map.put("sortnull", "コード=up");
+		
+		String string = map.entrySet().stream().map(o -> o.getKey() + "=" + o.getValue()).collect(Collectors.joining("&"));
+		return String.format("query=%s", URLEncoder.encode(string, StandardCharsets.UTF_8));
+	}
 
 	private static void update() {
 		List<TradingFundType> list = new ArrayList<>();
@@ -92,17 +103,7 @@ public class UpdateTradingFundRakuten {
 			
 			String page;
 			{
-				String postBody;
-				{
-					LinkedHashMap<String, String> map = new LinkedHashMap<>();
-					map.put("result", "ファンド名称,actual_charge");
-					map.put("pg", "0");
-					map.put("count", "9999");
-					map.put("sortnull", "コード=up");
-					
-					String string = map.entrySet().stream().map(o -> o.getKey() + "=" + o.getValue()).collect(Collectors.joining("&"));
-					postBody = String.format("query=%s", URLEncoder.encode(string, StandardCharsets.UTF_8));
-				}
+				String postBody = getPostBody();
 				String filePath = Storage.provider_rakuten.getPath("reloadscreener.json");
 				
 				page = download(URL, postBody, filePath, DEBUG_USE_FILE);
