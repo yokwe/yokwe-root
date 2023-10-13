@@ -33,10 +33,10 @@ check-data-path:
 	fi
 
 rync-to-sandisk2t:
-	rsync -ah --delete --dry-run /Volumes/finance/ /Volumes/SanDisk2T/finance
+	rsync -ah --delete --stats --dry-run /Volumes/finance/ /Volumes/SanDisk2T/finance
 
 rsync-to-truenas:
-	rsync -ah --delete /Volumes/SanDisk2T/finance/ /Volumes/finance
+	rsync -ah --delete --stats /Volumes/SanDisk2T/finance/ /Volumes/finance
 
 # maintenance of save and log
 clear-save-file: check-data-path
@@ -80,15 +80,13 @@ update-manebu:
 #
 # FUND
 #
-update-fund:
+update-fund: check-data-path
 	ant provider-jita-update-fund-info-jita
 	ant provider-jita-update-fund-div-price-jita
 	cp -p $(DATA_PATH)/provider/jita/fund-info-jita.csv $(DATA_PATH)/fund/fund-info.csv
-	rm -f $(DATA_PATH)/fund/fund-price/*.csv
-	cp -p $(DATA_PATH)/provider/jita/fund-price-jita/*.csv $(DATA_PATH)/fund/fund-price
-	rm -f $(DATA_PATH)/fund/fund-div/*.csv
-	cp -p $(DATA_PATH)/provider/jita/fund-div-jita/*.csv $(DATA_PATH)/fund/fund-div
-	
+	rsync -ah --delete --stats $(DATA_PATH)/provider/jita/fund-price-jita/ $(DATA_PATH)/fund/fund-price
+	rsync -ah --delete --stats $(DATA_PATH)/provider/jita/fund-div-jita/   $(DATA_PATH)/fund/fund-div
+
 
 #
 # STOCK JP
@@ -96,7 +94,7 @@ update-fund:
 update-jpx-listing:
 	ant provider-jpx-update-listing	
 
-update-stock-info-jp:
+update-stock-info-jp: check-data-path
 	ant provider-jpx-update-etf
 	ant provider-jpx-update-etn
 	ant provider-jpx-update-foreign-stock
@@ -105,11 +103,9 @@ update-stock-info-jp:
 	ant provider-jpx-update-stock-info-jpx
 	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/stock-info-jp.csv
 	
-update-stock-price-jp:
+update-stock-price-jp: check-data-path
 	ant provider-jpx-update-stock-price-jpx
-	mkdir -p $(DATA_PATH)/stock/stock-price-jp
-	rm    -f $(DATA_PATH)/stock/stock-price-jp/*.csv
-	cp    -p $(DATA_PATH)/provider/jpx/stock-price-jpx/*.csv $(DATA_PATH)/stock/stock-price-jp
+	rsync -ah --delete --stats $(DATA_PATH)/provider/jpx/stock-price-jpx/ $(DATA_PATH)/stock/stock-price-jp
 
 update-stock-div-jp:
 	ant provider-jpx-update-stock-div-jpx
