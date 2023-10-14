@@ -19,7 +19,7 @@ import yokwe.util.json.JSON;
 public class UpdateTradingFundSBI {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE  = true;
+	private static final boolean DEBUG_USE_FILE  = false;
 	
 	private static final String  URL             = "https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch/search.do";
 	private static final String  REFERER         = "https://site0.sbisec.co.jp/marble/fund/powersearch/fundpsearch.do";
