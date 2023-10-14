@@ -21,7 +21,7 @@ import yokwe.util.json.JSON;
 public class UpdateTradingFundSony {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE  = true;
+	private static final boolean DEBUG_USE_FILE  = false;
 
 	private static final String URL     = "https://moneykit.net/data/fund/SFBA1700F471.js";
 	private static final String CHARSET = "MS932";
