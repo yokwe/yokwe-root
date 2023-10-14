@@ -80,6 +80,15 @@ update-manebu:
 #
 # FUND
 #
+update-trading-fund:
+	ant provider-monex-update-trading-fund-monex
+	ant provider-nikko-update-trading-fund-nikko
+	ant provider-nomura-update-trading-fund-nomura
+	ant provider-prestia-update-trading-fund-prestia
+	ant provider-rakuten-update-trading-fund-rakuten
+	ant provider-sbi-update-trading-fund-sbi
+	ant provider-sony-update-trading-fund-sony
+
 update-fund: check-data-path
 	ant provider-jita-update-fund-info-jita
 	ant provider-jita-update-fund-div-price-jita
