@@ -212,6 +212,17 @@
 	</target>
 	
 	
+	<!-- Provider Prestia -->
+	<target name="provider-prestia-update-trading-fund-prestia">
+		<java module="yokwe.finance/yokwe.finance.provider.prestia.UpdateTradingFundPrestia" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Provider RAKUTEN -->
 	<target name="provider-rakuten-update-trading-stock-rakuten">
 		<java module="yokwe.finance/yokwe.finance.provider.rakuten.UpdateTradingStockRakuten" fork="true">

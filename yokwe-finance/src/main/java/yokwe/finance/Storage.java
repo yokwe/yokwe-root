@@ -95,6 +95,7 @@ public interface Storage {
 	public static Storage provider_moomoo  = new Impl(provider, "moomoo");
 	public static Storage provider_nikko   = new Impl(provider, "nikko");
 	public static Storage provider_nomura  = new Impl(provider, "nomura");
+	public static Storage provider_prestia = new Impl(provider, "prestia");
 	public static Storage provider_rakuten = new Impl(provider, "rakuten");
 	public static Storage provider_sbi     = new Impl(provider, "sbi");
 	public static Storage provider_sony    = new Impl(provider, "sony");
