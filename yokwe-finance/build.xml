@@ -36,6 +36,17 @@
 	</target>
 	
 	
+	<!-- Provider Click -->
+	<target name="provider-click-update-trading-fund-click">
+		<java module="yokwe.finance/yokwe.finance.provider.click.UpdateTradingFundClick" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Provider JITA -->
 	<target name="provider-jita-update-fund-info-jita">
 		<java module="yokwe.finance/yokwe.finance.provider.jita.UpdateFundInfoJITA" fork="true">

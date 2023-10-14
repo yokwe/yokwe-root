@@ -91,6 +91,7 @@ public interface Storage {
 	public static Storage provider_jreit  = new Impl(provider, "jreit");
 	public static Storage provider_manebu = new Impl(provider, "manebu");
 	
+	public static Storage provider_click   = new Impl(provider, "click");
 	public static Storage provider_monex   = new Impl(provider, "monex");
 	public static Storage provider_moomoo  = new Impl(provider, "moomoo");
 	public static Storage provider_nikko   = new Impl(provider, "nikko");
