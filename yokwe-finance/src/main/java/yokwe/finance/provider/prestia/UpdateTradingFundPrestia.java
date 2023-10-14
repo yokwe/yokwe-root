@@ -20,7 +20,7 @@ import yokwe.util.json.JSON;
 public class UpdateTradingFundPrestia {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE  = true;
+	private static final boolean DEBUG_USE_FILE  = false;
 	
 	private static final String URL     = "https://lt.morningstar.com/api/rest.svc/smbctbfund/security/screener";
 	private static final String CHARSET = "UTF-8";
