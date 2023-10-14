@@ -201,6 +201,17 @@
 	</target>
 	
 	
+	<!-- Provider Nikko -->
+	<target name="provider-nikko-update-trading-fund-nikko">
+		<java module="yokwe.finance/yokwe.finance.provider.nikko.UpdateTradingFundNikko" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Provider NYSE -->
 	<target name="provider-nyse-update-stock-info-nyse">
 		<java module="yokwe.finance/yokwe.finance.provider.nyse.UpdateStockInfoNYSE" fork="true">
