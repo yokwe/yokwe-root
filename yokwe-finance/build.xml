@@ -212,6 +212,17 @@
 	</target>
 	
 	
+	<!-- Provider Nomura -->
+	<target name="provider-nomura-update-trading-fund-nomura">
+		<java module="yokwe.finance/yokwe.finance.provider.nomura.UpdateTradingFundNomura" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Provider NYSE -->
 	<target name="provider-nyse-update-stock-info-nyse">
 		<java module="yokwe.finance/yokwe.finance.provider.nyse.UpdateStockInfoNYSE" fork="true">
