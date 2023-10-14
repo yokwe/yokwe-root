@@ -250,6 +250,17 @@
 	</target>
 	
 	
+	<!-- Provider Sony -->
+	<target name="provider-sony-update-trading-fund-sony">
+		<java module="yokwe.finance/yokwe.finance.provider.sony.UpdateTradingFundSony" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Report -->
 	<target name="reprot-update-stock-stats-jp">
 		<java module="yokwe.finance/yokwe.finance.report.UpdateStockStatsJP" fork="true">
