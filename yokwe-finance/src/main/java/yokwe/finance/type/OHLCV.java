@@ -21,6 +21,15 @@ public class OHLCV implements Comparable<OHLCV> {
 	}
 	public OHLCV() {}
 	
+	public boolean isEmpty() {
+		return
+			open.compareTo(BigDecimal.ZERO) == 0 &&
+			high.compareTo(BigDecimal.ZERO) == 0 &&
+			low.compareTo(BigDecimal.ZERO) == 0 &&
+			close.compareTo(BigDecimal.ZERO) == 0 &&
+			volume == 0;
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("{%s %s %s %s %s %d}",
