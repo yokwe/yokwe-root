@@ -3,10 +3,8 @@ package yokwe.finance.report;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
 import yokwe.finance.provider.monex.TradingStockMonex;
@@ -17,18 +15,11 @@ import yokwe.finance.stock.StockDivUS;
 import yokwe.finance.stock.StockInfoUS;
 import yokwe.finance.stock.StockPriceUS;
 import yokwe.finance.type.TradingStockType;
-import yokwe.util.DoubleUtil;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
-import yokwe.util.finance.online.SimpleReturn;
 import yokwe.util.libreoffice.LibreOffice;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
-import yokwe.util.stats.DoubleArray;
-import yokwe.util.stats.DoubleStreamUtil;
-import yokwe.util.stats.HV;
-import yokwe.util.stats.MA;
-import yokwe.util.stats.RSI;
 
 public class UpdateStockStatsUS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -55,119 +46,48 @@ public class UpdateStockStatsUS {
 			
 			for(var stockInfo: StockInfoUS.getList()) {
 				var stockCode = stockInfo.stockCode;
-				var priceList = StockPriceUS.getList(stockCode).stream().filter(o -> !o.date.isBefore(dateStart) && !o.date.isAfter(dateStop)).collect(Collectors.toList());
-				var divArray  = StockDivUS.getList(stockCode).stream().filter(o -> !o.date.isBefore(dateStart) && !o.date.isAfter(dateStop)).mapToDouble(o -> o.value.doubleValue()).toArray();
-
-				if (priceList.isEmpty()) {
-					logger.info("no price info {}", stockCode);
+				var priceList = StockPriceUS.getList(stockCode);
+				var divList   = StockDivUS.getList(stockCode);
+				
+				if (priceList.size() < 10) {
+					logger.info("skip  {}  {}", stockCode, priceList.size());
 					continue;
 				}
 				
-				var priceLast = priceList.get(priceList.size() - 1);
-				if (DoubleUtil.isAlmostZero(priceLast.close.doubleValue())) {
-					logger.warn("Skip price is zero  {}", stockCode);
-					continue;
-				}
+				StockStats stockStats = StockStats.getInstance(dateStart,  dateStop, priceList, divList);
 				
+				StockStatsUS stats = new StockStatsUS();
+				stats.stockCode = stockCode;
 				
-				StockStatsUS statsUS = new StockStatsUS();
-				{
-					
-					int      pricec      = priceList.size();
-					double[] closeArray  = priceList.stream().mapToDouble(o -> o.close.doubleValue()).toArray();
-					double[] volumeArray = priceList.stream().mapToDouble(o -> o.volume).toArray();
-					
-					statsUS.stockCode = stockCode;
-					
-					statsUS.monex     = tradingString(monexMap, stockCode);
-					statsUS.nikko     = ""; // FIXME
-					statsUS.sbi       = tradingString(sbiMap, stockCode);
-					statsUS.rakuten   = tradingString(rakutenMap, stockCode);
-					statsUS.moomoo    = tradingString(moomooMap, stockCode);
-									
-					statsUS.type      = stockInfo.type.toString();
-					statsUS.name      = stockInfo.name;
-					statsUS.date      = priceLast.date.toString();
-					
-					statsUS.pricec    = priceList.size();
-					statsUS.price     = priceLast.close.doubleValue();
-					
-					
-					// last
-					if (2 <= pricec) {
-						var lastClose = priceList.get(priceList.size() - 2).close.doubleValue();
-						if (DoubleUtil.isAlmostZero(lastClose)) {
-							statsUS.last = -1;
-						} else {
-							statsUS.last = SimpleReturn.getValue(lastClose, statsUS.price);
-						}
-					} else {
-						statsUS.last = -1;
-					}
-					
-					// stats - sd hv rsi
-					if (30 <= pricec) {
-						double logReturn[] = DoubleArray.logReturn(closeArray);
-						DoubleStreamUtil.Stats stats = new DoubleStreamUtil.Stats(logReturn);
-						
-						double sd = stats.getStandardDeviation();
-						statsUS.sd = Double.isNaN(sd) ? -1 : DoubleUtil.round(sd, 4);
+				stats.type      = stockInfo.type.simpleType.toString();
+				stats.name      = stockInfo.name;
+				stats.date      = stockStats.date.toString();
+				
+				stats.price     = stockStats.price;
+				stats.pricec    = stockStats.pricec;
+				stats.last      = stockStats.last;
 
-						HV hv = new HV(closeArray);
-						statsUS.hv = Double.isNaN(hv.getValue()) ? -1 : DoubleUtil.round(hv.getValue(), 4);
-					} else {
-						statsUS.sd = -1;
-						statsUS.hv = -1;
-					}
-					if (RSI.DEFAULT_PERIDO <= pricec) {
-						RSI rsi = new RSI();
-						Arrays.stream(closeArray).forEach(rsi);
-						double rsiValue = rsi.getValue();
-						if (Double.isFinite(rsiValue)) {
-							statsUS.rsi = DoubleUtil.round(rsi.getValue(), 1);
-						} else {
-							statsUS.rsi = -1;
-						}
-					} else {
-						statsUS.rsi = -1;
-					}
-					
-					// min max
-					{
-						var min = priceList.stream().mapToDouble(o -> o.low.doubleValue()).min().getAsDouble();
-						var max = priceList.stream().mapToDouble(o -> o.high.doubleValue()).max().getAsDouble();
-						statsUS.min = DoubleUtil.round((statsUS.price - min) / statsUS.price, 3);
-						statsUS.max = DoubleUtil.round((max - statsUS.price) / statsUS.price, 3);
-					}
-					
-					// dividend
-					{
-						if (divArray.length == 0) {
-							statsUS.divc  = 0;
-							statsUS.yield = 0;
-						} else {
-							var div = Arrays.stream(divArray).sum();
-							statsUS.divc  = divArray.length;
-							statsUS.yield = DoubleUtil.round(div / statsUS.price, 3);
-						}
-					}
-					
-					// volume
-					statsUS.vol       = priceLast.volume;
-					if (5 <= pricec) {
-						MA vol5 = MA.sma(5, volumeArray);
-						statsUS.vol5 = (long)vol5.getValue();
-					} else {
-						statsUS.vol5 = -1;
-					}
-					if (20 <= pricec) {
-						MA vol21 = MA.sma(21, volumeArray);
-						statsUS.vol21 = (long)vol21.getValue();
-					} else {
-						statsUS.vol21 = -1;
-					}
-				}
-				list.add(statsUS);
+				stats.sd        = stockStats.sd;
+				stats.hv        = stockStats.hv;
+				stats.rsi       = stockStats.rsi;
+				
+				stats.min       = stockStats.min;
+				stats.max       = stockStats.max;
+
+				stats.divc      = stockStats.divc;
+				stats.yield     = stockStats.yield;
+
+				stats.vol       = stockStats.vol;
+				stats.vol5      = stockStats.vol5;
+				stats.vol21     = stockStats.vol21;
+
+				stats.monex     = tradingString(monexMap, stockCode);
+				stats.nikko     = ""; // FIXME
+				stats.sbi       = tradingString(sbiMap, stockCode);
+				stats.rakuten   = tradingString(rakutenMap, stockCode);
+				stats.moomoo    = tradingString(moomooMap, stockCode);
+				
+				list.add(stats);
 			}
 		}
 
