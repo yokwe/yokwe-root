@@ -292,13 +292,28 @@ public class UpdateStockPriceJPX {
 			
 			// fix list when volume is zero
 			{
-				BigDecimal lastClose   = null;
+				BigDecimal lastClose = null;
 				for(var price: list) {
 					if (price.volume == 0) {
 						if (lastClose == null) continue;
 						price.open = price.high = price.low = price.close = lastClose;
 					}
 					lastClose = price.close;
+				}
+				
+				// remove empty element at very first of list
+				if (!list.isEmpty()) {
+					while(list.get(0).isEmpty()) {
+						list.remove(0);
+						if (list.isEmpty()) break;
+					}
+				}
+				// sanity check
+				{
+					var countEmpty = list.stream().filter(o -> o.isEmpty()).count();
+					if (countEmpty != 0) {
+						logger.warn("contains empty elements  {}  {}", stockCode, countEmpty);
+					}
 				}
 			}
 			
