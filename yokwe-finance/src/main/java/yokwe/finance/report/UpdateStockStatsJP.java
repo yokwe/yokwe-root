@@ -38,32 +38,33 @@ public class UpdateStockStatsJP {
 					continue;
 				}
 				
-				StockStats stockStats = StockStats.getInstance(dateStart,  dateStop, priceList, divList);
-				
 				StockStatsJP stats = new StockStatsJP();
 				stats.stockCode = stockCode;
-				
 				stats.type      = stockInfo.type.simpleType.toString();
 				stats.name      = stockInfo.name;
-				stats.date      = stockStats.date.toString();
 				
-				stats.price     = stockStats.price;
-				stats.pricec    = stockStats.pricec;
-				stats.last      = stockStats.last;
+				{
+					StockStats stockStats = StockStats.getInstance(dateStart,  dateStop, priceList, divList);
+					
+					stats.date      = stockStats.date.toString();
+					stats.price     = stockStats.price;
+					stats.pricec    = stockStats.pricec;
+					stats.last      = stockStats.last;
 
-				stats.sd        = stockStats.sd;
-				stats.hv        = stockStats.hv;
-				stats.rsi       = stockStats.rsi;
-				
-				stats.min       = stockStats.min;
-				stats.max       = stockStats.max;
+					stats.sd        = stockStats.sd;
+					stats.hv        = stockStats.hv;
+					stats.rsi       = stockStats.rsi;
+					
+					stats.min       = stockStats.min;
+					stats.max       = stockStats.max;
 
-				stats.divc      = stockStats.divc;
-				stats.yield     = stockStats.yield;
+					stats.divc      = stockStats.divc;
+					stats.yield     = stockStats.yield;
 
-				stats.vol       = stockStats.vol;
-				stats.vol5      = stockStats.vol5;
-				stats.vol21     = stockStats.vol21;
+					stats.vol       = stockStats.vol;
+					stats.vol5      = stockStats.vol5;
+					stats.vol21     = stockStats.vol21;
+				}
 				
 				list.add(stats);
 			}
