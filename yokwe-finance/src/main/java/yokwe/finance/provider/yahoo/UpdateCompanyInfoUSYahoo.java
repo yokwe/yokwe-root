@@ -55,7 +55,7 @@ public class UpdateCompanyInfoUSYahoo {
 			
 			var stockCode = stockInfo.stockCode;
 			
-			var companyInfo = CompanyInfoYahoo.getInstance(StockInfoUSType.toNASDAQSymbol(stockCode));
+			var companyInfo = CompanyInfoYahoo.getInstance(StockInfoUSType.toYahooSymbol(stockCode));
 			if (companyInfo == null) continue;
 			
 			var sector   = companyInfo.sector.replace(",", "");
