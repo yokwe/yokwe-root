@@ -210,6 +210,14 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="provider-nasdaq-update-company-info-nasdaq">
+		<java module="yokwe.finance/yokwe.finance.provider.nasdaq.UpdateCompanyInfoNasdaq" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 	
 	<!-- Provider Nikko -->
@@ -297,6 +305,25 @@
 	<!-- Provider Sony -->
 	<target name="provider-sony-update-trading-fund-sony">
 		<java module="yokwe.finance/yokwe.finance.provider.sony.UpdateTradingFundSony" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
+	<!-- Provider Yahoo -->
+	<target name="provider-yahoo-update-company-info-us-yahoo">
+		<java module="yokwe.finance/yokwe.finance.provider.yahoo.UpdateCompanyInfoUSYahoo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provider-yahoo-update-company-info-jp-yahoo">
+		<java module="yokwe.finance/yokwe.finance.provider.yahoo.UpdateCompanyInfoJPYahoo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
