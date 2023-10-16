@@ -3,7 +3,9 @@ package yokwe.finance.provider.yahoo;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import yokwe.finance.Storage;
 import yokwe.finance.stock.StockInfoJP;
+import yokwe.finance.type.CompanyInfoType;
 import yokwe.finance.type.StockInfoJPType;
 
 
@@ -12,53 +14,76 @@ public class UpdateCompanyInfoJPYahoo {
 	
 	private static final long    SLEEP_IN_MILLI = 1500;
 	
-	private static void update() {
-		var map = CompanyInfoJPYahoo.getMap();
-		logger.info("companyInfo  {}", map.size());
+	private static int updateCompanyInfo() {
+		// read existing data
+		var list = CompanyInfoJPYahoo.getList().stream().collect(Collectors.toList());
+		logger.info("companyInfo  {}", list.size());
+		// remove if sector or industry is empty
+		list.removeIf(o -> o.sector.isEmpty() || o.industry.isEmpty());
+		logger.info("companyInfo  {}", list.size());
 
+		// set of required stockCode
+		var stockInfoList = StockInfoJP.getList();
+		logger.info("stockInfo    {}", stockInfoList.size());
+		// remove if not stock
+		stockInfoList.removeIf(o -> !o.type.isStock());
+		logger.info("stockInfo    {}", stockInfoList.size());
+		// remove if already processed
 		{
-			int count = 0;
-			// stockCodeList contains only STOCK
-			var stockCodeList = StockInfoJP.getList().stream().filter(o -> o.type.isStock()).map(o -> o.stockCode).collect(Collectors.toList());
-			logger.info("stockCode    {}", stockCodeList.size());
+			var set = list.stream().map(o -> o.stockCode).collect(Collectors.toSet());
+			stockInfoList.removeIf(o -> set.contains(o.stockCode));
+		}
+		logger.info("stockInfo    {}", stockInfoList.size());
+		
+		Collections.shuffle(stockInfoList);
+		int count = 0;
+		int countMod = 0;
+		for(var stockInfo: stockInfoList) {
+			if ((++count % 100) == 1) logger.info("{}  /  {}", count, stockInfoList.size());
 			
-			stockCodeList.removeIf(o -> map.containsKey(o));
-			logger.info("stockCode    {}", stockCodeList.size());
-			
-			Collections.shuffle(stockCodeList);
-			for(var stockCode: stockCodeList) {
-				if ((++count % 100) == 1) logger.info("{}  /  {}", count, stockCodeList.size());
-				
-				try {
-					Thread.sleep(SLEEP_IN_MILLI);
-				} catch (InterruptedException e) {
-					//
-				}
-
-				var companyInfo = CompanyInfoYahoo.getInstance(StockInfoJPType.toYahooSymbol(stockCode));
-				if (companyInfo == null) {
-					continue;
-				}
-				
-				// override stockCode
-				companyInfo.stockCode   = stockCode;
-				companyInfo.sector      = companyInfo.sector.replace(",", "");
-				companyInfo.industry    = companyInfo.industry.replace(",", "");
-				
-				map.put(companyInfo.stockCode, companyInfo);
-				
-				if ((map.size() % 10) == 1) CompanyInfoJPYahoo.save(map.values());
+			try {
+				Thread.sleep(SLEEP_IN_MILLI);
+			} catch (InterruptedException e) {
+				//
 			}
+			
+			var stockCode = stockInfo.stockCode;
+			
+			var companyInfo = CompanyInfoYahoo.getInstance(StockInfoJPType.toYahooSymbol(stockCode));
+			if (companyInfo == null) continue;
+			
+			var sector   = companyInfo.sector.replace(",", "");
+			var industry = companyInfo.industry.replace(",", "");
+			
+			// skipe if sector or industry is empty
+			if (sector.isEmpty() || industry.isEmpty()) continue;
+			
+			list.add(new CompanyInfoType(stockCode, sector, industry));
+			countMod++;
+			
+			if ((countMod % 10) == 1) CompanyInfoJPYahoo.save(list);
 		}
 		
-		{
-			var list = map.values().stream().collect(Collectors.toList());
-			// remove if entry of list is not in StockInfoJP
-			var stockCodeSet = StockInfoJP.getList().stream().filter(o -> o.type.isStock()).map(o -> o.stockCode).collect(Collectors.toSet());
-			list.removeIf(o -> !stockCodeSet.contains(o.stockCode));
-			
-			logger.info("save  {}  {}", list.size(), CompanyInfoJPYahoo.getPath());
-			CompanyInfoJPYahoo.save(list);
+		logger.info("countMod  {}", countMod);
+		logger.info("save  {}  {}", list.size(), CompanyInfoJPYahoo.getPath());
+		CompanyInfoJPYahoo.save(list);
+		
+		return countMod;
+	}
+	
+	
+	private static void update() {
+		Storage.initialize();
+		
+		for(int take = 1; take < 9; take++) {
+			logger.info("start take {}", take);
+			int countMod = updateCompanyInfo();
+			if (countMod == 0) break;
+			try {
+				Thread.sleep(SLEEP_IN_MILLI);
+			} catch (InterruptedException e) {
+				//
+			}
 		}
 	}
 	
