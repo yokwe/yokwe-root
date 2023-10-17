@@ -36,7 +36,13 @@ rync-to-sandisk2t:
 	rsync -ah --delete --stats --dry-run /Volumes/finance/ /Volumes/SanDisk2T/finance
 
 rsync-to-truenas:
+	date -Iseconds
 	rsync -ah --delete --stats /Volumes/SanDisk2T/finance/ /Volumes/finance
+	date -Iseconds
+
+kill-soffice:
+	@ps xg > tmp/kill_soffice
+	@awk '/LibreOffice/ && /soffice/ {print; system("killall -v soffice");}' tmp/kill_soffice
 
 # maintenance of save and log
 clear-save-file: check-data-path
@@ -46,7 +52,9 @@ clear-report-file: check-data-path
 	find ${DATA_PATH}/report -name '*ods' -and -mtime +7d -print -delete
 
 clear-log-file: check-data-path
+	date -Iseconds
 	tar cfz $(DATA_PATH)/save/log_$$(date +%Y%m%d).taz tmp/*.log
+	date -Iseconds
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
 
@@ -94,8 +102,11 @@ update-fund: check-data-path
 	ant provider-jita-update-fund-info-jita
 	ant provider-jita-update-fund-div-price-jita
 	cp -p $(DATA_PATH)/provider/jita/fund-info-jita.csv $(DATA_PATH)/fund/fund-info.csv
+	date -Iseconds
 	rsync -ah --delete --stats $(DATA_PATH)/provider/jita/fund-price-jita/ $(DATA_PATH)/fund/fund-price
+	date -Iseconds
 	rsync -ah --delete --stats $(DATA_PATH)/provider/jita/fund-div-jita/   $(DATA_PATH)/fund/fund-div
+	date -Iseconds
 
 
 #
@@ -115,7 +126,9 @@ update-stock-info-jp: check-data-path
 	
 update-stock-price-jp: check-data-path
 	ant provider-jpx-update-stock-price-jpx
+	date -Iseconds
 	rsync -ah --delete --stats $(DATA_PATH)/provider/jpx/stock-price-jpx/ $(DATA_PATH)/stock/stock-price-jp
+	date -Iseconds
 
 update-stock-div-jp:
 	ant provider-jpx-update-stock-div-jpx
