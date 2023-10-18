@@ -8,7 +8,7 @@ import yokwe.finance.type.DailyValue;
 public class StorageJREIT {
 	public static void initialize() {}
 	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "reit");
+	private static final Storage storage = new Storage.Impl(Storage.provider, "jreit");
 
 	
 	public static String getPath() {
