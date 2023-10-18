@@ -80,7 +80,7 @@ public class UpdateStockPriceJPX {
 		}
 	}
 	
-	private static void buildContextFromPage(Context context, String stockCode, String page) {
+	private static void buildContextFromPage(Context context, String stockCode, String name, String page) {
 		if (page.contains("指定された銘柄が見つかりません")) {
 			//
 		} else {
@@ -94,7 +94,7 @@ public class UpdateStockPriceJPX {
 			// sanity check
 			if (currentPrice == null || openPrice == null || highPrice == null || lowPrice == null || tradeVolume == null || priceList.size() == 0) {
 				logger.warn("Unexpected page");
-				logger.warn("  stockCode {}", stockCode);
+				logger.warn("  stockCode {}  {}", stockCode, name);
 
 				if (currentPrice == null)  logger.warn("  currentPrice is null");
 				if (openPrice == null)     logger.warn("  openPrice is null");
@@ -121,15 +121,17 @@ public class UpdateStockPriceJPX {
 	private static class MyConsumer implements Consumer<String> {
 		private final Context   context;
 		private final String    stockCode;
+		private final String    name;
 		
-		MyConsumer(Context context, String stockCode) {
+		MyConsumer(Context context, String stockCode, String name) {
 			this.context   = context;
 			this.stockCode = stockCode;
+			this.name      = name;
 		}
 		@Override
 		public void accept(String page) {
 			context.incrementBuildCount();
-			buildContextFromPage(context, stockCode, page);			
+			buildContextFromPage(context, stockCode, name, page);			
 		}
 	}
 
@@ -186,7 +188,8 @@ public class UpdateStockPriceJPX {
 		for(var stockInfo: stockInfoList) {
 			String stockCode = stockInfo.stockCode;			
 			String uriString = getPageURL(stockCode);
-			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode));
+			String name      = stockInfo.name;
+			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode, name));
 			download.addTask(task);
 		}
 
