@@ -1,20 +1,13 @@
 package yokwe.finance.provider.nasdaq;
 
-import java.util.Collection;
-import java.util.List;
-
 import yokwe.util.CSVUtil;
-import yokwe.util.ListUtil; // FIXME
 import yokwe.util.StringUtil;
 
-public class OtherListed implements Comparable<OtherListed> {
+public class OtherListedType implements Comparable<OtherListedType> {
 	// ACT Symbol|Security Name|Exchange|CQS Symbol|ETF|Round Lot Size|Test Issue|NASDAQ Symbol
 	// A|Agilent Technologies, Inc. Common Stock|N|A|N|100|N|A
 	// ZYME|Zymeworks Inc. Common Shares|N|ZYME|N|100|N|ZYME
 	// File Creation Time: 1122202221:31||||||
-	
-	public static final String LAST_LINE_STARTS_WITH = "File Creation Time: ";
-	public static final String LAST_LINE_ENDS_WITH   = "||||||";
 
 	// See below URL for detail
 	//   http://www.nasdaqtrader.com/trader.aspx?id=symboldirdefs
@@ -54,41 +47,6 @@ public class OtherListed implements Comparable<OtherListed> {
 	//   Typical identifiers have 1-5 character root symbol and then 1-3 characters for suffixes. Allow up to 14 characters.
 	//   See below link for explanation
 	//     https://www.nasdaqtrader.com/trader.aspx?id=CQSsymbolconvention
-	
-	public static final String URL = "ftp://anonymous:anonymous@ftp.nasdaqtrader.com/symboldirectory/otherlisted.txt";
-	
-	public static final String PATH_TXT = StorageNasdaq.getPath("otherlisted.txt");
-	public static final String PATH_CSV = StorageNasdaq.getPath("otherlisted.csv");
-		
-	
-	public static String getPath() {
-		return PATH_CSV;
-	}
-	
-	public static void save(Collection<OtherListed> collection) {
-		// sanity check
-		ListUtil.checkDuplicate(collection, o -> o.symbol);
-		ListUtil.save(OtherListed.class, getPath(), collection);
-	}
-	public static void save(List<OtherListed> list) {
-		// sanity check
-		ListUtil.checkDuplicate(list, o -> o.symbol);
-		ListUtil.save(OtherListed.class, getPath(), list);
-	}
-	
-	public static List<OtherListed> load() {
-		var list = ListUtil.load(OtherListed.class, getPath());
-		// sanity check
-		ListUtil.checkDuplicate(list, o -> o.symbol);
-		return list;
-	}
-	public static List<OtherListed> getList() {
-		var list = ListUtil.getList(OtherListed.class, getPath());
-		// sanity check
-		ListUtil.checkDuplicate(list, o -> o.symbol);
-		return list;
-	}
-	
 	
 	public static final String SUFFIX_WARRANT     = "+";
 	public static final String SUFFIX_RIGHTS      = "^";
@@ -146,7 +104,7 @@ public class OtherListed implements Comparable<OtherListed> {
 	}
 	
 	@Override
-	public int compareTo(OtherListed that) {
+	public int compareTo(OtherListedType that) {
 		return this.actSymbol.compareTo(that.actSymbol);
 	}
 

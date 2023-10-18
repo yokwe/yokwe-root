@@ -1,24 +1,30 @@
 package yokwe.finance.provider.nasdaq;
 
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoUSType;
 import yokwe.finance.type.StockInfoUSType.Market;
 import yokwe.finance.type.StockInfoUSType.Type;
 import yokwe.util.CSVUtil;
 import yokwe.util.FTPUtil;
 import yokwe.util.FileUtil;
-import yokwe.util.ListUtil; // FIXME
 import yokwe.util.UnexpectedException;
 
 public class UpdateStockInfoNasdaq {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	public static final String URL_NASDAQLISTED = "ftp://ftp.nasdaqtrader.com/symboldirectory/nasdaqlisted.txt";
+		
+	public static final String URL_OTHERLISTED = "ftp://anonymous:anonymous@ftp.nasdaqtrader.com/symboldirectory/otherlisted.txt";
+		
+
 	private static final Map<String, Market> marketMap = new TreeMap<>();
 	static {
 		//   A = NYSE MKT
@@ -35,50 +41,47 @@ public class UpdateStockInfoNasdaq {
 	}
 	
 	
-	private static void download(String url, String path) {
-		byte[] data = FTPUtil.download(url);
-		if (data == null) {
-			logger.error("Download failed  {}", NasdaqListed.URL);
-			throw new UnexpectedException("Download failed");
+	private static <E extends Comparable<E>> void download(String url, String path, Class<E> clazz, Storage.LoadSave<E, String> loadSave) {
+		String string;
+		{
+			byte[] data = FTPUtil.download(url);
+			if (data == null) {
+				logger.error("Download failed  {}", url);
+				throw new UnexpectedException("Download failed");
+			}
+			
+			string = new String(data, StandardCharsets.US_ASCII);
+			
+			// save txt file
+			FileUtil.write().file(path, string);
+			logger.info("save  {}  {}", string.length(), path);
 		}
-		
-		// save txt file
-		FileUtil.rawWrite().file(path, data);
-		logger.info("save  {}  {}", data.length, path);
-	}
-	private static <E extends Comparable<E>> void save(Class<E> clazz, String pathText, String pathCSV) {
 		List<E>	list;
 		{
-			String txtString = FileUtil.read().file(pathText);
-			String[] lines = txtString.split("[\\r\\n]+");
+			String[] lines = string.split("[\\r\\n]+");
 			
 			// remove last line
-			String string = String.join("\n", Arrays.copyOfRange(lines, 0, lines.length - 1)) + "\n";
+			String csvString = String.join("\n", Arrays.copyOfRange(lines, 0, lines.length - 1)) + "\n";
 			// read string as csv file
-			list = CSVUtil.read(clazz).withSeparator('|').file(new StringReader(string));
+			list = CSVUtil.read(clazz).withSeparator('|').file(new StringReader(csvString));
 		}
-		
+				
 		// save csv file
-		logger.info("save  {}  {}", list.size(), pathCSV);
-		ListUtil.save(clazz, pathCSV, list);
+		logger.info("save  {}  {}", list.size(), loadSave.getPath());
+		loadSave.save(list);
 	}
 	private static void download() {
-		// download txt file
-		download(NasdaqListed.URL, NasdaqListed.PATH_TXT);
-		download(OtherListed.URL,  OtherListed.PATH_TXT);
-		// read txt file and save csv file
-		save(NasdaqListed.class, NasdaqListed.PATH_TXT, NasdaqListed.PATH_CSV);
-		save(OtherListed.class,  OtherListed.PATH_TXT,  OtherListed.PATH_CSV);
+		download(URL_NASDAQLISTED, StorageNasdaq.NasdaqListed_TXT, NasdaqListedType.class, StorageNasdaq.NasdaqListed);
+		download(URL_OTHERLISTED,  StorageNasdaq.OtherListed_TXT,  OtherListedType.class,  StorageNasdaq.OtherListed);
 	}
 	
 	private static void update() {
-		// FIXME
 		List<StockInfoUSType> list = new ArrayList<>();
 		
 		int countTotal = 0;
 		int countSkip  = 0;
 		{
-			for(var e: NasdaqListed.getList()) {
+			for(var e: StorageNasdaq.NasdaqListed.getList()) {
 				countTotal++;
 				
 				// skip test issue, right, unit and warrant
@@ -106,7 +109,7 @@ public class UpdateStockInfoNasdaq {
 
 				list.add(new StockInfoUSType(symbol, market, type, name));
 			}
-			for(var e: OtherListed.getList()) {
+			for(var e: StorageNasdaq.OtherListed.getList()) {
 				countTotal++;
 				
 				// skip test issue, right, unit and warrant

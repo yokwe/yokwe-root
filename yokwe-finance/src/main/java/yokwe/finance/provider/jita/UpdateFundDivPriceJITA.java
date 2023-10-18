@@ -13,7 +13,6 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.FundPriceJP;
 import yokwe.util.CSVUtil;
-import yokwe.util.ListUtil; // FIXME
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -93,7 +92,7 @@ public class UpdateFundDivPriceJITA {
 		
 		@Override
 		public void accept(String string) {
-			var divPriceList = ListUtil.load(CSVData.class, new StringReader(string));
+			var divPriceList = CSVUtil.read(CSVData.class).file(new StringReader(string));
 			if (divPriceList == null) {
 				logger.error("Unexpected null");
 				logger.error("string {}", string);

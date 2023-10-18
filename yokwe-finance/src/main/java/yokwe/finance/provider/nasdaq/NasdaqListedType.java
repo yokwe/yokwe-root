@@ -1,13 +1,9 @@
 package yokwe.finance.provider.nasdaq;
 
-import java.util.Collection;
-import java.util.List;
-
 import yokwe.util.CSVUtil;
-import yokwe.util.ListUtil; // FIXME
 import yokwe.util.StringUtil;
 
-public class NasdaqListed implements Comparable<NasdaqListed> {
+public class NasdaqListedType implements Comparable<NasdaqListedType> {
 	// Symbol|Security Name|Market Category|Test Issue|Financial Status|Round Lot Size|ETF|NextShares
 	// AACG|ATA Creativity Global - American Depositary Shares, each representing two common shares|G|N|N|100|N|N
 	// ZYXI|Zynex, Inc. - Common Stock|Q|N|N|100|N|N
@@ -37,41 +33,7 @@ public class NasdaqListed implements Comparable<NasdaqListed> {
 	//   K = Deficient, Delinquent, and Bankrupt
 	
 	// Round Lot	Indicates the number of shares that make up a round lot for the given security.
-	
-
-	public static final String URL = "ftp://ftp.nasdaqtrader.com/symboldirectory/nasdaqlisted.txt";
-	
-	public static final String PATH_TXT = StorageNasdaq.getPath("nasdaqlisted.txt");
-	public static final String PATH_CSV = StorageNasdaq.getPath("nasdaqlisted.csv");
 		
-	public static String getPath() {
-		return PATH_CSV;
-	}
-	
-	public static void save(Collection<NasdaqListed> collection) {
-		// sanity check
-		ListUtil.checkDuplicate(collection, o -> o.symbol);
-		ListUtil.save(NasdaqListed.class, getPath(), collection);
-	}
-	public static void save(List<NasdaqListed> list) {
-		// Sanity check
-		ListUtil.checkDuplicate(list, o -> o.symbol);
-		ListUtil.save(NasdaqListed.class, getPath(), list);
-	}
-	
-	public static List<NasdaqListed> load() {
-		var list = ListUtil.load(NasdaqListed.class, getPath());
-		// Sanity check
-		ListUtil.checkDuplicate(list, o -> o.symbol);
-		return list;
-	}
-	public static List<NasdaqListed> getList() {
-		var list = ListUtil.getList(NasdaqListed.class, getPath());
-		// Sanity check
-		ListUtil.checkDuplicate(list, o -> o.symbol);
-		return list;
-	}
-	
 	// NASDAQ Integrated Platform Suffix
 	// See page below
 	//   Ticker Symbol Convention
@@ -120,7 +82,7 @@ public class NasdaqListed implements Comparable<NasdaqListed> {
 	}
 	
 	@Override
-	public int compareTo(NasdaqListed that) {
+	public int compareTo(NasdaqListedType that) {
 		return this.symbol.compareTo(that.symbol);
 	}
 

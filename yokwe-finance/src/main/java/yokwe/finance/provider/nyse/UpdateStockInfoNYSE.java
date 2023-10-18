@@ -1,14 +1,15 @@
 package yokwe.finance.provider.nyse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoUSType;
 import yokwe.finance.type.StockInfoUSType.Market;
 import yokwe.finance.type.StockInfoUSType.Type;
-import yokwe.util.ListUtil; // FIXME
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -54,7 +55,7 @@ public class UpdateStockInfoNYSE {
 	}
 
 
-	public static List<Filter> downloadFilter(String instrumentType) {
+	public static List<FilterType> downloadFilter(String instrumentType) {
 		String body = String.format(BODY_FORMAT, instrumentType);
 		
 		HttpUtil.Result result = HttpUtil.getInstance().withPost(body, CONTENT_TYPE).download(URL);
@@ -66,33 +67,56 @@ public class UpdateStockInfoNYSE {
 			throw new UnexpectedException("result.result == null");
 		}
 		
-		List<Filter> list = JSON.getList(Filter.class, result.result);
+		List<FilterType> list = JSON.getList(FilterType.class, result.result);
 		return list;
 	}
 	
 	private static void download() {
 		var stockList = downloadFilter(TYPE_STOCK);
 		var etfList   = downloadFilter(TYPE_ETF);
+		logger.info("stock  {}", stockList.size());
+		logger.info("etf    {}", etfList.size());
 		
-		List<Filter> list = new ArrayList<>();
-		list.addAll(stockList);
-		list.addAll(etfList);
-
 		// sanity check
+		var map = new HashMap<String, FilterType>();
+		int countSkip = 0;
 		{
-			var map = ListUtil.checkDuplicate(list, o -> o.symbolTicker);
-			logger.info("stock  {}", stockList.size());
-			logger.info("etf    {}", etfList.size());
-			logger.info("total  {}", stockList.size() + etfList.size());
-			logger.info("map    {}", map.size());
-			if (map.size() != stockList.size() + etfList.size()) {
-				logger.error("Unexpected");
-				throw new UnexpectedException("Unexpected");
+			boolean foundError = false;
+			for(var e: stockList) {
+				if (e.symbolTicker.startsWith("E:")) {
+					countSkip++;
+					continue;
+				}
+				
+				if (map.containsKey(e.normalizedTicker)) {
+					logger.error("Unexpected duplicate");
+					logger.error("  stock  old  {}", map.get(e.normalizedTicker));
+					logger.error("  stock  new  {}", e);
+				} else {
+					map.put(e.normalizedTicker, e);
+				}
+			}
+			for(var e: etfList) {
+				if (e.symbolTicker.startsWith("E:")) {
+					countSkip++;
+					continue;
+				}
+
+				if (map.containsKey(e.normalizedTicker)) {
+					logger.error("Unexpected duplicate");
+					logger.error("  etf    old  {}", map.get(e.normalizedTicker));
+					logger.error("  etf    new  {}", e);
+				} else {
+					map.put(e.normalizedTicker, e);
+				}
+			}
+			if (foundError) {
+				throw new UnexpectedException("Unexpected duplicate");
 			}
 		}
-		
-		logger.info("save   {}  {}", list.size(), Filter.getPath());
-		Filter.save(list);
+		logger.info("skip   {}", countSkip);
+		logger.info("save   {}  {}", map.size(), StorageNYSE.Filter.getPath());
+		StorageNYSE.Filter.save(map.values());
 	}
 	
 	private static void update() {
@@ -101,7 +125,7 @@ public class UpdateStockInfoNYSE {
 		int count = 0;
 		int countSkip = 0;
 		
-		for(var e: Filter.getList()) {
+		for(var e: StorageNYSE.Filter.getList()) {
 			count++;
 			if (e.symbolTicker.startsWith("E:")) {
 				countSkip++;
@@ -145,6 +169,8 @@ public class UpdateStockInfoNYSE {
 	
 	public static void main(String[] args) {
 		logger.info("START");
+		
+		Storage.initialize();
 		
 		download();
 		update();

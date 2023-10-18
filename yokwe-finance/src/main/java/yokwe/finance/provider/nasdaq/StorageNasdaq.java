@@ -26,4 +26,17 @@ public class StorageNasdaq {
 	// company-info-nasdaq
 	public static final Storage.LoadSave<CompanyInfoType, String> CompanyInfoNasdaq =
 		new Storage.LoadSave.Impl<>(CompanyInfoType.class,  o -> o.stockCode, storage, "company-info-nasdaq.csv");
+	
+	// nasdqqlisted
+	public static final Storage.LoadSave<NasdaqListedType, String> NasdaqListed =
+		new Storage.LoadSave.Impl<>(NasdaqListedType.class,  o -> o.symbol, storage, "nasdaqlisted.csv");
+	
+	public static final String NasdaqListed_TXT = getPath("nasdaqlisted.txt");
+	
+	// otherlisted
+	public static final Storage.LoadSave<OtherListedType, String> OtherListed =
+		new Storage.LoadSave.Impl<>(OtherListedType.class,  o -> o.symbol, storage, "otherlisted.csv");
+	
+	public static final String OtherListed_TXT = getPath("otherlisted.txt");
+
 }
