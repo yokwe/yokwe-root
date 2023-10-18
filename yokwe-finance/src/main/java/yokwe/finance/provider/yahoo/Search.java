@@ -4,11 +4,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import yokwe.finance.Storage;
-import yokwe.util.ListUtil;
+import yokwe.util.ListUtil; // FIXME
 
 public final class Search implements Comparable<Search> {
-	private static final String PATH_FILE = Storage.provider_yahoo.getPath("search.csv");
+	private static final String PATH_FILE = StorageYahoo.getPath("search.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

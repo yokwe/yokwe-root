@@ -88,13 +88,13 @@ public class UpdateStockDivUS {
 			AssetClass assetClass = stockInfo.type.isETF() ? AssetClass.ETF : AssetClass.STOCK;
 			TaskType   taskType;
 			
-			String path = StockDivUS.getPath(stockCode);
+			String path = StorageStock.StockDivUS.getPath(stockCode);
 			if (FileUtil.canRead(path)) {
 				Instant  lastModified = FileUtil.getLastModified(path);
 				Duration duration     = Duration.between(lastModified, now);
 				if (GRACE_PERIOD_IN_DAYS < duration.toDays()) {
 					// after grace period
-					var list = StockDivUS.getList(stockCode);
+					var list = StorageStock.StockDivUS.getList(stockCode);
 					if (list.isEmpty()) {
 						taskType = TaskType.WHOLE;
 						countA++;
@@ -137,7 +137,7 @@ public class UpdateStockDivUS {
 			
 			if ((++count % 100) == 1) logger.info("{}  /  {}  {}", count, taskList.size(), task);
 			
-			var list = StockDivUS.getList(stockCode);
+			var list = StorageStock.StockDivUS.getList(stockCode);
 			
 			Dividends div;
 			{
@@ -150,7 +150,7 @@ public class UpdateStockDivUS {
 			if (div == null || div.data == null || div.data.dividends == null || div.data.dividends.rows == null) {
 				if (list.isEmpty()) {
 					// Update last modified time of file
-					StockDivUS.save(stockCode, list);
+					StorageStock.StockDivUS.save(stockCode, list);
 				}
 				countA++;
 				continue;
@@ -210,7 +210,7 @@ public class UpdateStockDivUS {
 				}
 			}
 			
-			StockDivUS.save(stockCode, map.values());
+			StorageStock.StockDivUS.save(stockCode, map.values());
 			countB++;
 			
 			if (countAdd != 0) countMod++;
@@ -228,7 +228,7 @@ public class UpdateStockDivUS {
 		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAYS);
 
 		// Use StockInfo of stock us
-		var stockList = StockInfoUS.getList();
+		var stockList = StorageStock.StockInfoUS.getList();
 		logger.info("list     {}", stockList.size());
 
 		for(int count = 1; count < 10; count++) {
@@ -253,12 +253,12 @@ public class UpdateStockDivUS {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StockInfoUS.getList()) {
-			File file = new File(StockDivUS.getPath(e.stockCode));
+		for(var e: StorageStock.StockInfoUS.getList()) {
+			File file = new File(StorageStock.StockDivUS.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StockDivUS.getPath(), StockDivUS.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StorageStock.StockDivUS.getPath(), StorageStock.StockDivUS.getPathDelist());
 	}
 
 	

@@ -1,14 +1,12 @@
 package yokwe.finance.provider.jpx;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -130,24 +128,21 @@ public class UpdateETF {
 		}
 	}
 	
-	private static List<ETF> getList(String url, String pageFile) {
+	private static List<StockNameType> getList(String url, String pageFile) {
 		String charset  = "UTF-8";
-		String filePath = Storage.provider_jpx.getPath(pageFile);
+		String filePath = StorageJPX.getPath(pageFile);
 		String page     = download(url, charset, filePath, DEBUG_USE_FILE);
 		
-		List<ETF> list = new ArrayList<>();
+		List<StockNameType> list = new ArrayList<>();
 		for(var e: ETFInfo.getInstance(page)) {
-			ETF entry = new ETF();
-			entry.indexName    = e.indexName.replace("&amp;", "&");
-			entry.stockCode    = StockInfoJPType.toStockCode5(e.stockCode);
-			entry.name         = e.name.replace("&amp;", "&").replace("(注2)", "").replace("(注5)", "").replace("(注6)", "");
-			entry.expenseRatio = new BigDecimal(e.expenseRatio).movePointLeft(2);
-			
-			if (entry.name.contains("注")) {
-				logger.warn("{}  {}", entry.stockCode, entry.name);
+			String stockCode = StockInfoJPType.toStockCode5(e.stockCode);
+			String name      = e.name.replace("&amp;", "&").replace("(注2)", "").replace("(注5)", "").replace("(注6)", "");
+			// sanity check
+			if (name.contains("注")) {
+				logger.warn("{}  {}", stockCode, name);
 			}
 
-			list.add(entry);
+			list.add(new StockNameType(stockCode, name));
 		}
 		
 		return list;
@@ -156,12 +151,12 @@ public class UpdateETF {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<ETF> listA = getList(URL_A, PAGE_FILE_A);
+		var listA = getList(URL_A, PAGE_FILE_A);
 		logger.info("listA  {}", listA.size());
-		List<ETF> listB = getList(URL_B, PAGE_FILE_B);
+		var listB = getList(URL_B, PAGE_FILE_B);
 		logger.info("listB  {}", listB.size());
 		
-		Map<String, ETF> map = new TreeMap<>();
+		Map<String, StockNameType> map = new TreeMap<>();
 		for(var e: listA) {
 			map.put(e.stockCode, e);
 		}
@@ -175,8 +170,8 @@ public class UpdateETF {
 			}
 		}
 		
-		logger.info("save   {}  {}", map.size(), ETF.getPath());
-		ETF.save(map.values());
+		logger.info("save   {}  {}", map.size(), StorageJPX.ETF.getPath());
+		StorageJPX.ETF.save(map.values());
 		
 		logger.info("STOP");
 	}

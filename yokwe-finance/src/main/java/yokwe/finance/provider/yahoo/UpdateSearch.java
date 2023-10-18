@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.finance.type.StockInfoUSType;
 import yokwe.util.http.HttpUtil;
@@ -231,7 +232,7 @@ public class UpdateSearch {
 		{
 			String label = "stock-us";
 			
-			var list = yokwe.finance.stock.StockInfoUS.getList().stream().map(o -> StockInfoUSType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
+			var list = StorageStock.StockInfoUS.getList().stream().map(o -> StockInfoUSType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
 			logger.info("{}  list  {}", label, list.size());
 			list.removeIf(o -> map.containsKey(o));
 			logger.info("{}  list  {}", label, list.size());
@@ -243,7 +244,7 @@ public class UpdateSearch {
 		{
 			String label = "stock-jp";
 			
-			var list = yokwe.finance.stock.StockInfoJP.getList().stream().map(o -> StockInfoJPType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
+			var list = StorageStock.StockInfoJP.getList().stream().map(o -> StockInfoJPType.toYahooSymbol(o.stockCode)).collect(Collectors.toList());
 			logger.info("{}  list  {}", label, list.size());
 			list.removeIf(o -> map.containsKey(o));
 			logger.info("{}  list  {}", label, list.size());

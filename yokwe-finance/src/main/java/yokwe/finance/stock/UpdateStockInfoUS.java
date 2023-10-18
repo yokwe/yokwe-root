@@ -3,26 +3,26 @@ package yokwe.finance.stock;
 import java.io.IOException;
 import java.util.HashSet;
 
-import yokwe.finance.provider.bats.StockInfoBATS;
-import yokwe.finance.provider.monex.TradingStockMonex;
-import yokwe.finance.provider.moomoo.TradingStockMoomoo;
-import yokwe.finance.provider.nasdaq.StockInfoNasdaq;
-import yokwe.finance.provider.nyse.StockInfoNYSE;
-import yokwe.finance.provider.rakuten.TradingStockRakuten;
-import yokwe.finance.provider.sbi.TradingStockSBI;
+import yokwe.finance.provider.bats.StorageBATS;
+import yokwe.finance.provider.monex.StorageMonex;
+import yokwe.finance.provider.moomoo.StorageMoomoo;
+import yokwe.finance.provider.nasdaq.StorageNasdaq;
+import yokwe.finance.provider.nyse.StorageNYSE;
+import yokwe.finance.provider.rakuten.StorageRakuten;
+import yokwe.finance.provider.sbi.StorageSBI;
 import yokwe.finance.type.StockInfoUSType.Market;
 
 public class UpdateStockInfoUS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static void update() {
-		var list = StockInfoNYSE.getList();
+		var list = StorageNYSE.StockInfoNYSE.getList();
 		logger.info("list1       {}", list.size());
 		{
 			// make set of genuine stockCode from each market
-			var batsList   = StockInfoBATS.getList().stream().filter(o -> o.market == Market.BATS).map(o -> o.stockCode).toList();
-			var nasdaqList = StockInfoNasdaq.getList().stream().filter(o -> o.market == Market.NASDAQ).map(o -> o.stockCode).toList();
-			var nyseList   = StockInfoNYSE.getList().stream().filter(o -> o.market == Market.NYSE).map(o -> o.stockCode).toList();
+			var batsList   = StorageBATS.StockInfoBATS.getList().stream().filter(o -> o.market == Market.BATS).map(o -> o.stockCode).toList();
+			var nasdaqList = StorageNasdaq.StockInfoNasdaq.getList().stream().filter(o -> o.market == Market.NASDAQ).map(o -> o.stockCode).toList();
+			var nyseList   = StorageNYSE.StockInfoNYSE.getList().stream().filter(o -> o.market == Market.NYSE).map(o -> o.stockCode).toList();
 			logger.info("batsList    {}", batsList.size());
 			logger.info("nasdaqList  {}", nasdaqList.size());
 			logger.info("nyseList    {}", nyseList.size());
@@ -39,10 +39,10 @@ public class UpdateStockInfoUS {
 		}
 		{
 			// make set of trading stockCode of each broakerage
-			var monexList   = TradingStockMonex.getList().stream().map(o -> o.stockCode).toList();
-			var moomooList  = TradingStockMoomoo.getList().stream().map(o -> o.stockCode).toList();
-			var rakutenList = TradingStockRakuten.getList().stream().map(o -> o.stockCode).toList();
-			var sbiList     = TradingStockSBI.getList().stream().map(o -> o.stockCode).toList();
+			var monexList   = StorageMonex.TradingStockMonex.getList().stream().map(o -> o.stockCode).toList();
+			var moomooList  = StorageMoomoo.TradingStockMoomoo.getList().stream().map(o -> o.stockCode).toList();
+			var rakutenList = StorageRakuten.TradingStockRakuten.getList().stream().map(o -> o.stockCode).toList();
+			var sbiList     = StorageSBI.TradingStockSBI.getList().stream().map(o -> o.stockCode).toList();
 			
 			logger.info("monexList   {}", monexList.size());
 			logger.info("moomooList  {}", moomooList.size());
@@ -60,8 +60,8 @@ public class UpdateStockInfoUS {
 			logger.info("list3       {}", list.size());
 		}
 		
-		logger.info("save  {}  {}", list.size(), StockInfoUS.getPath());
-		StockInfoUS.save(list);
+		logger.info("save  {}  {}", list.size(), StorageStock.StockInfoUS.getPath());
+		StorageStock.StockInfoUS.save(list);
 	}
 	
 	public static void main(String[] args) throws IOException {

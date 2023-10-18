@@ -61,7 +61,7 @@ public class UpdateStockPriceUS {
 				LocalDate  stopDate   = lastTradingDate;
 				String     name       = e.name;
 				
-				var list = StockPriceUS.getList(stockCode);
+				var list = StorageStock.StockPriceUS.getList(stockCode);
 				if (list.isEmpty()) {
 					startDate = EPOCH_DATE;
 					countA++;
@@ -112,7 +112,7 @@ public class UpdateStockPriceUS {
 			}
 			
 			// read existing data
-			var list = StockPriceUS.getList(stockCode);
+			var list = StorageStock.StockPriceUS.getList(stockCode);
 			var set  = list.stream().map(o -> o.date).collect(Collectors.toSet());
 			int countAdd = 0;
 			for(var row: historical.data.tradesTable.rows) {
@@ -146,7 +146,7 @@ public class UpdateStockPriceUS {
 
 //			logger.info("save  {}  {}", list.size(), StockPrice.getPath(stockCode));
 			if (countAdd != 0) {
-				StockPriceUS.save(stockCode, list);
+				StorageStock.StockPriceUS.save(stockCode, list);
 				countMod++;
 			}
 		}
@@ -161,8 +161,8 @@ public class UpdateStockPriceUS {
 	
 	private static void update() {
 		var lastTradingDate = MarketHoliday.US.getLastTradingDate();
+		var stockList       = StorageStock.StockInfoUS.getList();
 		logger.info("date     {}", lastTradingDate);
-		var stockList       = StockInfoUS.getList();
 		logger.info("list     {}", stockList.size());
 
 		for(int count = 1; count < 10; count++) {
@@ -187,12 +187,12 @@ public class UpdateStockPriceUS {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StockInfoUS.getList()) {
-			File file = new File(StockPriceUS.getPath(e.stockCode));
+		for(var e: StorageStock.StockInfoUS.getList()) {
+			File file = new File(StorageStock.StockPriceUS.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StockPriceUS.getPath(), StockPriceUS.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StorageStock.StockPriceUS.getPath(), StorageStock.StockPriceUS.getPathDelist());
 	}
 	
 	

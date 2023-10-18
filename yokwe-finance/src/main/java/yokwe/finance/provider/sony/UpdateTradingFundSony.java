@@ -10,8 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -115,7 +114,7 @@ public class UpdateTradingFundSony {
 		{
 			String page;
 			{
-				String filePath = Storage.provider_sony.getPath("page", "SFBA1700F471.js");
+				String filePath = StorageSony.getPath("page", "SFBA1700F471.js");
 				page = download(URL, CHARSET, filePath, DEBUG_USE_FILE);
 			}
 			
@@ -150,7 +149,7 @@ public class UpdateTradingFundSony {
 		
 		var list = new ArrayList<TradingFundType>();
 		{
-			var isinCodeSet = FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+			var isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 			
 			int countA = 0;
 			int countB = 0;
@@ -178,8 +177,8 @@ public class UpdateTradingFundSony {
 			logger.info("countC    {}", countC);
 		}
 		
-		logger.info("save  {}  {}", list.size(), TradingFundSony.getPath());
-		TradingFundSony.save(list);
+		logger.info("save  {}  {}", list.size(), StorageSony.TradingFundSony.getPath());
+		StorageSony.TradingFundSony.save(list);
 	}
 	
 	public static void main(String[] args) {

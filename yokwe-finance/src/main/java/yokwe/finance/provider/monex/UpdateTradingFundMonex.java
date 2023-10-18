@@ -9,8 +9,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -53,7 +52,7 @@ public class UpdateTradingFundMonex {
 		return "https://fund.monex.co.jp/search?page=" + pageNo + "&pagesize=100";
 	}
 	private static String getPath(int pageNo) {
-		return Storage.provider_monex.getPath("page", pageNo + ".html");
+		return StorageMonex.getPath("page", pageNo + ".html");
 	}
 	
 	
@@ -84,10 +83,10 @@ public class UpdateTradingFundMonex {
 	private static void update() {
 		var list = new ArrayList<TradingFundType>();
 		{
-			var fundCodeMap = FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
+			var fundCodeMap = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
 			Map<String, String> fundNameMap;
 			{
-				var fundInfoList = FundInfo.getList();
+				var fundInfoList = StorageFund.FundInfo.getList();
 				
 				var dupSet = new HashSet<String>();
 				var nameSet = new HashSet<String>();
@@ -143,8 +142,8 @@ public class UpdateTradingFundMonex {
 			logger.info("skiep   {}", countSkip);
 		}
 		
-		logger.info("save  {}  {}", list.size(), TradingFundMonex.getPath());
-		TradingFundMonex.save(list);
+		logger.info("save  {}  {}", list.size(), StorageMonex.TradingFundMonex.getPath());
+		StorageMonex.TradingFundMonex.save(list);
 	}
 	
 	

@@ -8,8 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
@@ -69,7 +68,7 @@ public class UpdateTradingFundNikko {
 	private static void update() {
 		String page;
 		{
-			String filePath = Storage.provider_nikko.getPath("coursedata.csv");
+			String filePath = StorageNikko.getPath("coursedata.csv");
 			page = download(URL, CHARSET, filePath, DEBUG_USE_FILE);
 		}
 		var fundList = CSVUtil.read(CourseData.class).withHeader(false).withSeparator('|').file(new StringReader(page));
@@ -78,7 +77,7 @@ public class UpdateTradingFundNikko {
 		var list = new ArrayList<TradingFundType>();
 		{
 			Pattern pat = Pattern.compile("(?<percent>[0-9]+\\.[0-9]+)％");
-			var fundCodeMap = FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
+			var fundCodeMap = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
 			logger.info("fundCode  {}", fundCodeMap.size());
 
 			Pattern patFund = Pattern.compile("銘柄コード：(?<nikkoCode>.{4})　投信協会コード：(?<fundCode>.{8})");
@@ -161,8 +160,8 @@ public class UpdateTradingFundNikko {
 			logger.info("countH  {}", countH);
 		}
 		
-		logger.info("save  {}  {}", list.size(), TradingFundNikko.getPath());
-		TradingFundNikko.save(list);
+		logger.info("save  {}  {}", list.size(), StorageNikko.TradingFundNikko.getPath());
+		StorageNikko.TradingFundNikko.save(list);
 	}
 	
 	

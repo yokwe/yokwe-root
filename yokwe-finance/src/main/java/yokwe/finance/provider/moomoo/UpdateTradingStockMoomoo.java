@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.stock.StockInfoUS;
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -22,7 +21,7 @@ public class UpdateTradingStockMoomoo {
 	
 	private static final String URL       = "https://www.moomoo.com/jp/support/topic7_134";
 	private static final String CHARSET   = "UTF-8";
-	private static final String FILE_PATH = Storage.provider_moomoo.getPath("topic7_134.html");
+	private static final String FILE_PATH = StorageMoomoo.getPath("topic7_134.html");
 	
 	private static String download(String url, String charset, String filePath, boolean useFile) {
 		final String page;
@@ -103,14 +102,14 @@ public class UpdateTradingStockMoomoo {
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StorageStock.StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 
 		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());
 		logger.info("list2      {}", list2.size());
 		
-		logger.info("save  {}  {}", list2.size(), TradingStockMoomoo.getPath());
-		TradingStockMoomoo.save(list2);
+		logger.info("save  {}  {}", list2.size(), StorageMoomoo.TradingStockMoomoo.getPath());
+		StorageMoomoo.TradingStockMoomoo.save(list2);
 	}
 	
 	

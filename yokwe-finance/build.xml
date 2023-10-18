@@ -142,16 +142,16 @@
 	
 
 	<!-- Provider JREIT -->
-	<target name="provider-jreit-update-reit-info">
-		<java module="yokwe.finance/yokwe.finance.provider.jreit.UpdateREITInfo" fork="true">
+	<target name="provider-jreit-update-jreit-info">
+		<java module="yokwe.finance/yokwe.finance.provider.jreit.UpdateJREITInfo" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provider-jreit-update-reit-div">
-		<java module="yokwe.finance/yokwe.finance.provider.jreit.UpdateREITDiv" fork="true">
+	<target name="provider-jreit-update-jreit-div">
+		<java module="yokwe.finance/yokwe.finance.provider.jreit.UpdateJREITDiv" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />

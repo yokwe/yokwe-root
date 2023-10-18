@@ -74,8 +74,8 @@ save-report: check-data-path
 # JREIT
 #
 update-jreit:
-	ant provider-jreit-update-reit-info
-	ant provider-jreit-update-reit-div
+	ant provider-jreit-update-jreit-info
+	ant provider-jreit-update-jreit-div
 	
 
 #
@@ -155,3 +155,14 @@ update-stock-price-us:
 
 update-stock-div-us:
 	ant stock-update-stock-div-us
+
+
+#
+# REPORT
+#
+
+report-stock-stats-us: kill-soffice
+	ant reprot-update-stock-stats-us
+
+report-stock-stats-jp: kill-soffice
+	ant reprot-update-stock-stats-jp

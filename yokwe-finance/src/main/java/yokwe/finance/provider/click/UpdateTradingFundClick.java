@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -110,7 +109,7 @@ public class UpdateTradingFundClick {
 		return String.format("https://ot36.qhit.net/gmo-clsec/qsearch.exe?%s", string);
 	}
 	
-	private static Set<String> isinCodeSet = FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+	private static Set<String> isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 	
 	private static void updateList(List<TradingFundType> list) {
 		int before = 0;
@@ -118,7 +117,7 @@ public class UpdateTradingFundClick {
 			String page;
 			{
 				String url      = getURL(before);
-				String filePath = Storage.provider_click.getPath("page-" + before + ".html");
+				String filePath = StorageClick.getPath("page-" + before + ".html");
 				page = download(url, CHARSET, filePath, DEBUG_USE_FILE).replace("callFunds(", "").replace(");", "").replace("\n\n,\n", "\n\n\n");
 			}
 
@@ -151,8 +150,8 @@ public class UpdateTradingFundClick {
 
 		updateList(list);
 		
-		logger.info("save  {}  {}", list.size(), TradingFundClick.getPath());
-		TradingFundClick.save(list);
+		logger.info("save  {}  {}", list.size(), StorageClick.TradingFundClick.getPath());
+		StorageClick.TradingFundClick.save(list);
 	}
 	
 	

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -86,18 +85,17 @@ public class UpdateForeignStock {
 		}
 	}
 	
-	private static List<ForeignStock> getList(String url, String pageFile) {
+	private static List<StockNameType> getList(String url, String pageFile) {
 		String charset  = "UTF-8";
-		String filePath = Storage.provider_jpx.getPath(pageFile);
+		String filePath = StorageJPX.getPath(pageFile);
 		String page     = download(url, charset, filePath, DEBUG_USE_FILE);
 		
-		List<ForeignStock> list = new ArrayList<>();
+		List<StockNameType> list = new ArrayList<>();
 		for(var e: ForeignInfo.getInstance(page)) {
-			ForeignStock entry = new ForeignStock();
-			entry.name      = e.name;
-			entry.stockCode = StockInfoJPType.toStockCode5(e.stockCode);
+			String name      = e.name;
+			String stockCode = StockInfoJPType.toStockCode5(e.stockCode);
 
-			list.add(entry);
+			list.add(new StockNameType(stockCode, name));
 		}
 		
 		return list;
@@ -106,11 +104,11 @@ public class UpdateForeignStock {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<ForeignStock> list = getList(URL, PAGE_FILE);
+		List<StockNameType> list = getList(URL, PAGE_FILE);
 		logger.info("list  {}", list.size());
 				
-		logger.info("save  {}  {}", list.size(), ForeignStock.getPath());
-		ForeignStock.save(list);
+		logger.info("save  {}  {}", list.size(), StorageJPX.ForeignStock.getPath());
+		StorageJPX.ForeignStock.save(list);
 		
 		logger.info("STOP");
 	}

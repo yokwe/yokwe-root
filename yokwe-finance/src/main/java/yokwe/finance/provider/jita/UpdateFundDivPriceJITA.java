@@ -13,7 +13,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.FundPriceJP;
 import yokwe.util.CSVUtil;
-import yokwe.util.ListUtil;
+import yokwe.util.ListUtil; // FIXME
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -132,8 +132,8 @@ public class UpdateFundDivPriceJITA {
 			}
 			
 			// save divList and priceList
-			if (!divList.isEmpty())   FundDivJITA.save(isinCode, divList);
-			if (!priceList.isEmpty()) FundPriceJITA.save(isinCode, priceList);
+			if (!divList.isEmpty())   StorageJITA.FundDivJITA.save(isinCode, divList);
+			if (!priceList.isEmpty()) StorageJITA.FundPriceJITA.save(isinCode, priceList);
 		}
 	}
 
@@ -142,7 +142,7 @@ public class UpdateFundDivPriceJITA {
 		Download download = new DownloadSync();
 		initialize(download);
 		
-		var fundList = FundInfoJITA.getList();
+		var fundList = StorageJITA.FundInfoJITA.getList();
 		Collections.shuffle(fundList); // shuffle fundList
 		for(var fund: fundList) {
 			String isinCode = fund.isinCode;

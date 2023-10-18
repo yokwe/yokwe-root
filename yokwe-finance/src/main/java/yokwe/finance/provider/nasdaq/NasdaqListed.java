@@ -3,9 +3,8 @@ package yokwe.finance.provider.nasdaq;
 import java.util.Collection;
 import java.util.List;
 
-import yokwe.finance.Storage;
 import yokwe.util.CSVUtil;
-import yokwe.util.ListUtil;
+import yokwe.util.ListUtil; // FIXME
 import yokwe.util.StringUtil;
 
 public class NasdaqListed implements Comparable<NasdaqListed> {
@@ -42,8 +41,8 @@ public class NasdaqListed implements Comparable<NasdaqListed> {
 
 	public static final String URL = "ftp://ftp.nasdaqtrader.com/symboldirectory/nasdaqlisted.txt";
 	
-	public static final String PATH_TXT = Storage.provider_nasdaq.getPath("nasdaqlisted.txt");
-	public static final String PATH_CSV = Storage.provider_nasdaq.getPath("nasdaqlisted.csv");
+	public static final String PATH_TXT = StorageNasdaq.getPath("nasdaqlisted.txt");
+	public static final String PATH_CSV = StorageNasdaq.getPath("nasdaqlisted.csv");
 		
 	public static String getPath() {
 		return PATH_CSV;

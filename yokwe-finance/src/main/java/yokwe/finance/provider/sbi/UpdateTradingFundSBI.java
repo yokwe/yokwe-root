@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -202,12 +201,12 @@ public class UpdateTradingFundSBI {
 	
 	private static String getPage(int pageNo) {
 		String postBody = getPostBody(pageNo);
-		String filePath = Storage.provider_sbi.getPath("page", String.format("search-%d.json", pageNo));
+		String filePath = StorageSBI.getPath("page", String.format("search-%d.json", pageNo));
 
 		return download(URL, postBody, filePath, DEBUG_USE_FILE);
 	}
 	
-	private static final Map<String, String> isinCodeMap = FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
+	private static final Map<String, String> isinCodeMap = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
 	//                       fundCode isinCdoes
 	
 	private static void update() {
@@ -266,8 +265,8 @@ public class UpdateTradingFundSBI {
 		logger.info("countB  {}", countB);
 		logger.info("total   {}", totalCount);
 		
-		logger.info("save  {}  {}", list.size(), TradingFundSBI.getPath());
-		TradingFundSBI.save(list);
+		logger.info("save  {}  {}", list.size(), StorageSBI.TradingFundSBI.getPath());
+		StorageSBI.TradingFundSBI.save(list);
 	}
 	
 	public static void main(String[] args) {

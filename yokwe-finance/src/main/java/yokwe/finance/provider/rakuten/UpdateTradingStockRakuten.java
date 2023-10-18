@@ -11,8 +11,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.stock.StockInfoUS;
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
@@ -52,7 +51,7 @@ public class UpdateTradingStockRakuten {
 	static final class BuyFreeETF {
 		private static final String URL       = "https://www.rakuten-sec.co.jp/web/foreign/etf/etf-etn-reit/lineup/0-etf.html";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = Storage.provider_rakuten.getPath("0-etf.html");
+		private static final String FILE_PATH = StorageRakuten.getPath("0-etf.html");
 		
 		//<tr>
 		//  <td class="ta-c va-m" rowspan="2"><a href="https://www.rakuten-sec.co.jp/web/market/search/us_search/quote.html?ric=AGG.P">AGG</a><br><strong>【NEW】</strong></td>
@@ -104,7 +103,7 @@ public class UpdateTradingStockRakuten {
 	private static final class STOCK {
 		private static final String URL       = "https://www.trkd-asia.com/rakutensec/exportcsvus?all=on&vall=on&r1=on&forwarding=na&target=0&theme=na&returns=na&head_office=na&name=&sector=na&pageNo=&c=us&p=result";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = Storage.provider_rakuten.getPath("exportcsvus.csv");
+		private static final String FILE_PATH = StorageRakuten.getPath("exportcsvus.csv");
 
 		public static final String TRADEABLE_YES = "○";
 		
@@ -158,7 +157,7 @@ public class UpdateTradingStockRakuten {
 	public static final class ETF {
 		private static final String URL       = "https://www.rakuten-sec.co.jp/web/market/search/etf_search/ETFD.csv";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = Storage.provider_rakuten.getPath("etfd.csv");
+		private static final String FILE_PATH = StorageRakuten.getPath("etfd.csv");
 
 		static class Data {
 			public String f01;
@@ -299,14 +298,14 @@ public class UpdateTradingStockRakuten {
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StorageStock.StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 
 		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());
 		logger.info("list2      {}", list2.size());
 		
-		logger.info("save  {}  {}", list2.size(), TradingStockRakuten.getPath());
-		TradingStockRakuten.save(list2);
+		logger.info("save  {}  {}", list2.size(), StorageRakuten.TradingStockRakuten.getPath());
+		StorageRakuten.TradingStockRakuten.save(list2);
 	}
 	
 	public static void main(String[] args) {

@@ -5,10 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import yokwe.finance.Storage;
-import yokwe.finance.stock.StockDivJP;
-import yokwe.finance.stock.StockInfoJP;
-import yokwe.finance.stock.StockPriceJP;
+import yokwe.finance.provider.yahoo.StorageYahoo;
+import yokwe.finance.stock.StorageStock;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 import yokwe.util.libreoffice.LibreOffice;
@@ -28,19 +26,25 @@ public class UpdateStockStatsJP {
 		
 		var list = new ArrayList<StockStatsJP>();
 		{
-			for(var stockInfo: StockInfoJP.getList()) {
+			var companyInfoMap = StorageYahoo.CompanyInfoJPYahoo.getMap();
+			
+			for(var stockInfo: StorageStock.StockInfoJP.getList()) {
 				var stockCode = stockInfo.stockCode;
-				var priceList = StockPriceJP.getList(stockCode);
-				var divList   = StockDivJP.getList(stockCode);
+				var priceList = StorageStock.StockPriceJP.getList(stockCode);
+				var divList   = StorageStock.StockDivJP.getList(stockCode);
 				
 				if (priceList.size() < 10) {
 					logger.info("skip  {}  {}", stockCode, priceList.size());
 					continue;
 				}
 				
+				var companyInfo = companyInfoMap.get(stockCode);
+				
 				StockStatsJP stats = new StockStatsJP();
 				stats.stockCode = stockCode;
 				stats.type      = stockInfo.type.simpleType.toString();
+				stats.sector    = companyInfo != null ? companyInfo.sector   : "*Unknown*";
+				stats.industry  = companyInfo != null ? companyInfo.industry : "*Unknown*";
 				stats.name      = stockInfo.name;
 				
 				{
@@ -79,7 +83,8 @@ public class UpdateStockStatsJP {
 		{
 			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
 			String name       = String.format("stock-stats-jp-%s.ods", timestamp);
-			String pathReport = Storage.report_stock_stats_jp.getPath(name);
+			String pathReport = StorageReport.getPath("stock-stats-jp", name);
+			
 			urlReport  = StringUtil.toURLString(pathReport);
 		}
 
@@ -116,8 +121,8 @@ public class UpdateStockStatsJP {
 	
 	private static void update() {
 		var statsList = getStatsList();
-		logger.info("save {} {}", statsList.size(), StockStatsJP.getPath());
-		StockStatsJP.save(statsList);
+		logger.info("save {} {}", statsList.size(), StorageReport.StockStatsJP.getPath());
+		StorageReport.StockStatsJP.save(statsList);
 		
 		generateReport(statsList);
 	}

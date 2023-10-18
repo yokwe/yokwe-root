@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
 import yokwe.finance.provider.nasdaq.api.CompanyProfile;
-import yokwe.finance.stock.StockInfoUS;
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.CompanyInfoType;
 import yokwe.finance.type.StockInfoUSType;
 
@@ -17,7 +17,7 @@ public class UpdateCompanyInfoNasdaq {
 
 	private static int updateCompanyInfo() {
 		// read existing data
-		var list = CompanyInfoNasdaq.getList().stream().collect(Collectors.toList());
+		var list = StorageNasdaq.CompanyInfoNasdaq.getList().stream().collect(Collectors.toList());
 		logger.info("companyInfo  {}", list.size());
 		// remove if sector or industry is empty
 		list.removeIf(o -> o.sector.isEmpty() || o.industry.isEmpty());
@@ -27,7 +27,7 @@ public class UpdateCompanyInfoNasdaq {
 		logger.info("companyInfo  {}", list.size());
 		
 		// set of required stockCode
-		var stockInfoList = StockInfoUS.getList();
+		var stockInfoList = StorageStock.StockInfoUS.getList();
 		logger.info("stockInfo    {}", stockInfoList.size());
 		// remove if not stock
 		stockInfoList.removeIf(o -> !o.type.isStock());
@@ -71,12 +71,12 @@ public class UpdateCompanyInfoNasdaq {
 			list.add(new CompanyInfoType(stockCode, sector, industry));
 			countMod++;
 			
-			if ((countMod % 10) == 1) CompanyInfoNasdaq.save(list);
+			if ((countMod % 10) == 1) StorageNasdaq.CompanyInfoNasdaq.save(list);
 		}
 		
 		logger.info("countMod  {}", countMod);
-		logger.info("save  {}  {}", list.size(), CompanyInfoNasdaq.getPath());
-		CompanyInfoNasdaq.save(list);
+		logger.info("save  {}  {}", list.size(), StorageNasdaq.CompanyInfoNasdaq.getPath());
+		StorageNasdaq.CompanyInfoNasdaq.save(list);
 		
 		return countMod;
 	}

@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -51,12 +50,12 @@ public class UpdateTradingFundNomura {
 	private static final int MAXDISP = 50;
 	private static String downloadPage_ALL(int pageNo) {
 		String url      = String.format("https://advance.quote.nomura.co.jp/meigara/nomura2/qsearch.exe?F=users/nomura/list2&MAXDISP=%d&GO_BEFORE=&BEFORE=%d", MAXDISP, MAXDISP * (pageNo - 1));
-		String filePath = Storage.provider_nomura.getPath("page", "all-" + pageNo + ".html");
+		String filePath = StorageNomura.getPath("page", "all-" + pageNo + ".html");
 		return download(url, CHARSET, filePath, DEBUG_USE_FILE);
 	}
 	private static String downloadPage_NOLOAD(int pageNo) {
 		String url      = String.format("https://advance.quote.nomura.co.jp/meigara/nomura2/qsearch.exe?F=users/nomura/list2&MAXDISP=%d&KEY37=1&GO_BEFORE=&BEFORE=%d", MAXDISP, MAXDISP * (pageNo - 1));
-		String filePath = Storage.provider_nomura.getPath("page", "noload-" + pageNo + ".html");
+		String filePath = StorageNomura.getPath("page", "noload-" + pageNo + ".html");
 		return download(url, CHARSET, filePath, DEBUG_USE_FILE);
 	}
 	
@@ -93,7 +92,7 @@ public class UpdateTradingFundNomura {
 		}
 	}
 	
-	static final Map<String, String> fundCodeMap = FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
+	static final Map<String, String> fundCodeMap = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
 	//               fundCode isinCode
 	
 	private static void updateSet(Set<String> set, String page) {
@@ -153,8 +152,8 @@ public class UpdateTradingFundNomura {
 				list.add(new TradingFundType(isinCode, noloadSet.contains(isinCode) ? BigDecimal.ZERO : TradingFundType.SALES_FEE_UNKNOWN));
 			}
 		}
-		logger.info("save  {}  {}", list.size(), TradingFundNomura.getPath());
-		TradingFundNomura.save(list);
+		logger.info("save  {}  {}", list.size(), StorageNomura.TradingFundNomura.getPath());
+		StorageNomura.TradingFundNomura.save(list);
 	}
 	
 	public static void main(String[] args) {

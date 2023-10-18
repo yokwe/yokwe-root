@@ -1,9 +1,5 @@
 package yokwe.finance.report;
 
-import java.util.List;
-
-import yokwe.finance.Storage;
-import yokwe.util.ListUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.libreoffice.Sheet;
 
@@ -11,20 +7,13 @@ import yokwe.util.libreoffice.Sheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public final class StockStatsUS extends Sheet implements Comparable<StockStatsUS> {
-	private static final String PATH_FILE = Storage.report.getPath("stock-stats-us.csv");
-
-	public static String getPath() {
-		return PATH_FILE;
-	}
-	public static void save(List<StockStatsUS> list) {
-		ListUtil.save(StockStatsUS.class, getPath(), list);
-	}
-
 	@Sheet.ColumnName("stockCode") public String stockCode;
 	
-	@Sheet.ColumnName("type") public String type;
-	@Sheet.ColumnName("name") public String name;
-	@Sheet.ColumnName("date") public String date;
+	@Sheet.ColumnName("type")     public String type;
+	@Sheet.ColumnName("sector")   public String sector;
+	@Sheet.ColumnName("industry") public String industry;
+	@Sheet.ColumnName("name")     public String name;
+	@Sheet.ColumnName("date")     public String date;
 	
 	// current price and volume
 	@Sheet.ColumnName("pricec") public int    pricec;

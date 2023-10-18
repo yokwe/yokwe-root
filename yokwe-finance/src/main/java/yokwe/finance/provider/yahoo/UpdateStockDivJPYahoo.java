@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import yokwe.finance.stock.StockInfoJP;
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -67,13 +67,13 @@ public class UpdateStockDivJPYahoo {
 			LocalDate  startDate;
 			LocalDate  stopDatePlusOne = LocalDate.ofInstant(now, ZONE_ID).plusDays(1);
 			
-			String path = StockDivJPYahoo.getPath(stockCode);
+			String path = StorageYahoo.StockDivJPYahoo.getPath(stockCode);
 			if (FileUtil.canRead(path)) {
 				Instant  lastModified = FileUtil.getLastModified(path);
 				Duration duration     = Duration.between(lastModified, now);
 				if (GRACE_PERIOD_IN_DAYS < duration.toDays()) {
 					// after grace period
-					var list = StockDivJPYahoo.getList(stockCode);
+					var list =  StorageYahoo.StockDivJPYahoo.getList(stockCode);
 					if (list.isEmpty()) {
 						startDate = EPOCH_DATE;
 						countA++;
@@ -143,11 +143,11 @@ public class UpdateStockDivJPYahoo {
 			}
 			
 			// list has existing values
-			var list = StockDivJPYahoo.getList(stockCode);
+			var list = StorageYahoo.StockDivJPYahoo.getList(stockCode);
 			if (divList.isEmpty()) {
 				if (list.isEmpty()) {
 					// Update last modified time of file
-					StockDivJPYahoo.save(stockCode, list);
+					StorageYahoo.StockDivJPYahoo.save(stockCode, list);
 				}
 				countB++;
 				continue;
@@ -176,7 +176,7 @@ public class UpdateStockDivJPYahoo {
 			countC++;
 			if (countChange != 0) countMod++;
 
-			StockDivJPYahoo.save(stockCode, map.values());
+			StorageYahoo.StockDivJPYahoo.save(stockCode, map.values());
 		}
 		
 		logger.info("countA   {}", countA);
@@ -191,7 +191,7 @@ public class UpdateStockDivJPYahoo {
 		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAYS);
 
 		// Use StockInfo of stock us
-		var stockList = StockInfoJP.getList().stream().filter(o -> o.type.isDomesticStock() || o.type.isForeignStock()).collect(Collectors.toList());
+		var stockList = StorageStock.StockInfoJP.getList().stream().filter(o -> o.type.isDomesticStock() || o.type.isForeignStock()).collect(Collectors.toList());
 		logger.info("stock     {}", stockList.size());
 		
 		for(int count = 1; count < 10; count++) {
@@ -215,12 +215,12 @@ public class UpdateStockDivJPYahoo {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StockInfoJP.getList()) {
-			File file = new File(StockDivJPYahoo.getPath(e.stockCode));
+		for(var e: StorageStock.StockInfoJP.getList()) {
+			File file = new File(StorageYahoo.StockDivJPYahoo.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StockDivJPYahoo.getPath(), StockDivJPYahoo.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StorageYahoo.StockDivJPYahoo.getPath(), StorageYahoo.StockDivJPYahoo.getPathDelist());
 	}
 
 	public static void main(String[] args) throws IOException {

@@ -15,27 +15,27 @@ import yokwe.util.http.HttpUtil;
 public class UpdateStockInfoJPX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static Map<Listing.Type, StockInfoJPType.Type> typeMap = new TreeMap<>();
+	private static Map<ListingType.Type, StockInfoJPType.Type> typeMap = new TreeMap<>();
 	static {
-		typeMap.put(Listing.Type.DOMESTIC_GROWTH,   StockInfoJPType.Type.DOMESTIC_GROWTH);
-		typeMap.put(Listing.Type.DOMESTIC_STANDARD, StockInfoJPType.Type.DOMESTIC_STANDARD);
-		typeMap.put(Listing.Type.DOMESTIC_PRIME,    StockInfoJPType.Type.DOMESTIC_PRIME);
-		typeMap.put(Listing.Type.FOREIGN_GROWTH,    StockInfoJPType.Type.FOREIGN_GROWTH);
-		typeMap.put(Listing.Type.FOREIGN_STANDARD,  StockInfoJPType.Type.FOREIGN_STANDARD);
-		typeMap.put(Listing.Type.FOREIGN_PRIME,     StockInfoJPType.Type.FOREIGN_PRIME);
+		typeMap.put(ListingType.Type.DOMESTIC_GROWTH,   StockInfoJPType.Type.DOMESTIC_GROWTH);
+		typeMap.put(ListingType.Type.DOMESTIC_STANDARD, StockInfoJPType.Type.DOMESTIC_STANDARD);
+		typeMap.put(ListingType.Type.DOMESTIC_PRIME,    StockInfoJPType.Type.DOMESTIC_PRIME);
+		typeMap.put(ListingType.Type.FOREIGN_GROWTH,    StockInfoJPType.Type.FOREIGN_GROWTH);
+		typeMap.put(ListingType.Type.FOREIGN_STANDARD,  StockInfoJPType.Type.FOREIGN_STANDARD);
+		typeMap.put(ListingType.Type.FOREIGN_PRIME,     StockInfoJPType.Type.FOREIGN_PRIME);
 		//
 //		kindMap.put(JPXListing.Kind.CERTIFICATE,       StockInfoJP.Kind.CERTIFICATE);
 //		kindMap.put(JPXListing.Kind.PRO_MARKET,        StockInfoJP.Kind.PRO_MARKET);
 	}
 	
-	private static Map<Listing.Topix, StockInfoJPType.Topix> topixMap = new TreeMap<>();
+	private static Map<ListingType.Topix, StockInfoJPType.Topix> topixMap = new TreeMap<>();
 	static {
-		topixMap.put(Listing.Topix.CORE_30,  StockInfoJPType.Topix.CORE_30);
-		topixMap.put(Listing.Topix.LARGE_70, StockInfoJPType.Topix.LARGE_70);
-		topixMap.put(Listing.Topix.MID_400,  StockInfoJPType.Topix.MID_400);
-		topixMap.put(Listing.Topix.SMALL_1,  StockInfoJPType.Topix.SMALL_1);
-		topixMap.put(Listing.Topix.SMALL_2,  StockInfoJPType.Topix.SMALL_2);
-		topixMap.put(Listing.Topix.OTHER,    StockInfoJPType.Topix.OTHER);
+		topixMap.put(ListingType.Topix.CORE_30,  StockInfoJPType.Topix.CORE_30);
+		topixMap.put(ListingType.Topix.LARGE_70, StockInfoJPType.Topix.LARGE_70);
+		topixMap.put(ListingType.Topix.MID_400,  StockInfoJPType.Topix.MID_400);
+		topixMap.put(ListingType.Topix.SMALL_1,  StockInfoJPType.Topix.SMALL_1);
+		topixMap.put(ListingType.Topix.SMALL_2,  StockInfoJPType.Topix.SMALL_2);
+		topixMap.put(ListingType.Topix.OTHER,    StockInfoJPType.Topix.OTHER);
 	}
 	
 	
@@ -45,11 +45,11 @@ public class UpdateStockInfoJPX {
 		// build map using listing, etf, etn, infrafund and reit of jpx
 		Map<String, StockInfoJPType> map = new TreeMap<>();
 		{
-			var listingList = Listing.getList();
-			var etfMap      = ETF.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
-			var etnMap      = ETN.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
-			var infraMap    = InfraFund.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
-			var reitMap     = REIT.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
+			var listingList = StorageJPX.Listing.getList();
+			var etfMap      = StorageJPX.ETF.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
+			var etnMap      = StorageJPX.ETN.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
+			var infraMap    = StorageJPX.InfraFund.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
+			var reitMap     = StorageJPX.REIT.getList().stream().collect(Collectors.toMap(o -> o.stockCode, Function.identity()));
 			logger.info("listing    {}", listingList.size());
 			logger.info("etf        {}", etfMap.size());
 			logger.info("etn        {}", etnMap.size());
@@ -62,7 +62,7 @@ public class UpdateStockInfoJPX {
 				String stockCode = listing.stockCode;
 				
 				// skip certificate and pro market
-				if (listing.type == Listing.Type.CERTIFICATE || listing.type == Listing.Type.PRO_MARKET) {
+				if (listing.type == ListingType.Type.CERTIFICATE || listing.type == ListingType.Type.PRO_MARKET) {
 					countSkip++;
 					continue;
 				}
@@ -197,7 +197,7 @@ public class UpdateStockInfoJPX {
 		{
 			var unknownList = new ArrayList<StockInfoJPType>();
 
-			var oldMap = StockInfoJPX.getMap();
+			var oldMap = StorageJPX.StockInfoJPX.getMap();
 			for(var entry: map.entrySet()) {
 				var stockCode    = entry.getKey();
 				var stockInfo    = entry.getValue();
@@ -258,8 +258,8 @@ public class UpdateStockInfoJPX {
 			}
 		}
 		
-		logger.info("save  {}  {}", map.size(), StockInfoJPX.getPath());
-		StockInfoJPX.save(map.values());
+		logger.info("save  {}  {}", map.size(), StorageJPX.StockInfoJPX.getPath());
+		StorageJPX.StockInfoJPX.save(map.values());
 		logger.info("STOP");
 	}
 }

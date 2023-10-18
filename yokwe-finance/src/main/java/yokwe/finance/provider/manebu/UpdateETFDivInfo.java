@@ -8,10 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
-import yokwe.finance.fund.FundPrice;
-import yokwe.finance.stock.StockInfoJP;
+import yokwe.finance.fund.StorageFund;
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
@@ -223,14 +221,14 @@ public class UpdateETFDivInfo {
 	}
 	
 	private static void update() {
-		var stockCodeList = StockInfoJP.getList().stream().filter(o -> o.type.isETF()).map(o -> o.stockCode).collect(Collectors.toList());
+		var stockCodeList = StorageStock.StockInfoJP.getList().stream().filter(o -> o.type.isETF()).map(o -> o.stockCode).collect(Collectors.toList());
 		
 		logger.info("etf  {}", stockCodeList.size());
 		
-		var stockCodeMap = FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
+		var stockCodeMap = StorageFund.FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
 		//  stockCode to isinCode
 		
-		var list = new ArrayList<ETFInfo>();
+		var list = new ArrayList<ETFInfoType>();
 		int count = 0;
 		for(var stockCode: stockCodeList) {
 			if ((++count % 20) == 1) logger.info("{}  /  {}", count, stockCodeList.size());
@@ -240,7 +238,7 @@ public class UpdateETFDivInfo {
 			final String page;
 			{
 				String body     = "{\"stockCode\":\"" + stockCode4 + "\"}";
-				String filePath = Storage.provider_manebu.getPath("page", stockCode + ".json");
+				String filePath = StorageManebu.getPath("page", stockCode + ".json");
 				
 				page = download(URL, filePath, body, CONTENT_TYPE, DEBUG_USE_FILE);
 			}
@@ -278,7 +276,7 @@ public class UpdateETFDivInfo {
 							fundUnit = BigDecimal.ONE;
 							logger.warn("No isinCode  {}  {}", stockCode, name);
 						} else {
-							var fundPriceMap = FundPrice.getMap(isinCode);
+							var fundPriceMap = StorageFund.FundPrice.getMap(isinCode);
 							if (fundPriceMap.isEmpty()) {
 								// empty fund price map
 								fundUnit = BigDecimal.ONE;
@@ -333,11 +331,11 @@ public class UpdateETFDivInfo {
 						}
 						if (!divList.isEmpty()) {
 //							logger.info("save  {}  {}", divList.size(), ETFDiv.getPath(stockCode));
-							ETFDiv.save(stockCode, divList);
+							StorageManebu.ETFDiv.save(stockCode, divList);
 						}
 					}
 					
-					list.add(new ETFInfo(stockCode, category, expenseRatio, name, divFreq, listingDate, productType, shintakuRyuhogaku, fundUnit));
+					list.add(new ETFInfoType(stockCode, category, expenseRatio, name, divFreq, listingDate, productType, shintakuRyuhogaku, fundUnit));
 				} else if (info.status.equals("-1") && info.message.equals("銘柄が見つかりませんでした。")) {
 					// not found
 				} else {
@@ -347,8 +345,8 @@ public class UpdateETFDivInfo {
 				}
 			}
 		}
-		logger.info("save  {}  {}", list.size(), ETFInfo.getPath());
-		ETFInfo.save(list);
+		logger.info("save  {}  {}", list.size(), StorageManebu.ETFInfo.getPath());
+		StorageManebu.ETFInfo.save(list);
 	}
 	
 	public static void main(String[] args) {

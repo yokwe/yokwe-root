@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import yokwe.finance.Storage;
-import yokwe.finance.provider.jpx.Listing.Type;
+import yokwe.finance.provider.jpx.ListingType.Type;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.HashCode;
@@ -25,7 +24,7 @@ public class UpdateListing {
 	
 	private static final String URL = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	
-	private static final String PATH_DATAFILE = Storage.provider_jpx.getPath("data_j.xls");
+	private static final String PATH_DATAFILE = StorageJPX.getPath("data_j.xls");
 	private static final String URL_DATAFILE  = StringUtil.toURLString(PATH_DATAFILE);
 	
 	private static final long GRACE_PERIOD_IN_DAY = 30;
@@ -77,14 +76,14 @@ public class UpdateListing {
 		}
 
 		logger.info("open  {}", URL_DATAFILE);
-		List<Listing> list = new ArrayList<>();
+		List<ListingType> list = new ArrayList<>();
 		
 		// Build newList
 		try (SpreadSheet spreadSheet = new SpreadSheet(URL_DATAFILE, true)) {
-			List<Listing> rawDataList = Sheet.extractSheet(spreadSheet, Listing.class);
+			List<ListingType> rawDataList = Sheet.extractSheet(spreadSheet, ListingType.class);
 			logger.info("read  {}", rawDataList.size());
 			
-			for(Listing rawData: rawDataList) {
+			for(ListingType rawData: rawDataList) {
 				// Trim space of rawData
 				String date = rawData.date.trim();
 				if (date.length() != 8) {
@@ -93,7 +92,7 @@ public class UpdateListing {
 					throw new UnexpectedException("Unexpected date");
 				}
 				
-				Listing value = new Listing();
+				ListingType value = new ListingType();
 				
 				value.date         = String.format("%s-%s-%s", date.substring(0, 4), date.substring(4, 6), date.substring(6, 8));;
 				value.stockCode    = StockInfoJPType.toStockCode5(rawData.stockCode.trim());
@@ -133,8 +132,8 @@ public class UpdateListing {
 			}
 			
 			// save
-			logger.info("save  {}  {}", list.size(), Listing.getPath());
-			Listing.save(list);
+			logger.info("save  {}  {}", list.size(), StorageJPX.Listing.getPath());
+			StorageJPX.Listing.save(list);
 		}
 	}
 	

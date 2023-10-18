@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoUSType;
 import yokwe.finance.type.StockInfoUSType.Market;
 import yokwe.finance.type.StockInfoUSType.Type;
@@ -20,9 +19,6 @@ import yokwe.util.UnexpectedException;
 
 public class UpdateStockInfoBATS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	private static final String PATH_TXT = Storage.provider_bats.getPath("listed-security-report.txt");
-
 	
 	private static final Map<String, Type> typeMap = new TreeMap<>();
 	static {
@@ -37,7 +33,6 @@ public class UpdateStockInfoBATS {
 		//
 		typeMap.put("Primary Equity",                 Type.COMMON);
 	}
-	
 	
 	private static void update() {
 		byte[] data;
@@ -56,12 +51,11 @@ public class UpdateStockInfoBATS {
 				throw new UnexpectedException("Download failed");
 			}
 		}
-		// save txt file
-		logger.info("save  {}  {}", data.length, PATH_TXT);
-		FileUtil.rawWrite().file(PATH_TXT, data);
 		
+		logger.info("save  {}  {}", data.length, StorageBATS.PATH_TXT);
+		FileUtil.rawWrite().file(StorageBATS.PATH_TXT, data);
 		
-		List<ListedSecurityReport>	reportList;
+		List<ListedSecurityReportType>	reportList;
 		{
 			String string;
 			{
@@ -72,11 +66,11 @@ public class UpdateStockInfoBATS {
 				string = String.join("\n", Arrays.copyOfRange(lines, 1, lines.length)) + "\n";
 			}
 			// read string as csv file
-			reportList = CSVUtil.read(ListedSecurityReport.class).withSeparator('|').file(new StringReader(string));
+			reportList = CSVUtil.read(ListedSecurityReportType.class).withSeparator('|').file(new StringReader(string));
 		}
 		// save csv file
-		logger.info("save  {}  {}", reportList.size(), ListedSecurityReport.getPath());
-		ListedSecurityReport.save(reportList);
+		logger.info("save  {}  {}", reportList.size(), StorageBATS.ListedSecurityReport.getPath());
+		StorageBATS.ListedSecurityReport.save(reportList);
 		
 		
 		List<StockInfoUSType> list = new ArrayList<>();
@@ -112,8 +106,8 @@ public class UpdateStockInfoBATS {
 			logger.info("skip  {}", countSkip);
 		}
 		// save csv file
-		logger.info("save  {}  {}", list.size(), StockInfoBATS.getPath());
-		StockInfoBATS.save(list);
+		logger.info("save  {}  {}", list.size(), StorageBATS.StockInfoBATS.getPath());
+		StorageBATS.StockInfoBATS.save(list);
 	}
 
 	public static void main(String[] args) {

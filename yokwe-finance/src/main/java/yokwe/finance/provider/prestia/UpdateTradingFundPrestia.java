@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
@@ -87,7 +86,7 @@ public class UpdateTradingFundPrestia {
 			String queryString = map.entrySet().stream().map(o -> o.getKey() + "=" + URLEncoder.encode(o.getValue(), StandardCharsets.UTF_8)).collect(Collectors.joining("&"));
 
 			String url      = String.format("%s?%s", URL, queryString);
-			String filePath = Storage.provider_prestia.getPath("screener.json");
+			String filePath = StoragePrestia.getPath("screener.json");
 			page = download(url, CHARSET, filePath, DEBUG_USE_FILE);
 			
 			logger.info("page  {}", page.length());
@@ -98,7 +97,7 @@ public class UpdateTradingFundPrestia {
 		
 		var list = new ArrayList<TradingFundType>();
 		{
-			var isinCodeSet = FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+			var isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 			int countA = 0;
 			int countB = 0;
 			int countC = 0;
@@ -134,8 +133,8 @@ public class UpdateTradingFundPrestia {
 			logger.info("countC    {}", countC);
 			logger.info("countD    {}", countD);
 		}
-		logger.info("save  {}  {}", list.size(), TradingFundPrestia.getPath());
-		TradingFundPrestia.save(list);
+		logger.info("save  {}  {}", list.size(), StoragePrestia.TradingFundPrestia.getPath());
+		StoragePrestia.TradingFundPrestia.save(list);
 	}
 	
 	public static void main(String[] args) {

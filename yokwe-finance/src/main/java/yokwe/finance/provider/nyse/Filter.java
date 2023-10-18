@@ -3,11 +3,10 @@ package yokwe.finance.provider.nyse;
 import java.util.Collection;
 import java.util.List;
 
-import yokwe.finance.Storage;
-import yokwe.util.ListUtil;
+import yokwe.util.ListUtil; // FIXME
 
 public final class Filter implements Comparable<Filter> {
-	private static final String PATH_FILE = Storage.provider_nyse.getPath("filter.csv");
+	private static final String PATH_FILE = StorageNYSE.getPath("filter.csv");
 	public static String getPath() {
 		return PATH_FILE;
 	}

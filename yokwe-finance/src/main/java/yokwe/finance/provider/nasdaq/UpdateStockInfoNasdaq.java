@@ -13,7 +13,7 @@ import yokwe.finance.type.StockInfoUSType.Type;
 import yokwe.util.CSVUtil;
 import yokwe.util.FTPUtil;
 import yokwe.util.FileUtil;
-import yokwe.util.ListUtil;
+import yokwe.util.ListUtil; // FIXME
 import yokwe.util.UnexpectedException;
 
 public class UpdateStockInfoNasdaq {
@@ -128,8 +128,8 @@ public class UpdateStockInfoNasdaq {
 		logger.info("skip   {}", countSkip);
 		
 		// save
-		logger.info("save   {}  {}", list.size(), StockInfoNasdaq.getPath());
-		StockInfoNasdaq.save(list);
+		logger.info("save   {}  {}", list.size(), StorageNasdaq.StockInfoNasdaq.getPath());
+		StorageNasdaq.StockInfoNasdaq.save(list);
 	}
 	
 	public static void main(String[] args) {

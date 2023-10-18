@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.stock.StockInfoJP;
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.CompanyInfoType;
 import yokwe.finance.type.StockInfoJPType;
 
@@ -16,14 +16,14 @@ public class UpdateCompanyInfoJPYahoo {
 	
 	private static int updateCompanyInfo() {
 		// read existing data
-		var list = CompanyInfoJPYahoo.getList().stream().collect(Collectors.toList());
+		var list = StorageYahoo.CompanyInfoJPYahoo.getList().stream().collect(Collectors.toList());
 		logger.info("companyInfo  {}", list.size());
 		// remove if sector or industry is empty
 		list.removeIf(o -> o.sector.isEmpty() || o.industry.isEmpty());
 		logger.info("companyInfo  {}", list.size());
 
 		// set of required stockCode
-		var stockInfoList = StockInfoJP.getList();
+		var stockInfoList = StorageStock.StockInfoJP.getList();
 		logger.info("stockInfo    {}", stockInfoList.size());
 		// remove if not stock
 		stockInfoList.removeIf(o -> !o.type.isStock());
@@ -61,12 +61,12 @@ public class UpdateCompanyInfoJPYahoo {
 			list.add(new CompanyInfoType(stockCode, sector, industry));
 			countMod++;
 			
-			if ((countMod % 10) == 1) CompanyInfoJPYahoo.save(list);
+			if ((countMod % 10) == 1) StorageYahoo.CompanyInfoJPYahoo.save(list);
 		}
 		
 		logger.info("countMod  {}", countMod);
-		logger.info("save  {}  {}", list.size(), CompanyInfoJPYahoo.getPath());
-		CompanyInfoJPYahoo.save(list);
+		logger.info("save  {}  {}", list.size(), StorageYahoo.CompanyInfoJPYahoo.getPath());
+		StorageYahoo.CompanyInfoJPYahoo.save(list);
 		
 		return countMod;
 	}

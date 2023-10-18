@@ -6,14 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import yokwe.finance.Storage;
-import yokwe.finance.provider.monex.TradingStockMonex;
-import yokwe.finance.provider.moomoo.TradingStockMoomoo;
-import yokwe.finance.provider.rakuten.TradingStockRakuten;
-import yokwe.finance.provider.sbi.TradingStockSBI;
-import yokwe.finance.stock.StockDivUS;
-import yokwe.finance.stock.StockInfoUS;
-import yokwe.finance.stock.StockPriceUS;
+import yokwe.finance.provider.monex.StorageMonex;
+import yokwe.finance.provider.moomoo.StorageMoomoo;
+import yokwe.finance.provider.rakuten.StorageRakuten;
+import yokwe.finance.provider.sbi.StorageSBI;
+import yokwe.finance.provider.yahoo.StorageYahoo;
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
@@ -39,24 +37,30 @@ public class UpdateStockStatsUS {
 		
 		var list = new ArrayList<StockStatsUS>();
 		{
-			var monexMap   = TradingStockMonex.getMap();
-			var sbiMap     = TradingStockSBI.getMap();
-			var rakutenMap = TradingStockRakuten.getMap();
-			var moomooMap  = TradingStockMoomoo.getMap();
+			var monexMap   = StorageMonex.TradingStockMonex.getMap();
+			var sbiMap     = StorageSBI.TradingStockSBI.getMap();
+			var rakutenMap = StorageRakuten.TradingStockRakuten.getMap();
+			var moomooMap  = StorageMoomoo.TradingStockMoomoo.getMap();
 			
-			for(var stockInfo: StockInfoUS.getList()) {
+			var companyInfoMap = StorageYahoo.CompanyInfoJPYahoo.getMap();
+			
+			for(var stockInfo: StorageStock.StockInfoUS.getList()) {
 				var stockCode = stockInfo.stockCode;
-				var priceList = StockPriceUS.getList(stockCode);
-				var divList   = StockDivUS.getList(stockCode);
+				var priceList = StorageStock.StockPriceUS.getList(stockCode);
+				var divList   =StorageStock.StockDivUS.getList(stockCode);
 				
 				if (priceList.size() < 10) {
 					logger.info("skip  {}  {}", stockCode, priceList.size());
 					continue;
 				}
 				
+				var companyInfo = companyInfoMap.get(stockCode);
+				
 				StockStatsUS stats = new StockStatsUS();
 				stats.stockCode = stockInfo.stockCode;
-				stats.type      = stockInfo.type.simpleType.toString();
+				stats.type      = stockInfo.type.toString();
+				stats.sector    = companyInfo != null ? companyInfo.sector   : "*Unknown*";
+				stats.industry  = companyInfo != null ? companyInfo.industry : "*Unknown*";
 				stats.name      = stockInfo.name;
 				
 				stats.monex     = tradingString(monexMap, stockCode);
@@ -101,7 +105,7 @@ public class UpdateStockStatsUS {
 		{
 			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
 			String name       = String.format("stock-stats-us-%s.ods", timestamp);
-			String pathReport = Storage.report_stock_stats_us.getPath(name);
+			String pathReport = StorageReport.getPath("stock-stats-us", name);
 			urlReport  = StringUtil.toURLString(pathReport);
 		}
 
@@ -138,8 +142,8 @@ public class UpdateStockStatsUS {
 	
 	private static void update() {
 		var statsList = getStatsList();
-		logger.info("save {} {}", statsList.size(), StockStatsUS.getPath());
-		StockStatsUS.save(statsList);
+		logger.info("save {} {}", statsList.size(), StorageReport.StockStatsUS.getPath());
+		StorageReport.StockStatsUS.save(statsList);
 		
 		generateReport(statsList);
 	}

@@ -172,7 +172,7 @@ public class UpdateStockPriceJPX {
 		download.setProgressInterval(progressInterval);
 		
 		// NOTE Use StockInfo
-		List<StockInfoJPType> stockInfoList = StockInfoJPX.getList();
+		List<StockInfoJPType> stockInfoList = StorageJPX.StockInfoJPX.getList();
 		Collections.shuffle(stockInfoList);
 		final int stockListSize = stockInfoList.size();
 		
@@ -237,7 +237,7 @@ public class UpdateStockPriceJPX {
 			List<OHLCV> list;
 			{
 				// read existing data in map
-				var map = StockPriceJPX.getMap(stockCode);
+				var map = StorageJPX.StockPriceJPX.getMap(stockCode);
 				
 				// replace map with priceVolumeList
 				for(PriceVolume priceVolume: priceVolumeList) {
@@ -317,7 +317,7 @@ public class UpdateStockPriceJPX {
 				}
 			}
 			
-			StockPriceJPX.save(stockCode, list);
+			StorageJPX.StockPriceJPX.save(stockCode, list);
 		}
 		
 		logger.info("count    {}", count);

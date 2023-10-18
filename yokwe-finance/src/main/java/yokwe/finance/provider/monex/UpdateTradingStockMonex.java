@@ -8,8 +8,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.stock.StockInfoUS;
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -24,7 +23,7 @@ public class UpdateTradingStockMonex {
 	
 	private static final String  URL     = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsMeigaraJsonGST";
 	private static final String  CHARSET = "SHIFT_JIS";
-	private static final String  FILE_PATH = Storage.provider_monex.getPath("UsMeigaraJsonGST");
+	private static final String  FILE_PATH = StorageMonex.getPath("UsMeigaraJsonGST");
 	
 	private static String download(String url, String charset, String filePath, boolean useFile) {
 		final String page;
@@ -52,7 +51,7 @@ public class UpdateTradingStockMonex {
 	static final class BuyFreeETF {
 		private static final String URL       = "https://info.monex.co.jp/us-stock/etf_usa_program.html";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = Storage.provider_monex.getPath("etf_usa_program.html");
+		private static final String FILE_PATH = StorageMonex.getPath("etf_usa_program.html");
 		
 		public static class ETFInfo {
 			//  <tr>
@@ -153,14 +152,14 @@ public class UpdateTradingStockMonex {
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StorageStock.StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 
 		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());
 		logger.info("list2      {}", list2.size());
 		
-		logger.info("save  {}  {}", list2.size(), TradingStockMonex.getPath());
-		TradingStockMonex.save(list2);
+		logger.info("save  {}  {}", list2.size(), StorageMonex.TradingStockMonex.getPath());
+		StorageMonex.TradingStockMonex.save(list2);
 	}
 	
 	public static void main(String[] args) {

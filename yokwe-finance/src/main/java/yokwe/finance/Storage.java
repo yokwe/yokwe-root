@@ -1,9 +1,191 @@
 package yokwe.finance;
 
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
+import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public interface Storage {
+	static org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+
+	public interface LoadSave <E extends Comparable<E>, K extends Comparable<K>> {
+		public Class<E>  getClazz();
+		public K         getKey(E that);
+		public String    getPath();
+		
+		default void save(List<E> list) {
+			Collections.sort(list);
+			CSVUtil.write(getClazz()).file(getPath(), list);
+		}
+		default void save(Collection<E> collection) {
+			save(new ArrayList<E>(collection));
+		}
+		default List<E> load() {
+			return CSVUtil.read(getClazz()).file(getPath());
+		}
+		default List<E> load(Reader reader) {
+			return CSVUtil.read(getClazz()).file(reader);
+		}
+		default List<E> getList() {
+			var list = load();
+			return list != null ? list : new ArrayList<>();
+		}
+		default List<E> getList(Reader reader) {
+			var list = load(reader);
+			return list != null ? list : new ArrayList<>();
+		}
+		
+		default Map<K, E> checkDuplicate(Collection<E> collection) {
+			var map = new HashMap<K, E>(collection.size());
+			if (collection != null) {
+				for(var e: collection) {
+					var key = getKey(e);
+					var old = map.put(key, e);
+					if (old != null) {
+						logger.warn("Duplicate key");
+						logger.warn("  key {}", key);
+						logger.warn("  old {}", old);
+						logger.warn("  new {}", e);
+						// throw new UnexpectedException("Duplicate symbol");
+					}
+				}
+			}
+			return map;
+		}
+		default Map<K, E> getMap() {
+			return checkDuplicate(getList());
+		}
+		default Map<K, E> getMap(Reader reader) {
+			return checkDuplicate(getList(reader));
+		}
+		
+		
+		public class Impl <E extends Comparable<E>, K extends Comparable<K>> implements LoadSave<E, K> {
+			private final Class<E>       clazz;
+			private final Function<E, K> getKey;
+			private final String         path;
+			
+			public Impl(Class<E> clazz, Function<E, K> getKey, Storage storage, String name) {
+				this.clazz  = clazz;
+				this.getKey = getKey;
+				this.path   = storage.getPath(name);
+			}
+			
+			@Override
+			public Class<E> getClazz() {
+				return clazz;
+			}
+			@Override
+			public String getPath() {
+				return path;
+			}
+			@Override
+			public K getKey(E that) {
+				return this.getKey.apply(that);
+			}
+		}
+	}
+	public interface LoadSave2 <E extends Comparable<E>, K extends Comparable<K>> {
+		public Class<E>  getClazz();
+		public K         getKey(E that);
+		public String    getPath(String name);
+		public String    getPath();
+		public String    getPathDelist();
+
+		default void    save(String name, List<E> list) {
+			Collections.sort(list);
+			CSVUtil.write(getClazz()).file(getPath(name), list);
+		}
+		default void    save(String name, Collection<E> list) {
+			save(name, new ArrayList<>(list));
+		}
+		default List<E> load(String name) {
+			return CSVUtil.read(getClazz()).file(getPath(name));
+		}
+		default List<E> load(Reader reader) {
+			return CSVUtil.read(getClazz()).file(reader);
+		}
+		default List<E> getList(String name) {
+			var list = load(name);
+			return list != null ? list : new ArrayList<>();
+		}
+		default List<E> getList(Reader reader) {
+			var list = load(reader);
+			return list != null ? list : new ArrayList<>();
+		}
+
+		default Map<K, E> checkDuplicate(Collection<E> collection) {
+			var map = new HashMap<K, E>(collection.size());
+			if (collection != null) {
+				for(var e: collection) {
+					var key = getKey(e);
+					var old = map.put(key, e);
+					if (old != null) {
+						logger.warn("Duplicate key");
+						logger.warn("  key {}", key);
+						logger.warn("  old {}", old);
+						logger.warn("  new {}", e);
+						// throw new UnexpectedException("Duplicate symbol");
+					}
+				}
+			}
+			return map;
+		}
+		default Map<K, E> getMap(String name) {
+			return checkDuplicate(getList(name));
+		}
+		default Map<K, E> getMap(Reader reader) {
+			return checkDuplicate(getList(reader));
+		}
+		
+		
+		public class Impl <E extends Comparable<E>, K extends Comparable<K>> implements LoadSave2<E, K> {
+			private final Class<E>                 clazz;
+			private final Function<E, K>           getKey;
+			private final Storage                  storage;
+			private final String                   prefix;
+			private final Function<String, String> getName;
+			
+			public Impl(Class<E> clazz, Function<E, K> getKey, Storage storage, String prefix, Function<String, String> getName) {
+				this.clazz   = clazz;
+				this.getKey  = getKey;
+				this.storage = storage;
+				this.prefix  = prefix;
+				this.getName = getName;
+			}
+			
+			@Override
+			public Class<E> getClazz() {
+				return clazz;
+			}
+			@Override
+			public K getKey(E that) {
+				return this.getKey.apply(that);
+			}
+			@Override
+			public String getPath(String name) {
+				return storage.getPath(prefix, getName.apply(name));
+			}
+			@Override
+			public String getPath() {
+				return storage.getPath(prefix);
+			}
+			@Override
+			public String getPathDelist() {
+				return storage.getPath(prefix + "-delist");
+			}
+		}
+	}
+	
+	
 	public static final String DATA_PATH_FILE = "data/DataPathLocation";
 	
 	public static void initialize() {}
@@ -32,7 +214,6 @@ public interface Storage {
 	}
 	public static final String DATA_PATH = getDataPath();
 
-	
 	public String getPath();
 	public String getPath(String path);
 	public String getPath(String prefix, String path);
@@ -80,33 +261,6 @@ public interface Storage {
 	public static Storage stock           = new Impl(root, "stock");
 	public static Storage fund            = new Impl(root, "fund");
 	public static Storage report          = new Impl(root, "report");
-
-	// provider
-	public static Storage provider_bats   = new Impl(provider, "bats");
-	public static Storage provider_nasdaq = new Impl(provider, "nasdaq");
-	public static Storage provider_nyse   = new Impl(provider, "nyse");
-	
-	public static Storage provider_jpx    = new Impl(provider, "jpx");
-	public static Storage provider_jita   = new Impl(provider, "jita");
-	public static Storage provider_jreit  = new Impl(provider, "jreit");
-	public static Storage provider_manebu = new Impl(provider, "manebu");
-	
-	public static Storage provider_click   = new Impl(provider, "click");
-	public static Storage provider_monex   = new Impl(provider, "monex");
-	public static Storage provider_moomoo  = new Impl(provider, "moomoo");
-	public static Storage provider_nikko   = new Impl(provider, "nikko");
-	public static Storage provider_nomura  = new Impl(provider, "nomura");
-	public static Storage provider_prestia = new Impl(provider, "prestia");
-	public static Storage provider_rakuten = new Impl(provider, "rakuten");
-	public static Storage provider_sbi     = new Impl(provider, "sbi");
-	public static Storage provider_sony    = new Impl(provider, "sony");
-	
-	public static Storage provider_yahoo   = new Impl(provider, "yahoo");
-	
-	// report
-	public static Storage report_stock_stats_jp   = new Impl(report, "stock-stats-jp");
-	public static Storage report_stock_stats_us   = new Impl(report, "stock-stats-us");
-
 	
 	public static void main(String[] args) {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -119,12 +273,6 @@ public interface Storage {
 		logger.info("stock           {}", Storage.stock.getPath());
 		logger.info("provider        {}", Storage.provider.getPath());
 				
-		logger.info("privider_jpx    {}", Storage.provider_jpx.getPath());
-		logger.info("privider_jita   {}", Storage.provider_jita.getPath());
-		logger.info("privider_bats   {}", Storage.provider_bats.getPath());
-		logger.info("privider_nasdaq {}", Storage.provider_nasdaq.getPath());
-		logger.info("privider_nyse   {}", Storage.provider_nyse.getPath());
-		
 		logger.info("STOP");
 	}
 }

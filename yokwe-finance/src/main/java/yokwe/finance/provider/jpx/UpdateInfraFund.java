@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -102,22 +101,21 @@ tb-color001
 		}
 	}
 	
-	private static List<InfraFund> getList(String url, String pageFile) {
+	private static List<StockNameType> getList(String url, String pageFile) {
 		String charset  = "UTF-8";
-		String filePath = Storage.provider_jpx.getPath(pageFile);
+		String filePath = StorageJPX.getPath(pageFile);
 		String page     = download(url, charset, filePath, DEBUG_USE_FILE);
 		
-		List<InfraFund> list = new ArrayList<>();
+		List<StockNameType> list = new ArrayList<>();
 		for(var e: REITInfo.getInstance(page)) {
-			InfraFund entry = new InfraFund();
-			entry.stockCode = StockInfoJPType.toStockCode5(e.stockCode);
-			entry.name      = e.name;
+			String stockCode = StockInfoJPType.toStockCode5(e.stockCode);
+			String name      = e.name;
 			
-			if (entry.name.contains("注")) {
-				logger.warn("{}  {}", entry.stockCode, entry.name);
+			if (name.contains("注")) {
+				logger.warn("{}  {}", stockCode, name);
 			}
 
-			list.add(entry);
+			list.add(new StockNameType(stockCode, name));
 		}
 		
 		return list;
@@ -126,11 +124,11 @@ tb-color001
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		List<InfraFund> list = getList(URL, PAGE_FILE);
+		List<StockNameType> list = getList(URL, PAGE_FILE);
 		logger.info("list  {}", list.size());
 				
-		logger.info("save  {}  {}", list.size(), InfraFund.getPath());
-		InfraFund.save(list);
+		logger.info("save  {}  {}", list.size(), StorageJPX.InfraFund.getPath());
+		StorageJPX.InfraFund.save(list);
 		
 		logger.info("STOP");
 	}

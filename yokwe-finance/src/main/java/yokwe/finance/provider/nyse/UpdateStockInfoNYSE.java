@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import yokwe.finance.type.StockInfoUSType;
 import yokwe.finance.type.StockInfoUSType.Market;
 import yokwe.finance.type.StockInfoUSType.Type;
-import yokwe.util.ListUtil;
+import yokwe.util.ListUtil; // FIXME
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -139,8 +139,8 @@ public class UpdateStockInfoNYSE {
 		logger.info("total  {}", count);
 		logger.info("skip   {}", countSkip);
 		
-		logger.info("save   {}  {}", list.size(), StockInfoNYSE.getPath());
-		StockInfoNYSE.save(list);
+		logger.info("save   {}  {}", list.size(), StorageNYSE.StockInfoNYSE.getPath());
+		StorageNYSE.StockInfoNYSE.save(list);
 	}
 	
 	public static void main(String[] args) {

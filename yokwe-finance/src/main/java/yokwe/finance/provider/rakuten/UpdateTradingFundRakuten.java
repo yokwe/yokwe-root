@@ -9,8 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import yokwe.finance.Storage;
-import yokwe.finance.fund.FundInfo;
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -99,12 +98,12 @@ public class UpdateTradingFundRakuten {
 	private static void update() {
 		List<TradingFundType> list = new ArrayList<>();
 		{
-			var isinCodeSet = FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+			var isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 			
 			String page;
 			{
 				String postBody = getPostBody();
-				String filePath = Storage.provider_rakuten.getPath("reloadscreener.json");
+				String filePath = StorageRakuten.getPath("reloadscreener.json");
 				
 				page = download(URL, postBody, filePath, DEBUG_USE_FILE);
 			}
@@ -127,8 +126,8 @@ public class UpdateTradingFundRakuten {
 			}
 		}
 		
-		logger.info("save  {}  {}", list.size(), TradingFundRakuten.getPath());
-		TradingFundRakuten.save(list);
+		logger.info("save  {}  {}", list.size(), StorageRakuten.TradingFundRakuten.getPath());
+		StorageRakuten.TradingFundRakuten.save(list);
 	}
 	
 	

@@ -7,11 +7,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import yokwe.finance.fund.FundDiv;
-import yokwe.finance.fund.FundInfo;
-import yokwe.finance.provider.jreit.REITDiv;
-import yokwe.finance.provider.jreit.REITInfo;
-import yokwe.finance.provider.manebu.ETFInfo;
+import yokwe.finance.fund.StorageFund;
+import yokwe.finance.provider.jreit.StorageJREIT;
+import yokwe.finance.provider.manebu.StorageManebu;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
@@ -22,13 +20,13 @@ public class UpdateStockDivJP {
 	
 	
 	private static void update() {
-		var stockCodeMap = FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
+		var stockCodeMap = StorageFund.FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
 		// stockCode isinCode
-		var reitSet = REITInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var reitSet = StorageJREIT.JREITInfo.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		
-		var etfInfoMap = ETFInfo.getMap();
+		var etfInfoMap = StorageManebu.ETFInfo.getMap();
 		
-		var list = StockInfoJP.getList();
+		var list = StorageStock.StockInfoJP.getList();
 		logger.info("list   {}", list.size());
 		int countETF   = 0;
 		int countREIT  = 0;
@@ -42,7 +40,7 @@ public class UpdateStockDivJP {
 			{
 				if (stockCodeMap.containsKey(stockCode)) {
 					String isinCode = stockCodeMap.get(stockCode);
-					divList = FundDiv.getList(isinCode);
+					divList = StorageFund.FundDiv.getList(isinCode);
 					
 					// NOTE FundDiv and FundPrice is not always per 1 unit. It can be 1, 10, 100 or 1000 units.
 					var etfInfo = etfInfoMap.get(stockCode);
@@ -64,16 +62,16 @@ public class UpdateStockDivJP {
 					}
 					countETF++;
 				} else if (reitSet.contains(stockCode)) {
-					divList = REITDiv.getList(stockCode);
+					divList = StorageJREIT.JREITDiv.getList(stockCode);
 					countREIT++;
 				} else {
-					divList = StockDivJP.getList(stockCode);
+					divList = StorageStock.StockDivJP.getList(stockCode);
 					countStock++;
 				}
 			}
 //			logger.info("save  {}  {}", stockCode, StockDivJP.getPath(stockCode));
 			if (!divList.isEmpty()) {
-				StockDivJP.save(stockCode, divList);
+				StorageStock.StockDivJP.save(stockCode, divList);
 				countSave++;
 			}
 		}
@@ -87,12 +85,12 @@ public class UpdateStockDivJP {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StockInfoJP.getList()) {
-			File file = new File(StockDivJP.getPath(e.stockCode));
+		for(var e: StorageStock.StockInfoJP.getList()) {
+			File file = new File(StorageStock.StockDivJP.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StockDivJP.getPath(), StockDivJP.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StorageStock.StockDivJP.getPath(), StorageStock.StockDivJP.getPathDelist());
 	}
 	
 	public static void main(String[] args) throws IOException {
