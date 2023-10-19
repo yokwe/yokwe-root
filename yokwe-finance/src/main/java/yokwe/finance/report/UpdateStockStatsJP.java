@@ -5,8 +5,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import yokwe.finance.provider.jreit.StorageJREIT;
+import yokwe.finance.provider.manebu.StorageManebu;
 import yokwe.finance.provider.yahoo.StorageYahoo;
 import yokwe.finance.stock.StorageStock;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 import yokwe.util.libreoffice.LibreOffice;
@@ -27,24 +30,56 @@ public class UpdateStockStatsJP {
 		var list = new ArrayList<StockStatsJP>();
 		{
 			var companyInfoMap = StorageYahoo.CompanyInfoJPYahoo.getMap();
-			
+			var etfMap         = StorageManebu.ETFInfo.getMap();
+			var jreitMap       = StorageJREIT.JREITInfo.getMap();
+
 			for(var stockInfo: StorageStock.StockInfoJP.getList()) {
 				var stockCode = stockInfo.stockCode;
 				var priceList = StorageStock.StockPriceJP.getList(stockCode);
 				var divList   = StorageStock.StockDivJP.getList(stockCode);
 				
 				if (priceList.size() < 10) {
-					logger.info("skip  {}  {}", stockCode, priceList.size());
+					logger.info("skip  {}  {}  {}", priceList.size(), stockCode, stockInfo.name);
 					continue;
 				}
-				
-				var companyInfo = companyInfoMap.get(stockCode);
 				
 				StockStatsJP stats = new StockStatsJP();
 				stats.stockCode = stockCode;
 				stats.type      = stockInfo.type.simpleType.toString();
-				stats.sector    = companyInfo != null ? companyInfo.sector   : "*Unknown*";
-				stats.industry  = companyInfo != null ? companyInfo.industry : "*Unknown*";
+				
+				// set sector and industry
+				if (stockInfo.type.isETF() || stockInfo.type.isETN()) {
+					stats.sector = stockInfo.type.simpleType.toString();
+					
+					var etf = etfMap.get(stockCode);
+					if (etf != null) {
+						stats.industry = "ETF-" + etf.category.replace("ETF", "");
+					} else {
+						stats.industry = stats.sector;
+					}
+				} else if (stockInfo.type.isREIT() || stockInfo.type.isInfraFund()) {
+					stats.sector = stockInfo.type.simpleType.toString();
+					
+					var jreit = jreitMap.get(stockCode);
+					if (jreit != null) {
+						stats.industry = "REIT-" + jreit.category.replace(" ", "");
+					} else {
+						stats.industry = stats.sector;
+					}
+				} else if (StockInfoJPType.isPreferredStock(stockCode)) {
+					stats.sector    = "PREF";
+					stats.industry  = "PREF";
+				} else {
+					var companyInfo = companyInfoMap.get(stockCode);
+					if (companyInfo != null) {
+						stats.sector    = companyInfo.sector;
+						stats.industry  = companyInfo.industry;
+					} else {
+						stats.sector    = "*" + stats.type + "*";
+						stats.industry  = "*" + stats.type + "*";
+					}
+				}
+				
 				stats.name      = stockInfo.name;
 				
 				{

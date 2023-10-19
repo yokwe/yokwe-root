@@ -12,6 +12,7 @@ import yokwe.finance.provider.rakuten.StorageRakuten;
 import yokwe.finance.provider.sbi.StorageSBI;
 import yokwe.finance.provider.yahoo.StorageYahoo;
 import yokwe.finance.stock.StorageStock;
+import yokwe.finance.type.StockInfoUSType;
 import yokwe.finance.type.TradingStockType;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
@@ -37,30 +38,42 @@ public class UpdateStockStatsUS {
 		
 		var list = new ArrayList<StockStatsUS>();
 		{
-			var monexMap   = StorageMonex.TradingStockMonex.getMap();
-			var sbiMap     = StorageSBI.TradingStockSBI.getMap();
-			var rakutenMap = StorageRakuten.TradingStockRakuten.getMap();
-			var moomooMap  = StorageMoomoo.TradingStockMoomoo.getMap();
-			
-			var companyInfoMap = StorageYahoo.CompanyInfoJPYahoo.getMap();
+			var monexMap       = StorageMonex.TradingStockMonex.getMap();
+			var sbiMap         = StorageSBI.TradingStockSBI.getMap();
+			var rakutenMap     = StorageRakuten.TradingStockRakuten.getMap();
+			var moomooMap      = StorageMoomoo.TradingStockMoomoo.getMap();
+			var companyInfoMap = StorageYahoo.CompanyInfoUSYahoo.getMap();
 			
 			for(var stockInfo: StorageStock.StockInfoUS.getList()) {
 				var stockCode = stockInfo.stockCode;
 				var priceList = StorageStock.StockPriceUS.getList(stockCode);
-				var divList   =StorageStock.StockDivUS.getList(stockCode);
+				var divList   = StorageStock.StockDivUS.getList(stockCode);
 				
 				if (priceList.size() < 10) {
-					logger.info("skip  {}  {}", stockCode, priceList.size());
+					logger.info("skip  {}  {}  {}", priceList.size(), stockCode, stockInfo.name);
 					continue;
 				}
-				
-				var companyInfo = companyInfoMap.get(stockCode);
 				
 				StockStatsUS stats = new StockStatsUS();
 				stats.stockCode = stockInfo.stockCode;
 				stats.type      = stockInfo.type.toString();
-				stats.sector    = companyInfo != null ? companyInfo.sector   : "*Unknown*";
-				stats.industry  = companyInfo != null ? companyInfo.industry : "*Unknown*";
+				
+				// set sector and industry
+				if (stockInfo.type == StockInfoUSType.Type.PREF) {
+					stats.sector    = "*" + stats.type + "*";
+					stats.industry  = "*" + stats.type + "*";
+				} else {
+					var companyInfo = companyInfoMap.get(stockCode);
+					
+					if (companyInfo != null) {
+						stats.sector    = companyInfo.sector;
+						stats.industry  = companyInfo.industry;
+					} else {
+						stats.sector    = "*" + stats.type + "*";
+						stats.industry  = "*" + stats.type + "*";
+					}
+				}
+				
 				stats.name      = stockInfo.name;
 				
 				stats.monex     = tradingString(monexMap, stockCode);
