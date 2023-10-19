@@ -58,8 +58,8 @@ public class UpdateCompanyInfoUSYahoo {
 			var companyInfo = CompanyInfoYahoo.getInstance(StockInfoUSType.toYahooSymbol(stockCode));
 			if (companyInfo == null) continue;
 			
-			var sector   = companyInfo.sector.replace(",", "");
-			var industry = companyInfo.industry.replace(",", "");
+			var sector   = companyInfo.sector.replace(",", "").replace("—", "-");
+			var industry = companyInfo.industry.replace(",", "").replace("—", "-");
 			
 			// skipe if sector or industry is empty
 			if (sector.isEmpty() || industry.isEmpty()) continue;
