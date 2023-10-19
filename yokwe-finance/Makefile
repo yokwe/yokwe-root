@@ -32,12 +32,20 @@ check-data-path:
 	  exit 1 ; \
 	fi
 
+
+log-start:
+	@date +'%F %T START'
+
+log-stop:
+	@date +'%F %T STOP'
+
+
 rync-to-sandisk2t:
 	rsync -ah --delete --stats --dry-run /Volumes/finance/ /Volumes/SanDisk2T/finance
 
 rsync-to-truenas:
 	date -Iseconds
-	rsync -ah --delete --stats /Volumes/SanDisk2T/finance/ /Volumes/finance
+	rsync -ah --delete /Volumes/SanDisk2T/finance/ /Volumes/finance
 	date -Iseconds
 
 kill-soffice:
@@ -103,9 +111,9 @@ update-fund: check-data-path
 	ant provider-jita-update-fund-div-price-jita
 	cp -p $(DATA_PATH)/provider/jita/fund-info-jita.csv $(DATA_PATH)/fund/fund-info.csv
 	date -Iseconds
-	rsync -ah --delete --stats $(DATA_PATH)/provider/jita/fund-price-jita/ $(DATA_PATH)/fund/fund-price
+	rsync -ah --delete $(DATA_PATH)/provider/jita/fund-price-jita/ $(DATA_PATH)/fund/fund-price
 	date -Iseconds
-	rsync -ah --delete --stats $(DATA_PATH)/provider/jita/fund-div-jita/   $(DATA_PATH)/fund/fund-div
+	rsync -ah --delete $(DATA_PATH)/provider/jita/fund-div-jita/   $(DATA_PATH)/fund/fund-div
 	date -Iseconds
 
 
@@ -127,7 +135,7 @@ update-stock-info-jp: check-data-path
 update-stock-price-jp: check-data-path
 	ant provider-jpx-update-stock-price-jpx
 	date -Iseconds
-	rsync -ah --delete --stats $(DATA_PATH)/provider/jpx/stock-price-jpx/ $(DATA_PATH)/stock/stock-price-jp
+	rsync -ah --delete $(DATA_PATH)/provider/jpx/stock-price-jpx/ $(DATA_PATH)/stock/stock-price-jp
 	date -Iseconds
 
 update-stock-div-jp:
