@@ -34,10 +34,10 @@ check-data-path:
 
 
 log-start:
-	@date +'%F %T START'
+	@date +'%F %T LOG START'
 
 log-stop:
-	@date +'%F %T STOP'
+	@date +'%F %T LOG STOP'
 
 
 rync-to-sandisk2t:
