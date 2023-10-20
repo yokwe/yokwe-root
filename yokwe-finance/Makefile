@@ -39,14 +39,17 @@ log-start:
 log-stop:
 	@date +'%F %T LOG STOP'
 
+log-time:
+	@date +'%F %T LOG TIME'
+
 
 rync-to-sandisk2t:
 	rsync -ah --delete --stats --dry-run /Volumes/finance/ /Volumes/SanDisk2T/finance
 
 rsync-to-truenas:
-	date -Iseconds
+	@date +'%F %T RSYNC START'
 	rsync -ah --delete /Volumes/SanDisk2T/finance/ /Volumes/finance
-	date -Iseconds
+	@date +'%F %T RSYNC STOP'
 
 kill-soffice:
 	@ps xg > tmp/kill_soffice
@@ -60,9 +63,9 @@ clear-report-file: check-data-path
 	find ${DATA_PATH}/report -name '*ods' -and -mtime +7d -print -delete
 
 clear-log-file: check-data-path
-	date -Iseconds
+	@date +'%F %T TAR START'
 	tar cfz $(DATA_PATH)/save/log_$$(date +%Y%m%d).taz tmp/*.log
-	date -Iseconds
+	@date +'%F %T TAR STOP'
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
 
@@ -110,11 +113,11 @@ update-fund: check-data-path
 	ant provider-jita-update-fund-info-jita
 	ant provider-jita-update-fund-div-price-jita
 	cp -p $(DATA_PATH)/provider/jita/fund-info-jita.csv $(DATA_PATH)/fund/fund-info.csv
-	date -Iseconds
+	@date +'%F %T RSYNC START'
 	rsync -ah --delete $(DATA_PATH)/provider/jita/fund-price-jita/ $(DATA_PATH)/fund/fund-price
-	date -Iseconds
+	@date +'%F %T RSYNC START'
 	rsync -ah --delete $(DATA_PATH)/provider/jita/fund-div-jita/   $(DATA_PATH)/fund/fund-div
-	date -Iseconds
+	@date +'%F %T RSYNC STOP'
 
 
 #
@@ -134,9 +137,9 @@ update-stock-info-jp: check-data-path
 	
 update-stock-price-jp: check-data-path
 	ant provider-jpx-update-stock-price-jpx
-	date -Iseconds
+	@date +'%F %T RSYNC START'
 	rsync -ah --delete $(DATA_PATH)/provider/jpx/stock-price-jpx/ $(DATA_PATH)/stock/stock-price-jp
-	date -Iseconds
+	@date +'%F %T RSYNC STOP'
 
 update-stock-div-jp:
 	ant provider-jpx-update-stock-div-jpx
