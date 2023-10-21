@@ -34,10 +34,10 @@ check-data-path:
 
 
 log-start:
-	@date +'%F %T LOG START'
+	@date +'%F %T LOG START $(LOG_TITLE)'
 
 log-stop:
-	@date +'%F %T LOG STOP'
+	@date +'%F %T LOG STOP  $(LOG_TITLE)'
 
 log-time:
 	@date +'%F %T LOG TIME'

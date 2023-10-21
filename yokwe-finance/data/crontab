@@ -13,25 +13,25 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 
 #m   h     dom mon dow   command
 # CLEAR SAVE FILE and REPORT FILE
-02   1     *   *   *     cd $YOKWE_FINANCE; ( make log-start clear-save-file clear-report-file log-stop ) 1>>tmp/cron.log 2>&1
+02   1     *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="maintain save file"  log-start clear-save-file clear-report-file log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK INFO, FUND and DIV
-05   4     *   *   1-5   cd $YOKWE_FINANCE; ( make log-start update-jpx-listing update-stock-info-jp update-manebu update-jreit update-fund update-stock-div-jp log-stop ) 1>>tmp/cron.log 2>&1
+05   4     *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock info and div"  log-start update-jpx-listing update-stock-info-jp update-manebu update-jreit update-fund update-stock-div-jp log-stop ) 1>>tmp/cron.log 2>&1
 # SAVE FILE
-05   5     *   *   *     cd $YOKWE_FINANCE; ( make log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
+05   5     *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="save file"  log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK PRICE and REPORT
-55   9     *   *   1-5   cd $YOKWE_FINANCE; ( make log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
+55   9     *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK PRICE and REPORT
-15   12    *   *   1-5   cd $YOKWE_FINANCE; ( make log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
+15   12    *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
 # SAVE FILE
-20   12    *   *   *     cd $YOKWE_FINANCE; ( make log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
+20   12    *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="save file"  log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE US STOCK INFO, DIV, PRICE and REPORT
-30   12    *   *   2-6   cd $YOKWE_FINANCE; ( make log-start update-stock-info-us update-stock-div-us update-stock-price-us report-stock-stats-us log-stop ) 1>>tmp/cron.log 2>&1
+30   12    *   *   2-6   cd $YOKWE_FINANCE; ( make LOG_TITLE="update us stock"  log-start update-stock-info-us update-stock-div-us update-stock-price-us report-stock-stats-us log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK PRICE and REPORT
-45   15    *   *   1-5   cd $YOKWE_FINANCE; ( make log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
+45   15    *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
 # SAVE FILE
-05   23    *   *   *     cd $YOKWE_FINANCE; ( make log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
+05   23    *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="save file"  log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
 # CLEAR LOG FILE
-59   23    *   *   6     cd $YOKWE_FINANCE; ( make log-start clear-log-file log-stop ) 1>>tmp/cron.log 2>&1
+59   23    *   *   6     cd $YOKWE_FINANCE; ( make LOG_TITLE="maintain log file"  log-start clear-log-file log-stop ) 1>>tmp/cron.log 2>&1
 
 
 # update-stock-us-div takes 48 minutes first time. second time is 9 minutes
