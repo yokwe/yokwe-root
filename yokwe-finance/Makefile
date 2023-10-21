@@ -72,13 +72,19 @@ clear-log-file: check-data-path
 save-all: check-data-path save-stock save-provider save-report rsync-to-truenas
 
 save-stock: check-data-path
+	@date +'%F %T TAR START'
 	cd $(DATA_PATH); tar cfz save/stock_$$(date +%Y%m%d).taz    stock
+	@date +'%F %T TAR STOP'
 
 save-provider: check-data-path
+	@date +'%F %T TAR START'
 	cd $(DATA_PATH); tar cfz save/provider_$$(date +%Y%m%d).taz provider
+	@date +'%F %T TAR STOP'
 
 save-report: check-data-path
+	@date +'%F %T TAR START'
 	cd $(DATA_PATH); tar cfz save/report_$$(date +%Y%m%d).taz report
+	@date +'%F %T TAR STOP'
 
 
 #
