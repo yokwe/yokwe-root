@@ -220,6 +220,17 @@
 	</target>
 	
 	
+	<!-- Provider Nikkei -->
+	<target name="provider-nikkei-update-div-score">
+		<java module="yokwe.finance/yokwe.finance.provider.nikkei.UpdateDivScore" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Provider Nikko -->
 	<target name="provider-nikko-update-trading-fund-nikko">
 		<java module="yokwe.finance/yokwe.finance.provider.nikko.UpdateTradingFundNikko" fork="true">
