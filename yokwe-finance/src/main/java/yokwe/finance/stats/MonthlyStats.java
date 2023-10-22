@@ -15,7 +15,7 @@ import yokwe.finance.type.DailyValue;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.RSI;
 
-public final class FundStats {
+public final class MonthlyStats {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// https://www.nikkei.com/help/contents/markets/fund/
@@ -28,17 +28,16 @@ public final class FundStats {
 	public static final double SQRT_WEEK_IN_YEAR  = Math.sqrt(WEEK_IN_YEAR);
 	public static final double SQRT_MONTH_IN_YEAR = Math.sqrt(MONTH_IN_YEAR);
 	
-	public static final class MonthlyStats {
+	public static final class RateOfReturns {
 		public final double[] rorPriceArray;    // rorPriceArray.length == duration
 		public final double[] rorReinvestArray; // rorReinvestArray.length == duration
 		
-		public MonthlyStats(double[] rorPriceArray, double[] rorReinvestArray) {
+		public RateOfReturns(double[] rorPriceArray, double[] rorReinvestArray) {
 			this.rorPriceArray    = rorPriceArray;
 			this.rorReinvestArray = rorReinvestArray;
 		}
 	}
 
-	public final String       code;             // isinCode, stockCode or ticker symbol
 	public final int          length;           // length of array
 	public final LocalDate[]  dateArray;        // 日付
 	public final double[]     priceArray;       // 基準価格
@@ -58,16 +57,14 @@ public final class FundStats {
 	public final int          startIndex;       // startIndex for firstDate
 	public final int          stopIndexPlusOne; // stopIndexPlusOne for lastDate
 	
-	public final MonthlyStats monthlyStats;     // monthlyStats.rorPriceArray.length == duration
+	public final RateOfReturns rateOfReturns;   // monthlyStats.rorPriceArray.length == duration
 	
 	
-	private FundStats(
-		String code,
+	private MonthlyStats(
 		LocalDate[] dateArray, double[] priceArray, double[] divArray, double[] returnArray,
 		int duration, LocalDate firstDate, LocalDate lastDate,
 		int startIndexArray[],
-		MonthlyStats monthlyStats) {
-		this.code              = code;
+		RateOfReturns rateOfReturns) {
 		this.length            = dateArray.length;
 		this.dateArray         = dateArray;
 		this.priceArray        = priceArray;
@@ -81,9 +78,9 @@ public final class FundStats {
 		this.startIndex        = startIndexArray[0];
 		this.stopIndexPlusOne  = startIndexArray[startIndexArray.length - 1];
 		
-		this.monthlyStats      = monthlyStats;
+		this.rateOfReturns     = rateOfReturns;
 	}
-	public static FundStats getInstance(String code, List<DailyValue> priceList, List<DailyValue> divList) {
+	public static MonthlyStats getInstance(String code, List<DailyValue> priceList, List<DailyValue> divList) {
 		// sanity check
 		{
 			// priceList and divList has same size
@@ -158,12 +155,12 @@ public final class FundStats {
 			return null;
 		}
 		
-		final MonthlyStats monthlyStats = getMonthlyStats(startIndexArray, priceArray, divArray);
+		final RateOfReturns rateOfReturns = getRateOfReturns(startIndexArray, priceArray, divArray);
 		
-		return new FundStats(code, dateArray, priceArray, divArray, returnArray, duration, firstDate, lastDate, startIndexArray, monthlyStats);
+		return new MonthlyStats(dateArray, priceArray, divArray, returnArray, duration, firstDate, lastDate, startIndexArray, rateOfReturns);
 	}
 	
-	private static MonthlyStats getMonthlyStats(int[] startIndexArray, double[] priceArray, double[] divArray) {
+	private static RateOfReturns getRateOfReturns(int[] startIndexArray, double[] priceArray, double[] divArray) {
 		List<Double> rorPriceList      = new ArrayList<>();
 		List<Double> rorReinvestList   = new ArrayList<>();
 		
@@ -219,7 +216,7 @@ public final class FundStats {
 		// reverse list. So first entry of list point to latest week
 		Collections.reverse(rorPriceList);
 		Collections.reverse(rorReinvestList);
-		return new MonthlyStats(
+		return new RateOfReturns(
 			rorPriceList.stream().mapToDouble(o -> o).toArray(),
 			rorReinvestList.stream().mapToDouble(o -> o).toArray()
 		);
@@ -295,7 +292,7 @@ public final class FundStats {
 		
 		double value = 1;
 		for(int i = 0; i < nMonth; i++) {
-			value *= (1 + monthlyStats.rorReinvestArray[nOffset + i]);
+			value *= (1 + rateOfReturns.rorReinvestArray[nOffset + i]);
 		}
 		return Math.pow(value, MONTH_IN_YEAR / (double)nMonth) - 1;
 	}
@@ -355,7 +352,7 @@ public final class FundStats {
 		// sanity check
 		checkMonthOffsetValue(nMonth, nOffset);
 		
-		return DoubleArray.standardDeviation(monthlyStats.rorPriceArray, nOffset, nOffset + nMonth) * SQRT_MONTH_IN_YEAR;
+		return DoubleArray.standardDeviation(rateOfReturns.rorPriceArray, nOffset, nOffset + nMonth) * SQRT_MONTH_IN_YEAR;
 	}
 	public double risk(int nMonth, int nOffset) {
 		// リスク・リスク(１年)・リスク(年率)

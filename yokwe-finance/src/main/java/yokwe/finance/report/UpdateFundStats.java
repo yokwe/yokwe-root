@@ -18,7 +18,7 @@ import yokwe.finance.provider.prestia.StoragePrestia;
 import yokwe.finance.provider.rakuten.StorageRakuten;
 import yokwe.finance.provider.sbi.StorageSBI;
 import yokwe.finance.provider.sony.StorageSony;
-import yokwe.finance.stats.FundStats;
+import yokwe.finance.stats.MonthlyStats;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.DoubleUtil;
@@ -112,7 +112,7 @@ public class UpdateFundStats {
 			count++;
 			if ((count % 500) == 1) logger.info("{}", String.format("%4d / %4d", count, fundList.size()));
 			
-			FundStats  fundStats;
+			MonthlyStats  monthlyStats;
 			BigDecimal nav;
 			{
 				var fundPriceList = StorageFund.FundPrice.getList(isinCode);
@@ -139,7 +139,7 @@ public class UpdateFundStats {
 					divList.add(new DailyValue(date, value));
 				}
 				
-				fundStats = FundStats.getInstance(isinCode, priceList, divList);
+				monthlyStats = MonthlyStats.getInstance(isinCode, priceList, divList);
 			}
 
 			var nikkei = nikkeiMap.get(isinCode);
@@ -147,102 +147,102 @@ public class UpdateFundStats {
 				countNoNikkei++;
 			}
 			
-			var stats = new FundStatsType();
+			var fundStats = new FundStatsType();
 			
-			stats.isinCode  = fund.isinCode;
-			stats.fundCode  = fund.fundCode;
-			stats.stockCode = fund.stockCode;
+			fundStats.isinCode  = fund.isinCode;
+			fundStats.fundCode  = fund.fundCode;
+			fundStats.stockCode = fund.stockCode;
 			
-			stats.inception  = fund.inceptionDate;
-			stats.redemption = fund.redemptionDate;
-			stats.age        = Finance.durationInYearMonth(stats.inception, LAST_DATE_OF_LAST_MONTH);
+			fundStats.inception  = fund.inceptionDate;
+			fundStats.redemption = fund.redemptionDate;
+			fundStats.age        = Finance.durationInYearMonth(fundStats.inception, LAST_DATE_OF_LAST_MONTH);
 			
 			// Use toushin category
-			stats.investingAsset = fund.investingAsset;
-			stats.investingArea  = fund.investingArea;
-			stats.indexFundType  = fund.indexFundType.replace("該当なし", "アクティブ型").replace("型", "");
+			fundStats.investingAsset = fund.investingAsset;
+			fundStats.investingArea  = fund.investingArea;
+			fundStats.indexFundType  = fund.indexFundType.replace("該当なし", "アクティブ型").replace("型", "");
 			
-			stats.expenseRatio = fund.expenseRatio.multiply(CONSUMPTION_TAX_RATE);
-			stats.buyFeeMax    = fund.buyFeeMax.multiply(CONSUMPTION_TAX_RATE);
-			stats.nav          = nav;
-			stats.divc         = fund.divFreq;
+			fundStats.expenseRatio = fund.expenseRatio.multiply(CONSUMPTION_TAX_RATE);
+			fundStats.buyFeeMax    = fund.buyFeeMax.multiply(CONSUMPTION_TAX_RATE);
+			fundStats.nav          = nav;
+			fundStats.divc         = fund.divFreq;
 			
 			// 1 year
 			{
 				int nMonth  = 12;
 				int nOffset = 0;
 				
-				stats.sd1Y    = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth, nOffset));
-				stats.div1Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth, nOffset));
-				stats.yield1Y = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth, nOffset));
-				stats.ror1Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth, nOffset));
-				stats.rsi     = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rsi(nMonth, nOffset));
+				fundStats.sd1Y    = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.risk(nMonth, nOffset));
+				fundStats.div1Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.dividend(nMonth, nOffset));
+				fundStats.yield1Y = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.yield(nMonth, nOffset));
+				fundStats.ror1Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rateOfReturn(nMonth, nOffset));
+				fundStats.rsi     = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rsi(nMonth, nOffset));
 			}
 			// 3 year
 			{
 				int nMonth = 36;
 				int nOffset = 0;
 				
-				stats.sd3Y    = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth, nOffset));
-				stats.div3Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth, nOffset));
-				stats.yield3Y = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth, nOffset));
-				stats.ror3Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth, nOffset));
+				fundStats.sd3Y    = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.risk(nMonth, nOffset));
+				fundStats.div3Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.dividend(nMonth, nOffset));
+				fundStats.yield3Y = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.yield(nMonth, nOffset));
+				fundStats.ror3Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rateOfReturn(nMonth, nOffset));
 			}
 			// 5 year
 			{
 				int nMonth = 60;
 				int nOffset = 0;
 				
-				stats.sd5Y    = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth, nOffset));
-				stats.div5Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth, nOffset));
-				stats.yield5Y = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth, nOffset));
-				stats.ror5Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth, nOffset));
+				fundStats.sd5Y    = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.risk(nMonth, nOffset));
+				fundStats.div5Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.dividend(nMonth, nOffset));
+				fundStats.yield5Y = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.yield(nMonth, nOffset));
+				fundStats.ror5Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rateOfReturn(nMonth, nOffset));
 			}
 			// 10 year
 			{
 				int nMonth = 120;
 				int nOffset = 0;
 				
-				stats.sd10Y    = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.risk(nMonth, nOffset));
-				stats.div10Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.dividend(nMonth, nOffset));
-				stats.yield10Y = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.yield(nMonth, nOffset));
-				stats.ror10Y   = (fundStats == null || !fundStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(fundStats.rateOfReturn(nMonth, nOffset));
+				fundStats.sd10Y    = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.risk(nMonth, nOffset));
+				fundStats.div10Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.dividend(nMonth, nOffset));
+				fundStats.yield10Y = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.yield(nMonth, nOffset));
+				fundStats.ror10Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rateOfReturn(nMonth, nOffset));
 			}
 			
-			stats.divScore1Y  = (nikkei == null || !DivScoreType.hasValue(nikkei.score1Y))  ? null : nikkei.score1Y;
-			stats.divScore3Y  = (nikkei == null || !DivScoreType.hasValue(nikkei.score3Y))  ? null : nikkei.score3Y;
-			stats.divScore5Y  = (nikkei == null || !DivScoreType.hasValue(nikkei.score5Y))  ? null : nikkei.score5Y;
-			stats.divScore10Y = (nikkei == null || !DivScoreType.hasValue(nikkei.score10Y)) ? null : nikkei.score10Y;
+			fundStats.divScore1Y  = (nikkei == null || !DivScoreType.hasValue(nikkei.score1Y))  ? null : nikkei.score1Y;
+			fundStats.divScore3Y  = (nikkei == null || !DivScoreType.hasValue(nikkei.score3Y))  ? null : nikkei.score3Y;
+			fundStats.divScore5Y  = (nikkei == null || !DivScoreType.hasValue(nikkei.score5Y))  ? null : nikkei.score5Y;
+			fundStats.divScore10Y = (nikkei == null || !DivScoreType.hasValue(nikkei.score10Y)) ? null : nikkei.score10Y;
 			
-			stats.name     = fund.name;
+			fundStats.name     = fund.name;
 			
-			if (stats.stockCode.isEmpty()) {
-				stats.click   = !clickMap.containsKey(fund.isinCode)   ? null: clickMap.get(fund.isinCode).salesFee;
-				stats.nikko   = !nikkoMap.containsKey(fund.isinCode)   ? null: nikkoMap.get(fund.isinCode).salesFee;
-				stats.nomura  = !nomuraMap.containsKey(fund.isinCode)  ? null: nomuraMap.get(fund.isinCode).salesFee;
-				stats.rakuten = !rakutenMap.containsKey(fund.isinCode) ? null: rakutenMap.get(fund.isinCode).salesFee;
-				stats.sbi     = !sbiMap.containsKey(fund.isinCode)     ? null: sbiMap.get(fund.isinCode).salesFee;
-				stats.sony    = !sonyMap.containsKey(fund.isinCode)    ? null: sonyMap.get(fund.isinCode).salesFee;
-				stats.prestia = !prestiaMap.containsKey(fund.isinCode) ? null: prestiaMap.get(fund.isinCode).salesFee;
+			if (fundStats.stockCode.isEmpty()) {
+				fundStats.click   = !clickMap.containsKey(fund.isinCode)   ? null: clickMap.get(fund.isinCode).salesFee;
+				fundStats.nikko   = !nikkoMap.containsKey(fund.isinCode)   ? null: nikkoMap.get(fund.isinCode).salesFee;
+				fundStats.nomura  = !nomuraMap.containsKey(fund.isinCode)  ? null: nomuraMap.get(fund.isinCode).salesFee;
+				fundStats.rakuten = !rakutenMap.containsKey(fund.isinCode) ? null: rakutenMap.get(fund.isinCode).salesFee;
+				fundStats.sbi     = !sbiMap.containsKey(fund.isinCode)     ? null: sbiMap.get(fund.isinCode).salesFee;
+				fundStats.sony    = !sonyMap.containsKey(fund.isinCode)    ? null: sonyMap.get(fund.isinCode).salesFee;
+				fundStats.prestia = !prestiaMap.containsKey(fund.isinCode) ? null: prestiaMap.get(fund.isinCode).salesFee;
 			} else {
-				stats.click   = null;
-				stats.nikko   = null;
-				stats.nomura  = null;
-				stats.rakuten = null;
-				stats.sbi     = null;
-				stats.sony    = null;
-				stats.prestia = null;
+				fundStats.click   = null;
+				fundStats.nikko   = null;
+				fundStats.nomura  = null;
+				fundStats.rakuten = null;
+				fundStats.sbi     = null;
+				fundStats.sony    = null;
+				fundStats.prestia = null;
 			}
 			
 			// special case
-			if (fund.redemptionDate.toString().compareTo(FundInfoJP.NO_REDEMPTION_DATE_STRING) == 0) stats.redemption = null;
+			if (fund.redemptionDate.toString().compareTo(FundInfoJP.NO_REDEMPTION_DATE_STRING) == 0) fundStats.redemption = null;
 
-			if (stats.div1Y  != null && stats.div1Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield1Y  = stats.divScore1Y = null;
-			if (stats.div3Y  != null && stats.div3Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield3Y  = stats.divScore3Y = null;
-			if (stats.div5Y  != null && stats.div5Y.compareTo(BigDecimal.ZERO) == 0)  stats.yield5Y  = stats.divScore5Y = null;
-			if (stats.div10Y != null && stats.div10Y.compareTo(BigDecimal.ZERO) == 0) stats.yield10Y = stats.divScore10Y = null;
+			if (fundStats.div1Y  != null && fundStats.div1Y.compareTo(BigDecimal.ZERO) == 0)  fundStats.yield1Y  = fundStats.divScore1Y = null;
+			if (fundStats.div3Y  != null && fundStats.div3Y.compareTo(BigDecimal.ZERO) == 0)  fundStats.yield3Y  = fundStats.divScore3Y = null;
+			if (fundStats.div5Y  != null && fundStats.div5Y.compareTo(BigDecimal.ZERO) == 0)  fundStats.yield5Y  = fundStats.divScore5Y = null;
+			if (fundStats.div10Y != null && fundStats.div10Y.compareTo(BigDecimal.ZERO) == 0) fundStats.yield10Y = fundStats.divScore10Y = null;
 			
-			statsList.add(stats);
+			statsList.add(fundStats);
 		}
 		
 		// Cannot save with null value
@@ -258,6 +258,7 @@ public class UpdateFundStats {
 		return statsList;
 	}
 	
+	
 	private static void update() {
 		List<FundStatsType> statsList = getStatsList();
 		
@@ -267,6 +268,7 @@ public class UpdateFundStats {
 		
 		generateReport(statsList);
 	}
+	
 	
 	public static void main(String[] args) {
 		logger.info("START");
