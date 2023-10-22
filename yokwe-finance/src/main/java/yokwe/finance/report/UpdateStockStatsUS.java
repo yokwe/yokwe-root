@@ -11,6 +11,7 @@ import yokwe.finance.provider.moomoo.StorageMoomoo;
 import yokwe.finance.provider.rakuten.StorageRakuten;
 import yokwe.finance.provider.sbi.StorageSBI;
 import yokwe.finance.provider.yahoo.StorageYahoo;
+import yokwe.finance.stats.StockStats;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.StockInfoUSType;
 import yokwe.finance.type.TradingStockType;

@@ -8,6 +8,7 @@ import java.util.List;
 import yokwe.finance.provider.jreit.StorageJREIT;
 import yokwe.finance.provider.manebu.StorageManebu;
 import yokwe.finance.provider.yahoo.StorageYahoo;
+import yokwe.finance.stats.StockStats;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.MarketHoliday;

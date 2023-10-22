@@ -344,7 +344,7 @@
 	
 	
 	<!-- Report -->
-	<target name="reprot-update-stock-stats-jp">
+	<target name="report-update-stock-stats-jp">
 		<java module="yokwe.finance/yokwe.finance.report.UpdateStockStatsJP" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
@@ -352,8 +352,16 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="reprot-update-stock-stats-us">
+	<target name="report-update-stock-stats-us">
 		<java module="yokwe.finance/yokwe.finance.report.UpdateStockStatsUS" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="report-update-fund-stats">
+		<java module="yokwe.finance/yokwe.finance.report.UpdateFundStats" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />

@@ -1,4 +1,4 @@
-package yokwe.finance.report;
+package yokwe.finance.stats;
 
 import java.time.LocalDate;
 import java.util.Arrays;

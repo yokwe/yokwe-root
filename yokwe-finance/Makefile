@@ -179,7 +179,10 @@ update-stock-div-us:
 #
 
 report-stock-stats-us: kill-soffice
-	ant reprot-update-stock-stats-us
+	ant report-update-stock-stats-us
 
 report-stock-stats-jp: kill-soffice
-	ant reprot-update-stock-stats-jp
+	ant report-update-stock-stats-jp
+
+report-fund-stats: kill-soffice
+	ant report-update-fund-stats
