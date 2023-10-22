@@ -115,7 +115,7 @@ update-trading-fund:
 	ant provider-sbi-update-trading-fund-sbi
 	ant provider-sony-update-trading-fund-sony
 
-update-fund: check-data-path
+update-fund: check-data-path update-trading-fund
 	ant provider-jita-update-fund-info-jita
 	ant provider-jita-update-fund-div-price-jita
 	cp -p $(DATA_PATH)/provider/jita/fund-info-jita.csv $(DATA_PATH)/fund/fund-info.csv
