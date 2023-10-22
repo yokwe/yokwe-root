@@ -14,8 +14,10 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 #m   h     dom mon dow   command
 # CLEAR SAVE FILE and REPORT FILE
 02   1     *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="maintain save file"  log-start clear-save-file clear-report-file log-stop ) 1>>tmp/cron.log 2>&1
+# UPDATE FUND
+05   3     *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update fund"  log-start update-fund report-fund-stats log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK INFO, FUND and DIV
-05   4     *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock info and div"  log-start update-jpx-listing update-stock-info-jp update-manebu update-jreit update-fund report-fund-stats update-stock-div-jp log-stop ) 1>>tmp/cron.log 2>&1
+05   4     *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock info and div"  log-start update-jpx-listing update-stock-info-jp update-manebu update-jreit update-stock-div-jp log-stop ) 1>>tmp/cron.log 2>&1
 # SAVE FILE
 05   5     *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="save file"  log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK PRICE and REPORT
