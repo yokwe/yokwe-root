@@ -1,5 +1,6 @@
 package yokwe.finance.stats;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.ChronoField;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import yokwe.finance.type.DailyValue;
 import yokwe.util.UnexpectedException;
@@ -27,6 +29,21 @@ public final class MonthlyStats {
 	public static final double SQRT_DAY_IN_YEAR   = Math.sqrt(DAY_IN_YEAR);
 	public static final double SQRT_WEEK_IN_YEAR  = Math.sqrt(WEEK_IN_YEAR);
 	public static final double SQRT_MONTH_IN_YEAR = Math.sqrt(MONTH_IN_YEAR);
+	
+	public static List<DailyValue> getDivList(List<DailyValue> priceList, List<DailyValue> divList) {
+		var list = new ArrayList<DailyValue>();
+		
+		var divMap = divList.stream().collect(Collectors.toMap(o -> o.date, o -> o.value));
+		for(var price: priceList) {
+			var date  = price.date;
+			var value = divMap.get(date);
+			
+			list.add(new DailyValue(date, value == null ? BigDecimal.ZERO : value));
+		}
+		
+		return list;
+	}
+	
 	
 	public static final class RateOfReturns {
 		public final double[] rorPriceArray;    // rorPriceArray.length == duration

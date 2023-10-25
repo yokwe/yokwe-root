@@ -181,6 +181,9 @@ update-stock-div-us:
 report-stock-stats-us: kill-soffice
 	ant report-update-stock-stats-us
 
+report-stock-stats-us-monthly: kill-soffice
+	ant report-update-stock-stats-us-monthly
+
 report-stock-stats-jp: kill-soffice
 	ant report-update-stock-stats-jp
 

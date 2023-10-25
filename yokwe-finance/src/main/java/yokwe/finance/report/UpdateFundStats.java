@@ -113,31 +113,20 @@ public class UpdateFundStats {
 			if ((count % 500) == 1) logger.info("{}", String.format("%4d / %4d", count, fundList.size()));
 			
 			MonthlyStats  monthlyStats;
-			BigDecimal nav;
+			BigDecimal    nav;
 			{
 				var fundPriceList = StorageFund.FundPrice.getList(isinCode);
-				
-				var priceList = fundPriceList.stream().map(o -> new DailyValue(o.date, o.price)).collect(Collectors.toList());
-				if (priceList.size() == 0) {
+				if (fundPriceList.isEmpty()) {
 					countNoPrice++;
 					continue;
 				}
+
+				var priceList = fundPriceList.stream().map(o -> new DailyValue(o.date, o.price)).collect(Collectors.toList());
+				var divList   = MonthlyStats.getDivList(priceList, StorageFund.FundDiv.getList(isinCode));
 				
-				// use latest value for nav
-				nav = null;
-				for(var e: fundPriceList) {
-					if (e.date.isAfter(LAST_DATE_OF_LAST_MONTH)) break;
-					nav = e.nav;
-				}
 				
-				var divMap = StorageFund.FundDiv.getMap(isinCode);
-				var divList = new ArrayList<DailyValue>(priceList.size());
-				
-				for(int i = 0; i < priceList.size(); i++) {
-					var date = priceList.get(i).date;
-					var value = divMap.containsKey(date) ? divMap.get(date).value : BigDecimal.ZERO;
-					divList.add(new DailyValue(date, value));
-				}
+				// use last element for nav
+				nav = fundPriceList.get(fundPriceList.size() - 1).nav;
 				
 				monthlyStats = MonthlyStats.getInstance(isinCode, priceList, divList);
 			}

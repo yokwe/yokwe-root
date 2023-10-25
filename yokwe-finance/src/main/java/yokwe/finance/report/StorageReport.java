@@ -26,4 +26,7 @@ public class StorageReport {
 	// fund-stats
 	public static final Storage.LoadSave<FundStatsType, String> FundStats =
 		new Storage.LoadSave.Impl<>(FundStatsType.class,  o -> o.isinCode, storage, "fund-stats.csv");
+	// fund-stats
+	public static final Storage.LoadSave<StockStatsUSMonthly, String> StockStatsUSMonthly =
+		new Storage.LoadSave.Impl<>(StockStatsUSMonthly.class,  o -> o.stockCode, storage, "stock-stats-us-mothly.csv");
 }
