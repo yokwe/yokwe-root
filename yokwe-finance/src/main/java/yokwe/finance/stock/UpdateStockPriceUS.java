@@ -161,7 +161,7 @@ public class UpdateStockPriceUS {
 	
 	private static void update() {
 		var lastTradingDate = MarketHoliday.US.getLastTradingDate();
-		var stockList       = StorageStock.StockInfoUS.getList();
+		var stockList       = StorageStock.StockInfoUSTrading.getList();
 		logger.info("date     {}", lastTradingDate);
 		logger.info("list     {}", stockList.size());
 
@@ -187,7 +187,7 @@ public class UpdateStockPriceUS {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StorageStock.StockInfoUS.getList()) {
+		for(var e: StorageStock.StockInfoUSTrading.getList()) {
 			File file = new File(StorageStock.StockPriceUS.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}

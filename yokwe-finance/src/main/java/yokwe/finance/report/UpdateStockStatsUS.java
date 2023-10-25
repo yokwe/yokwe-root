@@ -45,7 +45,7 @@ public class UpdateStockStatsUS {
 			var moomooMap      = StorageMoomoo.TradingStockMoomoo.getMap();
 			var companyInfoMap = StorageYahoo.CompanyInfoUSYahoo.getMap();
 			
-			for(var stockInfo: StorageStock.StockInfoUS.getList()) {
+			for(var stockInfo: StorageStock.StockInfoUSTrading.getList()) {
 				var stockCode = stockInfo.stockCode;
 				var priceList = StorageStock.StockPriceUS.getList(stockCode);
 				var divList   = StorageStock.StockDivUS.getList(stockCode);

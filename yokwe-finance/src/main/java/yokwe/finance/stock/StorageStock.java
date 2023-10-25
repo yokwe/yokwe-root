@@ -30,11 +30,14 @@ public class StorageStock {
 	public static final Storage.LoadSave2<DailyValue, ChronoLocalDate> StockDivUS =
 		new Storage.LoadSave2.Impl<>(DailyValue.class, o -> o.date, storage, "stock-div-us", o -> o + ".csv");
 	
-	// stock-info-XX
+	// stock-info-jp
 	public static final Storage.LoadSave<StockInfoJPType, String> StockInfoJP =
-			new Storage.LoadSave.Impl<>(StockInfoJPType.class,  o -> o.stockCode, storage, "stock-info-jp.csv");
-		public static final Storage.LoadSave<StockInfoUSType, String> StockInfoUS =
-			new Storage.LoadSave.Impl<>(StockInfoUSType.class,  o -> o.stockCode, storage, "stock-info-us.csv");
+		new Storage.LoadSave.Impl<>(StockInfoJPType.class,  o -> o.stockCode, storage, "stock-info-jp.csv");
+	// stock-info-us
+	public static final Storage.LoadSave<StockInfoUSType, String> StockInfoUSAll =
+		new Storage.LoadSave.Impl<>(StockInfoUSType.class,  o -> o.stockCode, storage, "stock-info-us-all.csv");
+	public static final Storage.LoadSave<StockInfoUSType, String> StockInfoUSTrading =
+		new Storage.LoadSave.Impl<>(StockInfoUSType.class,  o -> o.stockCode, storage, "stock-info-us-trading.csv");
 		
 	// stock-price-XX
 	public static final Storage.LoadSave2<OHLCV, ChronoLocalDate> StockPriceJP =

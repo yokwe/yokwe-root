@@ -228,7 +228,7 @@ public class UpdateStockDivUS {
 		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAYS);
 
 		// Use StockInfo of stock us
-		var stockList = StorageStock.StockInfoUS.getList();
+		var stockList = StorageStock.StockInfoUSTrading.getList();
 		logger.info("list     {}", stockList.size());
 
 		for(int count = 1; count < 10; count++) {
@@ -253,7 +253,7 @@ public class UpdateStockDivUS {
 	
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
-		for(var e: StorageStock.StockInfoUS.getList()) {
+		for(var e: StorageStock.StockInfoUSTrading.getList()) {
 			File file = new File(StorageStock.StockDivUS.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}

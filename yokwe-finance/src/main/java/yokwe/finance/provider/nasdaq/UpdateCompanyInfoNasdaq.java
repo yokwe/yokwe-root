@@ -27,7 +27,7 @@ public class UpdateCompanyInfoNasdaq {
 		logger.info("companyInfo  {}", list.size());
 		
 		// set of required stockCode
-		var stockInfoList = StorageStock.StockInfoUS.getList();
+		var stockInfoList = StorageStock.StockInfoUSTrading.getList();
 		logger.info("stockInfo    {}", stockInfoList.size());
 		// remove if not stock
 		stockInfoList.removeIf(o -> !o.type.isStock());

@@ -102,14 +102,14 @@ public class UpdateTradingStockMoomoo {
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = StorageStock.StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StorageStock.StockInfoUSAll.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
-
-		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());
-		logger.info("list2      {}", list2.size());
 		
-		logger.info("save  {}  {}", list2.size(), StorageMoomoo.TradingStockMoomoo.getPath());
-		StorageMoomoo.TradingStockMoomoo.save(list2);
+		list.removeIf(o -> !stockCodeSet.contains(o.stockCode));
+		logger.info("list       {}", list.size());
+		
+		logger.info("save  {}  {}", list.size(), StorageMoomoo.TradingStockMoomoo.getPath());
+		StorageMoomoo.TradingStockMoomoo.save(list);
 	}
 	
 	

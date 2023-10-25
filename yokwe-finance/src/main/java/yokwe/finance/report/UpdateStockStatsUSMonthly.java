@@ -49,7 +49,7 @@ public class UpdateStockStatsUSMonthly {
 			var moomooMap      = StorageMoomoo.TradingStockMoomoo.getMap();
 			var companyInfoMap = StorageYahoo.CompanyInfoUSYahoo.getMap();
 			
-			for(var stockInfo: StorageStock.StockInfoUS.getList()) {
+			for(var stockInfo: StorageStock.StockInfoUSTrading.getList()) {
 				var stockCode = stockInfo.stockCode;
 				
 				MonthlyStats  monthlyStats;

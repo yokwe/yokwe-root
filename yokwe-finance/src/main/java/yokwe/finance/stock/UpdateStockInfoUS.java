@@ -17,6 +17,7 @@ public class UpdateStockInfoUS {
 	
 	private static void update() {
 		var list = StorageNYSE.StockInfoNYSE.getList();
+		
 		logger.info("list1       {}", list.size());
 		{
 			// make set of genuine stockCode from each market
@@ -37,8 +38,11 @@ public class UpdateStockInfoUS {
 			list.removeIf(o -> !set.contains(o.stockCode));
 			logger.info("list2       {}", list.size());
 		}
+		logger.info("save  {}  {}", list.size(), StorageStock.StockInfoUSAll.getPath());
+		StorageStock.StockInfoUSAll.save(list);
+
 		{
-			// make set of trading stockCode of each broakerage
+			// make set of trading stockCode of each brokerage company
 			var monexList   = StorageMonex.TradingStockMonex.getList().stream().map(o -> o.stockCode).toList();
 			var moomooList  = StorageMoomoo.TradingStockMoomoo.getList().stream().map(o -> o.stockCode).toList();
 			var rakutenList = StorageRakuten.TradingStockRakuten.getList().stream().map(o -> o.stockCode).toList();
@@ -48,7 +52,7 @@ public class UpdateStockInfoUS {
 			logger.info("moomooList  {}", moomooList.size());
 			logger.info("rakutenList {}", rakutenList.size());
 			logger.info("sbiList     {}", sbiList.size());
-			var set = new HashSet<String>();		
+			var set = new HashSet<String>();
 			set.addAll(monexList);
 			set.addAll(moomooList);
 			set.addAll(rakutenList);
@@ -60,8 +64,8 @@ public class UpdateStockInfoUS {
 			logger.info("list3       {}", list.size());
 		}
 		
-		logger.info("save  {}  {}", list.size(), StorageStock.StockInfoUS.getPath());
-		StorageStock.StockInfoUS.save(list);
+		logger.info("save  {}  {}", list.size(), StorageStock.StockInfoUSTrading.getPath());
+		StorageStock.StockInfoUSTrading.save(list);
 	}
 	
 	public static void main(String[] args) throws IOException {
