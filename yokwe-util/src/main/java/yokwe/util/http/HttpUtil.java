@@ -235,7 +235,7 @@ public class HttpUtil {
 			} else {
 				String contentTypeString = entity.getContentType();
 				ContentType conentType = ContentType.parse(contentTypeString);
-				charset = conentType.getCharset();
+				charset = conentType == null ? null : conentType.getCharset();
 
 				InputStream is = null;
 
