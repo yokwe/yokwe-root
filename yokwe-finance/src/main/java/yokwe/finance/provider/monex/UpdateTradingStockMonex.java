@@ -1,7 +1,9 @@
 package yokwe.finance.provider.monex;
 
 import java.io.File;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,20 +12,20 @@ import java.util.stream.Collectors;
 
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
+import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
-import yokwe.util.json.JSON;
 
 public class UpdateTradingStockMonex {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final boolean DEBUG_USE_FILE = false;
 	
-	private static final String  URL     = "https://mxp1.monex.co.jp/mst/servlet/ITS/ucu/UsMeigaraJsonGST";
-	private static final String  CHARSET = "SHIFT_JIS";
-	private static final String  FILE_PATH = StorageMonex.getPath("UsMeigaraJsonGST");
+	private static final String  URL       = "https://mst.monex.co.jp/pc/pdfroot/public/50/99/Monex_US_LIST.csv";
+	private static final String  CHARSET   = "SHIFT_JIS";
+	private static final String  FILE_PATH = StorageMonex.getPath("Monex_US_LIST.csv");
 	
 	private static String download(String url, String charset, String filePath, boolean useFile) {
 		final String page;
@@ -106,26 +108,16 @@ public class UpdateTradingStockMonex {
 	}
 	
 	
-	static class UsMeigara {
-		@JSON.Name("Ticker")
+	static class CSVData {
+		//2023年10月20日
+		//A,Agilent Technologies Inc,アジレント･テクノロジーズ,NYSE,Common Stock
+		
 		public String stockCode;
 		public String name;
-		public String jname;
-		public String keyword;
-		public String etf;
-		public String shijo;
-		public String update;
-		public String gyoshu;
-		public String jigyo;
-		public String benchmark;
-		public String shisan;
-		public String chiiki;
-		public String category;
-		public String keihi;
-		public String comp;
-		public String pdf;
+		public String nameJ;
+		public String exch;
+		public String type;
 	}
-	
 	
 	private static void update() {
 		var buyFreeSet = BuyFreeETF.getSet();
@@ -135,31 +127,30 @@ public class UpdateTradingStockMonex {
 		
 		List<TradingStockType> list = new ArrayList<>();
 		{
-			for(String line: page.split("\n")) {
-				line = line.trim();
-				if (line.startsWith("{\"Ticker\":") && line.endsWith("},")) {
-					String string = line.substring(0, line.length() - 1);
-					UsMeigara usMeigara = JSON.unmarshal(UsMeigara.class, string);
-					if (usMeigara.name.isEmpty()) continue;
-					
-					var stockCode = usMeigara.stockCode;
-					var feeType   = buyFreeSet.contains(stockCode) ? TradingStockType.FeeType.BUY_FREE : TradingStockType.FeeType.PAID;
-					var tradeType =TradingStockType.TradeType.BUY_SELL;
-					
-					list.add(new TradingStockType(stockCode, feeType, tradeType));
-				}
+			String csvString;
+			{
+				var array = page.split("[\r\n]+");
+				csvString = String.join("\n", Arrays.copyOfRange(array, 1, array.length));
+			}
+			
+			for(var csvData: CSVUtil.read(CSVData.class).withHeader(false).file(new StringReader(csvString))) {
+				var stockCode = csvData.stockCode;
+				var feeType   = buyFreeSet.contains(stockCode) ? TradingStockType.FeeType.BUY_FREE : TradingStockType.FeeType.PAID;
+				var tradeType =TradingStockType.TradeType.BUY_SELL;
+				
+				list.add(new TradingStockType(stockCode, feeType, tradeType));
 			}
 		}
 		logger.info("list       {}", list.size());
 
-		var stockCodeSet = StorageStock.StockInfoUS.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		var stockCodeSet = StorageStock.StockInfoUSAll.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
-
-		var list2   = list.stream().filter(o -> stockCodeSet.contains(o.stockCode)).collect(Collectors.toList());
-		logger.info("list2      {}", list2.size());
 		
-		logger.info("save  {}  {}", list2.size(), StorageMonex.TradingStockMonex.getPath());
-		StorageMonex.TradingStockMonex.save(list2);
+		list.removeIf(o -> !stockCodeSet.contains(o.stockCode));
+		logger.info("list       {}", list.size());
+		
+		logger.info("save  {}  {}", list.size(), StorageMonex.TradingStockMonex.getPath());
+		StorageMonex.TradingStockMonex.save(list);
 	}
 	
 	public static void main(String[] args) {
