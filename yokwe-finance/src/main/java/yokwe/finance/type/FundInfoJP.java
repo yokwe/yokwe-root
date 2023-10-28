@@ -3,6 +3,8 @@ package yokwe.finance.type;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import yokwe.util.StringUtil;
+
 public class FundInfoJP implements Comparable<FundInfoJP> {
 	public static final LocalDate NO_REDEMPTION_DATE        = LocalDate.of(2999, 1, 1);
 	public static final String    NO_REDEMPTION_DATE_STRING = "99999999";
@@ -71,6 +73,10 @@ public class FundInfoJP implements Comparable<FundInfoJP> {
 			this.name           = name;
 		}
 	
+	@Override
+	public String toString() {
+		return StringUtil.toString(this);
+	}
 	
 	public String getKey() {
 		return this.stockCode;
