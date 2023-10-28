@@ -21,7 +21,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class UpdateNisaRakuten {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE = true; // FIXME
+	private static final boolean DEBUG_USE_FILE = false;
 	
 	private static byte[] download(String url, String filePath, boolean useFile) {
 		final byte[] data;
