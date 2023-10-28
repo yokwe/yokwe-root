@@ -101,6 +101,11 @@ public class UpdateFundStats {
 		logger.info("sbiMapt    {}", sbiMap.size());
 		logger.info("sonyMap    {}", sonyMap.size());
 		logger.info("prestiaMap {}", prestiaMap.size());
+		
+		var nisaFundMap = StorageRakuten.NisaFundRakuten.getMap();
+		logger.info("nisaFund   {}", nisaFundMap.size());
+		var nisaETFMap = StorageRakuten.NisaETFJPRakuten.getMap();
+		logger.info("nisaETF    {}", nisaETFMap.size());
 
 		int countNoPrice  = 0;
 		int countNoNikkei = 0;
@@ -206,6 +211,7 @@ public class UpdateFundStats {
 			fundStats.name     = fund.name;
 			
 			if (fundStats.stockCode.isEmpty()) {
+				// FUND
 				fundStats.click   = !clickMap.containsKey(fund.isinCode)   ? null: clickMap.get(fund.isinCode).salesFee;
 				fundStats.nikko   = !nikkoMap.containsKey(fund.isinCode)   ? null: nikkoMap.get(fund.isinCode).salesFee;
 				fundStats.nomura  = !nomuraMap.containsKey(fund.isinCode)  ? null: nomuraMap.get(fund.isinCode).salesFee;
@@ -213,14 +219,28 @@ public class UpdateFundStats {
 				fundStats.sbi     = !sbiMap.containsKey(fund.isinCode)     ? null: sbiMap.get(fund.isinCode).salesFee;
 				fundStats.sony    = !sonyMap.containsKey(fund.isinCode)    ? null: sonyMap.get(fund.isinCode).salesFee;
 				fundStats.prestia = !prestiaMap.containsKey(fund.isinCode) ? null: prestiaMap.get(fund.isinCode).salesFee;
+				
+				if (nisaFundMap.containsKey(isinCode)) {
+					fundStats.nisa = BigDecimal.valueOf(nisaFundMap.get(isinCode).accumulable.value);
+				} else {
+					fundStats.nisa = null;
+				}
 			} else {
-				fundStats.click   = null;
-				fundStats.nikko   = null;
-				fundStats.nomura  = null;
-				fundStats.rakuten = null;
-				fundStats.sbi     = null;
+				// ETF
+				fundStats.click   = BigDecimal.ZERO;;
+				fundStats.nikko   = BigDecimal.ZERO;;
+				fundStats.nomura  = BigDecimal.ZERO;;
+				fundStats.rakuten = BigDecimal.ZERO;;
+				fundStats.sbi     = BigDecimal.ZERO;;
 				fundStats.sony    = null;
 				fundStats.prestia = null;
+				
+				var stockCode = fundStats.stockCode;
+				if (nisaETFMap.containsKey(stockCode)) {
+					fundStats.nisa = BigDecimal.ZERO;
+				} else {
+					fundStats.nisa = null;
+				}
 			}
 			
 			// special case

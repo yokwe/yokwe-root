@@ -98,6 +98,7 @@ public class FundStatsType extends Sheet implements Comparable<FundStatsType> {
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
 	@Sheet.ColumnName("PRESTIA")    public BigDecimal prestia;
 	
+	@Sheet.ColumnName("NISA")       public BigDecimal nisa;
 	
     @Override
     public String toString() {
