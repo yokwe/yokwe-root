@@ -16,6 +16,7 @@ import yokwe.util.HashCode;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
+import yokwe.util.libreoffice.LibreOffice;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -32,7 +33,6 @@ public class UpdateListing {
 	private static void update() {
 		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAY);
 		
-		logger.info("download {}", URL);
 		{
 			File file = new File(PATH_DATAFILE);
 			
@@ -53,6 +53,7 @@ public class UpdateListing {
 				}
 			}
 			
+			logger.info("download {}", URL);
 			HttpUtil http = HttpUtil.getInstance().withRawData(true);
 			HttpUtil.Result result = http.download(URL);
 			
@@ -141,6 +142,8 @@ public class UpdateListing {
 		try {
 			logger.info("START");
 			
+			LibreOffice.initialize();
+			
 			update();
 			
 			logger.info("STOP");
@@ -148,7 +151,7 @@ public class UpdateListing {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
 		} finally {
-			System.exit(0);
+			LibreOffice.terminate();
 		}
 	}
 }
