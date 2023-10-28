@@ -129,9 +129,9 @@ public class UpdateTradingFundClick {
 				
 				// sanity check
 				if (!isinCodeSet.contains(isinCode)) {
-					logger.error("Unpexpeced isinCode");
-					logger.error("  {}  {}", e.isinCode, e.fundname);
-					throw new UnexpectedException("Unpexpeced isinCode");
+					logger.warn("Unpexpeced isinCode");
+					logger.warn("  {}  {}", e.isinCode, e.fundname);
+					continue;
 				}
 				
 				list.add(new TradingFundType(isinCode, salesFee));
