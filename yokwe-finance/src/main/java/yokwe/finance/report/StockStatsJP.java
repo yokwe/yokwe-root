@@ -43,7 +43,9 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 	@Sheet.ColumnName("vol5") public long   vol5;
 	// 20 <= pricec
 	@Sheet.ColumnName("vol21") public long  vol21;
-
+	
+	@Sheet.ColumnName("nisa") public String nisa;
+	
 	public StockStatsJP() {
 		stockCode = null;
 		

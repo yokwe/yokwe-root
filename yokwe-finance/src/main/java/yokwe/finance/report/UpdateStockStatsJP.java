@@ -7,6 +7,7 @@ import java.util.List;
 
 import yokwe.finance.provider.jreit.StorageJREIT;
 import yokwe.finance.provider.manebu.StorageManebu;
+import yokwe.finance.provider.rakuten.StorageRakuten;
 import yokwe.finance.provider.yahoo.StorageYahoo;
 import yokwe.finance.stats.StockStats;
 import yokwe.finance.stock.StorageStock;
@@ -33,6 +34,7 @@ public class UpdateStockStatsJP {
 			var companyInfoMap = StorageYahoo.CompanyInfoJPYahoo.getMap();
 			var etfMap         = StorageManebu.ETFInfo.getMap();
 			var jreitMap       = StorageJREIT.JREITInfo.getMap();
+			var nisaMap        = StorageRakuten.NisaETFJPRakuten.getMap();
 
 			for(var stockInfo: StorageStock.StockInfoJP.getList()) {
 				var stockCode = stockInfo.stockCode;
@@ -104,6 +106,12 @@ public class UpdateStockStatsJP {
 					stats.vol       = stockStats.vol;
 					stats.vol5      = stockStats.vol5;
 					stats.vol21     = stockStats.vol21;
+				}
+				
+				if (stockInfo.type.isETF()) {
+					stats.nisa = nisaMap.containsKey(stockCode) ? "1" : "";
+				} else {
+					stats.nisa = "1";
 				}
 				
 				list.add(stats);
