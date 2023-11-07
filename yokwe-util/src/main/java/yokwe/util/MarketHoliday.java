@@ -91,7 +91,7 @@ public abstract class MarketHoliday {
 
 		DateTimeFormatter format_YYYY_MM_DD = DateTimeFormatter.ofPattern("yyyy-M-d");
 
-		List<Data> dataList = CSVUtil.read(Data.class).file(Data.class, path, StandardCharsets.UTF_8);
+		List<Data> dataList = CSVUtil.read(Data.class).withCharset(StandardCharsets.UTF_8).file(Data.class, path);
 		
 		for(Data data: dataList) {
 			if (data.event.length() == 0) continue;
