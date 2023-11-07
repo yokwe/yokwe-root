@@ -48,7 +48,7 @@ public class Market {
 	private static Map<LocalDate, LocalDate> irregularSttlementDateMap = new TreeMap<>();
 	//                 tradeDate  settlementDate
 	static {
-		List<IrregularSettlement> list = CSVUtil.read(IrregularSettlement.class).file(Market.class, PATH_IRREGULAR_SETTLEMENT, StandardCharsets.UTF_8);
+		List<IrregularSettlement> list = CSVUtil.read(IrregularSettlement.class).withCharset(StandardCharsets.UTF_8).file(Market.class, PATH_IRREGULAR_SETTLEMENT);
 
 		for(IrregularSettlement irregularSettlement: list) {
 			LocalDate tradeDate      = LocalDate.parse(irregularSettlement.tradeDate);
