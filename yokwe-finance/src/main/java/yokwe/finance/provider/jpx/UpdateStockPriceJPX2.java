@@ -15,13 +15,12 @@ import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.MarketHoliday;
-import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateStockPriceJPX2 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE = true;
+	private static final boolean DEBUG_USE_FILE = false;
 	
 	private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
 	private static final String REFERER    = "https://www.jpx.co.jp/";
@@ -35,9 +34,9 @@ public class UpdateStockPriceJPX2 {
 			} else {
 				HttpUtil.Result result = HttpUtil.getInstance().withUserAgent(USER_AGENT).withReferer(REFERER).download(url);
 				if (result == null || result.result == null) {
-					logger.error("Unexpected");
-					logger.error("  result  {}", result);
-					throw new UnexpectedException("Unexpected");
+					logger.warn("Unexpected");
+					logger.warn("  result  {}", result);
+					return null;
 				}
 				page = result.result;
 				// debug
@@ -106,6 +105,7 @@ public class UpdateStockPriceJPX2 {
 		int countB = 0;
 		int countC = 0;
 		int countD = 0;
+		int countE = 0;
 		int count  = 0;
 		for(var task: taskList) {
 			if ((++count % 100) == 1) logger.info("{}  /  {}", count, taskList.size());
@@ -118,18 +118,23 @@ public class UpdateStockPriceJPX2 {
 				var url  = getURL(stockCode);
 				var path = StorageJPX.getPath("page", stockCode + ".html");
 				page = download(url, path, DEBUG_USE_FILE);
+				if (page == null) {
+					logger.warn("download failed  {}  {}", stockCode, name);
+					countA++;
+					continue;
+				}
 			}
 			
 			if (page.contains(StockPage.NO_INFORMATION)) {
 				logger.warn("no information  {}  {}", stockCode, name);
-				countA++;
+				countB++;
 				continue;
 			}
 			
 			var priceList = PriceVolume.getInstance(page);
 			if (priceList == null) {
 				logger.warn("priceList is null  {}  {}", stockCode, name);
-				countB++;
+				countC++;
 				continue;
 			}
 			
@@ -172,11 +177,16 @@ public class UpdateStockPriceJPX2 {
 							if (oldPrice.equals(price)) {
 								//
 							} else {
-								logger.info("old  {}", oldPrice);
-								logger.info("new  {}", price);
-								
-								map.put(price.date, price);
-								countChange++;
+								if (price.volume == 0 && oldPrice.volume == 0) {
+									// old price has value using lastPrice
+									// do not override old price
+								} else {
+									logger.info("differennt price  {}  {}", stockCode, name);
+									logger.info("  old  {}", oldPrice);
+									logger.info("  new  {}", price);
+									map.put(price.date, price);
+									countChange++;
+								}
 							}
 						}
 					}
@@ -187,7 +197,7 @@ public class UpdateStockPriceJPX2 {
 			
 			if (countChange == 0) {
 //				logger.info("no change  {}  {}", stockCode, name);
-				countC++;
+				countD++;
 			} else {
 //				logger.info("change  {}  {}", stockCode, name);
 				
@@ -210,7 +220,7 @@ public class UpdateStockPriceJPX2 {
 				
 				if (list.isEmpty()) {
 					logger.warn("list is empty   {}  {}", stockCode, name);
-					countD++;
+					countE++;
 				} else {
 					StorageJPX.StockPriceJPX.save(stockCode, list);
 					//
@@ -223,6 +233,7 @@ public class UpdateStockPriceJPX2 {
 		logger.info("countB  {}", countB);
 		logger.info("countC  {}", countC);
 		logger.info("countD  {}", countD);
+		logger.info("countE  {}", countE);
 		logger.info("mod     {}", countMod);
 
 		return countMod;
