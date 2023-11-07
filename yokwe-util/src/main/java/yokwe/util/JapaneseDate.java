@@ -35,7 +35,7 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 	private static Map<String, Integer> eraMap = new TreeMap<>();
 	//                 era     star year
 	static {
-		List<EraData> list = CSVUtil.read(EraData.class).file(EraData.class, DATA_PATH, StandardCharsets.UTF_8);
+		List<EraData> list = CSVUtil.read(EraData.class).withCharset(StandardCharsets.UTF_8).file(EraData.class, DATA_PATH);
 		for(var e: list) {
 			eraMap.put(e.era, e.year);
 		}
