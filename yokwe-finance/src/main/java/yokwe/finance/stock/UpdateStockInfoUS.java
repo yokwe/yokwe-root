@@ -7,6 +7,7 @@ import yokwe.finance.provider.bats.StorageBATS;
 import yokwe.finance.provider.monex.StorageMonex;
 import yokwe.finance.provider.moomoo.StorageMoomoo;
 import yokwe.finance.provider.nasdaq.StorageNasdaq;
+import yokwe.finance.provider.nikko.StorageNikko;
 import yokwe.finance.provider.nyse.StorageNYSE;
 import yokwe.finance.provider.rakuten.StorageRakuten;
 import yokwe.finance.provider.sbi.StorageSBI;
@@ -45,16 +46,19 @@ public class UpdateStockInfoUS {
 			// make set of trading stockCode of each brokerage company
 			var monexList   = StorageMonex.TradingStockMonex.getList().stream().map(o -> o.stockCode).toList();
 			var moomooList  = StorageMoomoo.TradingStockMoomoo.getList().stream().map(o -> o.stockCode).toList();
+			var nikkoList  = StorageNikko.TradingStockNikko.getList().stream().map(o -> o.stockCode).toList();
 			var rakutenList = StorageRakuten.TradingStockRakuten.getList().stream().map(o -> o.stockCode).toList();
 			var sbiList     = StorageSBI.TradingStockSBI.getList().stream().map(o -> o.stockCode).toList();
 			
 			logger.info("monexList   {}", monexList.size());
 			logger.info("moomooList  {}", moomooList.size());
+			logger.info("nikkoList   {}", nikkoList.size());
 			logger.info("rakutenList {}", rakutenList.size());
 			logger.info("sbiList     {}", sbiList.size());
 			var set = new HashSet<String>();
 			set.addAll(monexList);
 			set.addAll(moomooList);
+			set.addAll(nikkoList);
 			set.addAll(rakutenList);
 			set.addAll(sbiList);
 			logger.info("set         {}", set.size());
