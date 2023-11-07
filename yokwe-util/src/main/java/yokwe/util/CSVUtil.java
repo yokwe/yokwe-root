@@ -3,7 +3,6 @@ package yokwe.util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
 
 public class CSVUtil {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -360,6 +360,7 @@ public class CSVUtil {
 	private static class Context {
 		private boolean withHeader = true;
 		private char    separator  = ',';
+		private Charset charset    = Charset.defaultCharset();
 	}
 	
 	public static <E> Read<E> read(Class<E> clazz) {
@@ -379,6 +380,10 @@ public class CSVUtil {
 		}
 		public Read<E> withSeparator(char newValue) {
 			context.separator = newValue;
+			return this;
+		}
+		public Read<E> withCharset(Charset newValue) {
+			context.charset = newValue;
 			return this;
 		}
 		
@@ -559,8 +564,8 @@ public class CSVUtil {
 			if (!file.exists()) return null;
 			if (file.length() == 0) return null;
 			try {
-				return file(new FileReader(file));
-			} catch (FileNotFoundException e) {
+				return file(new FileReader(file, context.charset));
+			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
 				throw new UnexpectedException(exceptionName, e);
@@ -572,11 +577,11 @@ public class CSVUtil {
 		public List<E> file(String path) {
 			return file(new File(path));
 		}
-		public List<E> file(InputStream is, Charset charset) {
-			return file(new InputStreamReader(is, charset));
+		public List<E> file(InputStream is) {
+			return file(new InputStreamReader(is, context.charset));
 		}
 		// read csv file in resource using class loader of clazz
-		public List<E> file(Class<?> clazz, String resourceName, Charset charset) {
+		public List<E> file(Class<?> clazz, String resourceName) {
 			// NOTE: Use gerResource() instead of getResourceAsStream()
 			URL url = clazz.getResource(resourceName);
 			if (url == null) {
@@ -601,7 +606,7 @@ public class CSVUtil {
 				logger.error("  url          {}", url);
 				throw new UnexpectedException("no resource");
 			}
-			return file(is, charset);
+			return file(is);
 		}
 	}
 	
