@@ -74,9 +74,10 @@ public class UpdateStockInfoJPX {
 					else if (reitMap.containsKey(stockCode))  type = StockInfoJPType.Type.REIT;
 					else if (infraMap.containsKey(stockCode)) type = StockInfoJPType.Type.INFRA_FUND;
 					else {
-						logger.error("Unexpected");
-						logger.error("  jpxListring  {}", listing);
-						throw new UnexpectedException("Unexpected");
+						// unlisted item
+						logger.warn("unknown    {}  {}", listing.stockCode, listing.name);
+						countSkip++;
+						continue;
 					}
 				}
 								
