@@ -251,6 +251,8 @@ public class UpdateStockPriceJPX2 {
 			
 			// build task list
 			var taskList = getTaskList(lastTradingDate, stockList);
+			// shuffle task list
+			Collections.shuffle(taskList);
 			// process task list
 			int countMod = processTask(taskList);
 			
