@@ -222,10 +222,13 @@ public class UpdateJREITInfo {
 	private static void update() {
 		final List<String> reitList;
 		final List<String> infraList;
+		final Map<String, String> nameMap;
+		//        stockCode name
 		{
 			var list = StorageStock.StockInfoJP.getList();
 			reitList  = list.stream().filter(o -> o.type.isREIT()).map(o -> o.stockCode).collect(Collectors.toList());
 			infraList = list.stream().filter(o -> o.type.isInfraFund()).map(o -> o.stockCode).collect(Collectors.toList());
+			nameMap   = list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
 		}
 		logger.info("reit  {}", reitList.size());
 		logger.info("infra {}", infraList.size());
@@ -237,17 +240,20 @@ public class UpdateJREITInfo {
 			int count = 0;
 			for(var stockCode: reitList) {
 				if ((++count % 10) == 1) logger.info("reit   {}  /  {}  {}", count, reitList.size(), stockCode);
+				var name = nameMap.get(stockCode);
 				
 				String url      = String.format("https://www.japan-reit.com/meigara/%s/info/", StockInfoJPType.toStockCode4(stockCode));			
 				String category = categoryMap.get(stockCode);
 				if (category == null) {
-					logger.error("Unexpected stockCode");
-					logger.error("  stockCode  {}", stockCode);
-					throw new UnexpectedException("Unexpected stockCode");
+					logger.warn("unknown  {}  {}", stockCode, name);
+					continue;
 				}
 				
 				final JREITInfoType reitInfo = getREIT(stockCode, url, category);
-				if (reitInfo == null) continue;
+				if (reitInfo == null) {
+					logger.warn("unknown  {}  {}", stockCode, name);
+					continue;
+				}
 				list.add(reitInfo);
 			}
 		}
@@ -255,12 +261,16 @@ public class UpdateJREITInfo {
 			int count = 0;
 			for(var stockCode: infraList) {
 				if ((++count % 10) == 1) logger.info("infra  {}  /  {}  {}", count, reitList.size(), stockCode);
-				
+				var name = nameMap.get(stockCode);
+
 				String url      = String.format("https://www.japan-reit.com/infra/%s/info/", StockInfoJPType.toStockCode4(stockCode));			
 				String category = JREITInfoType.CATEGORY_INFRA_FUND;
 
 				final JREITInfoType reitInfo = getREIT(stockCode, url, category);
-				if (reitInfo == null) continue;
+				if (reitInfo == null) {
+					logger.warn("unknown  {}  {}", stockCode, name);
+					continue;
+				}
 				list.add(reitInfo);
 			}
 		}
