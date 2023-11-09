@@ -115,7 +115,7 @@ update-trading-fund:
 	ant provider-sbi-update-trading-fund-sbi
 	ant provider-sony-update-trading-fund-sony
 
-update-fund: check-data-path update-trading-fund
+update-fund: check-data-path
 	ant provider-jita-update-fund-info-jita
 	ant provider-jita-update-fund-div-price-jita
 	cp -p $(DATA_PATH)/provider/jita/fund-info-jita.csv $(DATA_PATH)/fund/fund-info.csv
@@ -155,7 +155,7 @@ update-stock-div-jp:
 #
 # STOCK US
 #
-update-stock-info-us: update-trading-stock
+update-stock-info-us:
 	ant provider-bats-update-stock-info-bats
 	ant provider-nasdaq-update-stock-info-nasdaq
 	ant provider-nyse-update-stock-info-nyse
