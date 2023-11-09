@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import yokwe.finance.provider.rakuten.StorageRakuten;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.finance.type.TradingStockType.FeeType;
@@ -165,7 +164,7 @@ public class UpdateTradingStockNikko {
 			}
 		}
 		
-		List<TradingStockType> trdingStockList = new ArrayList<>();
+		List<TradingStockType> tradingStockList = new ArrayList<>();
 		{
 			var stockMap = StorageStock.StockInfoUSAll.getMap();
 			
@@ -175,15 +174,15 @@ public class UpdateTradingStockNikko {
 				String symbol = e.sym.replace("/", ".");
 				
 				if (stockMap.containsKey(symbol)) {
-					trdingStockList.add(new TradingStockType(symbol, FeeType.PAID, TradeType.BUY_SELL));
+					tradingStockList.add(new TradingStockType(symbol, FeeType.PAID, TradeType.BUY_SELL));
 				} else {
 					logger.warn("Unexpected symbol  {}  {}", symbol, e.nm);
 				}
 			}
 		}
 		
-		logger.info("save  {}  {}", trdingStockList.size(), StorageRakuten.TradingStockRakuten.getPath());
-		StorageNikko.TradingStockNikko.save(trdingStockList);
+		logger.info("save  {}  {}", tradingStockList.size(), StorageNikko.TradingStockNikko.getPath());
+		StorageNikko.TradingStockNikko.save(tradingStockList);
 	}
 	
 	public static void main(String[] args) {
