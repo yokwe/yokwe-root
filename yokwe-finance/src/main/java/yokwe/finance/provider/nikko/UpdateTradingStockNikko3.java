@@ -5,21 +5,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.openqa.selenium.By;
-
 import yokwe.finance.Storage;
-import yokwe.finance.account.Secret;
-import yokwe.finance.account.nikko.AccountNikko;
+import yokwe.finance.account.nikko.WebBrowserNikko;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.finance.type.TradingStockType.FeeType;
 import yokwe.finance.type.TradingStockType.TradeType;
-import yokwe.finance.util.SeleniumUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateTradingStockNikko2 {
+public class UpdateTradingStockNikko3 {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class PageNoInfo {
@@ -153,65 +149,66 @@ public class UpdateTradingStockNikko2 {
 	}
 	
 	private static int download() {
-		var secret = Secret.read();
-		logger.info("branch    {}", secret.nikko.branch);
-		logger.info("account   {}", secret.nikko.account);
-//		logger.info("password  {}", secret.nikko.password);
-		
-		logger.info("driver");
-		var driver = SeleniumUtil.getWebDriver();
-		
-		logger.info("login");
-		AccountNikko.login(driver, secret.nikko.branch, secret.nikko.account, secret.nikko.password);
-		
-		AccountNikko.firstPageUSStock(driver);
-		
-		int pageNoMax;
-		{
-			var page = driver.getPageSource();				
-			pageNoMax = ShowPageInfo.getInstance(page).stream().mapToInt(o -> o.pageNo).max().getAsInt();
-		}
-		
-		logger.info("pageNoMax    {}", pageNoMax);
-					
-		for(;;) {
-			var page = driver.getPageSource();
-			var pageNo = PageNoInfo.getInstance(page).pageNo;
-			logger.info("pageNo  {}", pageNo);
+		logger.info("download");
+		try(var browser = new WebBrowserNikko()) {
 			
-			FileUtil.write().file(getPath(pageNo), page);
-			
-			if (pageNo == pageNoMax) break;
-
+			browser.driverInfo();
 			{
-				var pageNoExpect = pageNo + 1;
+				var position = browser.getPosition();
+				browser.setPosition(position.x, 0);
 				
-				var linkText = String.format("%d",  pageNo + 1 + 1);
-				driver.findElement(By.linkText(linkText)).click();
+				var size = browser.getSize();
+				browser.setSize(1000, size.height);
+			}
+			
+			logger.info("login");
+			browser.login();
+			
+			logger.info("trade");
+			browser.trade();
+			
+			logger.info("listStockUS");
+			browser.listStockUS();
+			
+			int pageNoMax = ShowPageInfo.getInstance(browser.getPage()).stream().mapToInt(o -> o.pageNo).max().getAsInt();
+			logger.info("pageNoMax  {}", pageNoMax);
+						
+			for(;;) {
+				var page = browser.getPage();				
+				var pageNo = PageNoInfo.getInstance(page).pageNo;
+				logger.info("pageNo     {}", pageNo);
 				
-				AccountNikko.sleepShort();
-				for(int i = 0; i < 100; i++) {
-					if (i == 10) {
-						logger.error("Unexpected");
-						throw new UnexpectedException("Unexpected");
-					}
+				FileUtil.write().file(getPath(pageNo), page);
+				
+				if (pageNo == pageNoMax) break;
 
-					var pageNoActual = PageNoInfo.getInstance(driver.getPageSource()).pageNo;
-					if (pageNoActual == pageNoExpect) break;
-					logger.info("same page  {}  {}  {}", i, pageNoExpect, pageNoActual);
+				{
+					var pageNoExpect = pageNo + 1;
+					var script = String.format("showPage(%d);", pageNoExpect);
+					browser.javaScriptAndWait(script);
 					
-					AccountNikko.sleepLong();
+					for(int i = 0; i < 100; i++) {
+						if (i == 10) {
+							logger.error("Unexpected");
+							throw new UnexpectedException("Unexpected");
+						}
+
+						var pageNoActual = PageNoInfo.getInstance(browser.getPage()).pageNo;
+						if (pageNoActual == pageNoExpect) break;
+						logger.info("same page  {}  {}  {}", i, pageNoExpect, pageNoActual);
+						browser.sleepShort();
+					}
 				}
-			}				
+			}
+			
+			logger.info("logout");
+			browser.logout();
+			
+			logger.info("close");
+			browser.close();
+			
+			return pageNoMax;
 		}
-		
-		logger.info("logout");
-		AccountNikko.logout(driver);
-		
-		logger.info("closeDriver");
-		SeleniumUtil.closeDriver(driver);
-		
-		return pageNoMax;
 	}
 	
 	
@@ -224,10 +221,9 @@ public class UpdateTradingStockNikko2 {
 		
 		var list = new ArrayList<TradingStockType>();
 		
-		// 2188 + 278 = 2466
-
 		// no of stock in nikko as of 2023-11-11
 		//   2466  all
+		//    278  sell
 		//   2188  buy sell
 		
 		for(var pageNo = 0; pageNo <= pageNoMax; pageNo++) {
@@ -269,9 +265,11 @@ public class UpdateTradingStockNikko2 {
 		}
 		logger.info("list  {}", list.size());
 		
-//		var stockMap = StorageStock.StockInfoUSAll.getMap();
-//		list.removeIf(o -> !stockMap.containsKey(o.stockCode));
-//		logger.info("list  {}", list.size());
+		{
+			var stockMap = StorageStock.StockInfoUSAll.getMap();
+			list.removeIf(o -> !stockMap.containsKey(o.stockCode));
+		}
+		logger.info("list  {}", list.size());
 		
 		logger.info("save  {}  {}", list.size(), StorageNikko.TradingStockNikko.getPath());
 		StorageNikko.TradingStockNikko.save(list);

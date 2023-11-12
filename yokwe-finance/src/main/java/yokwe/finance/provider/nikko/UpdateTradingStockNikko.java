@@ -1,195 +1,286 @@
 package yokwe.finance.provider.nikko;
 
-import java.io.File;
-import java.io.StringReader;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
+import yokwe.finance.Storage;
+import yokwe.finance.account.nikko.WebBrowserNikko;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.finance.type.TradingStockType.FeeType;
 import yokwe.finance.type.TradingStockType.TradeType;
 import yokwe.util.FileUtil;
-import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.http.HttpUtil;
-import yokwe.util.json.JSON;
 
 public class UpdateTradingStockNikko {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE  = false;
-	
-	private static final String  URL             = "https://fstock.smbcnikko.co.jp/smbcnikko/searchresultdata";
-	private static final String  CONTENT_TYPE    = "application/x-www-form-urlencoded; charset=UTF-8";
-	private static final String  REFERER         = "https://fstock.smbcnikko.co.jp/smbcnikko/search?pop=";
-	
-	private static String getPostBody(int pageNo) {
-		LinkedHashMap<String, String> map = new LinkedHashMap<>();
-		map.put("namecode", "");
-		map.put("keyword",  "");
-		map.put("exchange", "");
-		map.put("sector",   "");
-		map.put("etf",      "");
-		map.put("page",     String.valueOf(pageNo));
-		map.put("type",     "0");
-		map.put("asc",      "1");
-		map.put("c",        "0");
-		
-		String string = map.entrySet().stream().map(o -> o.getKey() + "=" + URLEncoder.encode(o.getValue(), StandardCharsets.UTF_8)).collect(Collectors.joining("&"));
-		return string;
-	}
-	
-	private static String getPage(int pageNo) {
-		final File file;
-		{
-			String name = String.format("searchresultdata-%d.json", pageNo);;
-			String path = StorageNikko.getPath("page", name);
-			file = new File(path);
+	public static class PageNoInfo {
+		// <input name="pageNo" type="hidden" value="2">
+		public static final Pattern PAT = Pattern.compile(
+			"<input name=\"pageNo\" type=\"hidden\" value=\"(?<pageNo>\\d+)\">" +
+			""
+		);
+		public static PageNoInfo getInstance(String page) {
+			return ScrapeUtil.get(PageNoInfo.class, PAT, page);
 		}
 		
-		if (DEBUG_USE_FILE) {
-			if (file.exists()) return FileUtil.read().file(file);
-		}
-
-		String postBody = getPostBody(pageNo);
-		String url      = URL;
-		HttpUtil.Result result = HttpUtil.getInstance().withReferer(REFERER).withPost(postBody, CONTENT_TYPE).download(url);
-				
-		if (result == null) {
-			logger.error("result == null");
-			logger.error("  url {}!", url);
-			throw new UnexpectedException("result == null");
-		}
-		if (result.result == null) {
-			logger.error("result.result == null");
-			logger.error("  url       {}!", url);
-			logger.error("  response  {}  {}", result.code, result.reasonPhrase);
-			throw new UnexpectedException("result.result == null");
-		}
+		public int pageNo;
 		
-		String page = result.result;
-		
-		// for debug
-		FileUtil.write().file(file, page);
-
-		return page;
-	}
-	
-	public static class SearchResultData {
-		public static class StockInfo implements Comparable<StockInfo> {
-			public String sym;
-			public String smbc_nikko_ticker;
-			public String asset_category;
-			public String ric;
-			public String exch;
-			public String nm;
-			public String trbc_nm;
-			
-			@Override
-			public String toString() {
-				return StringUtil.toString(this);
-			}
-
-			@Override
-			public int compareTo(StockInfo that) {
-				return this.sym.compareTo(that.sym);
-			}
+		public PageNoInfo(int pageNo) {
+			this.pageNo = pageNo;
 		}
-		
-		@JSON.Name("datalist")
-		Map<String, StockInfo> stockInfoMap;
-		
-		public String  decoder_nc;
-		public String  endidx;
-		public String  endpage;
-		public boolean hasnext;
-		public String  lastpage;
-		public String  pageno;
-		public String  startidx;
-		public String  startpage;
-		public String  totalrec;
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return String.format("{%d}", pageNo);
 		}
 	}
+	
+	public static class ShowPageInfo {
+		// <A href="javascript:showPage(0)">1</A>
+		public static final Pattern PAT = Pattern.compile(
+				"<a href=\"javascript:showPage\\((?<pageNo>\\d+)\\)\">\\d+</a>" +
+				""
+		);
+		public static List<ShowPageInfo> getInstance(String page) {
+			return ScrapeUtil.getList(ShowPageInfo.class, PAT, page);
+		}
+		
+		public int pageNo;
+		
+		public ShowPageInfo(int pageNo) {
+			this.pageNo = pageNo;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%d}", pageNo);
+		}
+	}
+	
+	public static class StockInfo implements Comparable<StockInfo> {
+		public static final Pattern PAT_A = Pattern.compile(
+				"<tr>\\s+" +
+			    // stockCode
+			    "<td .+?>\\s+" +
+				"<span .+?>\\s+" +
+//			    "(?:<a .+?>)?(?<stockCode>[A-Z/]+)(?:</a>)?\\s+" +
+			    "<a .+?>(?<stockCode>[A-Z/]+)</a>\\s+" +
+//			    "(?<stockCode>[A-Z]+?)\\s+" +
+			    "</span>\\s+" +
+				"</td>\\s+" +
+				// name
+				"<td .+?>.+?<a .+?>(?<name>.+?)</a>.+?</td>\\s+" +
+				// exchange
+				"<td .+?>.+?</td>\\s+" +
+				// industry
+				"<td .+?>.+?</td>\\s+" +
+				// restriction
+				"<td .+?>.+?</td>\\s+" +
+				// buy sell
+				"<td .+?>(?<buySell>.+?)</td>\\s+" +
+				// report
+				"<td .+?>.+?</td>\\s+" +
+				"</tr>" +
+			
+				"", Pattern.DOTALL);
+		public static final Pattern PAT_B = Pattern.compile(
+				"<tr>\\s+" +
+			    // stockCode
+			    "<td .+?>\\s+" +
+				"<span .+?>\\s+" +
+//			    "(?:<a .+?>)?(?<stockCode>[A-Z/]+)(?:</a>)?\\s+" +
+//			    "<a .+?>(?<stockCode>[A-Z/]+)</a>\\s+" +
+			    "(?<stockCode>[A-Z]+?)\\s+" +
+			    "</span>\\s+" +
+				"</td>\\s+" +
+				// name
+				"<td .+?>.+?<a .+?>(?<name>.+?)</a>.+?</td>\\s+" +
+				// exchange
+				"<td .+?>.+?</td>\\s+" +
+				// industry
+				"<td .+?>.+?</td>\\s+" +
+				// restriction
+				"<td .+?>.+?</td>\\s+" +
+				// buy sell
+				"<td .+?>(?<buySell>.+?)</td>\\s+" +
+				// report
+				"<td .+?>.+?</td>\\s+" +
+				"</tr>" +
+			
+				"", Pattern.DOTALL);
+		
+		public static List<StockInfo> getInstance(String page) {
+			var list_A = ScrapeUtil.getList(StockInfo.class, PAT_A, page);
+			var list_B = ScrapeUtil.getList(StockInfo.class, PAT_B, page);
+			
+			list_A.addAll(list_B);
+			Collections.sort(list_A);
+			return list_A;
+		}
+		
+		public String stockCode;
+		public String name;
+		public String buySell;
+		
+		public StockInfo(String stockCode, String name, String buySell) {
+			this.stockCode = stockCode;
+			this.name      = name;
+			this.buySell   = buySell;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("{%s  %s  %s}", stockCode, name, buySell);
+		}
 
+		@Override
+		public int compareTo(StockInfo that) {
+			return this.stockCode.compareTo(that.stockCode);
+		}
+	}
+	
+	private static String getPath(int pageNo) {
+		return StorageNikko.getPath("stock", String.format("%03d.html", pageNo));
+	}
+	
+	private static int download() {
+		logger.info("download");
+		try(var browser = new WebBrowserNikko()) {
+			
+			browser.driverInfo();
+			{
+				var position = browser.getPosition();
+				browser.setPosition(position.x, 0);
+				
+				var size = browser.getSize();
+				browser.setSize(1000, size.height);
+			}
+			
+			logger.info("login");
+			browser.login();
+			
+			logger.info("trade");
+			browser.trade();
+			
+			logger.info("listStockUS");
+			browser.listStockUS();
+			
+			int pageNoMax = ShowPageInfo.getInstance(browser.getPage()).stream().mapToInt(o -> o.pageNo).max().getAsInt();
+			logger.info("pageNoMax  {}", pageNoMax);
+						
+			for(;;) {
+				var page = browser.getPage();				
+				var pageNo = PageNoInfo.getInstance(page).pageNo;
+				logger.info("pageNo     {}", pageNo);
+				
+				FileUtil.write().file(getPath(pageNo), page);
+				
+				if (pageNo == pageNoMax) break;
+
+				{
+					var pageNoExpect = pageNo + 1;
+					var script = String.format("showPage(%d);", pageNoExpect);
+					browser.javaScriptAndWait(script);
+					
+					for(int i = 0; i < 100; i++) {
+						if (i == 10) {
+							logger.error("Unexpected");
+							throw new UnexpectedException("Unexpected");
+						}
+
+						var pageNoActual = PageNoInfo.getInstance(browser.getPage()).pageNo;
+						if (pageNoActual == pageNoExpect) break;
+						logger.info("same page  {}  {}  {}", i, pageNoExpect, pageNoActual);
+						browser.sleepShort();
+					}
+				}
+			}
+			
+			logger.info("logout");
+			browser.logout();
+			
+			logger.info("close");
+			browser.close();
+			
+			return pageNoMax;
+		}
+	}
+	
 	
 	private static void update() {
-		logger.info("START");
+		Storage.initialize();
 		
-		List<SearchResultData.StockInfo> stockInfoList = new ArrayList<>();
-		{
-			int lastPage;
-			int totalRecord;
+		var pageNoMax = download();
+//		var pageNoMax = 82;
+		logger.info("pageNoMax  {}", pageNoMax);
+		
+		var list = new ArrayList<TradingStockType>();
+		
+		// no of stock in nikko as of 2023-11-11
+		//   2466  all
+		//    278  sell
+		//   2188  buy sell
+		
+		for(var pageNo = 0; pageNo <= pageNoMax; pageNo++) {
+			var path = getPath(pageNo);
+			var page = FileUtil.read().file(path);
 			
-			for(int pageNo = 1; pageNo <= 9999; pageNo++) {
-				if ((pageNo % 50) == 1) logger.info("pageNo  {}", pageNo);
-				
-				String page = getPage(pageNo);
-				SearchResultData searchResultData = JSON.unmarshal(SearchResultData.class, new StringReader(page));
-				
-				for(var e: searchResultData.stockInfoMap.values()) {
-					stockInfoList.add(e);
-				}
-
-				lastPage    = Integer.valueOf(searchResultData.lastpage);
-				totalRecord = Integer.valueOf(searchResultData.totalrec);
-				
-				if (pageNo == 1) {
-					logger.info("lastPage    {}", lastPage);
-					logger.info("totalRecord {}", totalRecord);
-				}
-				
-				if (!searchResultData.hasnext) {
-					if (pageNo != lastPage)         logger.warn("Unexpected pageNo  {}  {}", pageNo, lastPage);
-					if (stockInfoList.size() != totalRecord) logger.warn("Unexpected list size  {}  {}", stockInfoList.size(), totalRecord);
-					break;
-				};
-			}
-			
-			// save list as stock-inf.csv
 			{
-				String path = StorageNikko.getPath("stock-info.csv");
-				logger.info("save   {}  {}", stockInfoList.size(), path);
-				ListUtil.save(SearchResultData.StockInfo.class, path, stockInfoList);
+				var stockInfoList = StockInfo.getInstance(page);
+								
+				var mark = (stockInfoList.size() != 30 && pageNo != pageNoMax) ? "*" : " ";				
+				logger.info("list  {}  {}  {}", pageNo, mark, stockInfoList.size());
+				
+				for(var e: stockInfoList) {
+					String stockCode = e.stockCode.replace("/", ".");
+					
+					TradeType tradeType;
+					{
+						boolean canBuy  = e.buySell.contains("買い注文");
+						boolean canSell = e.buySell.contains("売り注文");
+						if (canBuy && canSell) {
+							tradeType = TradeType.BUY_SELL;
+						} else if (!canBuy && canSell) {
+							tradeType = TradeType.SELL;
+						} else if (!canBuy && !canSell) {
+							logger.info("no trade  {}  {}", stockCode, e.name);
+							continue;
+						} else {
+							logger.error("Unexpected");
+							logger.error("  {}  {}", stockCode, e.name);
+							logger.error("  canBuy  {}", canBuy);
+							logger.error("  canSell {}", canSell);
+							throw new UnexpectedException("Unexpected");
+						}
+					}
+					
+					list.add(new TradingStockType(stockCode, FeeType.PAID, tradeType));
+				}
 			}
 		}
+		logger.info("list  {}", list.size());
 		
-		List<TradingStockType> tradingStockList = new ArrayList<>();
 		{
 			var stockMap = StorageStock.StockInfoUSAll.getMap();
-			
-			for(var e: stockInfoList) {
-				if (e.smbc_nikko_ticker.isEmpty()) continue;
-				
-				String symbol = e.sym.replace("/", ".");
-				
-				if (stockMap.containsKey(symbol)) {
-					tradingStockList.add(new TradingStockType(symbol, FeeType.PAID, TradeType.BUY_SELL));
-				} else {
-					logger.warn("Unexpected symbol  {}  {}", symbol, e.nm);
-				}
-			}
+			list.removeIf(o -> !stockMap.containsKey(o.stockCode));
 		}
+		logger.info("list  {}", list.size());
 		
-		logger.info("save  {}  {}", tradingStockList.size(), StorageNikko.TradingStockNikko.getPath());
-		StorageNikko.TradingStockNikko.save(tradingStockList);
+		logger.info("save  {}  {}", list.size(), StorageNikko.TradingStockNikko.getPath());
+		StorageNikko.TradingStockNikko.save(list);
 	}
 	
 	public static void main(String[] args) {
 		logger.info("START");
-		
-		update();
 				
+		update();
+		
 		logger.info("STOP");
+		System.exit(0);
 	}
 }

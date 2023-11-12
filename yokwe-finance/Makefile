@@ -164,7 +164,7 @@ update-stock-info-us:
 update-trading-stock:
 	ant provider-monex-update-trading-stock-monex
 	ant provider-moomoo-update-trading-stock-moomoo
-	ant provider-nikko-update-trading-stock-nikko2
+	ant provider-nikko-update-trading-stock-nikko
 	ant provider-rakuten-update-trading-stock-rakuten
 	ant provider-sbi-update-trading-stock-sbi
 
