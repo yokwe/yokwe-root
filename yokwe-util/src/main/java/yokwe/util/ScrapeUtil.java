@@ -41,10 +41,7 @@ public class ScrapeUtil {
 	private static Double toClassDouble(String string) {
 		if (string == null) return null;
 		
-		String value = string.replace(",", "");
-		while(value.contains(NBSP)) {
-			value = value.replace(NBSP, "");
-		}
+		String value = string.replace(",", "").replace(NBSP, "");
 		if (value.isEmpty()) return null;
 		try {
 			return Double.valueOf(value);
@@ -58,10 +55,7 @@ public class ScrapeUtil {
 	private static Long toClassLong(String string) {
 		if (string == null) return null;
 		
-		String value = string.replace(",", "");
-		while(value.contains(NBSP)) {
-			value = value.replace(NBSP, "");
-		}
+		String value = string.replace(",", "").replace(NBSP, "");
 		if (value.isEmpty()) return null;
 		try {
 			return Long.valueOf(value);
@@ -75,10 +69,7 @@ public class ScrapeUtil {
 	private static Integer toIntegerValue(String string) {
 		if (string == null) return null;
 		
-		String value = string.replace(",", "");
-		while(value.contains(NBSP)) {
-			value = value.replace(NBSP, "");
-		}
+		String value = string.replace(",", "").replace(NBSP, "");
 		if (value.isEmpty()) return null;
 		try {
 			return Integer.valueOf(value);
@@ -186,10 +177,7 @@ public class ScrapeUtil {
 	private static String toStringValue(String string, boolean asNumber) {
 		if (string == null) return "";
 		
-		String value = string;
-		while(value.contains(NBSP)) {
-			value = value.replace(NBSP, "");
-		}
+		String value = string.replace(NBSP, "");
 		if (asNumber) {
 			// Remove comma in number string
 			value = value.replace(",", "");
