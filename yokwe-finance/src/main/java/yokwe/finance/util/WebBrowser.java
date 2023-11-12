@@ -17,12 +17,19 @@ import org.openqa.selenium.safari.SafariDriverService;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class WebBrowser implements Closeable {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	// redirect java.util.logging to slf4j
+	static {
+		SLF4JBridgeHandler.removeHandlersForRootLogger();
+		SLF4JBridgeHandler.install();
+	}
 	
 	public static WebDriver getWebDriverSafari(boolean logging) {		
 		var service = new SafariDriverService.Builder().withLogging(false).build();

@@ -25,6 +25,9 @@
   <logger name="yokwe.finance.stock.util.HttpUtil" level="ERROR" />
   -->
   
+  <!-- suppress WARN message from ExternalProcess -->
+  <logger name="org.openqa.selenium.os.ExternalProcess" level="ERROR" />
+  
   <root level="debug">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />
