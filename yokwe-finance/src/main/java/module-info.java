@@ -24,4 +24,20 @@ open module yokwe.finance {
 	requires transitive org.jfree.jfreechart;
 	// for VetoableChangeListener used in jfreechart
 	requires java.desktop;
+	
+	
+	// selenium
+	requires transitive org.seleniumhq.selenium.api;
+	requires transitive org.seleniumhq.selenium.manager;
+	requires transitive org.seleniumhq.selenium.json;
+	requires transitive org.seleniumhq.selenium.http;
+	requires transitive org.seleniumhq.selenium.os;
+	requires transitive org.seleniumhq.selenium.remote_driver;
+	//
+	requires dev.failsafe.core;
+	requires org.seleniumhq.selenium.chrome_driver;
+	requires org.seleniumhq.selenium.safari_driver;
+	requires org.seleniumhq.selenium.support;
+	
+	requires jul.to.slf4j;
 }
