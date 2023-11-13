@@ -20,7 +20,7 @@ public class StockStats {
 		return Double.isNaN(value) ? orElse : value;
 	}
 	
-	public static StockStats getInstance(LocalDate dateStart, LocalDate dateStop, List<OHLCV> priceList, List<DailyValue> divList) {
+	public static StockStats getInstance(String stockCode, LocalDate dateStart, LocalDate dateStop, List<OHLCV> priceList, List<DailyValue> divList) {
 		// NOTE dateStart an dateStop is inclusive
 		
 		// sanity check
@@ -42,20 +42,20 @@ public class StockStats {
 		double[] closeArray = Arrays.stream(priceArray).mapToDouble(o -> o.close.doubleValue()).toArray();
 		double[] volArray   = Arrays.stream(priceArray).mapToDouble(o -> o.volume).toArray();
 		
-		double[] divArray;
+		DailyValue[] divArray;
 		// build divArray from divList
 		{
 			// remove 0 dividend entries
 			divList.removeIf(o -> o.value.doubleValue() == 0);
 			if (divList.isEmpty()) {
-				divArray = new double[0];
+				divArray = new DailyValue[0];
 			} else {
 				var last = divList.get(divList.size() - 1);
 				if (last.date.isAfter(dateStart)) {
 					var divStartDate = last.date.minusYears(1);
-					divArray = divList.stream().filter(o -> o.date.isAfter(divStartDate) && !o.date.isAfter(dateStop)).mapToDouble(o -> o.value.doubleValue()).toArray();
+					divArray = divList.stream().filter(o -> o.date.isAfter(divStartDate)).toArray(DailyValue[]::new);
 				} else {
-					divArray = new double[0];
+					divArray = new DailyValue[0];
 				}
 			}
 		}
@@ -112,8 +112,21 @@ public class StockStats {
 		
 		// dividend
 		{
-			stats.divc  = divArray.length;
-			stats.yield = Arrays.stream(divArray).sum() / stats.price;
+			stats.divArray = divArray;
+			stats.divc     = stats.divArray.length;
+			
+			if (divArray.length == 0) {
+				stats.lastDiv       = 0;
+				stats.forwardYield  = 0;
+				stats.trailingYield = 0;
+				stats.annualDiv     = 0;
+			} else {
+				stats.lastDiv  = stats.divArray[stats.divArray.length - 1].value.doubleValue();
+				stats.forwardYield = (stats.lastDiv * stats.divc) / stats.price;
+				
+				stats.annualDiv = Arrays.stream(stats.divArray).mapToDouble(o -> o.value.doubleValue()).sum();
+				stats.trailingYield = stats.annualDiv / stats.price;
+			}
 		}
 		
 		// volume
@@ -159,8 +172,12 @@ public class StockStats {
 	public double max;
 	
 	// dividend
-	public int    divc;
-	public double yield;
+	public DailyValue[] divArray;
+	public int          divc;
+	public double       lastDiv;
+	public double       forwardYield;
+	public double       annualDiv;	
+	public double       trailingYield;
 
 	// volume
 	public long   vol;

@@ -87,7 +87,7 @@ public class UpdateStockStatsUS {
 				stats.moomoo    = tradingString(moomooMap, stockCode);
 
 				{
-					StockStats stockStats = StockStats.getInstance(dateStart,  dateStop, priceList, divList);
+					StockStats stockStats = StockStats.getInstance(stockCode, dateStart, dateStop, priceList, divList);
 
 					stats.date      = stockStats.date.toString();
 					stats.price     = stockStats.price;
@@ -102,7 +102,7 @@ public class UpdateStockStatsUS {
 					stats.max       = stockStats.max;
 
 					stats.divc      = stockStats.divc;
-					stats.yield     = stockStats.yield;
+					stats.yield     = stockStats.trailingYield;
 
 					stats.vol       = stockStats.vol;
 					stats.vol5      = stockStats.vol5;
