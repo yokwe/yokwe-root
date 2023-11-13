@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import yokwe.finance.fund.StorageFund;
+import yokwe.finance.provider.jpx.StorageJPX;
 import yokwe.finance.provider.jreit.StorageJREIT;
 import yokwe.finance.provider.manebu.StorageManebu;
 import yokwe.finance.type.DailyValue;
@@ -39,6 +40,7 @@ public class UpdateStockDivJP {
 			List<DailyValue> divList = null;
 			{
 				if (stockCodeMap.containsKey(stockCode)) {
+					// ETF
 					String isinCode = stockCodeMap.get(stockCode);
 					divList = StorageFund.FundDiv.getList(isinCode);
 					
@@ -62,10 +64,12 @@ public class UpdateStockDivJP {
 					}
 					countETF++;
 				} else if (reitSet.contains(stockCode)) {
+					// REIT
 					divList = StorageJREIT.JREITDiv.getList(stockCode);
 					countREIT++;
 				} else {
-					divList = StorageStock.StockDivJP.getList(stockCode);
+					// STOCK
+					divList = StorageJPX.StockDivJPX.getList(stockCode);
 					countStock++;
 				}
 			}
