@@ -36,19 +36,19 @@ public class WebBrowserNikko extends WebBrowser {
 	}
 	
 	
-	private static class GetInfo {
+	private class GetInfo {
 		public static final Pattern PAT  = Pattern.compile("/Logout/(?<id>[0-9A-F]+)/login/ipan_logout/exec");
 		
-		final String format;
-		final String title;
+		final protected String format;
+		final protected String title;
 		
 		GetInfo(String format, String title) {
 			this.format  = format;
 			this.title   = title;
 		}
 		
-		private String getID(WebBrowser browser) {
-			var page = browser.getPage();
+		protected String getID() {
+			var page = getPage();
 			var m = PAT.matcher(page);
 			if (m.find()) {
 				return m.group("id");
@@ -57,28 +57,39 @@ public class WebBrowserNikko extends WebBrowser {
 				throw new UnexpectedException("no logout url");
 			}
 		}
-		private String getURL(WebBrowser browser) {
-			return String.format(format, getID(browser));
+		private String getURL() {
+			return String.format(format, getID());
 		}
 		void getAndWait(WebBrowser browser) {
-			browser.getAndWait(getURL(browser), title);
+			browser.getAndWait(getURL(), title);
+		}
+	}
+	private class GetInfo2 extends GetInfo {
+		GetInfo2(String format, String title) {
+			super(format, title);
+		}
+		private String getURL(int no) {
+			return String.format(format, getID(), no);
+		}
+		void getAndWait(WebBrowser browser, int no) {
+			browser.getAndWait(getURL(no), title);
 		}
 	}
 	
-	private static final GetInfo logout =
+	private final GetInfo logout =
 		new GetInfo("https://trade.smbcnikko.co.jp/Logout/%s/login/ipan_logout/exec",
 			"ログアウト");
-	private static final GetInfo trade =
+	private final GetInfo trade =
 		new GetInfo("https://trade.smbcnikko.co.jp/MoneyManagement/%s/syohin/torihikiguide",
 			"お取引");
-	private static final GetInfo balance =
+	private final GetInfo balance =
 		new GetInfo("https://trade.smbcnikko.co.jp/MoneyManagement/%s/sisan/zan_sykai/hyji",
 			"口座残高");
-	private static final GetInfo listStockUS =
+	private final GetInfo listStockUS =
 		new GetInfo("https://trade.smbcnikko.co.jp/StockOrderConfirmation/%s/usa/meig/toriatukai/ichiran/search?kenskF=1",
 			"米国株式 - 取扱銘柄一覧");
-	private static final GetInfo listBondForeign =
-		new GetInfo("https://trade.smbcnikko.co.jp/StockOrderConfirmation/%s/usa/meig/toriatukai/ichiran/search?kenskF=1",
+	private final GetInfo2 listBondForeign =
+		new GetInfo2("https://trade.smbcnikko.co.jp/StockOrderConfirmation/%s/foreignbond/kihatu/meigara/ichiran?hyojiPage=%d",
 			"外国債券 - 取扱銘柄一覧");
 	
 	public void logout() {
@@ -93,7 +104,7 @@ public class WebBrowserNikko extends WebBrowser {
 	public void listStockUS() {
 		listStockUS.getAndWait(this);
 	}
-	public void listBondForein() {
-		listBondForeign.getAndWait(this);
+	public void listBondForeign(int hyojiPage) {
+		listBondForeign.getAndWait(this, hyojiPage);
 	}
 }
