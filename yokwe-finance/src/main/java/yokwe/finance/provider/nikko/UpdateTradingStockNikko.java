@@ -281,6 +281,5 @@ public class UpdateTradingStockNikko {
 		update();
 		
 		logger.info("STOP");
-		System.exit(0);
 	}
 }
