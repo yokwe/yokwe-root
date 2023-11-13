@@ -41,8 +41,24 @@ public class StockStats {
 		}
 		double[] closeArray = Arrays.stream(priceArray).mapToDouble(o -> o.close.doubleValue()).toArray();
 		double[] volArray   = Arrays.stream(priceArray).mapToDouble(o -> o.volume).toArray();
-
-		var divArray = divList.stream().filter(o -> !o.date.isBefore(dateStart) && !o.date.isAfter(dateStop)).mapToDouble(o -> o.value.doubleValue()).toArray();
+		
+		double[] divArray;
+		// build divArray from divList
+		{
+			// remove 0 dividend entries
+			divList.removeIf(o -> o.value.doubleValue() == 0);
+			if (divList.isEmpty()) {
+				divArray = new double[0];
+			} else {
+				var last = divList.get(divList.size() - 1);
+				if (last.date.isAfter(dateStart)) {
+					var divStartDate = last.date.minusYears(1);
+					divArray = divList.stream().filter(o -> o.date.isAfter(divStartDate) && !o.date.isAfter(dateStop)).mapToDouble(o -> o.value.doubleValue()).toArray();
+				} else {
+					divArray = new double[0];
+				}
+			}
+		}
 		
 		
 		// build stats
