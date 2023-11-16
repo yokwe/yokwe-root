@@ -15,30 +15,31 @@ public class WebBrowserNikko extends WebBrowser {
 		super();
 	}
 	
-	public static final String URL_LOGIN = "https://trade.smbcnikko.co.jp/Etc/1/webtoppage/";
+	public static final String URL_LOGIN = "https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/";
 	
 	public void login() {
 		var secret = Secret.read().nikko;
 		login(secret.branch, secret.account, secret.password);
 	}
 	public void login(String branch, String account, String password) {
-		getAndWait(URL_LOGIN, "ログイン");
+		get(URL_LOGIN);
+		wait.untilTitleContains("ログイン");
 		
-		var elementBranch   = waitUntilPresence(By.name("koza1"));
-		var elementAccount  = waitUntilPresence(By.name("koza2"));
-		var elementPassword = waitUntilPresence(By.name("passwd"));
+		var elementBranch   = wait.untilPresenceOfElement(By.name("koza1"));
+		var elementAccount  = wait.untilPresenceOfElement(By.name("koza2"));
+		var elementPassword = wait.untilPresenceOfElement(By.name("passwd"));
 		
 		elementBranch.sendKeys(branch);
 		elementAccount.sendKeys(account);
 		elementPassword.sendKeys(password);
 		
-		clickAndWait(By.name("logIn"), "トップ");		
+		click(By.name("logIn"));
+		wait.untilTitleContains("トップ");
 	}
 	
 	
 	private class GetInfo {
-		public static final Pattern PAT  = Pattern.compile("/Logout/(?<id>[0-9A-F]+)/login/ipan_logout/exec");
-		
+		public static final Pattern PAT  = Pattern.compile("/Logout/(?<id>[0-9A-Z]+)/login/ipan_logout/exec");
 		final protected String format;
 		final protected String title;
 		
@@ -54,6 +55,7 @@ public class WebBrowserNikko extends WebBrowser {
 				return m.group("id");
 			} else {
 				logger.error("no logout url");
+				logger.error("page {}", page);
 				throw new UnexpectedException("no logout url");
 			}
 		}
@@ -61,7 +63,8 @@ public class WebBrowserNikko extends WebBrowser {
 			return String.format(format, getID());
 		}
 		void getAndWait(WebBrowser browser) {
-			browser.getAndWait(getURL(), title);
+			browser.get(getURL());
+			browser.wait.untilTitleContains(title);
 		}
 	}
 	private class GetInfo2 extends GetInfo {
@@ -72,7 +75,8 @@ public class WebBrowserNikko extends WebBrowser {
 			return String.format(format, getID(), no);
 		}
 		void getAndWait(WebBrowser browser, int no) {
-			browser.getAndWait(getURL(no), title);
+			browser.get(getURL(no));
+			browser.wait.untilTitleContains(title);
 		}
 	}
 	
