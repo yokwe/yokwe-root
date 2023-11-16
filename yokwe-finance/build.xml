@@ -47,6 +47,17 @@
 	</target>
 	
 	
+	<!-- Account SMBC -->
+	<target name="account-smbc-update-asset-smbc">
+		<java module="yokwe.finance/yokwe.finance.account.smbc.UpdateAssetSMBC" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Account Sony -->
 	<target name="account-sony-update-asset-sony">
 		<java module="yokwe.finance/yokwe.finance.account.sony.UpdateAssetSony" fork="true">

@@ -14,7 +14,16 @@ public class Secret {
 		public String account;
 		public String password;
 		
-		public Nikko( ) {
+		public Nikko() {
+			branch = account = password = "";
+		}
+	}
+	public static class SMBC {
+		public String branch;
+		public String account;
+		public String password;
+		
+		public SMBC() {
 			branch = account = password = "";
 		}
 	}
@@ -22,7 +31,7 @@ public class Secret {
 		public String account;
 		public String password;
 		
-		public Sony( ) {
+		public Sony() {
 			account = password = "";
 		}
 	}
@@ -61,6 +70,7 @@ public class Secret {
 	
 	public Nikko   nikko;
 	public Rakuten rakuten;
+	public SMBC    smbc;
 	public Sony    sony;
 	
 	public Secret() {
