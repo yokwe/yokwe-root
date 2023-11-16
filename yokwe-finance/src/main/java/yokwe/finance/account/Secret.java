@@ -18,6 +18,22 @@ public class Secret {
 			branch = account = password = "";
 		}
 	}
+	public static class Sony {
+		public String account;
+		public String password;
+		
+		public Sony( ) {
+			account = password = "";
+		}
+	}
+	public static class Rakuten {
+		public String account;
+		public String password;
+		
+		public Rakuten( ) {
+			account = password = "";
+		}
+	}
 	
 	public static final String SECRET_PATH = "tmp/secret.json";
 	
@@ -43,7 +59,9 @@ public class Secret {
 		FileUtil.write().file(file, string);
 	}
 	
-	public Nikko nikko;
+	public Nikko   nikko;
+	public Rakuten rakuten;
+	public Sony    sony;
 	
 	public Secret() {
 		nikko = new Nikko();
