@@ -25,6 +25,39 @@
 	</target>
 	
 	
+	<!-- Account Nikko -->
+	<target name="account-nikko-update-asset-nikko">
+		<java module="yokwe.finance/yokwe.finance.account.nikko.UpdateAssetNikko" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
+	<!-- Account Rakuten -->
+	<target name="account-rakuten-update-asset-rakuten">
+		<java module="yokwe.finance/yokwe.finance.account.rakuten.UpdateAssetRakuten" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
+	<!-- Account Sony -->
+	<target name="account-sony-update-asset-sony">
+		<java module="yokwe.finance/yokwe.finance.account.sony.UpdateAssetSony" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Provider BATS -->
 	<target name="provider-bats-update-stock-info-bats">
 		<java module="yokwe.finance/yokwe.finance.provider.bats.UpdateStockInfoBATS" fork="true">
