@@ -34,22 +34,17 @@ public class WebBrowserSony extends WebBrowser {
 	}
 	
 	public void logout() {
-		logger.info("logout");
 		javaScript("logout()");
 		wait.untilTitleContains("");
 		
-		logger.info("switchTo");
 		switchToByTitleContains("ログアウト");
 		sleepRandom(1000);
 		
-		logger.info("subYes");
 		javaScript("subYes()");
 		
-		logger.info("switchTo");
 		switchToByTitleContains("THANK YOU");
 		sleepRandom(1000);
 		
-		logger.info("allClose");
 		javaScript("allClose()");
 	}
 }
