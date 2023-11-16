@@ -151,16 +151,6 @@ public class UpdateTradingStockNikko {
 	private static int download() {
 		logger.info("download");
 		try(var browser = new WebBrowserNikko()) {
-			
-			browser.driverInfo();
-			{
-				var position = browser.getPosition();
-				browser.setPosition(position.x, 0);
-				
-				var size = browser.getSize();
-				browser.setSize(1000, size.height);
-			}
-			
 			logger.info("login");
 			browser.login();
 			
@@ -174,6 +164,8 @@ public class UpdateTradingStockNikko {
 			logger.info("pageNoMax  {}", pageNoMax);
 						
 			for(;;) {
+				browser.sleepRandom(1000);
+				
 				var page = browser.getPage();				
 				var pageNo = PageNoInfo.getInstance(page).pageNo;
 				logger.info("pageNo     {}", pageNo);
@@ -185,7 +177,7 @@ public class UpdateTradingStockNikko {
 				{
 					var pageNoExpect = pageNo + 1;
 					var script = String.format("showPage(%d);", pageNoExpect);
-					browser.javaScriptAndWait(script);
+					browser.javaScript(script);
 					
 					for(int i = 0; i < 100; i++) {
 						if (i == 10) {
@@ -196,7 +188,7 @@ public class UpdateTradingStockNikko {
 						var pageNoActual = PageNoInfo.getInstance(browser.getPage()).pageNo;
 						if (pageNoActual == pageNoExpect) break;
 						logger.info("same page  {}  {}  {}", i, pageNoExpect, pageNoActual);
-						browser.sleepShort();
+						browser.sleepRandom();
 					}
 				}
 			}
