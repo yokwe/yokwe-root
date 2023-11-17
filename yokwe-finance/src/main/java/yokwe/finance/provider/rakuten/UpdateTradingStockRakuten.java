@@ -297,7 +297,14 @@ public class UpdateTradingStockRakuten {
 			list = map.values().stream().collect(Collectors.toList());
 		}
 		logger.info("list       {}", list.size());
-
+		
+		// remove duplicate
+		{
+			var set = list.stream().collect(Collectors.toSet());
+			list = set.stream().collect(Collectors.toList());
+			logger.info("list       {}", list.size());
+		}
+		
 		var stockCodeSet = StorageStock.StockInfoUSAll.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 		

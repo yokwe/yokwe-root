@@ -271,7 +271,7 @@ public class UpdateTradingStockSBI {
 			logger.info("set        {}", set.size());
 		}
 		
-		var list = new ArrayList<TradingStockType>();
+		List<TradingStockType> list = new ArrayList<>();
 		{
 			for(var stockCode: stockCodeList) {
 				if (stockCode.equals("ティッカー")) continue;
@@ -284,7 +284,14 @@ public class UpdateTradingStockSBI {
 			}
 		}
 		logger.info("list       {}", list.size());
-
+		
+		// remove duplicate
+		{
+			var set = list.stream().collect(Collectors.toSet());
+			list = set.stream().collect(Collectors.toList());
+			logger.info("list       {}", list.size());
+		}
+		
 		var stockCodeSet = StorageStock.StockInfoUSAll.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 		logger.info("stockCode  {}", stockCodeSet.size());
 		

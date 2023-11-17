@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.nikko.WebBrowserNikko;
@@ -211,7 +212,7 @@ public class UpdateTradingStockNikko {
 //		var pageNoMax = 82;
 		logger.info("pageNoMax  {}", pageNoMax);
 		
-		var list = new ArrayList<TradingStockType>();
+		List<TradingStockType> list = new ArrayList<>();
 		
 		// no of stock in nikko as of 2023-11-11
 		//   2466  all
@@ -256,6 +257,13 @@ public class UpdateTradingStockNikko {
 			}
 		}
 		logger.info("list  {}", list.size());
+		
+		// remove duplicate
+		{
+			var set = list.stream().collect(Collectors.toSet());
+			list = set.stream().collect(Collectors.toList());
+			logger.info("list  {}", list.size());
+		}
 		
 		{
 			var stockMap = StorageStock.StockInfoUSAll.getMap();
