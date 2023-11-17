@@ -10,7 +10,6 @@ import yokwe.util.finance.online.HV;
 import yokwe.util.finance.online.LogReturn;
 import yokwe.util.finance.online.Mean;
 import yokwe.util.finance.online.RSI;
-import yokwe.util.finance.online.SimpleReturn;
 import yokwe.util.finance.online.Variance;
 
 public class StockStats {
@@ -68,8 +67,12 @@ public class StockStats {
 		stats.price  = priceArray[priceArray.length - 1].close.doubleValue();
 		
 		{
-			double lastClose = priceArray[priceArray.length - 1].close.doubleValue();
-			stats.last = SimpleReturn.getValue(lastClose, stats.price);
+			if (2 <= stats.pricec) {
+				double lastClose = priceArray[priceArray.length - 2].close.doubleValue();
+				stats.last = LogReturn.getValue(lastClose, stats.price);
+			} else {
+				stats.last = 0;
+			}
 		}
 		
 		// sd hv
@@ -106,8 +109,8 @@ public class StockStats {
 			var min = Arrays.stream(priceArray).mapToDouble(o -> o.low.doubleValue()).min().getAsDouble();
 			var max = Arrays.stream(priceArray).mapToDouble(o -> o.high.doubleValue()).max().getAsDouble();
 			
-			stats.min = 1.0 - (min / stats.price);
-			stats.max = (max / stats.price) - 1;
+			stats.min = LogReturn.getValue(min, stats.price);
+			stats.max = LogReturn.getValue(stats.price, max);
 		}
 		
 		// dividend
