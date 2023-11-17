@@ -19,9 +19,11 @@ public class StockStats {
 		return Double.isNaN(value) ? orElse : value;
 	}
 	
-	public static StockStats getInstance(String stockCode, LocalDate dateStart, LocalDate dateStop, List<OHLCV> priceList, List<DailyValue> divList) {
+	public static StockStats getInstance(String stockCode, LocalDate dateStop, List<OHLCV> priceList, List<DailyValue> divList) {
 		// NOTE dateStart an dateStop is inclusive
-		
+		var dateStartY1 = dateStop.minusYears(1).plusDays(1);
+		var dateStartY3 = dateStop.minusYears(3).plusDays(1);
+
 		// sanity check
 		if (priceList == null) {
 			logger.warn("price is null");
@@ -32,10 +34,10 @@ public class StockStats {
 			return null;
 		}
 		
-		OHLCV[] priceArray = priceList.stream().filter(o -> !o.date.isBefore(dateStart) && !o.date.isAfter(dateStop)).toArray(OHLCV[]::new);
+		OHLCV[] priceArray = priceList.stream().filter(o -> !o.date.isBefore(dateStartY1) && !o.date.isAfter(dateStop)).toArray(OHLCV[]::new);
 		// sanity check
 		if (priceArray.length < 4) {
-			logger.warn("number of price in date range is too small {}  {}  {}", dateStart, dateStop, priceArray.length);
+			logger.warn("number of price in date range is too small {}  {}  {}", dateStartY1, dateStop, priceArray.length);
 			return null;
 		}
 		double[] closeArray = Arrays.stream(priceArray).mapToDouble(o -> o.close.doubleValue()).toArray();
@@ -50,7 +52,7 @@ public class StockStats {
 				divArray = new DailyValue[0];
 			} else {
 				var last = divList.get(divList.size() - 1);
-				if (last.date.isAfter(dateStart)) {
+				if (!last.date.isBefore(dateStartY1)) {
 					var divStartDate = last.date.minusYears(1);
 					divArray = divList.stream().filter(o -> o.date.isAfter(divStartDate)).toArray(DailyValue[]::new);
 				} else {
@@ -63,7 +65,7 @@ public class StockStats {
 		// build stats
 		StockStats stats = new StockStats();
 		stats.date   = priceArray[priceArray.length - 1].date;
-		stats.pricec = priceArray.length;
+		stats.pricec = priceList.size();
 		stats.price  = priceArray[priceArray.length - 1].close.doubleValue();
 		
 		{
@@ -112,11 +114,19 @@ public class StockStats {
 			stats.min = LogReturn.getValue(min, stats.price);
 			stats.max = LogReturn.getValue(stats.price, max);
 		}
+		{
+			OHLCV[] priceArrayY3 = priceList.stream().filter(o -> !o.date.isBefore(dateStartY3) && !o.date.isAfter(dateStop)).toArray(OHLCV[]::new);
+			var min = Arrays.stream(priceArrayY3).mapToDouble(o -> o.low.doubleValue()).min().getAsDouble();
+			var max = Arrays.stream(priceArrayY3).mapToDouble(o -> o.high.doubleValue()).max().getAsDouble();
+			
+			stats.minY3 = LogReturn.getValue(min, stats.price);
+			stats.maxY3 = LogReturn.getValue(stats.price, max);
+
+		}
 		
 		// dividend
 		{
-			stats.divArray = divArray;
-			stats.divc     = stats.divArray.length;
+			stats.divc     = divArray.length;
 			
 			if (divArray.length == 0) {
 				stats.lastDiv       = 0;
@@ -124,10 +134,10 @@ public class StockStats {
 				stats.trailingYield = 0;
 				stats.annualDiv     = 0;
 			} else {
-				stats.lastDiv  = stats.divArray[stats.divArray.length - 1].value.doubleValue();
+				stats.lastDiv  = divArray[divArray.length - 1].value.doubleValue();
 				stats.forwardYield = (stats.lastDiv * stats.divc) / stats.price;
 				
-				stats.annualDiv = Arrays.stream(stats.divArray).mapToDouble(o -> o.value.doubleValue()).sum();
+				stats.annualDiv = Arrays.stream(divArray).mapToDouble(o -> o.value.doubleValue()).sum();
 				stats.trailingYield = stats.annualDiv / stats.price;
 			}
 		}
@@ -173,14 +183,15 @@ public class StockStats {
 	// min max
 	public double min;
 	public double max;
+	public double minY3;
+	public double maxY3;
 	
 	// dividend
-	public DailyValue[] divArray;
-	public int          divc;
-	public double       lastDiv;
-	public double       forwardYield;
-	public double       annualDiv;	
-	public double       trailingYield;
+	public int    divc;
+	public double lastDiv;
+	public double forwardYield;
+	public double annualDiv;
+	public double trailingYield;
 
 	// volume
 	public long   vol;
