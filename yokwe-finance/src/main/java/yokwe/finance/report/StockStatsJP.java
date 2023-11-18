@@ -36,10 +36,10 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 	@Sheet.ColumnName("maxY3") public double maxY3;
 	
 	// dividend
-	@Sheet.ColumnName("divc")         public int    divc;
-	@Sheet.ColumnName("lastDiv")      public double lastDiv;
-	@Sheet.ColumnName("forwardYield") public double forwardYield;
-	@Sheet.ColumnName("annualDiv")    public double annualDiv;
+	@Sheet.ColumnName("divc")          public int    divc;
+	@Sheet.ColumnName("lastDiv")       public double lastDiv;
+	@Sheet.ColumnName("forwardYield")  public double forwardYield;
+	@Sheet.ColumnName("annualDiv")     public double annualDiv;
 	@Sheet.ColumnName("trailingYield") public double trailingYield;
 	
 	// volume
