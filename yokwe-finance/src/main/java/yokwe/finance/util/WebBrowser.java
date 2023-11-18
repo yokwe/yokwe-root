@@ -13,6 +13,9 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariDriverService;
 import org.openqa.selenium.support.ui.ExpectedCondition;
@@ -57,8 +60,26 @@ public class WebBrowser implements Closeable{
 		return driver;
 	}
 	
+	public static WebDriver getWebDriverChrome() {
+		// FIXME
+		// NOTE SeleniumManager.getInstance() works.
+		//      But SeleniumManager.getInstance().getDriverPath() generate error
+		var options = new ChromeOptions();
+		
+//		var manager = SeleniumManager.getInstance();
+//		logger.info("manager {}", manager);
+//		logger.info("result  {}", manager.getDriverPath(options, false));
+		
+		var service = new ChromeDriverService.Builder().build();
+		// FIXME use SelenimumManager instead of hard code path of chromedriver.
+		service.setExecutable("/Users/hasegawa/.cache/selenium/chromedriver/mac-arm64/119.0.6045.105/chromedriver");
+		var driver  = new ChromeDriver(service, options);
+		return driver;
+	}
+	
 	public static WebDriver getWebDriver() {
-		return getWebDriverSafari(false);
+//		return getWebDriverSafari(false);
+		return getWebDriverChrome(); 
 	}
 	
 	protected final WebDriver driver;
