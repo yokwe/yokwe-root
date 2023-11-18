@@ -34,9 +34,7 @@ public class UpdateStockStatsUS {
 	
 	private static List<StockStatsUS> getStatsList() {
 		var dateStop  = MarketHoliday.US.getLastTradingDate();
-		var dateStart = dateStop.minusYears(1).plusDays(1);
-		
-		logger.info("date range  {}  -  {}", dateStart, dateStop);
+		logger.info("dateStop  {}", dateStop);
 		
 		var list = new ArrayList<StockStatsUS>();
 		{
@@ -87,7 +85,7 @@ public class UpdateStockStatsUS {
 				stats.moomoo    = tradingString(moomooMap, stockCode);
 
 				{
-					StockStats stockStats = StockStats.getInstance(stockCode, dateStart, dateStop, priceList, divList);
+					StockStats stockStats = StockStats.getInstance(stockCode, dateStop, priceList, divList);
 
 					stats.date      = stockStats.date.toString();
 					stats.price     = stockStats.price;
@@ -100,9 +98,15 @@ public class UpdateStockStatsUS {
 					
 					stats.min       = stockStats.min;
 					stats.max       = stockStats.max;
+					stats.minY3     = stockStats.minY3;
+					stats.maxY3     = stockStats.maxY3;
+					
+					stats.divc          = stockStats.divc;
+					stats.lastDiv       = stockStats.lastDiv;
+					stats.forwardYield  = stockStats.forwardYield;
+					stats.annualDiv     = stockStats.annualDiv;
+					stats.trailingYield = stockStats.trailingYield;
 
-					stats.divc      = stockStats.divc;
-					stats.yield     = stockStats.trailingYield;
 
 					stats.vol       = stockStats.vol;
 					stats.vol5      = stockStats.vol5;

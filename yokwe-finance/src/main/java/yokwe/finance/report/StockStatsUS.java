@@ -29,12 +29,17 @@ public final class StockStatsUS extends Sheet implements Comparable<StockStatsUS
 	@Sheet.ColumnName("rsi") public double rsi;
 	
 	// min max
-	@Sheet.ColumnName("min") public double min;
-	@Sheet.ColumnName("max") public double max;
+	@Sheet.ColumnName("min")   public double min;
+	@Sheet.ColumnName("max")   public double max;
+	@Sheet.ColumnName("minY3") public double minY3;
+	@Sheet.ColumnName("maxY3") public double maxY3;
 	
 	// dividend
-	@Sheet.ColumnName("divc")  public int    divc;
-	@Sheet.ColumnName("yield") public double yield;
+	@Sheet.ColumnName("divc")          public int    divc;
+	@Sheet.ColumnName("lastDiv")       public double lastDiv;
+	@Sheet.ColumnName("forwardYield")  public double forwardYield;
+	@Sheet.ColumnName("annualDiv")     public double annualDiv;
+	@Sheet.ColumnName("trailingYield") public double trailingYield;
 
 	// volume
 	@Sheet.ColumnName("vol")  public long   vol;
@@ -74,9 +79,14 @@ public final class StockStatsUS extends Sheet implements Comparable<StockStatsUS
 		
 		min       = -1;
 		max       = -1;
+		minY3     = -1;
+		maxY3     = -1;
 		
-		divc      = -1;
-		yield     = -1;
+		divc          = -1;
+		lastDiv       = -1;
+		forwardYield  = -1;
+		annualDiv     = -1;
+		trailingYield = -1;
 		
 		vol       = -1;
 		vol5      = -1;
