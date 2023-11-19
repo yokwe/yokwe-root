@@ -163,35 +163,32 @@ public class UpdateTradingStockNikko {
 			
 			int pageNoMax = ShowPageInfo.getInstance(browser.getPage()).stream().mapToInt(o -> o.pageNo).max().getAsInt();
 			logger.info("pageNoMax  {}", pageNoMax);
-						
+			
+			int pageNo = 0;
 			for(;;) {
-				browser.sleepRandom(1000);
-				
+				logger.info("pageNo     {}  /  {}", pageNo, pageNoMax);
 				var page = browser.getPage();				
-				var pageNo = PageNoInfo.getInstance(page).pageNo;
-				logger.info("pageNo     {}", pageNo);
+				FileUtil.write().file(getPath(pageNo), page);				
 				
-				FileUtil.write().file(getPath(pageNo), page);
-				
-				if (pageNo == pageNoMax) break;
-
-				{
-					var pageNoExpect = pageNo + 1;
-					var script = String.format("showPage(%d);", pageNoExpect);
-					browser.javaScript(script);
+				if (page.contains("次の30件")) {
+					browser.next30Items();
 					
-					for(int i = 0; i < 100; i++) {
-						if (i == 10) {
+					// sanity check
+					{
+						var pageNoExpect = pageNo + 1;
+						var pageNoActual = PageNoInfo.getInstance(browser.getPage()).pageNo;
+						if (pageNoActual != pageNoExpect) {
 							logger.error("Unexpected");
+							logger.error("  pageNoExpect  {}", pageNoExpect);
+							logger.error("  pageNoActual  {}", pageNoActual);
 							throw new UnexpectedException("Unexpected");
 						}
-
-						var pageNoActual = PageNoInfo.getInstance(browser.getPage()).pageNo;
-						if (pageNoActual == pageNoExpect) break;
-						logger.info("same page  {}  {}  {}", i, pageNoExpect, pageNoActual);
-						browser.sleepRandom();
 					}
+					
+					pageNo++;
+					continue;
 				}
+				break;
 			}
 			
 			logger.info("logout");

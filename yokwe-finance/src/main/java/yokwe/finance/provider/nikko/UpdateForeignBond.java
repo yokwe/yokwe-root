@@ -26,16 +26,21 @@ public class UpdateForeignBond {
 			logger.info("trade");
 			browser.trade();
 			
+			logger.info("listForeignBond");
+			browser.listForeignBond();
+			
 			int pageNo = 0;
 			for(;;) {
 				logger.info("page  {}", pageNo);
-				browser.listBondForeign(pageNo);
 				String page = browser.getPage();
 				FileUtil.write().file(getPath(pageNo), page);
 				
-				if (!page.contains("次の30件")) break;
-				
-				pageNo++;
+				if (page.contains("次の30件")) {
+					pageNo++;
+					browser.next30Items();
+					continue;
+				}
+				break;
 			}
 			
 			return pageNo;

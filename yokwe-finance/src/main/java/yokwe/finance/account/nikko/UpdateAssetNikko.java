@@ -14,6 +14,22 @@ public class UpdateAssetNikko {
 			
 			browser.savePage(StorageNikko.getPath("top.html"));
 			
+			logger.info("balance");
+			browser.balance();
+			browser.savePage(StorageNikko.getPath("balance.html"));
+			
+			logger.info("listStockUS");
+			browser.trade();
+			browser.savePage(StorageNikko.getPath("trade.html"));
+			
+			browser.listStockUS();
+			browser.savePage(StorageNikko.getPath("listStockUS.html"));
+			
+			logger.info("listStockUS");
+			browser.trade();
+			browser.listForeignBond();
+			browser.savePage(StorageNikko.getPath("listForeignBond.html"));
+			
 			logger.info("logout");
 			browser.logout();
 		}
