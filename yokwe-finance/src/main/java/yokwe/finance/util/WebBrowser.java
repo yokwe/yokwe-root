@@ -450,7 +450,7 @@ public class WebBrowser implements Closeable{
 			
 			@Override
 			public void action(WebBrowser browser) {
-				browser.getJavascriptExecutor().executeScript(getString());
+				browser.javaScript(getString());
 				if (hasTitle()) browser.wait.untilTitleContains(getTitle());
 				if (0 < sleep) browser.sleepRandom(sleep);
 			}
@@ -462,42 +462,18 @@ public class WebBrowser implements Closeable{
 	//
 	// get
 	//
-	public void get(Target target) {
-		driver.get(target.getString());
-		if (target.hasTitle()) wait.untilTitleContains(target.getTitle());
-	}
-	public void get(String url) {
+	protected void get(String url) {
 		// NOTE driver.get is synchronous
 		driver.get(url);
 	}
 	//
-	// click
-	//
-	public void click(Target target) {
-		if (target.hasTitle()) {
-			wait.untilPresenceOfElement(target.getLocator()).click();
-			wait.untilTitleContains(target.getTitle());
-		} else {
-			var page = getPage();
-			wait.untilPresenceOfElement(target.getLocator()).click();
-			wait.untilPageUpdate(page);
-		}
-	}
-	public void click(By locator) {
-		wait.untilPresenceOfElement(locator).click();
-	}
-	//
 	// javaScript
 	//
-	public void javaScript(Target target) {
-		getJavascriptExecutor().executeScript(target.getString());
-		if (target.hasTitle()) wait.untilTitleContains(target.getTitle());
-	}
-	public Object javaScript(String script) {
+	protected Object javaScript(String script) {
 		// NOTE javascriptExecutor.executeScript is synchronous
 		return getJavascriptExecutor().executeScript(script);
 	}
-	public <E> E javaScript(Class<E> clazz, String script) {
+	protected <E> E javaScript(Class<E> clazz, String script) {
         Object result = javaScript(script);
         
         if (clazz.isInstance(result)) {
