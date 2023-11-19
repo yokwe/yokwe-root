@@ -13,7 +13,6 @@ import yokwe.util.StringUtil;
 public class UpdateForeignBond {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	
 	private static String getPath(int pageNo) {
 		return StorageNikko.getPath("foreign-bond", String.format("%03d.html", pageNo));
 	}
