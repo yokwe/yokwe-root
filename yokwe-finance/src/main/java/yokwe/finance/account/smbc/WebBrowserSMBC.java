@@ -6,45 +6,30 @@ import yokwe.finance.account.Secret;
 import yokwe.finance.util.WebBrowser;
 
 public class WebBrowserSMBC extends WebBrowser {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
 	public WebBrowserSMBC() {
 		super();
 	}
 	
-	public static final String URL_LOGIN = "https://direct.smbc.co.jp/aib/aibgsjsw5001.jsp";
-	
+	private static final Target LOGIN_A = new Target.GetImpl("https://direct.smbc.co.jp/aib/aibgsjsw5001.jsp", "ログイン");
+	private static final Target LOGIN_B = new Target.JavascriptImpl("directib.LLDLDIL.login();", "トップ");
+	private static final Target LOGOUT  = new Target.JavascriptImpl("doTransaction('/loginlogout/TPALTOPlogout1',null,false,null,DIRECTHEADERFORM,null,null);", "ご利用ありがとうございました");
+
 	public void login() {
 		var secret = Secret.read().smbc;
 		login(secret.branch, secret.account, secret.password);
 	}
 	public void login(String branch, String account, String password) {
-		get(URL_LOGIN);
-		wait.untilTitleContains("ログイン");
+		LOGIN_A.action(this);
 		
-		var elementBranch   = wait.untilPresenceOfElement(By.name("branchNo"));
-		var elementAccount  = wait.untilPresenceOfElement(By.name("accountNo"));
-		var elementPassword = wait.untilPresenceOfElement(By.name("password"));
+		sendKey(By.name("branchNo"),  branch);
+		sendKey(By.name("accountNo"), account);
+		sendKey(By.name("password"),  password);
 		
-		elementBranch.sendKeys(branch);
-		sleepRandom(500);
-		elementAccount.sendKeys(account);
-		sleepRandom(500);
-		elementPassword.sendKeys(password);
-		sleepRandom(500);
-		
-		javaScript("directib.LLDLDIL.login();");
-		sleepRandom();
-
-		wait.untilTitleContains("トップ");
+		LOGIN_B.action(this);
 	}
 	
 	public void logout() {
-		logger.info("logout");
-		javaScript("doTransaction('/loginlogout/TPALTOPlogout1',null,false,null,DIRECTHEADERFORM,null,null);");
-		logger.info("AA");
-		wait.untilTitleContains("ご利用ありがとうございました");
-		logger.info("BB");
+		LOGOUT.action(this);
 	}
 
 

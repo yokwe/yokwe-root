@@ -6,14 +6,12 @@ import yokwe.finance.account.Secret;
 import yokwe.finance.util.WebBrowser;
 
 public class WebBrowserSony extends WebBrowser {
-	private static final long DEFAULT_SLEEP = 300;
+	private static final Target LOGIN_A = new Target.GetImpl("https://o2o.moneykit.net/NBG100001G01.html", "ログイン");
+	private static final Target LOGIN_B = new Target.ClickImpl(By.linkText("ログイン"), "MONEYKit - ソニー銀行");
 	
-	private static final Target LOGIN_A = new Target.GetImpl("https://o2o.moneykit.net/NBG100001G01.html", "ログイン", DEFAULT_SLEEP);
-	private static final Target LOGIN_B = new Target.ClickImpl(By.linkText("ログイン"), "MONEYKit - ソニー銀行", DEFAULT_SLEEP);
-	
-	private static final Target LOGOUT_A = new Target.ClickImpl(By.id("logout"), DEFAULT_SLEEP);
-	private static final Target LOGOUT_B = new Target.JavascriptImpl("subYes()", "THANK YOU", DEFAULT_SLEEP);
-	private static final Target LOGOUT_C = new Target.JavascriptImpl("allClose()", DEFAULT_SLEEP);
+	private static final Target LOGOUT_A = new Target.ClickImpl(By.id("logout"));
+	private static final Target LOGOUT_B = new Target.JavascriptImpl("subYes()", "THANK YOU");
+	private static final Target LOGOUT_C = new Target.JavascriptImpl("allClose()");
 
 	public WebBrowserSony() {
 		super();
@@ -25,8 +23,8 @@ public class WebBrowserSony extends WebBrowser {
 	}
 	public void login(String account, String password) {
 		LOGIN_A.action(this);
-		sendKey(By.name("KozaNo"),   account,  DEFAULT_SLEEP);
-		sendKey(By.name("Password"), password, DEFAULT_SLEEP);
+		sendKey(By.name("KozaNo"),   account);
+		sendKey(By.name("Password"), password);
 		
 		LOGIN_B.action(this);
 	}

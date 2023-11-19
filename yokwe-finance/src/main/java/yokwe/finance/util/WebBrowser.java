@@ -391,13 +391,13 @@ public class WebBrowser implements Closeable{
 				super(string, null, title, sleep);
 			}
 			public GetImpl(String string, String title) {
-				this(string, title, 0);
+				this(string, title, DEFAULT_SLEEP_MILLS);
 			}
 			public GetImpl(String string, long sleep) {
 				super(string, null, null, sleep);
 			}
 			public GetImpl(String string) {
-				this(string, 0);
+				this(string, DEFAULT_SLEEP_MILLS);
 			}
 			
 			@Override
@@ -412,13 +412,13 @@ public class WebBrowser implements Closeable{
 				super(null, locator, title, sleep);
 			}
 			public ClickImpl(By locator, String title) {
-				this(locator, title, 0);
+				this(locator, title, DEFAULT_SLEEP_MILLS);
 			}
 			public ClickImpl(By locator, long sleep) {
 				super(null, locator, null, sleep);
 			}
 			public ClickImpl(By locator) {
-				this(locator, 0);
+				this(locator, DEFAULT_SLEEP_MILLS);
 			}
 			
 			@Override
@@ -439,13 +439,13 @@ public class WebBrowser implements Closeable{
 				super(string, null, title, sleep);
 			}
 			public JavascriptImpl(String string, String title) {
-				this(string, title, 0);
+				this(string, title, DEFAULT_SLEEP_MILLS);
 			}
 			public JavascriptImpl(String string, long sleep) {
 				super(string, null, null, sleep);
 			}
 			public JavascriptImpl(String string) {
-				this(string, 0);
+				this(string, DEFAULT_SLEEP_MILLS);
 			}
 			
 			@Override
@@ -492,13 +492,14 @@ public class WebBrowser implements Closeable{
 	//
 	// sendKey
 	//
-	public void sendKey(By locator, String string) {
-		wait.untilPresenceOfElement(locator).sendKeys(string);
-	}
 	public void sendKey(By locator, String string, long sleep) {
 		wait.untilPresenceOfElement(locator).sendKeys(string);
 		sleepRandom(sleep);
 	}
+	public void sendKey(By locator, String string) {
+		sendKey(locator, string, DEFAULT_SLEEP_MILLS);
+	}
+	
 	
 	//
 	// WindowInfo
