@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -60,19 +61,19 @@ public class WebBrowser implements Closeable{
 			}
 		}
 		public static class Result {
-			@JSON.Name("code")         public int    code;
-		    @JSON.Name("message")      public String message;
-		    @JSON.Name("driver_path")  public String driverPath;
-		    @JSON.Name("browser_path") public String browserPath;
+			@JSON.Name("code")                      public int    code;
+		    @JSON.Name("message")      @JSON.Ignore public String message;
+		    @JSON.Name("driver_path")               public String driverPath;
+		    @JSON.Name("browser_path")              public String browserPath;
 		    
 		    @Override
 		    public String toString() {
-		    	return String.format("{%d  %s  %s  %s}", code, message, driverPath, browserPath);
+		    	return String.format("{%d  %s  %s  %s}", code, driverPath, browserPath);
 		    }
 		}
 		public static class Data {			
-			@JSON.Ignore public Log[]  logs;
-			             public Result result;
+			@JSON.Name("logs")    @JSON.Ignore public Log[]  logs;
+			@JSON.Name("result")               public Result result;
 		}
 		
 		private static String getCachePath() {
@@ -157,6 +158,7 @@ public class WebBrowser implements Closeable{
 	private static final int      DEFAULT_WINDOW_Y        = 0;
 	private static final int      DEFAULT_WINDOW_WIDTH    = 1000;
 	
+	// FIXME after update to macos 14.1.1, safari webdriver don't start
 	public static WebDriver getWebDriverSafari(boolean logging) {
 		var options = new SafariOptions();
 		var result  = Manager.getResult(options);
@@ -174,13 +176,13 @@ public class WebBrowser implements Closeable{
 		var result = Manager.getResult(options);
 		
 		var service = new ChromeDriverService.Builder().build();
+		// NOTE need to invoke setExecutable.
 		service.setExecutable(result.driverPath);
 		
 		return new ChromeDriver(service, options);
 	}
 	
 	public static WebDriver getWebDriver() {
-		// FIXME after update to macos 14.1.1, safari webdriver don't start
 //		return getWebDriverSafari(false);
 		return getWebDriverChrome(); 
 	}
@@ -242,6 +244,16 @@ public class WebBrowser implements Closeable{
 	
 	
 	//
+	// findElement
+	//
+	public List<WebElement> findElements(By locator) {
+		return driver.findElements(locator);
+	}
+	public WebElement findElement(By locator) {
+		return driver.findElement(locator);
+	}
+	
+	//
 	// sleep
 	//
 	public static void sleep(Duration duration) {
@@ -260,8 +272,8 @@ public class WebBrowser implements Closeable{
 	private final Long   seed = Long.valueOf(0);
 	private final Random random = new Random(seed.hashCode() ^ System.currentTimeMillis());
 	public void sleepRandom(long mills, double randomWeight) {
-		double factor = 1.0 + (random.nextDouble() - 0.5) * randomWeight;
-//		double factor = 1.0 + random.nextDouble() * randomWeight;
+//		double factor = 1.0 + (random.nextDouble() - 0.5) * randomWeight;
+		double factor = 1.0 + random.nextDouble() * randomWeight;
 		sleep((long)(mills * factor));
 	}
 	private static final long   DEFAULT_SLEEP_MILLS         = 3000;
@@ -275,8 +287,185 @@ public class WebBrowser implements Closeable{
 	
 	
 	//
+	// target
+	//
+	public interface Target {
+		public String getString();
+		public By     getLocator();
+		
+		public boolean hasTitle();
+		public String  getTitle();
+		
+		public void    action(WebBrowser browser);
+		
+		public static abstract class Impl implements Target {
+			protected final String string;
+			protected final By     locator;
+			protected final String title;
+			protected final long   sleep;
+			
+			protected Impl(String string, By locator, String title, long sleep) {
+				this.string  = string;
+				this.locator = locator;
+				this.title   = title;
+				this.sleep   = sleep;
+				checkSleep();
+			}
+			protected Impl(String string, String title, long sleep) {
+				this(string, null, title, sleep);
+				checkString();
+			}
+			protected Impl(String string, long sleep) {
+				this(string, null, null, sleep);
+				checkString();
+			}
+			protected Impl(By locator, String title, long sleep) {
+				this(null, locator, title, sleep);
+				checkLocator();
+			}
+			protected Impl(By locator, long sleep) {
+				this(null, locator, null, sleep);
+				checkLocator();
+			}
+			
+			protected void checkString() {
+				if (string == null) {
+					logger.error("string is null");
+					logger.error("  {}", toString());
+					throw new UnexpectedException("string is null");
+				}
+			}
+			protected void checkLocator() {
+				if (locator == null) {
+					logger.error("locator is null");
+					logger.error("  {}", toString());
+					throw new UnexpectedException("locator is null");
+				}
+			}
+			protected void checkTitle() {
+				if (title == null) {
+					logger.error("title is null");
+					logger.error("  {}", toString());
+					throw new UnexpectedException("title is null");
+				}
+			}
+			protected void checkSleep() {
+				if (sleep < 0) {
+					logger.error("sleep is negative");
+					logger.error("  {}", toString());
+					throw new UnexpectedException("sleep is negative");
+				}
+			}
+			
+			@Override
+			public String toString() {
+				if (string != null)  return String.format("{string  {}  {}  {}", string, title, sleep);
+				if (locator != null) return String.format("{locator {}  {}  {}", locator, title, sleep);
+				logger.error("  {}", toString());
+				throw new UnexpectedException("Unexpected");
+			}
+			
+			@Override
+			public String getString() {
+				checkString();
+				return string;
+			}
+			@Override
+			public By getLocator() {
+				checkLocator();
+				return locator;
+			}
+			@Override
+			public boolean hasTitle() {
+				return title != null;
+			}
+			@Override
+			public String getTitle() {
+				checkTitle();
+				return title;
+			}
+		}
+		
+		public static class GetImpl extends Impl {
+			public GetImpl(String string, String title, long sleep) {
+				super(string, null, title, sleep);
+			}
+			public GetImpl(String string, String title) {
+				this(string, title, 0);
+			}
+			public GetImpl(String string, long sleep) {
+				super(string, null, null, sleep);
+			}
+			public GetImpl(String string) {
+				this(string, 0);
+			}
+			
+			@Override
+			public void action(WebBrowser browser) {
+				browser.get(getString());
+				if (hasTitle()) browser.wait.untilTitleContains(getTitle());
+				if (0 < sleep) browser.sleepRandom(sleep);
+			}
+		}
+		public static class ClickImpl extends Impl {
+			public ClickImpl(By locator, String title, long sleep) {
+				super(null, locator, title, sleep);
+			}
+			public ClickImpl(By locator, String title) {
+				this(locator, title, 0);
+			}
+			public ClickImpl(By locator, long sleep) {
+				super(null, locator, null, sleep);
+			}
+			public ClickImpl(By locator) {
+				this(locator, 0);
+			}
+			
+			@Override
+			public void action(WebBrowser browser) {
+				if (hasTitle()) {
+					browser.wait.untilPresenceOfElement(getLocator()).click();
+					browser.wait.untilTitleContains(getTitle());
+				} else {
+					var page = browser.getPage();
+					browser.wait.untilPresenceOfElement(getLocator()).click();
+					browser.wait.untilPageUpdate(page);
+				}
+				if (0 < sleep) browser.sleepRandom(sleep);
+			}
+		}
+		public static class JavascriptImpl extends Impl {
+			public JavascriptImpl(String string, String title, long sleep) {
+				super(string, null, title, sleep);
+			}
+			public JavascriptImpl(String string, String title) {
+				this(string, title, 0);
+			}
+			public JavascriptImpl(String string, long sleep) {
+				super(string, null, null, sleep);
+			}
+			public JavascriptImpl(String string) {
+				this(string, 0);
+			}
+			
+			@Override
+			public void action(WebBrowser browser) {
+				browser.getJavascriptExecutor().executeScript(getString());
+				if (hasTitle()) browser.wait.untilTitleContains(getTitle());
+				if (0 < sleep) browser.sleepRandom(sleep);
+			}
+		}
+		
+	}
+	
+	
+	//
 	// get
 	//
+	public void get(Target target) {
+		driver.get(target.getString());
+		if (target.hasTitle()) wait.untilTitleContains(target.getTitle());
+	}
 	public void get(String url) {
 		// NOTE driver.get is synchronous
 		driver.get(url);
@@ -284,17 +473,26 @@ public class WebBrowser implements Closeable{
 	//
 	// click
 	//
+	public void click(Target target) {
+		if (target.hasTitle()) {
+			wait.untilPresenceOfElement(target.getLocator()).click();
+			wait.untilTitleContains(target.getTitle());
+		} else {
+			var page = getPage();
+			wait.untilPresenceOfElement(target.getLocator()).click();
+			wait.untilPageUpdate(page);
+		}
+	}
 	public void click(By locator) {
 		wait.untilPresenceOfElement(locator).click();
-	}
-	public void clickAndWait(By locator) {
-		String page = getPage();
-		click(locator);
-		wait.untilPageUpdate(page);
 	}
 	//
 	// javaScript
 	//
+	public void javaScript(Target target) {
+		getJavascriptExecutor().executeScript(target.getString());
+		if (target.hasTitle()) wait.untilTitleContains(target.getTitle());
+	}
 	public Object javaScript(String script) {
 		// NOTE javascriptExecutor.executeScript is synchronous
 		return getJavascriptExecutor().executeScript(script);
@@ -315,6 +513,16 @@ public class WebBrowser implements Closeable{
 	}
 	
 	
+	//
+	// sendKey
+	//
+	public void sendKey(By locator, String string) {
+		wait.untilPresenceOfElement(locator).sendKeys(string);
+	}
+	public void sendKey(By locator, String string, long sleep) {
+		wait.untilPresenceOfElement(locator).sendKeys(string);
+		sleepRandom(sleep);
+	}
 	
 	//
 	// WindowInfo
