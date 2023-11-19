@@ -6,45 +6,36 @@ import yokwe.finance.account.Secret;
 import yokwe.finance.util.WebBrowser;
 
 public class WebBrowserSony extends WebBrowser {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final long DEFAULT_SLEEP = 300;
 	
+	private static final Target LOGIN_A = new Target.GetImpl("https://o2o.moneykit.net/NBG100001G01.html", "ログイン", DEFAULT_SLEEP);
+	private static final Target LOGIN_B = new Target.ClickImpl(By.linkText("ログイン"), "MONEYKit - ソニー銀行", DEFAULT_SLEEP);
+	
+	private static final Target LOGOUT_A = new Target.ClickImpl(By.id("logout"), DEFAULT_SLEEP);
+	private static final Target LOGOUT_B = new Target.JavascriptImpl("subYes()", "THANK YOU", DEFAULT_SLEEP);
+	private static final Target LOGOUT_C = new Target.JavascriptImpl("allClose()", DEFAULT_SLEEP);
+
 	public WebBrowserSony() {
 		super();
 	}
-	
-	public static final String URL_LOGIN = "https://o2o.moneykit.net/NBG100001G01.html";
 	
 	public void login() {
 		var secret = Secret.read().sony;
 		login(secret.account, secret.password);
 	}
 	public void login(String account, String password) {
-		get(URL_LOGIN);
-		wait.untilTitleContains("ログイン");
+		LOGIN_A.action(this);
+		sendKey(By.name("KozaNo"),   account,  DEFAULT_SLEEP);
+		sendKey(By.name("Password"), password, DEFAULT_SLEEP);
 		
-		var elementAccount  = wait.untilPresenceOfElement(By.name("KozaNo"));
-		var elementPassword = wait.untilPresenceOfElement(By.name("Password"));
-		
-		elementAccount.sendKeys(account);
-		elementPassword.sendKeys(password);
-		
-//		clickAndWait(By.linkText("ログイン"), "");
-		javaScript("mySubmitNBG100001G01(document.HOST, 1)");
-		sleepRandom();
+		LOGIN_B.action(this);
 	}
 	
 	public void logout() {
-		javaScript("logout()");
-		wait.untilTitleContains("");
-		
+		LOGOUT_A.action(this);
 		switchToByTitleContains("ログアウト");
-		sleepRandom(1000);
 		
-		javaScript("subYes()");
-		
-		switchToByTitleContains("THANK YOU");
-		sleepRandom(1000);
-		
-		javaScript("allClose()");
+		LOGOUT_B.action(this);
+		LOGOUT_C.action(this);
 	}
 }
