@@ -276,7 +276,7 @@ public class WebBrowser implements Closeable{
 		double factor = 1.0 + random.nextDouble() * randomWeight;
 		sleep((long)(mills * factor));
 	}
-	private static final long   DEFAULT_SLEEP_MILLS         = 3000;
+	private static final long   DEFAULT_SLEEP_MILLS         = 500;
 	private static final double DEFAULT_SLEEP_RANDOM_WEIGHT = 0.3;
 	public void sleepRandom(long mills) {
 		sleepRandom(mills, DEFAULT_SLEEP_RANDOM_WEIGHT);
