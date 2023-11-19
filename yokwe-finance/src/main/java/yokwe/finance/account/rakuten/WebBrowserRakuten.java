@@ -6,39 +6,31 @@ import yokwe.finance.account.Secret;
 import yokwe.finance.util.WebBrowser;
 
 public class WebBrowserRakuten extends WebBrowser {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	public static final long DEFAULT_SLEEP = 300;
+	
+	private static final Target LOGIN_A = new Target.GetImpl("https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html", "総合口座ログイン | 楽天証券", DEFAULT_SLEEP);
+	private static final Target LOGIN_B = new Target.ClickImpl(By.id("login-btn"), "ホーム", DEFAULT_SLEEP);
+	private static final Target LOGOUT  = new Target.JavascriptImpl("logoutDialog()", DEFAULT_SLEEP);
 	
 	public WebBrowserRakuten() {
 		super();
 	}
-	
-	public static final String URL_LOGIN = "https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html";
 	
 	public void login() {
 		var secret = Secret.read().rakuten;
 		login(secret.account, secret.password);
 	}
 	public void login(String account, String password) {
-		get(URL_LOGIN);
-		wait.untilTitleContains("総合口座ログイン | 楽天証券");
+		LOGIN_A.action(this);
 		
-		var elementAccount  = wait.untilPresenceOfElement(By.name("loginid"));
-		var elementPassword = wait.untilPresenceOfElement(By.name("passwd"));
+		sendKey(By.name("loginid"), account, DEFAULT_SLEEP);
+		sendKey(By.name("passwd"),  password, DEFAULT_SLEEP);
 		
-		elementAccount.sendKeys(account);
-		elementPassword.sendKeys(password);
-		
-		// name contains "$" this makes error
-		// use id instead
-		click(By.id("login-btn"));
-		wait.untilTitleContains("ホーム");
+		LOGIN_B.action(this);
 	}
 	
 	public void logout() {
-		logger.info("logout");
-		javaScript("logoutDialog()");
-		
+		LOGOUT.action(this);
 		wait.untilAlertIsPresent().accept();
-		wait.untilPresenceOfWindow("ログアウト");
 	}
 }
