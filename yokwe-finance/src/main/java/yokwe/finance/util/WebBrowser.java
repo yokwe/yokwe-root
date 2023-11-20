@@ -645,7 +645,7 @@ public class WebBrowser implements Closeable{
 				
 				@Override
 				public Boolean apply(WebDriver driver) {
-					return !oldPage.equals(driver.getPageSource());
+					return !driver.getPageSource().equals(oldPage);
 				}
 
 				@Override
@@ -659,6 +659,30 @@ public class WebBrowser implements Closeable{
 		}
 		public Boolean untilPageUpdate(String page) {
 			return untilPageUpdate(page, DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilPageContains
+		//
+		private static ExpectedCondition<Boolean> pageContains(String string_) {
+			return new ExpectedCondition<Boolean>() {
+				private String string = string_;
+				
+				@Override
+				public Boolean apply(WebDriver driver) {
+					return driver.getPageSource().contains(string);
+				}
+
+				@Override
+				public String toString() {
+					return "wait page contains " + string;
+				}
+			};
+		}
+		public Boolean untilPageContains(String page, Duration timeout) {
+			return untilExpectedCondition(pageContains(page), timeout);
+		}
+		public Boolean untilPageContains(String page) {
+			return untilPageContains(page, DEFAULT_WAIT_TIMEOUT);
 		}
 		//
 		// untilPresenseOfWindow
@@ -675,7 +699,7 @@ public class WebBrowser implements Closeable{
 
 				@Override
 				public String toString() {
-					return "wait page title contains " + string;
+					return "wait window that page title contains " + string;
 				}
 			};
 		}
