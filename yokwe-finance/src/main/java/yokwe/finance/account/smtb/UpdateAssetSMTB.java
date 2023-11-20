@@ -2,7 +2,7 @@ package yokwe.finance.account.smtb;
 
 import yokwe.finance.Storage;
 
-public class UpdateAssetSMBT {
+public class UpdateAssetSMTB {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static void update() {
