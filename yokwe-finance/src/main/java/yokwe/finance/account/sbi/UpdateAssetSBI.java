@@ -11,8 +11,15 @@ public class UpdateAssetSBI {
 		try(var browser = new WebBrowserSBI()) {
 			logger.info("login");
 			browser.login();
-			
 			browser.savePage(StorageSBI.getPath("top.html"));
+			
+			logger.info("balance-jpy");
+			browser.balanceJPY();
+			browser.savePage(StorageSBI.getPath("balance-jpy.html"));
+			
+			logger.info("balance-foreign");
+			browser.balanceForeign();
+			browser.savePage(StorageSBI.getPath("balance-foreign.html"));
 			
 			logger.info("logout");
 			browser.logout();

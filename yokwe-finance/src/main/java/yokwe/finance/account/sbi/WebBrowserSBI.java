@@ -14,6 +14,9 @@ public class WebBrowserSBI extends WebBrowser {
 	private static final Target LOGIN_B = new Target.ClickImpl(By.name("ACT_login"));
 	private static final Target LOGOUT  = new Target.ClickImpl(By.id("logout"));
 
+	private static final Target BALANCE_JPY      = new Target.ClickImpl(By.linkText("口座(円建)"));
+	private static final Target BALANCE_FOREIGN  = new Target.ClickImpl(By.linkText("口座(外貨建)"));
+
 	public void login() {
 		var secret = Secret.read().sbi;
 		login(secret.account, secret.password);
@@ -31,4 +34,17 @@ public class WebBrowserSBI extends WebBrowser {
 		LOGOUT.action(this);
 		wait.untilPageContains("ご利用いただきありがとうございました");
 	}
+	
+	public void balanceJPY() {
+		BALANCE_JPY.action(this);
+	}
+	public void balanceForeign() {
+		BALANCE_FOREIGN.action(this);
+	}
+	
+	// Use xpath to locate element
+	// click rectangle area in map
+	// driver.action.move_to(driver.find_element(:css, '.foo img'), 10, 10).click
+	
+	
 }
