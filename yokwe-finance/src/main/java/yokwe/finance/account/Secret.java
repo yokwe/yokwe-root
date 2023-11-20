@@ -9,37 +9,20 @@ import yokwe.util.json.JSON;
 public class Secret {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static class Nikko {
+	public static class Type3 {
 		public String branch;
 		public String account;
 		public String password;
 		
-		public Nikko() {
+		public Type3() {
 			branch = account = password = "";
 		}
 	}
-	public static class SMBC {
-		public String branch;
+	public static class Type2 {
 		public String account;
 		public String password;
 		
-		public SMBC() {
-			branch = account = password = "";
-		}
-	}
-	public static class Sony {
-		public String account;
-		public String password;
-		
-		public Sony() {
-			account = password = "";
-		}
-	}
-	public static class Rakuten {
-		public String account;
-		public String password;
-		
-		public Rakuten( ) {
+		public Type2() {
 			account = password = "";
 		}
 	}
@@ -68,21 +51,14 @@ public class Secret {
 		FileUtil.write().file(file, string);
 	}
 	
-	public Nikko   nikko;
-	public Rakuten rakuten;
-	public SMBC    smbc;
-	public Sony    sony;
+	public Type3 nikko;
+	public Type2 prestia;
+	public Type2 rakuten;
+	public Type2 sbi;
+	public Type3 smbc;
+	public Type2 smtb;
+	public Type2 sony;
 	
 	public Secret() {
-		nikko = new Nikko();
-	}
-	
-	public static void main(String[] args) {
-		Secret secret = new Secret();
-		secret.nikko.branch   = "";
-		secret.nikko.account  = "";
-		secret.nikko.password = "";
-		
-		//write(SECRET_PATH, secret);
 	}
 }
