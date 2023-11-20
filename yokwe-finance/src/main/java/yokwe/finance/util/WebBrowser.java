@@ -124,7 +124,7 @@ public class WebBrowser implements Closeable{
 				m.getDriverPath(capabilities, false);
 			} catch (Exception e) {
 				String exceptionName = e.getClass().getSimpleName();
-				logger.warn("excetion {}", exceptionName);
+				logger.warn("SeleniumManager.getInstance() throws exception {}", exceptionName);
 			}
 			
 			try {
