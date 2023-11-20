@@ -13,7 +13,8 @@ public class WebBrowserSMTB extends WebBrowser {
 	private static final Target LOGIN_A = new Target.GetImpl("https://direct.smtb.jp/ap1/ib/login.do", "ログイン");
 	private static final Target LOGIN_B = new Target.JavascriptImpl("onPrepareElementForIbLogin('ibLoginActionForm', 'login', '10', this)", "トップページ");
 	private static final Target LOGOUT  = new Target.JavascriptImpl("linkSubmitAction('header_myPageForm', 'initial')", "ログアウト");
-
+	private static final Target BALANCE = new Target.ClickImpl(By.linkText("お取引・残高照会"), "お取引・残高照会");
+	
 	public void login() {
 		var secret = Secret.read().smtb;
 		login(secret.account, secret.password);
@@ -29,5 +30,9 @@ public class WebBrowserSMTB extends WebBrowser {
 	
 	public void logout() {
 		LOGOUT.action(this);
+	}
+	
+	public void balance() {
+		BALANCE.action(this);
 	}
 }

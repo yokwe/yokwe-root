@@ -11,8 +11,11 @@ public class UpdateAssetSMTB {
 		try(var browser = new WebBrowserSMTB()) {
 			logger.info("login");
 			browser.login();
-			
 			browser.savePage(StorageSMTB.getPath("top.html"));
+			
+			logger.info("balance");
+			browser.balance();
+			browser.savePage(StorageSMTB.getPath("balance.html"));
 			
 			logger.info("logout");
 			browser.logout();
