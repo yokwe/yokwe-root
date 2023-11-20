@@ -36,6 +36,17 @@
 	</target>
 	
 	
+	<!-- Account Prestia -->
+	<target name="account-prestia-update-asset-prestia">
+		<java module="yokwe.finance/yokwe.finance.account.prestia.UpdateAssetPrestia" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Account Rakuten -->
 	<target name="account-rakuten-update-asset-rakuten">
 		<java module="yokwe.finance/yokwe.finance.account.rakuten.UpdateAssetRakuten" fork="true">
@@ -47,9 +58,31 @@
 	</target>
 	
 	
+	<!-- Account SBI -->
+	<target name="account-sbi-update-asset-sbi">
+		<java module="yokwe.finance/yokwe.finance.account.sbi.UpdateAssetSBI" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Account SMBC -->
 	<target name="account-smbc-update-asset-smbc">
 		<java module="yokwe.finance/yokwe.finance.account.smbc.UpdateAssetSMBC" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
+	<!-- Account SMTB -->
+	<target name="account-smtb-update-asset-smtb">
+		<java module="yokwe.finance/yokwe.finance.account.smtb.UpdateAssetSMTB" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
