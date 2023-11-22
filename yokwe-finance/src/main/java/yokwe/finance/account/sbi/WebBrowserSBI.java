@@ -3,19 +3,20 @@ package yokwe.finance.account.sbi;
 import org.openqa.selenium.By;
 
 import yokwe.finance.account.Secret;
-import yokwe.finance.util.WebBrowser;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 
 public class WebBrowserSBI extends WebBrowser {
 	public WebBrowserSBI() {
 		super();
 	}
 	
-	private static final Target LOGIN_A = new Target.GetImpl("https://www.sbisec.co.jp/ETGate", "SBI証券");
-	private static final Target LOGIN_B = new Target.ClickImpl(By.name("ACT_login"));
-	private static final Target LOGOUT  = new Target.ClickImpl(By.id("logout"));
+	private static final Target LOGIN_A = new Target.Get("https://www.sbisec.co.jp/ETGate", "SBI証券");
+	private static final Target LOGIN_B = new Target.Click(By.name("ACT_login"));
+	private static final Target LOGOUT  = new Target.Click(By.id("logout"));
 
-	private static final Target BALANCE_JPY      = new Target.ClickImpl(By.linkText("口座(円建)"));
-	private static final Target BALANCE_FOREIGN  = new Target.ClickImpl(By.linkText("口座(外貨建)"));
+	private static final Target BALANCE_JPY      = new Target.Click(By.linkText("口座(円建)"));
+	private static final Target BALANCE_FOREIGN  = new Target.Click(By.linkText("口座(外貨建)"));
 
 	public void login() {
 		var secret = Secret.read().sbi;

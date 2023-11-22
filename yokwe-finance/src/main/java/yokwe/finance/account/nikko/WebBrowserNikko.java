@@ -3,22 +3,23 @@ package yokwe.finance.account.nikko;
 import org.openqa.selenium.By;
 
 import yokwe.finance.account.Secret;
-import yokwe.finance.util.WebBrowser;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 
 public class WebBrowserNikko extends WebBrowser {
-	private static final Target LOGIN_A = new Target.GetImpl("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/", "ログイン");
-	private static final Target LOGIN_B = new Target.ClickImpl(By.name("logIn"), "トップ");
+	private static final Target LOGIN_A = new Target.Get("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/", "ログイン");
+	private static final Target LOGIN_B = new Target.Click(By.name("logIn"), "トップ");
 
-	private static final Target LOGOUT  = new Target.ClickImpl(By.name("btn_logout"), "ログアウト");
+	private static final Target LOGOUT  = new Target.Click(By.name("btn_logout"), "ログアウト");
 	
-	private static final Target BALANCE      = new Target.ClickImpl(By.name("menu04"), "口座残高");
-	private static final Target BALANCE_BANK = new Target.ClickImpl(By.linkText("銀行・証券残高一覧"), "銀行・証券残高一覧");
+	private static final Target BALANCE      = new Target.Click(By.name("menu04"), "口座残高");
+	private static final Target BALANCE_BANK = new Target.Click(By.linkText("銀行・証券残高一覧"), "銀行・証券残高一覧");
 	
-	private static final Target TRADE                   = new Target.ClickImpl(By.name("menu03"), "お取引");
-	private static final Target TRADE_LIST_STOCK_US     = new Target.ClickImpl(By.linkText("米国株式"), "米国株式 - 取扱銘柄一覧");
-	private static final Target TRADE_LIST_FOREIGN_BOND = new Target.ClickImpl(By.linkText("外国債券"), "外国債券 - 取扱銘柄一覧");
+	private static final Target TRADE                   = new Target.Click(By.name("menu03"), "お取引");
+	private static final Target TRADE_LIST_STOCK_US     = new Target.Click(By.linkText("米国株式"), "米国株式 - 取扱銘柄一覧");
+	private static final Target TRADE_LIST_FOREIGN_BOND = new Target.Click(By.linkText("外国債券"), "外国債券 - 取扱銘柄一覧");
 	
-	private static final Target NEXT_30_ITEMS     = new Target.ClickImpl(By.linkText("次の30件"));
+	private static final Target NEXT_30_ITEMS     = new Target.Click(By.linkText("次の30件"));
 	
 	public void login() {
 		var secret = Secret.read().nikko;

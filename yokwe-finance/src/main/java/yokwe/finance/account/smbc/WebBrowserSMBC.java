@@ -3,16 +3,17 @@ package yokwe.finance.account.smbc;
 import org.openqa.selenium.By;
 
 import yokwe.finance.account.Secret;
-import yokwe.finance.util.WebBrowser;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 
 public class WebBrowserSMBC extends WebBrowser {
 	public WebBrowserSMBC() {
 		super();
 	}
 	
-	private static final Target LOGIN_A = new Target.GetImpl("https://direct.smbc.co.jp/aib/aibgsjsw5001.jsp", "ログイン");
-	private static final Target LOGIN_B = new Target.JavascriptImpl("directib.LLDLDIL.login();", "トップ");
-	private static final Target LOGOUT  = new Target.JavascriptImpl("doTransaction('/loginlogout/TPALTOPlogout1',null,false,null,DIRECTHEADERFORM,null,null);", "ご利用ありがとうございました");
+	private static final Target LOGIN_A = new Target.Get("https://direct.smbc.co.jp/aib/aibgsjsw5001.jsp", "ログイン");
+	private static final Target LOGIN_B = new Target.Javascript("directib.LLDLDIL.login();", "トップ");
+	private static final Target LOGOUT  = new Target.Javascript("doTransaction('/loginlogout/TPALTOPlogout1',null,false,null,DIRECTHEADERFORM,null,null);", "ご利用ありがとうございました");
 
 	public void login() {
 		var secret = Secret.read().smbc;

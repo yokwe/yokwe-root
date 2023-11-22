@@ -3,22 +3,23 @@ package yokwe.finance.account.sony;
 import org.openqa.selenium.By;
 
 import yokwe.finance.account.Secret;
-import yokwe.finance.util.WebBrowser;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 
 public class WebBrowserSony extends WebBrowser {
-	private static final Target LOGIN_A = new Target.GetImpl("https://o2o.moneykit.net/NBG100001G01.html", "ログイン");
-	private static final Target LOGIN_B = new Target.ClickImpl(By.linkText("ログイン"), "MONEYKit - ソニー銀行");
+	private static final Target LOGIN_A = new Target.Get("https://o2o.moneykit.net/NBG100001G01.html", "ログイン");
+	private static final Target LOGIN_B = new Target.Click(By.linkText("ログイン"), "MONEYKit - ソニー銀行");
 	
-	private static final Target LOGOUT_A = new Target.ClickImpl(By.id("logout"));
-	private static final Target LOGOUT_B = new Target.JavascriptImpl("subYes()", "THANK YOU");
-	private static final Target LOGOUT_C = new Target.JavascriptImpl("allClose()");
+	private static final Target LOGOUT_A = new Target.Click(By.id("logout"));
+	private static final Target LOGOUT_B = new Target.Javascript("subYes()", "THANK YOU");
+	private static final Target LOGOUT_C = new Target.Javascript("allClose()");
 	
-	private static final Target TOP     = new Target.JavascriptImpl("hometop(1)");
+	private static final Target TOP     = new Target.Javascript("hometop(1)");
 	
-	private static final Target BALANCE                 = new Target.JavascriptImpl("hometop(10)");
-	private static final Target BALANCE_DEPOSIT         = new Target.JavascriptImpl("balancecommon(1)");
-	private static final Target BALANCE_DEPOSIT_FOREIGN = new Target.JavascriptImpl("balancecommon(2)");
-	private static final Target BALANCE_FUND            = new Target.JavascriptImpl("balancecommon(3)");
+	private static final Target BALANCE                 = new Target.Javascript("hometop(10)");
+	private static final Target BALANCE_DEPOSIT         = new Target.Javascript("balancecommon(1)");
+	private static final Target BALANCE_DEPOSIT_FOREIGN = new Target.Javascript("balancecommon(2)");
+	private static final Target BALANCE_FUND            = new Target.Javascript("balancecommon(3)");
 	
 	
 	public WebBrowserSony() {

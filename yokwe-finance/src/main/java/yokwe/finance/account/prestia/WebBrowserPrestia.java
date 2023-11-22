@@ -3,12 +3,13 @@ package yokwe.finance.account.prestia;
 import org.openqa.selenium.By;
 
 import yokwe.finance.account.Secret;
-import yokwe.finance.util.WebBrowser;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 
 public class WebBrowserPrestia extends WebBrowser {
-	private static final Target LOGIN_A = new Target.GetImpl("https://login.smbctb.co.jp/ib/portal/POSNIN1prestiatop.prst", "プレスティア オンライン");
-	private static final Target LOGIN_B = new Target.ClickImpl(By.linkText("サインオン"));
-	private static final Target LOGOUT  = new Target.ClickImpl(By.linkText("サインオフ"));
+	private static final Target LOGIN_A = new Target.Get("https://login.smbctb.co.jp/ib/portal/POSNIN1prestiatop.prst", "プレスティア オンライン");
+	private static final Target LOGIN_B = new Target.Click(By.linkText("サインオン"));
+	private static final Target LOGOUT  = new Target.Click(By.linkText("サインオフ"));
 	
 	
 	public WebBrowserPrestia() {

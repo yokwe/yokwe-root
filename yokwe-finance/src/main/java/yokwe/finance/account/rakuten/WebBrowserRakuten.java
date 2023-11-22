@@ -3,12 +3,13 @@ package yokwe.finance.account.rakuten;
 import org.openqa.selenium.By;
 
 import yokwe.finance.account.Secret;
-import yokwe.finance.util.WebBrowser;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 
 public class WebBrowserRakuten extends WebBrowser {
-	private static final Target LOGIN_A = new Target.GetImpl("https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html", "総合口座ログイン | 楽天証券");
-	private static final Target LOGIN_B = new Target.ClickImpl(By.id("login-btn"), "ホーム");
-	private static final Target LOGOUT  = new Target.JavascriptImpl("logoutDialog()");
+	private static final Target LOGIN_A = new Target.Get("https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html", "総合口座ログイン | 楽天証券");
+	private static final Target LOGIN_B = new Target.Click(By.id("login-btn"), "ホーム");
+	private static final Target LOGOUT  = new Target.Javascript("logoutDialog()");
 	
 	public WebBrowserRakuten() {
 		super();

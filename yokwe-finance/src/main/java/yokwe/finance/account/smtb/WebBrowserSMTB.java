@@ -3,17 +3,18 @@ package yokwe.finance.account.smtb;
 import org.openqa.selenium.By;
 
 import yokwe.finance.account.Secret;
-import yokwe.finance.util.WebBrowser;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 
 public class WebBrowserSMTB extends WebBrowser {
 	public WebBrowserSMTB() {
 		super();
 	}
 	
-	private static final Target LOGIN_A = new Target.GetImpl("https://direct.smtb.jp/ap1/ib/login.do", "ログイン");
-	private static final Target LOGIN_B = new Target.JavascriptImpl("onPrepareElementForIbLogin('ibLoginActionForm', 'login', '10', this)", "トップページ");
-	private static final Target LOGOUT  = new Target.JavascriptImpl("linkSubmitAction('header_myPageForm', 'initial')", "ログアウト");
-	private static final Target BALANCE = new Target.ClickImpl(By.linkText("お取引・残高照会"), "お取引・残高照会");
+	private static final Target LOGIN_A = new Target.Get("https://direct.smtb.jp/ap1/ib/login.do", "ログイン");
+	private static final Target LOGIN_B = new Target.Javascript("onPrepareElementForIbLogin('ibLoginActionForm', 'login', '10', this)", "トップページ");
+	private static final Target LOGOUT  = new Target.Javascript("linkSubmitAction('header_myPageForm', 'initial')", "ログアウト");
+	private static final Target BALANCE = new Target.Click(By.linkText("お取引・残高照会"), "お取引・残高照会");
 	
 	public void login() {
 		var secret = Secret.read().smtb;
