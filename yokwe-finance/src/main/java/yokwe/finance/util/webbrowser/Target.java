@@ -4,9 +4,6 @@ import org.openqa.selenium.By;
 
 import yokwe.util.UnexpectedException;
 
-//
-// target
-//
 public interface Target {
 	public String getString();
 	public By     getLocator();

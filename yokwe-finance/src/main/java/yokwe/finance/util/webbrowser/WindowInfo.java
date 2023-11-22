@@ -8,7 +8,7 @@ import org.openqa.selenium.WebDriver;
 // WindowInfo
 //
 public class WindowInfo {
-	public static class Entry {
+	private static class Entry {
 		public final String handle;
 		public final String title;
 		public final String url;
@@ -32,10 +32,10 @@ public class WindowInfo {
 		}
 	}
 
-	private final WindowInfo.Entry[]   array;
+	private final Entry[] array;
 	
 	public WindowInfo(WebDriver driver) {
-		var list = new ArrayList<WindowInfo.Entry>();
+		var list = new ArrayList<Entry>();
 		{
 			// save current window
 			String save = driver.getWindowHandle();
@@ -44,25 +44,26 @@ public class WindowInfo {
 				driver.switchTo().window(e);
 				list.add(new Entry(driver));
 			}
+			
 			// restore current window
 			driver.switchTo().window(save);
 		}
-		array = list.stream().toArray(WindowInfo.Entry[]::new);
+		array = list.stream().toArray(Entry[]::new);
 	}
 	
-	public boolean titleContaisn(String string) {
+	public boolean titleContains(String string) {
 		for(var e: array) {
 			if (e.titleContains(string)) return true;
 		}
 		return false;
 	}
-	public boolean urlContaisn(String string) {
+	public boolean urlContains(String string) {
 		for(var e: array) {
 			if (e.urlContains(string)) return true;
 		}
 		return false;
 	}
-	public String getHandleByTitleContains(String string) {
+	public String getWindowHandleTitleContains(String string) {
 		for(var e: array) {
 			if (e.titleContains(string)) {
 				return e.handle;

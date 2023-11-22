@@ -27,9 +27,10 @@ public class Manager {
 		@Override
 		public String toString() {
 			LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone.getDefault().toZoneId());					
-			return String.format("{}", level, localDateTime, message);
+			return String.format("{%s  %s  %s}", level, localDateTime, message);
 		}
 	}
+	
 	public static class Result {
 		@JSON.Name("code")                      public int    code;
 	    @JSON.Name("message")      @JSON.Ignore public String message;
@@ -41,9 +42,10 @@ public class Manager {
 	    	return String.format("{%d  %s  %s  %s}", code, driverPath, browserPath);
 	    }
 	}
+	
 	public static class Data {			
-		@JSON.Name("logs")    @JSON.Ignore public Manager.Log[]  logs;
-		@JSON.Name("result")               public Manager.Result result;
+		@JSON.Name("logs")    @JSON.Ignore public Log[]  logs;
+		@JSON.Name("result")               public Result result;
 	}
 	
 	private static String getCachePath() {
@@ -67,7 +69,7 @@ public class Manager {
 	
 	private static String getVersion() {
 		var label = new BuildInfo().getReleaseLabel();
-		int pos = label.lastIndexOf('.');
+		int pos   = label.lastIndexOf('.');
 		return String.format("%s.%s", VERSION_BETA, label.substring(0, pos));
 	}
 	
@@ -121,5 +123,4 @@ public class Manager {
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
-	
 }

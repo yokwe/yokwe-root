@@ -231,14 +231,14 @@ public class WebBrowser implements Closeable{
 	//
 	// switchToByTitleContains
 	//
-	private static ExpectedCondition<String> getHandleByTitleContains(String string_) {
+	private static ExpectedCondition<String> getWindoHandleTitleContains(String string_) {
 		return new ExpectedCondition<String>() {
 			private String string = string_;
 			
 			@Override
 			public String apply(WebDriver driver) {
 				WindowInfo windowInfo = new WindowInfo(driver);
-				return windowInfo.getHandleByTitleContains(string);
+				return windowInfo.getWindowHandleTitleContains(string);
 			}
 
 			@Override
@@ -248,7 +248,7 @@ public class WebBrowser implements Closeable{
 		};
 	}
 	public void switchToWindoTitleContains(String string, Duration timeout) {
-		var handle = wait.untilExpectedCondition(getHandleByTitleContains(string), timeout);
+		var handle = wait.untilExpectedCondition(getWindoHandleTitleContains(string), timeout);
 		driver.switchTo().window(handle);
 	}
 	public void switchToByTitleContains(String string) {
@@ -345,7 +345,7 @@ public class WebBrowser implements Closeable{
 				@Override
 				public Boolean apply(WebDriver driver) {
 					WindowInfo windowInfo = new WindowInfo(driver);
-					return windowInfo.titleContaisn(string);
+					return windowInfo.titleContains(string);
 				}
 
 				@Override
