@@ -6,10 +6,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
 
 public class StorageJREIT {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "jreit");
-
+	private static final Storage storage = Storage.provider.jreit;
 	
 	public static String getPath() {
 		return storage.getPath();

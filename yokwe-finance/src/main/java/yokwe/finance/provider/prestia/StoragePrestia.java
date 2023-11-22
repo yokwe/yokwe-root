@@ -4,9 +4,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.TradingFundType;
 
 public class StoragePrestia {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "prestia");
+	private static final Storage storage = Storage.provider.prestia;
 	
 	public static String getPath() {
 		return storage.getPath();

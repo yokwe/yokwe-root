@@ -5,9 +5,7 @@ import yokwe.finance.type.TradingFundType;
 import yokwe.finance.type.TradingStockType;
 
 public class StorageSBI {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "sbi");
+	private static final Storage storage = Storage.provider.sbi;
 	
 	public static String getPath() {
 		return storage.getPath();

@@ -9,10 +9,7 @@ import yokwe.finance.type.StockInfoJPType;
 import yokwe.finance.type.StockInfoUSType;
 
 public class StorageStock {
-	public static void initialize() {}
-	
 	private static final Storage storage = Storage.stock;
-	
 	
 	public static String getPath() {
 		return storage.getPath();

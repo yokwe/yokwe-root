@@ -20,7 +20,6 @@ public class WebBrowserNikko extends WebBrowser {
 	
 	private static final Target NEXT_30_ITEMS     = new Target.ClickImpl(By.linkText("次の30件"));
 	
-
 	public void login() {
 		var secret = Secret.read().nikko;
 		login(secret.branch, secret.account, secret.password);

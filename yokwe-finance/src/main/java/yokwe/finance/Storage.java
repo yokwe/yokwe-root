@@ -1,5 +1,6 @@
 package yokwe.finance;
 
+import java.io.File;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,8 +15,10 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public interface Storage {
-	static org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-
+	static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	public static void initialize() {}
+	
 	public interface LoadSave <E extends Comparable<E>, K extends Comparable<K>> {
 		public Class<E>  getClazz();
 		public K         getKey(E that);
@@ -187,12 +190,7 @@ public interface Storage {
 	
 	
 	public static final String DATA_PATH_FILE = "data/DataPathLocation";
-	
-	public static void initialize() {}
-	
-	public static  String getDataPath() {
-		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-		
+	private static String getDataPath() {		
 		logger.info("DATA_PATH_FILE  !{}!", DATA_PATH_FILE);
 		// Sanity check
 		if (!FileUtil.canRead(DATA_PATH_FILE)) {
@@ -218,12 +216,22 @@ public interface Storage {
 	public String getPath(String path);
 	public String getPath(String prefix, String path);
 	
+	default public File getFile() {
+		return new File(getPath());
+	}
+	default public File getFile(String path) {
+		return new File(getPath(path));
+	}
+	default public File getFile(String prefix, String path) {
+		return new File(getPath(prefix, path));
+	}
+	
 	public class Impl implements Storage {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 		private final String basePath;
 		
-		public Impl(String basePath) {			
+		public Impl(String basePath) {
 			if (!FileUtil.isDirectory(basePath)) {
 				logger.error("Not directory");
 				logger.error("  basePath  {}!", basePath);
@@ -255,13 +263,48 @@ public interface Storage {
 		}
 	}
 	
-	public static Storage root            = new Impl(DATA_PATH);
 	
-	public static Storage account         = new Impl(root, "account");
-	public static Storage fund            = new Impl(root, "fund");
-	public static Storage provider        = new Impl(root, "provider");
-	public static Storage report          = new Impl(root, "report");
-	public static Storage stock           = new Impl(root, "stock");
+	public static final Storage root     = new Impl(DATA_PATH);
+	
+	public static final Storage fund     = new Impl(root, "fund");
+	public static final Storage report   = new Impl(root, "report");
+	public static final Storage stock    = new Impl(root, "stock");
+	
+	public static final class account {
+		public static final Storage base = new Impl(root, "account");
+		
+		public static final Storage nikko    =  new Storage.Impl(base, "nikko");
+		public static final Storage prestia  =  new Storage.Impl(base, "prestia");
+		public static final Storage rakuten  =  new Storage.Impl(base, "rakuten");
+		public static final Storage sbi      =  new Storage.Impl(base, "sbi");
+		public static final Storage smbc     =  new Storage.Impl(base, "smbc");
+		public static final Storage smtb     =  new Storage.Impl(base, "smtb");
+		public static final Storage sony     =  new Storage.Impl(base, "rakuten");
+	}
+	
+	public static final class provider {
+		public static final Storage base = new Impl(root, "provider");
+
+		public static final Storage bats    =  new Storage.Impl(base, "bats");
+		public static final Storage click   =  new Storage.Impl(base, "click");
+		public static final Storage jita    =  new Storage.Impl(base, "jita");
+		public static final Storage jpx     =  new Storage.Impl(base, "jpx");
+		public static final Storage jreit   =  new Storage.Impl(base, "jreit");
+		public static final Storage manebu  =  new Storage.Impl(base, "manebu");
+		public static final Storage monex   =  new Storage.Impl(base, "monex");
+		public static final Storage moomoo  =  new Storage.Impl(base, "moomoo");
+		public static final Storage nasdaq  =  new Storage.Impl(base, "nasdaq");
+		public static final Storage nikkei  =  new Storage.Impl(base, "nikkei");
+		public static final Storage nikko   =  new Storage.Impl(base, "nikko");
+		public static final Storage nomura  =  new Storage.Impl(base, "nomura");
+		public static final Storage nyse    =  new Storage.Impl(base, "nyse");
+		public static final Storage prestia =  new Storage.Impl(base, "prestia");
+		public static final Storage rakuten =  new Storage.Impl(base, "rakuten");
+		public static final Storage sbi     =  new Storage.Impl(base, "sbi");
+		public static final Storage sony    =  new Storage.Impl(base, "sony");
+		public static final Storage yahoo   =  new Storage.Impl(base, "yahoo");
+	}
+	
 	
 	public static void main(String[] args) {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -270,9 +313,9 @@ public interface Storage {
 		logger.info("DATA_PATH  {}", DATA_PATH);
 		
 		logger.info("root       {}", Storage.root.getPath());
-		logger.info("account    {}", Storage.account.getPath());
+		logger.info("account    {}", Storage.account.base.getPath());
 		logger.info("fund       {}", Storage.fund.getPath());
-		logger.info("provider   {}", Storage.provider.getPath());
+		logger.info("provider   {}", Storage.provider.base.getPath());
 		logger.info("report     {}", Storage.report.getPath());
 		logger.info("stock      {}", Storage.stock.getPath());
 		

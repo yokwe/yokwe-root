@@ -4,9 +4,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.TradingStockType;
 
 public class StorageMoomoo {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "moomoo");
+	private static final Storage storage = Storage.provider.moomoo;
 	
 	public static String getPath() {
 		return storage.getPath();

@@ -5,14 +5,14 @@ import yokwe.finance.Storage;
 public class UpdateAssetRakuten {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	private static final Storage storage = Storage.account.rakuten;
+
 	private static void update() {
-		Storage.initialize();
-		
 		try(var browser = new WebBrowserRakuten()) {
 			logger.info("login");
 			browser.login();
 			
-			browser.savePage(StorageRakuten.getPath("top.html"));
+			browser.savePage(storage.getFile("top.html"));
 			
 			logger.info("logout");
 			browser.logout();

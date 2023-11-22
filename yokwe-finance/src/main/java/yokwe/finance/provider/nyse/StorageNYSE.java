@@ -4,9 +4,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoUSType;
 
 public class StorageNYSE {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "nyse");
+	private static final Storage storage = Storage.provider.nyse;
 	
 	public static String getPath() {
 		return storage.getPath();

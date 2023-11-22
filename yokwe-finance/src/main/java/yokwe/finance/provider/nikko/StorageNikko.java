@@ -5,9 +5,7 @@ import yokwe.finance.type.TradingFundType;
 import yokwe.finance.type.TradingStockType;
 
 public class StorageNikko {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "nikko");
+	private static final Storage storage = Storage.provider.nikko;
 	
 	public static String getPath() {
 		return storage.getPath();

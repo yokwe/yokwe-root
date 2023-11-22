@@ -5,21 +5,21 @@ import yokwe.finance.Storage;
 public class UpdateAssetSBI {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	private static final Storage storage = Storage.account.sbi;
+
 	private static void update() {
-		Storage.initialize();
-		
 		try(var browser = new WebBrowserSBI()) {
 			logger.info("login");
 			browser.login();
-			browser.savePage(StorageSBI.getPath("top.html"));
+			browser.savePage(storage.getFile("top.html"));
 			
 			logger.info("balance-jpy");
 			browser.balanceJPY();
-			browser.savePage(StorageSBI.getPath("balance-jpy.html"));
+			browser.savePage(storage.getFile("balance-jpy.html"));
 			
 			logger.info("balance-foreign");
 			browser.balanceForeign();
-			browser.savePage(StorageSBI.getPath("balance-foreign.html"));
+			browser.savePage(storage.getFile("balance-foreign.html"));
 			
 			logger.info("logout");
 			browser.logout();

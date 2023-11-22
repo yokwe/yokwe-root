@@ -4,9 +4,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoUSType;
 
 public class StorageBATS {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "bats");
+	private static final Storage storage = Storage.provider.bats;
 	
 	public static String getPath() {
 		return storage.getPath();

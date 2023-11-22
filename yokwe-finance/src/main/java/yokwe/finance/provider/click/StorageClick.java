@@ -4,9 +4,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.TradingFundType;
 
 public class StorageClick {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "click");
+	private static final Storage storage = Storage.provider.click;
 	
 	public static String getPath() {
 		return storage.getPath();

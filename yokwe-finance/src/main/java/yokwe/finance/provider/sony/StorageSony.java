@@ -4,9 +4,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.TradingFundType;
 
 public class StorageSony {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "sony");
+	private static final Storage storage = Storage.provider.sony;
 	
 	public static String getPath() {
 		return storage.getPath();

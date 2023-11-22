@@ -3,9 +3,7 @@ package yokwe.finance.provider.nikkei;
 import yokwe.finance.Storage;
 
 public class StorageNikkei {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "nikkei");
+	private static final Storage storage = Storage.provider.nikkei;
 	
 	public static String getPath() {
 		return storage.getPath();

@@ -8,9 +8,7 @@ import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
 
 public class StorageJPX {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "jpx");
+	private static final Storage storage = Storage.provider.jpx;
 	
 	public static String getPath() {
 		return storage.getPath();

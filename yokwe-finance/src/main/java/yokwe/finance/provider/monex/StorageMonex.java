@@ -5,9 +5,7 @@ import yokwe.finance.type.TradingFundType;
 import yokwe.finance.type.TradingStockType;
 
 public class StorageMonex {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "monex");
+	private static final Storage storage = Storage.provider.monex;
 	
 	public static String getPath() {
 		return storage.getPath();

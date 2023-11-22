@@ -7,9 +7,7 @@ import yokwe.finance.type.TradingFundType;
 import yokwe.finance.type.TradingStockType;
 
 public class StorageRakuten {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "rakuten");
+	private static final Storage storage = Storage.provider.rakuten;
 	
 	public static String getPath() {
 		return storage.getPath();

@@ -238,8 +238,16 @@ public class WebBrowser implements Closeable{
 	public String getPage() {
 		return driver.getPageSource();
 	}
-	public void savePage(String path) {
-		FileUtil.write().file(path, getPage());
+	public void savePage(File file) {
+		var string = getPage();
+		// string is already UTF-8, so remove charset from content-type
+		string = string.replace(
+			"<meta http-equiv=\"content-type\" content=\"text/html; charset=Shift_JIS\">",
+			"<meta http-equiv=\"content-type\" content=\"text/html\">");
+		string = string.replace(
+			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=Shift_JIS\">",
+			"<meta http-equiv=\"Content-Type\" content=\"text/html\">");
+		FileUtil.write().file(file, string);
 	}
 	
 	
@@ -256,10 +264,10 @@ public class WebBrowser implements Closeable{
 	//
 	// sleep
 	//
-	public static void sleep(Duration duration) {
+	public void sleep(Duration duration) {
 		sleep(duration.toMillis());
 	}
-	public static void sleep(long millis) {
+	public void sleep(long millis) {
 		try {
 			Thread.sleep(millis);
 		} catch (InterruptedException e) {
@@ -465,6 +473,16 @@ public class WebBrowser implements Closeable{
 	protected void get(String url) {
 		// NOTE driver.get is synchronous
 		driver.get(url);
+	}
+	public void get(File file) {
+		if (file.canRead()) {
+			// FIXME remove 
+			get("file://" + file.getAbsolutePath());
+		} else {
+			logger.error("cannot read file");
+			logger.error("  file  {}", file.getAbsolutePath());
+			throw new UnexpectedException("cannot read file");
+		}
 	}
 	//
 	// javaScript

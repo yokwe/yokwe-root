@@ -8,9 +8,7 @@ import yokwe.finance.type.FundInfoJP;
 import yokwe.finance.type.FundPriceJP;
 
 public class StorageFund {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.root, "fund");
+	private static final Storage storage = Storage.fund;
 	
 	public static String getPath() {
 		return storage.getPath();

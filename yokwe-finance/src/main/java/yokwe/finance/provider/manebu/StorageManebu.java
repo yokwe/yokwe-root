@@ -6,10 +6,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
 
 public class StorageManebu {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "manebu");
-
+	private static final Storage storage = Storage.provider.manebu;
 	
 	public static String getPath() {
 		return storage.getPath();

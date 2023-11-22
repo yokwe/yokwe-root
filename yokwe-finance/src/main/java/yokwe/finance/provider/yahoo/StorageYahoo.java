@@ -7,9 +7,7 @@ import yokwe.finance.type.CompanyInfoType;
 import yokwe.finance.type.DailyValue;
 
 public class StorageYahoo {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "yahoo");
+	private static final Storage storage = Storage.provider.yahoo;
 	
 	public static String getPath() {
 		return storage.getPath();

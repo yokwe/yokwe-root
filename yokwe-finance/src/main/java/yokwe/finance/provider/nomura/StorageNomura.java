@@ -4,9 +4,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.TradingFundType;
 
 public class StorageNomura {
-	public static void initialize() {}
-	
-	private static final Storage storage = new Storage.Impl(Storage.provider, "nomura");
+	private static final Storage storage = Storage.provider.nomura;
 	
 	public static String getPath() {
 		return storage.getPath();
