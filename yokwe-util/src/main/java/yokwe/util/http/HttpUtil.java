@@ -171,6 +171,10 @@ public class HttpUtil {
 		context.charset = Charset.forName(newValue);
 		return this;
 	}
+	public HttpUtil withCharset(Charset newValue) {
+		context.charset = newValue;
+		return this;
+	}
 	public HttpUtil withRawData(boolean newValue) {
 		context.rawData = newValue;
 		return this;
