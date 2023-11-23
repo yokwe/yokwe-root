@@ -114,7 +114,7 @@ public class UpdateTradingFundSony {
 		{
 			String page;
 			{
-				String filePath = StorageSony.getPath("page", "SFBA1700F471.js");
+				String filePath = StorageSony.storage.getPath("page", "SFBA1700F471.js");
 				page = download(URL, CHARSET, filePath, DEBUG_USE_FILE);
 			}
 			

@@ -25,7 +25,7 @@ public class UpdateListing {
 	
 	private static final String URL = "https://www.jpx.co.jp/markets/statistics-equities/misc/tvdivq0000001vg2-att/data_j.xls";
 	
-	private static final String PATH_DATAFILE = StorageJPX.getPath("data_j.xls");
+	private static final String PATH_DATAFILE = StorageJPX.storage.getPath("data_j.xls");
 	private static final String URL_DATAFILE  = StringUtil.toURLString(PATH_DATAFILE);
 	
 	private static final long GRACE_PERIOD_IN_DAY = 30;

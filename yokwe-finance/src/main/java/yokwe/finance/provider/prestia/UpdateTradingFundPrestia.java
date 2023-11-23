@@ -86,7 +86,7 @@ public class UpdateTradingFundPrestia {
 			String queryString = map.entrySet().stream().map(o -> o.getKey() + "=" + URLEncoder.encode(o.getValue(), StandardCharsets.UTF_8)).collect(Collectors.joining("&"));
 
 			String url      = String.format("%s?%s", URL, queryString);
-			String filePath = StoragePrestia.getPath("screener.json");
+			String filePath = StoragePrestia.storage.getPath("screener.json");
 			page = download(url, CHARSET, filePath, DEBUG_USE_FILE);
 			
 			logger.info("page  {}", page.length());

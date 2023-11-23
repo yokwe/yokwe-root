@@ -50,12 +50,12 @@ public class UpdateTradingFundNomura {
 	private static final int MAXDISP = 50;
 	private static String downloadPage_ALL(int pageNo) {
 		String url      = String.format("https://advance.quote.nomura.co.jp/meigara/nomura2/qsearch.exe?F=users/nomura/list2&MAXDISP=%d&GO_BEFORE=&BEFORE=%d", MAXDISP, MAXDISP * (pageNo - 1));
-		String filePath = StorageNomura.getPath("page", "all-" + pageNo + ".html");
+		String filePath = StorageNomura.storage.getPath("page", "all-" + pageNo + ".html");
 		return download(url, CHARSET, filePath, DEBUG_USE_FILE);
 	}
 	private static String downloadPage_NOLOAD(int pageNo) {
 		String url      = String.format("https://advance.quote.nomura.co.jp/meigara/nomura2/qsearch.exe?F=users/nomura/list2&MAXDISP=%d&KEY37=1&GO_BEFORE=&BEFORE=%d", MAXDISP, MAXDISP * (pageNo - 1));
-		String filePath = StorageNomura.getPath("page", "noload-" + pageNo + ".html");
+		String filePath = StorageNomura.storage.getPath("page", "noload-" + pageNo + ".html");
 		return download(url, CHARSET, filePath, DEBUG_USE_FILE);
 	}
 	

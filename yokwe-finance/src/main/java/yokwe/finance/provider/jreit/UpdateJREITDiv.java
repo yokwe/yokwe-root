@@ -126,7 +126,7 @@ public class UpdateJREITDiv {
 		
 		String url      = String.format("https://www.japan-reit.com/infra/%s/dividend/", StockInfoJPType.toStockCode4(stockCode));			
 		String charset  = "UTF-8";
-		String filePath = StorageJREIT.getPath("page-div", stockCode + ".html");
+		String filePath = StorageJREIT.storage.getPath("page-div", stockCode + ".html");
 		
 		String page = download(url, charset, filePath, DEBUG_USE_FILE);
 		
@@ -150,7 +150,7 @@ public class UpdateJREITDiv {
 
 		String url      = String.format("https://www.japan-reit.com/meigara/%s/bunpai.json", StockInfoJPType.toStockCode4(stockCode));
 		String charset  = "UTF-8";
-		String filePath = StorageJREIT.getPath("page-div", stockCode + ".json");
+		String filePath = StorageJREIT.storage.getPath("page-div", stockCode + ".json");
 		
 		String page = download(url, charset, filePath, DEBUG_USE_FILE);
 		

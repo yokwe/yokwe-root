@@ -47,7 +47,7 @@ public class UpdateTradingStockSBI {
 	static final class BuyFreeETF {
 		private static final String URL       = "https://go.sbisec.co.jp/lp/lp_us_etf_selection_220331.html";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = StorageSBI.getPath("lp_us_etf_selection_220331.html");
+		private static final String FILE_PATH = StorageSBI.storage.getPath("lp_us_etf_selection_220331.html");
 
 		// <p class="small">ティッカー：GLDM</p>
 		public static class ETFInfo {
@@ -85,7 +85,7 @@ public class UpdateTradingStockSBI {
 	
 	private static final String URL       = "https://search.sbisec.co.jp/v2/popwin/info/stock/pop6040_usequity_list.html";
 	private static final String CHARSET   = "SHIFT_JIS";
-	private static final String FILE_PATH = StorageSBI.getPath("pop6040_usequity_list.html");
+	private static final String FILE_PATH = StorageSBI.storage.getPath("pop6040_usequity_list.html");
 	
 	public static class StockInfoXX {
 		// STOCK

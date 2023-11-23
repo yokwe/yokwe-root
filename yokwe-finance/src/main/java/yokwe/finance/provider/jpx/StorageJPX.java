@@ -8,17 +8,7 @@ import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
 
 public class StorageJPX {
-	private static final Storage storage = Storage.provider.jpx;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.provider.jpx;
 	
 	// etf
 	public static final Storage.LoadSave<StockNameType, String> ETF =

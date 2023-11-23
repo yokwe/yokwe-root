@@ -68,7 +68,7 @@ public class UpdateTradingFundNikko {
 	private static void update() {
 		String page;
 		{
-			String filePath = StorageNikko.getPath("coursedata.csv");
+			String filePath = StorageNikko.storage.getPath("coursedata.csv");
 			page = download(URL, CHARSET, filePath, DEBUG_USE_FILE);
 		}
 		var fundList = CSVUtil.read(CourseData.class).withHeader(false).withSeparator('|').file(new StringReader(page));

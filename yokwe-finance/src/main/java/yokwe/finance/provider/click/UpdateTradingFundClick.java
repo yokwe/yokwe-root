@@ -117,7 +117,7 @@ public class UpdateTradingFundClick {
 			String page;
 			{
 				String url      = getURL(before);
-				String filePath = StorageClick.getPath("page-" + before + ".html");
+				String filePath = StorageClick.storage.getPath("page-" + before + ".html");
 				page = download(url, CHARSET, filePath, DEBUG_USE_FILE).replace("callFunds(", "").replace(");", "").replace("\n\n,\n", "\n\n\n");
 			}
 

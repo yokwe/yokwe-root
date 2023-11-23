@@ -25,7 +25,7 @@ public class UpdateTradingStockMonex {
 	
 	private static final String  URL       = "https://mst.monex.co.jp/pc/pdfroot/public/50/99/Monex_US_LIST.csv";
 	private static final String  CHARSET   = "SHIFT_JIS";
-	private static final String  FILE_PATH = StorageMonex.getPath("Monex_US_LIST.csv");
+	private static final String  FILE_PATH = StorageMonex.storage.getPath("Monex_US_LIST.csv");
 	
 	private static String download(String url, String charset, String filePath, boolean useFile) {
 		final String page;
@@ -53,7 +53,7 @@ public class UpdateTradingStockMonex {
 	static final class BuyFreeETF {
 		private static final String URL       = "https://info.monex.co.jp/us-stock/etf_usa_program.html";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = StorageMonex.getPath("etf_usa_program.html");
+		private static final String FILE_PATH = StorageMonex.storage.getPath("etf_usa_program.html");
 		
 		public static class ETFInfo {
 			//  <tr>

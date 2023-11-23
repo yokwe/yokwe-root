@@ -116,7 +116,7 @@ public class UpdateStockPriceJPX2 {
 			String page;
 			{
 				var url  = getURL(stockCode);
-				var path = StorageJPX.getPath("page", stockCode + ".html");
+				var path = StorageJPX.storage.getPath("page", stockCode + ".html");
 				page = download(url, path, DEBUG_USE_FILE);
 				if (page == null) {
 					logger.warn("download failed  {}  {}", stockCode, name);

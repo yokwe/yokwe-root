@@ -103,7 +103,7 @@ public class UpdateTradingFundRakuten {
 			String page;
 			{
 				String postBody = getPostBody();
-				String filePath = StorageRakuten.getPath("reloadscreener.json");
+				String filePath = StorageRakuten.storage.getPath("reloadscreener.json");
 				
 				page = download(URL, postBody, filePath, DEBUG_USE_FILE);
 			}

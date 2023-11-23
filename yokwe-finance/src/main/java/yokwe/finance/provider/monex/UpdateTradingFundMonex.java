@@ -52,7 +52,7 @@ public class UpdateTradingFundMonex {
 		return "https://fund.monex.co.jp/search?page=" + pageNo + "&pagesize=100";
 	}
 	private static String getPath(int pageNo) {
-		return StorageMonex.getPath("page", pageNo + ".html");
+		return StorageMonex.storage.getPath("page", pageNo + ".html");
 	}
 	
 	

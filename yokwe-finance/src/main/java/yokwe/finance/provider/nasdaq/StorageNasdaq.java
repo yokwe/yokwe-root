@@ -5,17 +5,7 @@ import yokwe.finance.type.CompanyInfoType;
 import yokwe.finance.type.StockInfoUSType;
 
 public class StorageNasdaq {
-	private static final Storage storage = Storage.provider.nasdaq;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.provider.nasdaq;
 	
 	// stock-info-nasdaq
 	public static final Storage.LoadSave<StockInfoUSType, String> StockInfoNasdaq =
@@ -29,12 +19,12 @@ public class StorageNasdaq {
 	public static final Storage.LoadSave<NasdaqListedType, String> NasdaqListed =
 		new Storage.LoadSave.Impl<>(NasdaqListedType.class,  o -> o.symbol, storage, "nasdaqlisted.csv");
 	
-	public static final String NasdaqListed_TXT = getPath("nasdaqlisted.txt");
+	public static final String NasdaqListed_TXT = storage.getPath("nasdaqlisted.txt");
 	
 	// otherlisted
 	public static final Storage.LoadSave<OtherListedType, String> OtherListed =
 		new Storage.LoadSave.Impl<>(OtherListedType.class,  o -> o.symbol, storage, "otherlisted.csv");
 	
-	public static final String OtherListed_TXT = getPath("otherlisted.txt");
+	public static final String OtherListed_TXT = storage.getPath("otherlisted.txt");
 
 }

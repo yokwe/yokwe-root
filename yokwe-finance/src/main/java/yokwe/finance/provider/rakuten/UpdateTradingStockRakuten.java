@@ -51,7 +51,7 @@ public class UpdateTradingStockRakuten {
 	static final class BuyFreeETF {
 		private static final String URL       = "https://www.rakuten-sec.co.jp/web/foreign/etf/etf-etn-reit/lineup/0-etf.html";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = StorageRakuten.getPath("0-etf.html");
+		private static final String FILE_PATH = StorageRakuten.storage.getPath("0-etf.html");
 		
 		//<tr>
 		//  <td class="ta-c va-m" rowspan="2"><a href="https://www.rakuten-sec.co.jp/web/market/search/us_search/quote.html?ric=AGG.P">AGG</a><br><strong>【NEW】</strong></td>
@@ -103,7 +103,7 @@ public class UpdateTradingStockRakuten {
 	private static final class STOCK {
 		private static final String URL       = "https://www.trkd-asia.com/rakutensec/exportcsvus?all=on&vall=on&r1=on&forwarding=na&target=0&theme=na&returns=na&head_office=na&name=&sector=na&pageNo=&c=us&p=result";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = StorageRakuten.getPath("exportcsvus.csv");
+		private static final String FILE_PATH = StorageRakuten.storage.getPath("exportcsvus.csv");
 
 		public static final String TRADEABLE_YES = "○";
 		
@@ -157,7 +157,7 @@ public class UpdateTradingStockRakuten {
 	public static final class ETF {
 		private static final String URL       = "https://www.rakuten-sec.co.jp/web/market/search/etf_search/ETFD.csv";
 		private static final String CHARSET   = "UTF-8";
-		private static final String FILE_PATH = StorageRakuten.getPath("etfd.csv");
+		private static final String FILE_PATH = StorageRakuten.storage.getPath("etfd.csv");
 
 		static class Data {
 			public String f01;

@@ -7,17 +7,7 @@ import yokwe.finance.type.CompanyInfoType;
 import yokwe.finance.type.DailyValue;
 
 public class StorageYahoo {
-	private static final Storage storage = Storage.provider.yahoo;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.provider.yahoo;
 	
 	// company-info-jp-yahoo
 	public static final Storage.LoadSave<CompanyInfoType, String> CompanyInfoJPYahoo =

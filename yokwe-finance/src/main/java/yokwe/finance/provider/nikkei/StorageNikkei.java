@@ -3,17 +3,7 @@ package yokwe.finance.provider.nikkei;
 import yokwe.finance.Storage;
 
 public class StorageNikkei {
-	private static final Storage storage = Storage.provider.nikkei;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.provider.nikkei;
 	
 	// div score
 	public static final Storage.LoadSave<DivScoreType, String> DivScore =

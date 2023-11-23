@@ -238,7 +238,7 @@ public class UpdateETFDivInfo {
 			final String page;
 			{
 				String body     = "{\"stockCode\":\"" + stockCode4 + "\"}";
-				String filePath = StorageManebu.getPath("page", stockCode + ".json");
+				String filePath = StorageManebu.storage.getPath("page", stockCode + ".json");
 				
 				page = download(URL, filePath, body, CONTENT_TYPE, DEBUG_USE_FILE);
 			}

@@ -201,7 +201,7 @@ public class UpdateTradingFundSBI {
 	
 	private static String getPage(int pageNo) {
 		String postBody = getPostBody(pageNo);
-		String filePath = StorageSBI.getPath("page", String.format("search-%d.json", pageNo));
+		String filePath = StorageSBI.storage.getPath("page", String.format("search-%d.json", pageNo));
 
 		return download(URL, postBody, filePath, DEBUG_USE_FILE);
 	}

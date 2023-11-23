@@ -146,7 +146,7 @@ public class UpdateTradingStockNikko {
 	}
 	
 	private static String getPath(int pageNo) {
-		return StorageNikko.getPath("stock", String.format("%03d.html", pageNo));
+		return StorageNikko.storage.getPath("stock", String.format("%03d.html", pageNo));
 	}
 	
 	private static int download() {

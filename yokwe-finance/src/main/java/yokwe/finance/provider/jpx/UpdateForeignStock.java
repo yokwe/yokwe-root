@@ -87,7 +87,7 @@ public class UpdateForeignStock {
 	
 	private static List<StockNameType> getList(String url, String pageFile) {
 		String charset  = "UTF-8";
-		String filePath = StorageJPX.getPath(pageFile);
+		String filePath = StorageJPX.storage.getPath(pageFile);
 		String page     = download(url, charset, filePath, DEBUG_USE_FILE);
 		
 		List<StockNameType> list = new ArrayList<>();

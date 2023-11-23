@@ -48,7 +48,7 @@ public class UpdateNisaRakuten {
 	@Sheet.DataRow(2)
 	public static class NisaFund extends Sheet implements Comparable<NisaFund> {
 		private static final String URL       = "https://www.rakuten-sec.co.jp/web/info/xlsx/info20230621-01.xlsx";
-		private static final String FILE_PATH = StorageRakuten.getPath("info20230621-01.xlsx");
+		private static final String FILE_PATH = StorageRakuten.storage.getPath("info20230621-01.xlsx");
 		private static final String FILE_URL  = StringUtil.toURLString(FILE_PATH);
 
 		private static final String NAME_IFA = "※個人型確定拠出年金、IFA（金融仲介業者）コースのみの取扱となります。";
@@ -94,7 +94,7 @@ public class UpdateNisaRakuten {
 	@Sheet.DataRow(2)
 	public static class NisaETFUS extends Sheet implements Comparable<NisaETFUS> {
 		private static final String URL       = "https://www.rakuten-sec.co.jp/web/info/xlsx/info20230621-01-foreign.xlsx";
-		private static final String FILE_PATH = StorageRakuten.getPath("info20230621-01-foreign.xlsx");
+		private static final String FILE_PATH = StorageRakuten.storage.getPath("info20230621-01-foreign.xlsx");
 		private static final String FILE_URL  = StringUtil.toURLString(FILE_PATH);
 		
 		public static enum Country {
@@ -138,7 +138,7 @@ public class UpdateNisaRakuten {
 	@Sheet.DataRow(2)
 	public static class NisaETFJP extends Sheet  implements Comparable<NisaETFJP> {
 		private static final String URL       = "https://www.rakuten-sec.co.jp/web/info/xlsx/info20230621-01-domestic.xlsx";
-		private static final String FILE_PATH = StorageRakuten.getPath("info20230621-01-domestic.xlsx");
+		private static final String FILE_PATH = StorageRakuten.storage.getPath("info20230621-01-domestic.xlsx");
 		private static final String FILE_URL  = StringUtil.toURLString(FILE_PATH);
 		
 		// 銘柄コード	ファンド名称	運用会社名

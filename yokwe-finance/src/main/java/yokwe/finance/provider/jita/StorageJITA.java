@@ -8,17 +8,7 @@ import yokwe.finance.type.FundInfoJP;
 import yokwe.finance.type.FundPriceJP;
 
 public class StorageJITA {
-	private static final Storage storage = Storage.provider.jita;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.provider.jita;
 	
 	// fund-div
 	public static final Storage.LoadSave2<DailyValue, ChronoLocalDate> FundDivJITA =

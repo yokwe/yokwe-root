@@ -5,17 +5,7 @@ import yokwe.finance.type.TradingFundType;
 import yokwe.finance.type.TradingStockType;
 
 public class StorageNikko {
-	private static final Storage storage = Storage.provider.nikko;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.provider.nikko;
 	
 	// trading-fund-nikko
 	public static final Storage.LoadSave<TradingFundType, String> TradingFundNikko =

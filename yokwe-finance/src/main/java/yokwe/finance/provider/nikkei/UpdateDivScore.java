@@ -51,7 +51,7 @@ public class UpdateDivScore {
 		return String.format("https://www.nikkei.com/nkd/fund/dividend/?fcode=%s", fundCode);
 	}
 	private static String getFilePath(String fundCode) {
-		return StorageNikkei.getPath("page", fundCode + ".html");
+		return StorageNikkei.storage.getPath("page", fundCode + ".html");
 	}
 	
 	

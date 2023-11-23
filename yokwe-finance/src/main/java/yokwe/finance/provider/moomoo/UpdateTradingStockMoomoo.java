@@ -21,7 +21,7 @@ public class UpdateTradingStockMoomoo {
 	
 	private static final String URL       = "https://www.moomoo.com/jp/support/topic7_134";
 	private static final String CHARSET   = "UTF-8";
-	private static final String FILE_PATH = StorageMoomoo.getPath("topic7_134.html");
+	private static final String FILE_PATH = StorageMoomoo.storage.getPath("topic7_134.html");
 	
 	private static String download(String url, String charset, String filePath, boolean useFile) {
 		final String page;

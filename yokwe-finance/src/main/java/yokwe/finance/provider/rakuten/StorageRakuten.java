@@ -7,17 +7,7 @@ import yokwe.finance.type.TradingFundType;
 import yokwe.finance.type.TradingStockType;
 
 public class StorageRakuten {
-	private static final Storage storage = Storage.provider.rakuten;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.provider.rakuten;
 	
 	// trading-fund-rakuten
 	public static final Storage.LoadSave<TradingFundType, String> TradingFundRakuten =

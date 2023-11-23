@@ -189,7 +189,7 @@ public class UpdateJREITInfo {
 		//                     category
 		String url     = "https://www.japan-reit.com/list/link/";
 		String charset = "UTF-8";
-		String filePath = StorageJREIT.getPath("link.html");
+		String filePath = StorageJREIT.storage.getPath("link.html");
 		
 		String page = download(url, charset, filePath, DEBUG_USE_FILE);
 		
@@ -208,7 +208,7 @@ public class UpdateJREITInfo {
 	
 	private static JREITInfoType getREIT(String stockCode, String url, String category) {
 		String charset  = "UTF-8";
-		String filePath = StorageJREIT.getPath("page-info", stockCode + ".html");
+		String filePath = StorageJREIT.storage.getPath("page-info", stockCode + ".html");
 		
 		String page = download(url, charset, filePath, DEBUG_USE_FILE);
 		

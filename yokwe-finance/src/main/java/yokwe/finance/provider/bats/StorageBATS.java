@@ -4,19 +4,9 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.StockInfoUSType;
 
 public class StorageBATS {
-	private static final Storage storage = Storage.provider.bats;
+	public static final Storage storage = Storage.provider.bats;
 	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
-	
-	public static final String PATH_TXT = getPath("listed-security-report.txt");
+	public static final String PATH_TXT = storage.getPath("listed-security-report.txt");
 
 	// stock-info-bats
 	public static final Storage.LoadSave<StockInfoUSType, String> StockInfoBATS =
