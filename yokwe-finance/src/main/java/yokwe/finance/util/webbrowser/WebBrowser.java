@@ -28,7 +28,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public class WebBrowser implements Closeable{
-	static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// redirect java.util.logging to slf4j
 	static {

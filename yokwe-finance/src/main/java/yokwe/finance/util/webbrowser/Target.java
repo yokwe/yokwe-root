@@ -5,6 +5,8 @@ import org.openqa.selenium.By;
 import yokwe.util.UnexpectedException;
 
 public interface Target {
+	static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
 	public String getString();
 	public By     getLocator();
 	
@@ -45,29 +47,29 @@ public interface Target {
 		
 		protected void checkString() {
 			if (string == null) {
-				WebBrowser.logger.error("string is null");
-				WebBrowser.logger.error("  {}", toString());
+				logger.error("string is null");
+				logger.error("  {}", toString());
 				throw new UnexpectedException("string is null");
 			}
 		}
 		protected void checkLocator() {
 			if (locator == null) {
-				WebBrowser.logger.error("locator is null");
-				WebBrowser.logger.error("  {}", toString());
+				logger.error("locator is null");
+				logger.error("  {}", toString());
 				throw new UnexpectedException("locator is null");
 			}
 		}
 		protected void checkTitle() {
 			if (title == null) {
-				WebBrowser.logger.error("title is null");
-				WebBrowser.logger.error("  {}", toString());
+				logger.error("title is null");
+				logger.error("  {}", toString());
 				throw new UnexpectedException("title is null");
 			}
 		}
 		protected void checkSleep() {
 			if (sleep < 0) {
-				WebBrowser.logger.error("sleep is negative");
-				WebBrowser.logger.error("  {}", toString());
+				logger.error("sleep is negative");
+				logger.error("  {}", toString());
 				throw new UnexpectedException("sleep is negative");
 			}
 		}
@@ -76,7 +78,7 @@ public interface Target {
 		public String toString() {
 			if (string != null)  return String.format("{string  {}  {}  {}", string, title, sleep);
 			if (locator != null) return String.format("{locator {}  {}  {}", locator, title, sleep);
-			WebBrowser.logger.error("  {}", toString());
+			logger.error("  {}", toString());
 			throw new UnexpectedException("Unexpected");
 		}
 		
