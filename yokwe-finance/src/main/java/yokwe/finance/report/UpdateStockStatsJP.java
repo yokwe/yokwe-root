@@ -48,6 +48,7 @@ public class UpdateStockStatsJP {
 				stats.stockCode = stockCode;
 				stats.type      = stockInfo.type.simpleType.toString();
 				
+				stats.divc     = -1;
 				// set sector and industry
 				if (stockInfo.type.isETF() || stockInfo.type.isETN()) {
 					stats.sector = stockInfo.type.simpleType.toString();
@@ -55,6 +56,7 @@ public class UpdateStockStatsJP {
 					var etf = etfMap.get(stockCode);
 					if (etf != null) {
 						stats.industry = "ETF-" + etf.category.replace("ETF", "");
+						stats.divc = etf.divFreq;
 					} else {
 						stats.industry = stats.sector;
 					}
@@ -64,6 +66,7 @@ public class UpdateStockStatsJP {
 					var jreit = jreitMap.get(stockCode);
 					if (jreit != null) {
 						stats.industry = "REIT-" + jreit.category.replace(" ", "");
+						stats.divc     = jreit.divFreq;
 					} else {
 						stats.industry = stats.sector;
 					}
@@ -99,8 +102,10 @@ public class UpdateStockStatsJP {
 					stats.max       = stockStats.max;
 					stats.minY3     = stockStats.minY3;
 					stats.maxY3     = stockStats.maxY3;
-
-					stats.divc          = stockStats.divc;
+					
+					if (stats.divc == -1) {
+						stats.divc          = stockStats.divc;
+					}
 					stats.lastDiv       = stockStats.lastDiv;
 					stats.forwardYield  = stockStats.forwardYield;
 					stats.annualDiv     = stockStats.annualDiv;
