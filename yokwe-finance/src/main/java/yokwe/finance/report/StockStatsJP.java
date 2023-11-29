@@ -22,6 +22,13 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 	// last price
 	@Sheet.ColumnName("last")   public double last;
 	
+	// dividend
+	@Sheet.ColumnName("divc")          public int    divc;
+	@Sheet.ColumnName("lastDiv")       public double lastDiv;
+	@Sheet.ColumnName("forwardYield")  public double forwardYield;
+	@Sheet.ColumnName("annualDiv")     public double annualDiv;
+	@Sheet.ColumnName("trailingYield") public double trailingYield;
+	
 	// stats - sd hv rsi
 	//  30 < pricec
 	@Sheet.ColumnName("sd")  public double sd;
@@ -34,13 +41,6 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 	@Sheet.ColumnName("max")   public double max;
 	@Sheet.ColumnName("minY3") public double minY3;
 	@Sheet.ColumnName("maxY3") public double maxY3;
-	
-	// dividend
-	@Sheet.ColumnName("divc")          public int    divc;
-	@Sheet.ColumnName("lastDiv")       public double lastDiv;
-	@Sheet.ColumnName("forwardYield")  public double forwardYield;
-	@Sheet.ColumnName("annualDiv")     public double annualDiv;
-	@Sheet.ColumnName("trailingYield") public double trailingYield;
 	
 	// volume
 	@Sheet.ColumnName("vol")  public long   vol;
@@ -62,6 +62,12 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 		
 		last      = -1;
 		
+		divc          = -1;
+		lastDiv       = -1;
+		forwardYield  = -1;
+		annualDiv     = -1;
+		trailingYield = -1;
+		
 		sd        = -1;
 		hv        = -1;
 		
@@ -71,12 +77,6 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 		max       = -1;
 		minY3     = -1;
 		maxY3     = -1;
-		
-		divc          = -1;
-		lastDiv       = -1;
-		forwardYield  = -1;
-		annualDiv     = -1;
-		trailingYield = -1;
 		
 		vol       = -1;
 		vol5      = -1;
