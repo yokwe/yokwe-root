@@ -91,7 +91,11 @@ public class UpdateStockStatsUS {
 					stats.price     = stockStats.price;
 					stats.pricec    = stockStats.pricec;
 					stats.last      = stockStats.last;
-
+					
+					stats.rorPrice        = stockStats.rorPrice;
+					stats.rorReinvested   = stockStats.rorReinvested;
+					stats.rorNoReinvested = stockStats.rorNoReinvested;
+					
 					stats.sd        = stockStats.sd;
 					stats.hv        = stockStats.hv;
 					stats.rsi       = stockStats.rsi;

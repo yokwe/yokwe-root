@@ -3,13 +3,17 @@ package yokwe.finance.stats;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.OHLCV;
 import yokwe.util.finance.online.HV;
 import yokwe.util.finance.online.LogReturn;
 import yokwe.util.finance.online.Mean;
+import yokwe.util.finance.online.NoReinvestedValue;
 import yokwe.util.finance.online.RSI;
+import yokwe.util.finance.online.ReinvestedValue;
+import yokwe.util.finance.online.SimpleReturn;
 import yokwe.util.finance.online.Variance;
 
 public class StockStats {
@@ -61,7 +65,6 @@ public class StockStats {
 			}
 		}
 		
-		
 		// build stats
 		StockStats stats = new StockStats();
 		stats.date   = priceArray[priceArray.length - 1].date;
@@ -75,6 +78,30 @@ public class StockStats {
 			} else {
 				stats.last = 0;
 			}
+		}
+		
+		
+		// rorPrice, rorReinvested and rorNoReinvested
+		{
+			var list              = priceList.stream().filter(o -> !(o.date.isBefore(dateStartY1) || o.date.isAfter(dateStop))).toList();
+			var divMap            = divList.stream().collect(Collectors.toMap(o -> o.date, o -> o.value));
+			var reinvestedValue   = new ReinvestedValue();
+			var noReinvestedValue = new NoReinvestedValue();
+			
+			var startPrice = list.get(0).close.doubleValue();
+			var endPrice   = list.get(list.size() - 1).close.doubleValue();
+			for(var e: list) {
+				var date = e.date;
+				var price = e.close.doubleValue();
+				var div   = divMap.containsKey(date) ? divMap.get(date).doubleValue() : 0;
+				
+				noReinvestedValue.accept(price, div);
+				reinvestedValue.accept(price, div);
+			}
+			
+			stats.rorPrice        = SimpleReturn.getValue(startPrice, endPrice);
+			stats.rorReinvested   = SimpleReturn.getValue(startPrice, reinvestedValue.getAsDouble());
+			stats.rorNoReinvested = SimpleReturn.getValue(startPrice, noReinvestedValue.getAsDouble());
 		}
 		
 		// sd hv
@@ -172,6 +199,10 @@ public class StockStats {
 	public int       pricec;
 	public double    price;
 	public double	 last;
+	
+	public double rorPrice;
+	public double rorReinvested;
+	public double rorNoReinvested;
 	
 	// stats - sd hv rsi
 	//  30 < pricec

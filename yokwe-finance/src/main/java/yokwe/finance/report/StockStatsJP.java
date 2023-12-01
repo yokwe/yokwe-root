@@ -29,6 +29,11 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 	@Sheet.ColumnName("annualDiv")     public double annualDiv;
 	@Sheet.ColumnName("trailingYield") public double trailingYield;
 	
+	// rate of return
+	@Sheet.ColumnName("rorPrice")        public double rorPrice;
+	@Sheet.ColumnName("rorReinvested")   public double rorReinvested;
+	@Sheet.ColumnName("rorNoReinvested") public double rorNoReinvested;
+	
 	// stats - sd hv rsi
 	//  30 < pricec
 	@Sheet.ColumnName("sd")  public double sd;
