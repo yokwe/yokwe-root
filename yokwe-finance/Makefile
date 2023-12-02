@@ -42,13 +42,17 @@ log-stop:
 log-time:
 	@date +'%F %T LOG TIME'
 
+check-temp-file: check-data-path
+	find . $(DATA_PATH) -name '._*'  -print
+	find . $(DATA_PATH) -name '.DS*' -print
+	find . $(DATA_PATH) -name '.~*'  -print
 
-rync-to-sandisk2t:
-	rsync -ah --delete --stats --dry-run /Volumes/finance/ /Volumes/SanDisk2T/finance
+rsync-from-truenas: check-data-path
+	rsync -ah --delete --stats --dry-run /Volumes/finance/ $(DATA_PATH)
 
-rsync-to-truenas:
+rsync-to-truenas:  check-data-path
 	@date +'%F %T RSYNC START'
-	rsync -ah --delete /Volumes/SanDisk2T/finance/ /Volumes/finance
+	rsync -ah --delete $(DATA_PATH)/ /Volumes/finance
 	@date +'%F %T RSYNC STOP'
 
 kill-soffice:
