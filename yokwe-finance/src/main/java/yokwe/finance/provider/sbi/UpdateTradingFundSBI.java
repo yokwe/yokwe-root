@@ -76,8 +76,12 @@ public class UpdateTradingFundSBI {
 			@JSON.Name("FDTrustChargeNum")                     public BigDecimal fdTrustChargeNum;
 			@JSON.Name("FDTrustChargeNumComment") @JSON.Ignore public String     fdTrustChargeNumComment;
 			@JSON.Name("FDTrustChargeNumFlg")     @JSON.Ignore public String     fdTrustChargeNumFlg;
-			@JSON.Name("MFFundAisyo")             @JSON.Ignore public String     mfFundAisyo;
-			@JSON.Name("MFName")                               public String     mfName;
+			
+			@JSON.Name("MFSougoSeichouServiceKbn")  @JSON.Ignore public String     mfSougoSeichouServiceKbn;
+			@JSON.Name("MFSougoTumitateServiceKbn") @JSON.Ignore public String     mfSougoTumitateServiceKbn;
+			@JSON.Name("MFFundAisyo")               @JSON.Ignore public String     mfFundAisyo;
+			@JSON.Name("MFName")                                 public String     mfName;
+			
 			@JSON.Name("baseFundType")            @JSON.Ignore public String     baseFundType;
 			@JSON.Name("budget")                  @JSON.Ignore public String     budget;
 			@JSON.Name("commissionAll")           @JSON.Ignore public BigDecimal commissionAll;
