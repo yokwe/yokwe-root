@@ -3,6 +3,7 @@ package yokwe.finance.util.webbrowser;
 import java.io.Closeable;
 import java.io.File;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -51,9 +52,7 @@ public class WebBrowser implements Closeable{
 		return new SafariDriver(service, options);
 	}
 	
-	public static WebDriver getWebDriverChrome() {
-		var options = new ChromeOptions();
-		
+	public static WebDriver getWebDriverChrome(ChromeOptions options) {
 		var result = Manager.getResult(options);
 		
 		var service = new ChromeDriverService.Builder().build();
@@ -62,20 +61,40 @@ public class WebBrowser implements Closeable{
 		
 		return new ChromeDriver(service, options);
 	}
+	public static WebDriver getWebDriverChrome(File downloadDir) {
+		var map = new HashMap<String, Object>();
+		map.put("profile.default_content_settings.popups", 0);
+		map.put("download.default_directory",              downloadDir.getAbsolutePath());
+		map.put("plugins.always_open_pdf_externally",      1);
+
+		var options = new ChromeOptions();
+		options.setExperimentalOption("prefs", map);
+		return getWebDriverChrome(options);
+	}
+	public static WebDriver getWebDriverChrome() {
+		return getWebDriverChrome(new ChromeOptions());
+	}
 	
+	public static WebDriver getWebDriver(ChromeOptions options) {
+		return getWebDriverChrome(options);
+	}
 	public static WebDriver getWebDriver() {
 //		return getWebDriverSafari(false);
-		return getWebDriverChrome(); 
+		return getWebDriverChrome();
 	}
 	
 	protected final WebDriver driver;
+	protected final File      downloadDir;
 
 	public WebBrowser() {
-		this(getWebDriver());
+		this(getWebDriver(), new File("."));
 	}
-	public WebBrowser(WebDriver driver) {
-		this.driver = driver;
-				
+	public WebBrowser(File downloadDir) {
+		this(getWebDriverChrome(downloadDir), downloadDir);
+	}
+	public WebBrowser(WebDriver driver, File downloadir) {
+		this.driver      = driver;
+		this.downloadDir = downloadir;
 		// change position and size
 		setPosition(new Point(getPosition().x, DEFAULT_WINDOW_Y));
 		setSize(new Dimension(DEFAULT_WINDOW_WIDTH, getSize().height));
@@ -368,6 +387,43 @@ public class WebBrowser implements Closeable{
 		}
 		public Alert untilAlertIsPresent() {
 			return untilAlertIsPresent(DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilDownloadFinish
+		//
+		public static ExpectedCondition<Boolean> downloadFinish(File file_) {
+			return new ExpectedCondition<Boolean>() {
+				private File file   = file_;
+				private long length = -1;
+				private int  count  = 0;
+				
+				@Override
+				public Boolean apply(WebDriver driver) {
+					if (file.exists()) {
+						var newLength = file.length();
+						if (length == newLength) {
+							count++;
+						} else {
+							count = 0;
+							length = newLength;
+						}
+						return 3 <= count;
+					} else {
+						return false;
+					}
+				}
+
+				@Override
+				public String toString() {
+					return "wait download finish " + file.getPath();
+				}
+			};
+		}
+		public Boolean untilDownloadFinish(File file, Duration timeout) {
+			return untilExpectedCondition(downloadFinish(file), timeout);
+		}
+		public Boolean untilDownloadFinish(File file) {
+			return untilDownloadFinish(file, DEFAULT_WAIT_TIMEOUT);
 		}
 	}
 }
