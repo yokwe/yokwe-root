@@ -43,9 +43,8 @@ log-time:
 	@date +'%F %T LOG TIME'
 
 check-temp-file: check-data-path
-	find . $(DATA_PATH) -name '._*'  -print
-	find . $(DATA_PATH) -name '.DS*' -print
-	find . $(DATA_PATH) -name '.~*'  -print
+	find . $(DATA_PATH) -regex '.*/\.DS.*'           -print
+	find . $(DATA_PATH) -regex '.*/\.[^a-zA-Z0-9].*' -print
 
 rsync-from-truenas: check-data-path
 	rsync -ah --delete --stats --dry-run /Volumes/finance/ $(DATA_PATH)
