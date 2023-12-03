@@ -28,7 +28,13 @@ public class UpdateAssetNikko {
 			logger.info("balance bank");
 			browser.balanceBank();
 			browser.savePage(FILE_BALANCE_BANK);
-						
+			
+			logger.info("trade histtory download");
+			browser.trade();
+			browser.tradeHistory();
+			browser.tradeHistoryY1();
+			browser.tradeHistoryDownload();
+			
 			logger.info("logout");
 			browser.logout();
 		}
