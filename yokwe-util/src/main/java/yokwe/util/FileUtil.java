@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -32,12 +34,12 @@ public class FileUtil {
 
 	private static final int BUFFER_SIZE = 65536;
 	
-	private static final String  DEFAULT_CHARSET = "UTF-8";
+	private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 	
 	private static final char BOM_UTF_8 = '\uFEFF';
 
 	private static class Context {
-		private String charset = DEFAULT_CHARSET;
+		private Charset charset = DEFAULT_CHARSET;		
 	}
 	
 	public static Read read() {
@@ -50,6 +52,10 @@ public class FileUtil {
 			context = new Context();
 		}
 		public Read withCharset(String newValue) {
+			withCharset(Charset.forName(newValue));
+			return this;
+		}
+		public Read withCharset(Charset newValue) {
 			context.charset = newValue;
 			return this;
 		}
@@ -121,6 +127,10 @@ public class FileUtil {
 			context = new Context();
 		}
 		public Write withCharset(String newValue) {
+			withCharset(Charset.forName(newValue));
+			return this;
+		}
+		public Write withCharset(Charset newValue) {
 			context.charset = newValue;
 			return this;
 		}
