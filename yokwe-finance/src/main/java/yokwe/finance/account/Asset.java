@@ -66,11 +66,8 @@ public class Asset implements Comparable<Asset> {
 		this.name     = name;
 	}
 	
-	public static Asset deposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value) {
-		return new Asset(dateTime, company, Type.CASH, currency, value, 1, 0, "", NAME_DEPOSIT);
-	}
-	public static Asset termDepositUSD(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value) {
-		return new Asset(dateTime, company, Type.CASH, currency, value, 1, 0, "", NAME_TERM_DEPOSIT);
+	public static Asset cash(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
+		return new Asset(dateTime, company, Type.CASH, currency, value, 1, 0, "", name);
 	}
 	public static Asset mrf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value) {
 		return new Asset(dateTime, company, Type.MRF, currency, value, 1, 0, "", NAME_MRF);
