@@ -333,9 +333,14 @@ public class FileUtil {
 		Path path = Path.of(stringPath);
 		return Files.isReadable(path);
 	}
-	public static Instant getLastModified(String stringPath) {		
+	public static Instant getLastModified(File file) {
+		return getLastModified(file.toPath());
+	}
+	public static Instant getLastModified(String stringPath) {
+		return getLastModified(Path.of(stringPath));
+	}
+	public static Instant getLastModified(Path path) {		
 		try {
-			Path path = Path.of(stringPath);
 			return Files.getLastModifiedTime(path).toInstant();
 		} catch (IOException e) {
 			String exceptionName = e.getClass().getSimpleName();
