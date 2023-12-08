@@ -13,6 +13,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.Asset.Currency;
+import yokwe.finance.account.SafeAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -81,9 +82,7 @@ public class UpdateAssetNikko {
 //				logger.info("fundInfo  {}", e);
 				var units = new BigDecimal(e.units);
 				var value = new BigDecimal(e.value);
-				
-				var safe = true; // FIXME
-				
+								
 				String isinCode;
 				{
 					var fundCode = e.fundCode;
@@ -95,6 +94,7 @@ public class UpdateAssetNikko {
 						throw new UnexpectedException("Unpexpeced fundCode");
 					}
 				}
+				var safe = SafeAsset.isSafeAsset(isinCode);
 				
 				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, safe, units.intValue(), isinCode, e.fundName));
 			}
@@ -107,10 +107,11 @@ public class UpdateAssetNikko {
 				var units = new BigDecimal(e.units);
 				var price = new BigDecimal(e.price);
 				var value = price.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
+				var code  = e.stockCode;
+				var name  = e.stockName;
+				var safe  = SafeAsset.isSafeAsset(code);
 				
-				var safe = true; // FIXME
-				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, safe, units.intValue(), e.stockCode, e.stockName));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, safe, units.intValue(), code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);
@@ -134,6 +135,9 @@ public class UpdateAssetNikko {
 		for(var e: list) {
 			logger.info("list {}", e);
 		}
+		
+		logger.info("save  {}  {}", list.size(), StorageNikko.Asset.getPath());
+		StorageNikko.Asset.save(list);
 	}
 	
 	public static void main(String[] args) {
