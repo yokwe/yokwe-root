@@ -187,7 +187,52 @@ public interface Storage {
 			}
 		}
 	}
-	
+	public interface LoadSaveList <E extends Comparable<E>> {
+		public Class<E>  getClazz();
+		public String    getPath();
+		
+		default void save(List<E> list) {
+			Collections.sort(list);
+			CSVUtil.write(getClazz()).file(getPath(), list);
+		}
+		default void save(Collection<E> collection) {
+			save(new ArrayList<E>(collection));
+		}
+		default List<E> load() {
+			return CSVUtil.read(getClazz()).file(getPath());
+		}
+		default List<E> load(Reader reader) {
+			return CSVUtil.read(getClazz()).file(reader);
+		}
+		default List<E> getList() {
+			var list = load();
+			return list != null ? list : new ArrayList<>();
+		}
+		default List<E> getList(Reader reader) {
+			var list = load(reader);
+			return list != null ? list : new ArrayList<>();
+		}		
+		
+		public class Impl <E extends Comparable<E>> implements LoadSaveList<E> {
+			private final Class<E>       clazz;
+			private final String         path;
+			
+			public Impl(Class<E> clazz, Storage storage, String name) {
+				this.clazz  = clazz;
+				this.path   = storage.getPath(name);
+			}
+			
+			@Override
+			public Class<E> getClazz() {
+				return clazz;
+			}
+			@Override
+			public String getPath() {
+				return path;
+			}
+		}
+	}
+
 	
 	public static final String DATA_PATH_FILE = "data/DataPathLocation";
 	private static String getDataPath() {		
