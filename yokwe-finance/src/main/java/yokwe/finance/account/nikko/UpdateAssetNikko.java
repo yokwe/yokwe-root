@@ -62,13 +62,16 @@ public class UpdateAssetNikko {
 			var fundCodeMap = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
 			
 			LocalDateTime dateTime;
+			String        page;
 			{
-				var instant = FileUtil.getLastModified(FILE_BALANCE);
+				var file = FILE_BALANCE;
+				
+				var instant = FileUtil.getLastModified(file);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
+				logger.info("dateTime  {}  {}", dateTime, file.getName());
+				
+				page = FileUtil.read().file(file);
 			}
-			logger.info("dateTime  {}", dateTime);
-			
-			var page = FileUtil.read().file(FILE_BALANCE);
 			
 			{
 				var mrfInfo = BalancePage.MRFInfo.getInstance(page);
@@ -131,6 +134,36 @@ public class UpdateAssetNikko {
 				list.add(Asset.bond(dateTime, Company.NIKKO, currency, value, e.code, e.name));
 			}
 		}
+		
+		{
+			LocalDateTime dateTime;
+			String        page;
+			{
+				var file = FILE_BALANCE_BANK;
+				
+				var instant = FileUtil.getLastModified(file);
+				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
+				logger.info("dateTime  {}  {}", dateTime, file.getName());
+				
+				page = FileUtil.read().file(file);
+			}
+			
+			var deposit = BalanceBankPage.DepositInfo.getInstance(page);
+//			logger.info("deposit  {}", deposit);
+			if (deposit.value != 0) {
+				list.add(Asset.cash(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(deposit.value), Asset.NAME_DEPOSIT));
+			}
+			
+			var termDeposit = BalanceBankPage.TermDepositInfo.getInstance(page);
+//			logger.info("termDeposit  {}", termDeposit);
+			if (termDeposit.value != 0) {
+				list.add(Asset.cash(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(termDeposit.value), Asset.NAME_TERM_DEPOSIT));
+			}
+
+//			var foreginDeposit = BalanceBankPage.ForeignDepositInfo.getInstance(page);
+//			logger.info("foreginDeposit  {}", foreginDeposit);
+		}
+		
 		
 		for(var e: list) {
 			logger.info("list {}", e);
