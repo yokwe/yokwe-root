@@ -13,7 +13,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.Asset.Currency;
-import yokwe.finance.account.SafeAsset;
+import yokwe.finance.account.AssetRisk;
 import yokwe.finance.fund.StorageFund;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -94,9 +94,9 @@ public class UpdateAssetNikko {
 						throw new UnexpectedException("Unpexpeced fundCode");
 					}
 				}
-				var safe = SafeAsset.isSafeAsset(isinCode);
+				var status = AssetRisk.fund.getStatus(isinCode);
 				
-				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, safe, units.intValue(), isinCode, e.fundName));
+				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, status, units.intValue(), isinCode, e.fundName));
 			}
 			
 			var foreignStockInfoList = BalancePage.ForeignStockInfo.getInstance(page);
@@ -104,14 +104,14 @@ public class UpdateAssetNikko {
 //				logger.info("foreginStock  {}", e);
 				var currency = Currency.valueOf(e.currency);
 				
-				var units = new BigDecimal(e.units);
-				var price = new BigDecimal(e.price);
-				var value = price.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
-				var code  = e.stockCode;
-				var name  = e.stockName;
-				var safe  = SafeAsset.isSafeAsset(code);
+				var units  = new BigDecimal(e.units);
+				var price  = new BigDecimal(e.price);
+				var value  = price.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
+				var code   = e.stockCode;
+				var name   = e.stockName;
+				var status = AssetRisk.stockUS.getStatus(e.stockCode);
 				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, safe, units.intValue(), code, name));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, status, units.intValue(), code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);
