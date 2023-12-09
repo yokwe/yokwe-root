@@ -26,7 +26,7 @@ public class StorageFund {
 	
 	// fund-info
 	public static final Storage.LoadSave<FundInfoJP, String> FundInfo =
-			new Storage.LoadSave.Impl<>(FundInfoJP.class,  o -> o.stockCode, storage, "fund-info.csv");
+			new Storage.LoadSave.Impl<>(FundInfoJP.class,  o -> o.isinCode, storage, "fund-info.csv");
 		
 	// fund-price
 	public static final Storage.LoadSave2<FundPriceJP, ChronoLocalDate> FundPrice =
