@@ -79,7 +79,7 @@ public class FundInfoJP implements Comparable<FundInfoJP> {
 	}
 	
 	public String getKey() {
-		return this.stockCode;
+		return this.isinCode;
 	}
 	@Override
 	public int compareTo(FundInfoJP that) {
