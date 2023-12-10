@@ -49,41 +49,41 @@ public class Asset implements Comparable<Asset> {
 	Status        status;   // safe unsafe or unknown
 	
 	// stock, fund and bond
-	int           units;    // number of unit of stock or fund
+	BigDecimal    units;    // number of unit of stock or fund
 	String        code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
 	String        name;     // saving, time deopsit, name of mmf, stock, fund and bond
 	
 	public Asset(
 		LocalDateTime dateTime, Company company, Type type, Currency currency, BigDecimal value, Status status,
-		int quantity, String code, String name) {
+		BigDecimal units, String code, String name) {
 		this.dateTime = dateTime;
 		this.company  = company;
 		this.type     = type;
 		this.currency = currency;
 		this.value    = value;
 		this.status   = status;
-		this.units    = quantity;
+		this.units    = units;
 		this.code     = code;
 		this.name     = name;
 	}
 	
 	public static Asset cash(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.CASH, currency, value, Status.SAFE, 0, "", name);
+		return new Asset(dateTime, company, Type.CASH, currency, value, Status.SAFE, BigDecimal.ZERO, "", name);
 	}
 	public static Asset mrf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value) {
-		return new Asset(dateTime, company, Type.MRF, currency, value, Status.SAFE, 0, "", NAME_MRF);
+		return new Asset(dateTime, company, Type.MRF, currency, value, Status.SAFE, BigDecimal.ZERO, "", NAME_MRF);
 	}
-	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, int units, String code, String name) {
+	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, BigDecimal units, String code, String name) {
 		return new Asset(dateTime, company, Type.FUND, currency, value, status, units, code, name);
 	}
 	public static Asset mmf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.MMF, currency, value, Status.SAFE, 0, "", name);
+		return new Asset(dateTime, company, Type.MMF, currency, value, Status.SAFE, BigDecimal.ZERO, "", name);
 	}
-	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, int units, String code, String name) {
+	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, BigDecimal units, String code, String name) {
 		return new Asset(dateTime, company, Type.STOCK, currency, value, status, units, code, name);
 	}
 	public static Asset bond(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String code, String name) {
-		return new Asset(dateTime, company, Type.BOND, currency, value, Status.SAFE, 0, code, name);
+		return new Asset(dateTime, company, Type.BOND, currency, value, Status.SAFE, BigDecimal.ZERO, code, name);
 	}
 	
 	@Override
@@ -95,7 +95,7 @@ public class Asset implements Comparable<Asset> {
 			return String.format("{%s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, name);
 		case FUND:
 		case STOCK:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, units, code, name);
+			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, units.toPlainString(), code, name);
 		case BOND:
 			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, code, name);
 		default:

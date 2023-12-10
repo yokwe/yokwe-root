@@ -99,7 +99,7 @@ public class UpdateAssetNikko {
 				}
 				var status = AssetRisk.fund.getStatus(isinCode);
 				
-				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, status, units.intValue(), isinCode, e.fundName));
+				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, status, units, isinCode, e.fundName));
 			}
 			
 			var foreignStockInfoList = BalancePage.ForeignStockInfo.getInstance(page);
@@ -114,7 +114,7 @@ public class UpdateAssetNikko {
 				var name   = e.stockName;
 				var status = AssetRisk.stockUS.getStatus(e.stockCode);
 				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, status, units.intValue(), code, name));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, status, units, code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);
