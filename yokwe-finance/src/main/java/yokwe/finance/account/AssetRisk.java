@@ -3,6 +3,8 @@ package yokwe.finance.account;
 import java.util.Map;
 
 import yokwe.finance.Storage;
+import yokwe.finance.account.prestia.FundPrestia;
+import yokwe.finance.account.prestia.StoragePrestia;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.FundInfoJP;
@@ -53,9 +55,10 @@ public interface AssetRisk {
 		}
 	}
 	
-	public static final AssetRisk fund    = new ImplFund();
-	public static final AssetRisk stockUS = new ImplStockUS();
-	public static final AssetRisk stockJP = new ImplStockJP();
+	public static final AssetRisk fund        = new ImplFund();
+	public static final AssetRisk fundPrestia = new ImplFundPrestia();
+	public static final AssetRisk stockUS     = new ImplStockUS();
+	public static final AssetRisk stockJP     = new ImplStockJP();
 	
 	public class ImplFund implements AssetRisk {
 		public static final Storage.LoadSave<Entry, String> ASSET_RISK_FUND =
@@ -81,6 +84,39 @@ public interface AssetRisk {
 						logger.error("Unexpected isinCode");
 						logger.error("  {}!", isinCode);
 						throw new UnexpectedException("Unexpected isinCode");
+					}
+				}
+			}
+			if (entry.status == Status.UNKNOWN) {
+				logger.warn("status is unknown  {}  {}", entry.code, entry.name);
+			}
+			return entry.status;
+		}
+	}
+	public class ImplFundPrestia implements AssetRisk {
+		public static final Storage.LoadSave<Entry, String> ASSET_RISK_FUND_PRESTIA =
+			new Storage.LoadSave.Impl<>(Entry.class,  o -> o.code, storage, "asset-risk-fund-prestia.csv");
+		
+		private static final Map<String, Entry>       entryMap = ASSET_RISK_FUND_PRESTIA.getMap();
+		private static final Map<String, FundPrestia> fundMap  = StoragePrestia.FundPrestia.getMap();
+		
+		@Override
+		public Status getStatus(String fundCode) {
+			Entry entry;
+			{
+				if (entryMap.containsKey(fundCode)) {
+					entry = entryMap.get(fundCode);
+				} else {
+					if (fundMap.containsKey(fundCode)) {
+						// add new entry using fundMap
+						var fund = fundMap.get(fundCode);
+						entry = new Entry(fund.fundCode, Status.UNKNOWN, fund.fundName);
+						entryMap.put(entry.code, entry);
+						ASSET_RISK_FUND_PRESTIA.save(entryMap.values());
+					} else {
+						logger.error("Unexpected fundCode");
+						logger.error("  {}!", fundCode);
+						throw new UnexpectedException("Unexpected fundCode");
 					}
 				}
 			}
