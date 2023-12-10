@@ -17,6 +17,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariDriverService;
 import org.openqa.selenium.safari.SafariOptions;
@@ -140,13 +141,8 @@ public class WebBrowser implements Closeable{
 	}
 	public void savePage(File file) {
 		var string = getPage();
-		// string is already UTF-8, so remove charset from content-type
-		string = string.replace(
-			"<meta http-equiv=\"content-type\" content=\"text/html; charset=Shift_JIS\">",
-			"<meta http-equiv=\"content-type\" content=\"text/html\">");
-		string = string.replace(
-			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=Shift_JIS\">",
-			"<meta http-equiv=\"Content-Type\" content=\"text/html\">");
+		// string is in UTF-8, so set charset to UTF-8
+		string = string.replace("charset=Shift_JIS", "charset=UTF-8");
 		FileUtil.write().file(file, string);
 	}
 	
@@ -159,6 +155,15 @@ public class WebBrowser implements Closeable{
 	}
 	public WebElement findElement(By locator) {
 		return driver.findElement(locator);
+	}
+	
+	
+	//
+	// moveMouse
+	//
+	public void moveMouse(By locator) {
+		new Actions(driver).moveToElement(findElement(locator)).perform();
+		sleepRandom();
 	}
 	
 	
@@ -178,14 +183,14 @@ public class WebBrowser implements Closeable{
 	//
 	// sleepRandom
 	//
-	private final Long   seed = Long.valueOf(0);
+	private final Long   seed   = Long.valueOf(0);
 	private final Random random = new Random(seed.hashCode() ^ System.currentTimeMillis());
 	public void sleepRandom(long mills, double randomWeight) {
 //		double factor = 1.0 + (random.nextDouble() - 0.5) * randomWeight;
 		double factor = 1.0 + random.nextDouble() * randomWeight;
 		sleep((long)(mills * factor));
 	}
-	static final long   DEFAULT_SLEEP_MILLS         = 500;
+	private static final long   DEFAULT_SLEEP_MILLS         = 500;
 	private static final double DEFAULT_SLEEP_RANDOM_WEIGHT = 0.3;
 	public void sleepRandom(long mills) {
 		sleepRandom(mills, DEFAULT_SLEEP_RANDOM_WEIGHT);
