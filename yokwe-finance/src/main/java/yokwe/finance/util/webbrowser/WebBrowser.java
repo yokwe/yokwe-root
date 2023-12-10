@@ -143,6 +143,7 @@ public class WebBrowser implements Closeable{
 		var string = getPage();
 		// string is in UTF-8, so set charset to UTF-8
 		string = string.replace("charset=Shift_JIS", "charset=UTF-8");
+		string = string.replace("charset=SHIFT_JIS", "charset=UTF-8");
 		FileUtil.write().file(file, string);
 	}
 	
