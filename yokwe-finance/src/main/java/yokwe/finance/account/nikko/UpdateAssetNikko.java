@@ -148,20 +148,24 @@ public class UpdateAssetNikko {
 				page = FileUtil.read().file(file);
 			}
 			
-			var deposit = BalanceBankPage.DepositInfo.getInstance(page);
-//			logger.info("deposit  {}", deposit);
-			if (deposit.value != 0) {
-				list.add(Asset.cash(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(deposit.value), Asset.NAME_DEPOSIT));
-			}
-			
-			var termDeposit = BalanceBankPage.TermDepositInfo.getInstance(page);
-//			logger.info("termDeposit  {}", termDeposit);
-			if (termDeposit.value != 0) {
-				list.add(Asset.cash(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(termDeposit.value), Asset.NAME_TERM_DEPOSIT));
-			}
+			if (page.contains("サービス時間外です")) {
+				logger.warn("balance bank  サービス時間外です");
+			} else {
+				var deposit = BalanceBankPage.DepositInfo.getInstance(page);
+//				logger.info("deposit  {}", deposit);
+				if (deposit.value != 0) {
+					list.add(Asset.cash(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(deposit.value), Asset.NAME_DEPOSIT));
+				}
+				
+				var termDeposit = BalanceBankPage.TermDepositInfo.getInstance(page);
+//				logger.info("termDeposit  {}", termDeposit);
+				if (termDeposit.value != 0) {
+					list.add(Asset.cash(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(termDeposit.value), Asset.NAME_TERM_DEPOSIT));
+				}
 
-//			var foreginDeposit = BalanceBankPage.ForeignDepositInfo.getInstance(page);
-//			logger.info("foreginDeposit  {}", foreginDeposit);
+//				var foreginDeposit = BalanceBankPage.ForeignDepositInfo.getInstance(page);
+//				logger.info("foreginDeposit  {}", foreginDeposit);
+			}
 		}
 		
 		
