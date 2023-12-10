@@ -149,7 +149,9 @@ public class UpdateAssetNikko {
 			}
 			
 			if (page.contains("サービス時間外です")) {
-				logger.warn("balance bank  サービス時間外です");
+				// https://www.smbc.co.jp/kojin/banktrade/channel.html
+				// 毎週日曜日21:00～翌月曜日7:00は、ご利用いただけません
+				logger.warn("bank & trade is out of service from Sunday 2100 to Monday 0700.");
 			} else {
 				var deposit = BalanceBankPage.DepositInfo.getInstance(page);
 //				logger.info("deposit  {}", deposit);
