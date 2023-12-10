@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class ScrapeUtil {
 			logger.error("  value  {}!", value);
 			throw new UnexpectedException("Unexpected number format", e);
 		}
-	}
+	}	
 	private static Long toClassLong(String string) {
 		if (string == null) return null;
 		
@@ -172,6 +173,14 @@ public class ScrapeUtil {
 			logger.error("  string {}!", string);
 			throw new UnexpectedException("Unexpected datetime format", e);
 		}
+	}
+	
+	private static BigDecimal toBigDecimal(String string) {
+		if (string == null) return null;
+		
+		String value = string.replace(",", "").replace(NBSP, "");
+		if (value.isEmpty()) return null;
+		return new BigDecimal(value);
 	}
 	
 	private static String toStringValue(String string, boolean asNumber) {
@@ -351,7 +360,8 @@ public class ScrapeUtil {
 	
 	private static final String CLASS_OPTIONAL  = "java.util.Optional";
 	
-	private static final String CLASS_LOCALDATE = "java.time.LocalDate";
+	private static final String CLASS_LOCALDATE  = "java.time.LocalDate";
+	private static final String CLASS_BIGDECIMAL = "java.math.BigDecimal";
 
 	
 	private static Object getArg(ClassInfo classInfo, FieldInfo fieldInfo, String stringValue) {
@@ -398,6 +408,9 @@ public class ScrapeUtil {
 			break;
 		case CLASS_LOCALDATE:
 			arg = toLocalDate(stringValue);
+			break;
+		case CLASS_BIGDECIMAL:
+			arg = toBigDecimal(stringValue);
 			break;
 		default:
 			if (fieldInfo.type.isEnum()) {
