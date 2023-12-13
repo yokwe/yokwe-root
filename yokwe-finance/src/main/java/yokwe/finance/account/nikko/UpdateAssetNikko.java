@@ -15,6 +15,7 @@ import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.Asset.Currency;
 import yokwe.finance.account.AssetRisk;
 import yokwe.finance.fund.StorageFund;
+import yokwe.finance.stock.StorageStock;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -27,7 +28,7 @@ public class UpdateAssetNikko {
 	private static final File FILE_BALANCE      = storage.getFile("balance.html");
 	private static final File FILE_BALANCE_BANK = storage.getFile("balance-bank.html");
 	
-	private static void download() {		
+	public static void download() {		
 		try(var browser = new WebBrowserNikko()) {
 			logger.info("login");
 			browser.login();
@@ -47,8 +48,7 @@ public class UpdateAssetNikko {
 	}
 		
 	
-	private static void update() {
-		
+	public static void update() {
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
@@ -70,14 +70,13 @@ public class UpdateAssetNikko {
 			{
 				var mrfInfo = BalancePage.MRFInfo.getInstance(page);
 //				logger.info("mrfInfo  {}", mrfInfo);
-				list.add(Asset.mrf(dateTime, Company.NIKKO, Currency.JPY, BigDecimal.valueOf(mrfInfo.value)));
+				list.add(Asset.mrf(dateTime, Company.NIKKO, Currency.JPY, BigDecimal.valueOf(mrfInfo.value), "MRF"));
 			}
 			
 			
 			var fundInfoList = BalancePage.FundInfo.getInstance(page);
 			for(var e: fundInfoList) {
 //				logger.info("fundInfo  {}", e);
-				var units = new BigDecimal(e.units);
 				var value = new BigDecimal(e.value);
 								
 				String isinCode;
@@ -91,12 +90,13 @@ public class UpdateAssetNikko {
 						throw new UnexpectedException("Unpexpeced fundCode");
 					}
 				}
-				var status = AssetRisk.fund.getStatus(isinCode);
+				var status = AssetRisk.fundCode.getStatus(isinCode);
 				
-				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, status, units, isinCode, e.fundName));
+				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, status, isinCode, e.fundName));
 			}
 			
 			var foreignStockInfoList = BalancePage.ForeignStockInfo.getInstance(page);
+			var usStockMap = StorageStock.StockInfoUSTrading.getMap();
 			for(var e: foreignStockInfoList) {
 //				logger.info("foreginStock  {}", e);
 				var currency = Currency.valueOf(e.currency);
@@ -106,16 +106,19 @@ public class UpdateAssetNikko {
 				var value  = price.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
 				var code   = e.stockCode;
 				var name   = e.stockName;
+				if (usStockMap.containsKey(code)) {
+					name = usStockMap.get(code).name;
+				}
 				var status = AssetRisk.stockUS.getStatus(e.stockCode);
 				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, status, units, code, name));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, status, code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);
 			for(var e: foreignMMFList) {
 //				logger.info("foreignMMF  {}", e);
 				var currency = Currency.valueOf(e.currency);
-				var value = new BigDecimal(e.value);
+				var value    = new BigDecimal(e.value);
 				
 				list.add(Asset.mmf(dateTime, Company.NIKKO, currency, value, e.name));
 			}
@@ -150,24 +153,18 @@ public class UpdateAssetNikko {
 				var deposit = BalanceBankPage.DepositInfo.getInstance(page);
 //				logger.info("deposit  {}", deposit);
 				if (deposit.value != 0) {
-					list.add(Asset.cash(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(deposit.value), Asset.NAME_DEPOSIT));
+					list.add(Asset.deposit(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(deposit.value), "DEPOSIT"));
 				}
 				
 				var termDeposit = BalanceBankPage.TermDepositInfo.getInstance(page);
 //				logger.info("termDeposit  {}", termDeposit);
 				if (termDeposit.value != 0) {
-					list.add(Asset.cash(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(termDeposit.value), Asset.NAME_TERM_DEPOSIT));
+					list.add(Asset.depositTime(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(termDeposit.value), "DEPOSIT_TERM"));
 				}
-
-//				var foreginDeposit = BalanceBankPage.ForeignDepositInfo.getInstance(page);
-//				logger.info("foreginDeposit  {}", foreginDeposit);
 			}
 		}
 		
-		
-		for(var e: list) {
-			logger.info("list {}", e);
-		}
+		for(var e: list) logger.info("list {}", e);
 		
 		logger.info("save  {}  {}", list.size(), StorageNikko.Asset.getPath());
 		StorageNikko.Asset.save(list);

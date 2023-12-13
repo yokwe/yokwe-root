@@ -30,7 +30,7 @@ public class UpdateAssetPrestia {
 	private static final File FILE_BALANCE = storage.getFile("balance.html");
 	private static final File FILE_FUND    = storage.getFile("fund.html");
 
-	private static void download() {
+	public static void download() {
 		try(var browser = new WebBrowserPrestia()) {
 			logger.info("login");
 			browser.login();
@@ -52,7 +52,7 @@ public class UpdateAssetPrestia {
 		}
 	}
 	
-	private static void update() {
+	public static void update() {
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
@@ -73,7 +73,7 @@ public class UpdateAssetPrestia {
 			{
 				var depositJPY = DepositJPY.getInstance(page);
 //				logger.info("depositJPY  {}", depositJPY);
-				list.add(Asset.cash(dateTime, Company.PRESTIA, Currency.JPY, BigDecimal.valueOf(depositJPY.value), "円普通預金"));
+				list.add(Asset.deposit(dateTime, Company.PRESTIA, Currency.JPY, BigDecimal.valueOf(depositJPY.value), "円普通預金"));
 			}
 			// マルチマネー口座円普通預金
 			{
@@ -81,7 +81,7 @@ public class UpdateAssetPrestia {
 //				logger.info("depositMultiMoneyJPY  {}", depositMultiMoneyJPY);
 				var value = BigDecimal.valueOf(depositMultiMoneyJPY.value);
 				if (value.compareTo(BigDecimal.ZERO) != 0) {
-					list.add(Asset.cash(dateTime, Company.PRESTIA, Currency.JPY, BigDecimal.valueOf(depositMultiMoneyJPY.value), "マルチマネー口座円普通預金"));
+					list.add(Asset.deposit(dateTime, Company.PRESTIA, Currency.JPY, BigDecimal.valueOf(depositMultiMoneyJPY.value), "マルチマネー口座円普通預金"));
 				}
 			}
 			// 米ドル普通預金
@@ -91,7 +91,7 @@ public class UpdateAssetPrestia {
 				var value = depositUSD.value;
 				if (value.compareTo(BigDecimal.ZERO) != 0) {
 					Currency currency = Currency.valueOf(depositUSD.currency);
-					list.add(Asset.cash(dateTime, Company.PRESTIA, currency, value, "米ドル普通預金"));
+					list.add(Asset.deposit(dateTime, Company.PRESTIA, currency, value, "米ドル普通預金"));
 				}
 			}
 			// マルチマネー口座外貨普通預金
@@ -103,7 +103,7 @@ public class UpdateAssetPrestia {
 					var value = e.value;
 					if (value.compareTo(BigDecimal.ZERO) != 0) {
 						Currency currency = Currency.valueOf(e.currency);
-						list.add(Asset.cash(dateTime, Company.PRESTIA, currency, e.value, "マルチマネー口座外貨普通預金"));
+						list.add(Asset.deposit(dateTime, Company.PRESTIA, currency, e.value, "マルチマネー口座外貨普通預金"));
 					}
 				}
 			}
@@ -116,7 +116,7 @@ public class UpdateAssetPrestia {
 					var value = e.value;
 					if (value.compareTo(BigDecimal.ZERO) != 0) {
 						Currency currency = Currency.valueOf(e.currency);
-						list.add(Asset.cash(dateTime, Company.PRESTIA, currency, e.value, "外貨定期預金"));
+						list.add(Asset.depositTime(dateTime, Company.PRESTIA, currency, e.value, "外貨定期預金"));
 					}
 				}
 			}
@@ -141,14 +141,12 @@ public class UpdateAssetPrestia {
 //					logger.info("fundInfo  {}", e);
 					Currency currency = Currency.valueOf(e.currency);
 					var status = AssetRisk.fundPrestia.getStatus(e.fundCode);
-					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, status, e.units, e.fundCode, e.fundName));
+					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, status, e.fundCode, e.fundName));
 				}
 			}
 		}
 		
-		for(var e: list) {
-			logger.info("list {}", e);
-		}
+		for(var e: list) logger.info("list {}", e);
 		
 		logger.info("save  {}  {}", list.size(), StorageNikko.Asset.getPath());
 		StorageNikko.Asset.save(list);
