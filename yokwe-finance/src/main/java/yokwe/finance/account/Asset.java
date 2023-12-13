@@ -31,8 +31,7 @@ public class Asset implements Comparable<Asset> {
 		BOND,
 	}
 	public enum Currency {
-		JPY,
-		USD,
+		JPY, USD, EUR, GBP, AUD, NZD,
 	}
 	
 	
