@@ -205,9 +205,7 @@ public class UpdateAssetRakuten {
 			}
 		}
 
-		for(var e: list) {
-			logger.info("list {}", e);
-		}
+		for(var e: list) logger.info("list {}", e);
 		
 		logger.info("save  {}  {}", list.size(), StorageRakuten.Asset.getPath());
 		StorageRakuten.Asset.save(list);
