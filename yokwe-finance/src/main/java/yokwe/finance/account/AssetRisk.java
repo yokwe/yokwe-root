@@ -55,12 +55,12 @@ public interface AssetRisk {
 		}
 	}
 	
-	public static final AssetRisk fund        = new ImplFund();
+	public static final AssetRisk fundCode    = new ImplFundCode();
 	public static final AssetRisk fundPrestia = new ImplFundPrestia();
 	public static final AssetRisk stockUS     = new ImplStockUS();
 	public static final AssetRisk stockJP     = new ImplStockJP();
 	
-	public class ImplFund implements AssetRisk {
+	public class ImplFundCode implements AssetRisk {
 		public static final Storage.LoadSave<Entry, String> ASSET_RISK_FUND =
 			new Storage.LoadSave.Impl<>(Entry.class,  o -> o.code, storage, "asset-risk-fund.csv");
 		
