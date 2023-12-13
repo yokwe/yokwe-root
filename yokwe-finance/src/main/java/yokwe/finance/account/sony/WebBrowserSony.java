@@ -14,7 +14,7 @@ public class WebBrowserSony extends WebBrowser {
 	private static final Target LOGOUT_B = new Target.Javascript("subYes()", "THANK YOU");
 	private static final Target LOGOUT_C = new Target.Javascript("allClose()");
 	
-	private static final Target TOP     = new Target.Javascript("hometop(1)");
+	private static final Target TOP      = new Target.Javascript("hometop(1)");
 	
 	private static final Target BALANCE                 = new Target.Javascript("hometop(10)");
 	private static final Target BALANCE_DEPOSIT         = new Target.Javascript("balancecommon(1)");
