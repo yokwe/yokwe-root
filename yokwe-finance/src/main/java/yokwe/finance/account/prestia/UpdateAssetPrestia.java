@@ -12,7 +12,6 @@ import yokwe.finance.account.Asset;
 import yokwe.finance.account.AssetRisk;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.Asset.Currency;
-import yokwe.finance.account.nikko.StorageNikko;
 import yokwe.finance.account.prestia.BalancePage.DepositJPY;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoney;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoneyJPY;
@@ -148,8 +147,8 @@ public class UpdateAssetPrestia {
 		
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), StorageNikko.Asset.getPath());
-		StorageNikko.Asset.save(list);
+		logger.info("save  {}  {}", list.size(), StoragePrestia.Asset.getPath());
+		StoragePrestia.Asset.save(list);
 	}
 	
 	public static void main(String[] args) {
