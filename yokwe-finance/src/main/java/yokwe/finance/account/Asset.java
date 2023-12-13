@@ -22,7 +22,8 @@ public class Asset implements Comparable<Asset> {
 		GMO_AOZORA,
 	}
 	public enum Type {
-		CASH, // includes DEPOSIT and TIME DEPOSIT
+		DEPOSIT,
+		DEPOSIT_TIME,
 		MRF,
 		MMF,
 		STOCK, // include ETF, ETN, REIT
@@ -34,68 +35,67 @@ public class Asset implements Comparable<Asset> {
 		USD,
 	}
 	
-	public static final String NAME_DEPOSIT      = "DEPOSIT";
-	public static final String NAME_TERM_DEPOSIT = "TERM TEPOSIT";
-	public static final String NAME_MRF          = "MRF";
-	public static final String NAME_MMF          = "MMF";
 	
 	LocalDateTime dateTime;
 	Company       company;
 	Type          type;
 	Currency      currency;
-	BigDecimal    value;    // current value of asset in above currency
+	BigDecimal    value;    // current value of asset in currency
 	
 	// stock and fund
 	Status        status;   // safe unsafe or unknown
 	
 	// stock, fund and bond
-	BigDecimal    units;    // number of unit of stock or fund
 	String        code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
-	String        name;     // saving, time deopsit, name of mmf, stock, fund and bond
+	String        name;     // name of asset
 	
 	public Asset(
 		LocalDateTime dateTime, Company company, Type type, Currency currency, BigDecimal value, Status status,
-		BigDecimal units, String code, String name) {
+		String code, String name) {
 		this.dateTime = dateTime;
 		this.company  = company;
 		this.type     = type;
 		this.currency = currency;
 		this.value    = value;
 		this.status   = status;
-		this.units    = units;
 		this.code     = code;
 		this.name     = name;
 	}
 	
-	public static Asset cash(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.CASH, currency, value, Status.SAFE, BigDecimal.ZERO, "", name);
+	// name
+	public static Asset deposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
+		return new Asset(dateTime, company, Type.DEPOSIT, currency, value, Status.SAFE, "", name);
 	}
-	public static Asset mrf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value) {
-		return new Asset(dateTime, company, Type.MRF, currency, value, Status.SAFE, BigDecimal.ZERO, "", NAME_MRF);
+	public static Asset depositTime(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
+		return new Asset(dateTime, company, Type.DEPOSIT_TIME, currency, value, Status.SAFE, "", name);
 	}
-	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, BigDecimal units, String code, String name) {
-		return new Asset(dateTime, company, Type.FUND, currency, value, status, units, code, name);
+	public static Asset mrf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
+		return new Asset(dateTime, company, Type.MRF, currency, value, Status.SAFE, "", name);
 	}
 	public static Asset mmf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.MMF, currency, value, Status.SAFE, BigDecimal.ZERO, "", name);
+		return new Asset(dateTime, company, Type.MMF, currency, value, Status.SAFE, "", name);
 	}
-	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, BigDecimal units, String code, String name) {
-		return new Asset(dateTime, company, Type.STOCK, currency, value, status, units, code, name);
+	// code name
+	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, String code, String name) {
+		return new Asset(dateTime, company, Type.FUND, currency, value, status, code, name);
+	}
+	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, String code, String name) {
+		return new Asset(dateTime, company, Type.STOCK, currency, value, status, code, name);
 	}
 	public static Asset bond(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String code, String name) {
-		return new Asset(dateTime, company, Type.BOND, currency, value, Status.SAFE, BigDecimal.ZERO, code, name);
+		return new Asset(dateTime, company, Type.BOND, currency, value, Status.SAFE, code, name);
 	}
 	
 	@Override
 	public String toString() {
 		switch(type) {
-		case CASH:
+		case DEPOSIT:
+		case DEPOSIT_TIME:
 		case MRF:
 		case MMF:
 			return String.format("{%s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, name);
 		case FUND:
 		case STOCK:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, units.toPlainString(), code, name);
 		case BOND:
 			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, code, name);
 		default:
