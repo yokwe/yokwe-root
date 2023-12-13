@@ -39,11 +39,11 @@ public class WebBrowser implements Closeable{
 	}
 	
 	private static final int      DEFAULT_WINDOW_Y        = 0;
-	private static final int      DEFAULT_WINDOW_WIDTH    = 1000;
+	private static final int      DEFAULT_WINDOW_WIDTH    = 1280;
 	
 	// FIXME after update to macos 14.1.1, safari webdriver don't start
 	public static WebDriver getWebDriverSafari(boolean logging) {
-		var options = new SafariOptions(); 
+		var options = new SafariOptions();
 		var result  = Manager.getResult(options);
 		
 		var service = new SafariDriverService.Builder().withLogging(logging).build();		
@@ -142,8 +142,12 @@ public class WebBrowser implements Closeable{
 	public void savePage(File file) {
 		var string = getPage();
 		// string is in UTF-8, so set charset to UTF-8
+		// nikko use Shift_JIS
+		// prestia use SHIFT_JIS
 		string = string.replace("charset=Shift_JIS", "charset=UTF-8");
 		string = string.replace("charset=SHIFT_JIS", "charset=UTF-8");
+		// rakuten use EUC-JP
+		string = string.replace("charset=EUC-JP", "charset=UTF-8");
 		FileUtil.write().file(file, string);
 	}
 	
@@ -193,6 +197,9 @@ public class WebBrowser implements Closeable{
 	}
 	public  static final long   DEFAULT_SLEEP_MILLS         = 500;
 	private static final double DEFAULT_SLEEP_RANDOM_WEIGHT = 0.3;
+	public void sleepRandom(Duration duration) {
+		sleepRandom(duration.toMillis(), DEFAULT_SLEEP_RANDOM_WEIGHT);
+	}
 	public void sleepRandom(long mills) {
 		sleepRandom(mills, DEFAULT_SLEEP_RANDOM_WEIGHT);
 	}
