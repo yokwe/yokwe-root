@@ -39,6 +39,9 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 # CLEAR LOG FILE
 59   23    *   *   6     cd $YOKWE_FINANCE; ( make LOG_TITLE="maintain log file"  log-start clear-log-file log-stop ) 1>>tmp/cron.log 2>&1
 
+# UPDATE FX RATE
+10  9,10,13  *  *  1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update fx rate"  log-start provider-mizuho-update-fx-rate log-stop ) 1>>tmp/cron.log 2>&1
+
 
 # update-stock-us-div takes 48 minutes first time. second time is 9 minutes
 # update-stock-us-price takes about 40 minutes

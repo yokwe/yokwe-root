@@ -256,6 +256,17 @@
 	</target>
 	
 	
+	<!-- Provider MIZUHO -->
+	<target name="provider-mizuho-update-fx-rate">
+		<java module="yokwe.finance/yokwe.finance.provider.mizuho.UpdateFXRate" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	
+	
 	<!-- Provider MONEX -->
 	<target name="provider-monex-update-trading-stock-monex">
 		<java module="yokwe.finance/yokwe.finance.provider.monex.UpdateTradingStockMonex" fork="true">

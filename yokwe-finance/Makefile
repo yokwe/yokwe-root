@@ -91,6 +91,13 @@ save-report: check-data-path
 
 
 #
+# FX-RATE
+#
+update-fx-rate:
+	ant provider-mizuho-update-fx-rate
+
+
+#
 # JREIT
 #
 update-jreit:
