@@ -151,7 +151,7 @@ public class UpdateStockStatsUSMonthly {
 		{
 			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
 			String name       = String.format("stock-stats-us-monthly-%s.ods", timestamp);
-			String pathReport = StorageReport.getPath("stock-stats-us", name);
+			String pathReport = StorageReport.storage.getPath("stock-stats-us", name);
 			urlReport  = StringUtil.toURLString(pathReport);
 		}
 

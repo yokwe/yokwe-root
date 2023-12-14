@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.Asset.Currency;
 import yokwe.finance.account.AssetRisk;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
+import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 

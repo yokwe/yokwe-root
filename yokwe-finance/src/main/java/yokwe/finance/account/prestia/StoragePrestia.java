@@ -4,17 +4,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 
 public class StoragePrestia {
-	private static final Storage storage = Storage.account.prestia;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.account.prestia;
 	
 	// asset
 	public static final Storage.LoadSaveList<Asset> Asset =

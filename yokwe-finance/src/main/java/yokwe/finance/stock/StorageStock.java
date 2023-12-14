@@ -9,17 +9,7 @@ import yokwe.finance.type.StockInfoJPType;
 import yokwe.finance.type.StockInfoUSType;
 
 public class StorageStock {
-	private static final Storage storage = Storage.stock;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.stock;
 	
 	// stock-div-XX
 	public static final Storage.LoadSave2<DailyValue, ChronoLocalDate> StockDivJP =

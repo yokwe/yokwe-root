@@ -5,17 +5,7 @@ import yokwe.finance.Storage;
 public class StorageReport {
 	public static void initialize() {}
 	
-	private static final Storage storage = Storage.report;
-	
-	public static String getPath() {
-		return storage.getPath();
-	}
-	public static String getPath(String path) {
-		return storage.getPath(path);
-	}
-	public static String getPath(String prefix, String path) {
-		return storage.getPath(prefix, path);
-	}
+	public static final Storage storage = Storage.report;
 	
 	// stock-stats-jp
 	public static final Storage.LoadSave<StockStatsJP, String> StockStatsJP =

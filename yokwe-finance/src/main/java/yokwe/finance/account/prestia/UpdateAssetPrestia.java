@@ -11,13 +11,13 @@ import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.AssetRisk;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.Asset.Currency;
 import yokwe.finance.account.prestia.BalancePage.DepositJPY;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoney;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoneyJPY;
 import yokwe.finance.account.prestia.BalancePage.DepositUSD;
 import yokwe.finance.account.prestia.BalancePage.TermDepositForeign;
 import yokwe.finance.account.prestia.FundPage.FundInfo;
+import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 
 public class UpdateAssetPrestia {

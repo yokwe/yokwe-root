@@ -14,10 +14,10 @@ import java.util.List;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.Asset.Currency;
 import yokwe.finance.account.AssetRisk;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
+import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
@@ -142,7 +142,9 @@ public class UpdateAssetRakuten {
 							var code = stringArray[1] + "0";
 							var name = stringArray[2];
 //							var accountType = stringArray[3];
-							var value = new BigDecimal(stringArray[6].replace(",", ""));
+							var units = new BigDecimal(stringArray[4].replace(",", ""));
+							var price = new BigDecimal(stringArray[8].replace(",", ""));
+							var value = units.multiply(price);
 							var status = AssetRisk.stockJP.getStatus(code);
 							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, status, code, name));
 						}
@@ -178,7 +180,9 @@ public class UpdateAssetRakuten {
 								name = usStockMap.get(code).name;
 							}
 //							var accountType = stringArray[3];
-							var value = new BigDecimal(stringArray[6].replace(",", ""));
+							var units = new BigDecimal(stringArray[4].replace(",", ""));
+							var price = new BigDecimal(stringArray[8].replace(",", ""));
+							var value = units.multiply(price);
 							var status = AssetRisk.stockUS.getStatus(code);
 							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, status, code, name));
 						}
@@ -214,7 +218,7 @@ public class UpdateAssetRakuten {
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		download();
+//		download();
 		update();
 		
 		logger.info("STOP");

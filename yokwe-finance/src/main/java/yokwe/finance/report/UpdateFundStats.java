@@ -42,7 +42,7 @@ public class UpdateFundStats {
 		{
 			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
 			String name       = String.format("fund-stats-%s.ods", timestamp);
-			String pathReport = StorageReport.getPath("fund-stats", name);
+			String pathReport = StorageReport.storage.getPath("fund-stats", name);
 			
 			urlReport  = StringUtil.toURLString(pathReport);
 		}

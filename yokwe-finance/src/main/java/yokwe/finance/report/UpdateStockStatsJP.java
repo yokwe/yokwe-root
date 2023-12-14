@@ -139,7 +139,7 @@ public class UpdateStockStatsJP {
 		{
 			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
 			String name       = String.format("stock-stats-jp-%s.ods", timestamp);
-			String pathReport = StorageReport.getPath("stock-stats-jp", name);
+			String pathReport = StorageReport.storage.getPath("stock-stats-jp", name);
 			
 			urlReport  = StringUtil.toURLString(pathReport);
 		}
