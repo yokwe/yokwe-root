@@ -312,6 +312,7 @@ public interface Storage {
 	public static final Storage root     = new Impl(DATA_PATH);
 	
 	public static final Storage fund     = new Impl(root, "fund");
+	public static final Storage fx       = new Impl(root, "fx");
 	public static final Storage report   = new Impl(root, "report");
 	public static final Storage stock    = new Impl(root, "stock");
 	
@@ -336,6 +337,7 @@ public interface Storage {
 		public static final Storage jpx     =  new Storage.Impl(base, "jpx");
 		public static final Storage jreit   =  new Storage.Impl(base, "jreit");
 		public static final Storage manebu  =  new Storage.Impl(base, "manebu");
+		public static final Storage mizuho  =  new Storage.Impl(base, "mizuho");
 		public static final Storage monex   =  new Storage.Impl(base, "monex");
 		public static final Storage moomoo  =  new Storage.Impl(base, "moomoo");
 		public static final Storage nasdaq  =  new Storage.Impl(base, "nasdaq");
