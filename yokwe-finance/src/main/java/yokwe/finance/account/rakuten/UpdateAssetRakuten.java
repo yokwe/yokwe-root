@@ -205,6 +205,17 @@ public class UpdateAssetRakuten {
 							list.add(Asset.mmf(dateTime, Company.RAKUTEN, currency, value, name));
 						}
 					}
+					{
+						var kindExpect = "外国債券";
+						if (kind.equals(kindExpect)) {
+							Currency currency = Currency.USD; // FIXME
+							var code = "";
+							var name = stringArray[2];
+//							var accountType = stringArray[3];
+							var value = new BigDecimal(stringArray[4].replace(",", ""));
+							list.add(Asset.bond(dateTime, Company.RAKUTEN, currency, value, code, name));
+						}
+					}
 				}
 			}
 		}
@@ -218,7 +229,7 @@ public class UpdateAssetRakuten {
 	public static void main(String[] args) {
 		logger.info("START");
 				
-//		download();
+		download();
 		update();
 		
 		logger.info("STOP");
