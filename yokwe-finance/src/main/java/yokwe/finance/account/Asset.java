@@ -115,7 +115,8 @@ public class Asset implements Comparable<Asset> {
 		if (ret == 0) ret = this.company.compareTo(that.company);
 		if (ret == 0) ret = this.type.compareTo(that.type);
 		if (ret == 0) ret = this.currency.compareTo(that.currency);
-		if (ret == 0) ret = this.value.compareTo(that.value);
+		if (ret == 0) ret = this.code.compareTo(that.code);
+		if (ret == 0) ret = this.name.compareTo(that.name);
 		return ret;
 	}
 }
