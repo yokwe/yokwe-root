@@ -98,12 +98,19 @@ update-fx-rate:
 
 
 #
+# UPDATE AXCOUNT
+#
+update-account:
+	ant account-nikko-update-asset-nikko account-prestia-update-asset-prestia account-rakuten-update-asset-rakuten account-sony-update-asset-sony
+
+
+#
 # JREIT
 #
 update-jreit:
 	ant provider-jreit-update-jreit-info
 	ant provider-jreit-update-jreit-div
-	
+
 
 #
 # MANEBU
