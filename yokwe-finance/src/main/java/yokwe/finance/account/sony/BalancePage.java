@@ -91,7 +91,7 @@ public class BalancePage {
 			"<td><p>(?<value>[0-9,]+)円</p></td>\\s+" +
 			"<td><p>[0-9,]+口</p></td>\\s+" +
 			"<td><p>[0-9,]+円</p></td>\\s+" +
-			"<td><p>[0-9,]+円</p></td>\\s+" +
+			"<td><p>[-0-9,]+円</p></td>\\s+" +
 			"<td .+?><div .+?>.+?</div></td>\\s+" +
 			"</tr>" +
 			"",
@@ -114,7 +114,4 @@ public class BalancePage {
 			return String.format("{%s  %s}", name, value.toPlainString());
 		}
 	}
-
-
-	
 }
