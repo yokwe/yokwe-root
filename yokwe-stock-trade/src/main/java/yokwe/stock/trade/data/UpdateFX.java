@@ -14,7 +14,7 @@ import yokwe.util.http.HttpUtil;
 public class UpdateFX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final String URL_CSV      = "https://www.mizuhobank.co.jp/market/csv/quote.csv";
+	public static final String URL_CSV      = "https://www.mizuhobank.co.jp/market/quote.csv";
 	public static final String ENCODING_CSV = "SHIFT_JIS";
 
 	private static final Pattern PAT_YYYYMMDD = Pattern.compile("^(20[0-9]{2})/([01]?[0-9])/([0-3]?[0-9])$");
