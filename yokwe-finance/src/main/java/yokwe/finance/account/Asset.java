@@ -1,13 +1,20 @@
 package yokwe.finance.account;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import yokwe.finance.account.AssetRisk.Status;
+import yokwe.finance.fx.StorageFX;
+import yokwe.finance.type.Currency;
+import yokwe.finance.type.FXRate;
 import yokwe.util.UnexpectedException;
 
 public class Asset implements Comparable<Asset> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
+	private static final FXRate latest = StorageFX.getLatest();
 	
 	public enum Company {
 		SONY,
@@ -30,32 +37,31 @@ public class Asset implements Comparable<Asset> {
 		FUND,
 		BOND,
 	}
-	public enum Currency {
-		JPY, USD, EUR, GBP, AUD, NZD,
-	}
-	
-	
-	LocalDateTime dateTime;
-	Company       company;
-	Type          type;
-	Currency      currency;
-	BigDecimal    value;    // current value of asset in currency
+	LocalDate  date;
+	Company    company;
+	Type       type;
+	Currency   currency;
+	BigDecimal fxRate;
+	BigDecimal value;    // current value of asset in currency
+	BigDecimal valueJPY;    // current value of asset in currency
 	
 	// stock and fund
-	Status        status;   // safe unsafe or unknown
+	Status     status;   // safe unsafe or unknown
 	
 	// stock, fund and bond
-	String        code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
-	String        name;     // name of asset
+	String     code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
+	String     name;     // name of asset
 	
 	public Asset(
 		LocalDateTime dateTime, Company company, Type type, Currency currency, BigDecimal value, Status status,
 		String code, String name) {
-		this.dateTime = dateTime;
+		this.date     = dateTime.toLocalDate();
 		this.company  = company;
 		this.type     = type;
 		this.currency = currency;
+		this.fxRate   = (currency == Currency.JPY) ? BigDecimal.ONE : latest.rate(currency);
 		this.value    = value;
+		this.valueJPY = value.multiply(fxRate).setScale(0, RoundingMode.HALF_EVEN);
 		this.status   = status;
 		this.code     = code;
 		this.name     = name;
@@ -92,11 +98,11 @@ public class Asset implements Comparable<Asset> {
 		case DEPOSIT_TIME:
 		case MRF:
 		case MMF:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, name);
+			return String.format("{%s  %s  %s  %s  %s  %s  %s}", date, company, type, currency, value.toPlainString(), status, name);
 		case FUND:
 		case STOCK:
 		case BOND:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", dateTime, company, type, currency, value.toPlainString(), status, code, name);
+			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", date, company, type, currency, value.toPlainString(), status, code, name);
 		default:
 			logger.error("Unexpected type");
 			logger.error("  {}!", type);
@@ -105,7 +111,7 @@ public class Asset implements Comparable<Asset> {
 	}
 	@Override
 	public int compareTo(Asset that) {
-		int ret = this.dateTime.compareTo(that.dateTime);
+		int ret = this.date.compareTo(that.date);
 		if (ret == 0) ret = this.company.compareTo(that.company);
 		if (ret == 0) ret = this.type.compareTo(that.type);
 		if (ret == 0) ret = this.currency.compareTo(that.currency);
