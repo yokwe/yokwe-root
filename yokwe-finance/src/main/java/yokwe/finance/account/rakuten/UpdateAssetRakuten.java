@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -120,6 +121,8 @@ public class UpdateAssetRakuten {
 			
 			var usStockMap = StorageStock.StockInfoUSTrading.getMap();
 			
+			var patValueCurrency = Pattern.compile("(?<value>[0-9,\\.]+) (?<currency>...)");
+			
 			var br = new BufferedReader(new StringReader(page));
 			for(;;) {
 				var stringArray = CSVUtil.parseLine(br, ',');
@@ -139,12 +142,15 @@ public class UpdateAssetRakuten {
 						var kindExpect = "国内株式";
 						if (kind.equals(kindExpect)) {
 							Currency currency = Currency.JPY;
-							var code = stringArray[1] + "0";
-							var name = stringArray[2];
+							String code;
+							{
+								var string = stringArray[1];
+								code = (string.length() == 4) ? string + "0" : string;
+							}
+							
+							var name   = stringArray[2];
 //							var accountType = stringArray[3];
-							var units = new BigDecimal(stringArray[4].replace(",", ""));
-							var price = new BigDecimal(stringArray[8].replace(",", ""));
-							var value = units.multiply(price);
+							var value  = new BigDecimal(stringArray[14].replace(",", ""));
 							var status = AssetRisk.stockJP.getStatus(code);
 							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, status, code, name));
 						}
@@ -152,12 +158,20 @@ public class UpdateAssetRakuten {
 					{
 						var kindExpect = "投資信託";
 						if (kind.equals(kindExpect)) {
-							Currency currency = Currency.JPY;
-							var fund = getFundInfo(stringArray[2]);
-							var name = fund.name;
-							var code = fund.isinCode;
+							Currency currency;
+							{
+								var string = stringArray[7];
+								if (string.equals("円")) {
+									currency = Currency.JPY;
+								} else {
+									currency = Currency.valueOf(string);
+								}
+							}
+							var fund   = getFundInfo(stringArray[2]);
+							var name   = fund.name;
+							var code   = fund.isinCode;
 //							var accountType = stringArray[3];
-							var value = new BigDecimal(stringArray[14].replace(",", ""));
+							var value  = new BigDecimal(stringArray[14].replace(",", ""));
 							var status = AssetRisk.fundCode.getStatus(code); 
 							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, value, status, code, name));
 						}
@@ -173,16 +187,26 @@ public class UpdateAssetRakuten {
 					{
 						var kindExpect = "米国株式";
 						if (kind.equals(kindExpect)) {
-							Currency currency = Currency.USD;
 							var code = stringArray[1];
 							var name = stringArray[2];
 							if (usStockMap.containsKey(code)) {
 								name = usStockMap.get(code).name;
 							}
 //							var accountType = stringArray[3];
-							var units = new BigDecimal(stringArray[4].replace(",", ""));
-							var price = new BigDecimal(stringArray[8].replace(",", ""));
-							var value = units.multiply(price);
+							BigDecimal value;
+							Currency   currency;
+							{
+								var string = stringArray[15];
+								var m = patValueCurrency.matcher(string);
+								if (m.matches()) {
+									value = new BigDecimal(m.group("value").replace(",", ""));
+									currency =Currency.valueOf(m.group("currency"));
+								} else {
+									logger.error("Unexpected string");
+									logger.error("  string {}!", string);
+									throw new UnexpectedException("Unexpected string");
+								}
+							}
 							var status = AssetRisk.stockUS.getStatus(code);
 							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, status, code, name));
 						}
@@ -191,17 +215,21 @@ public class UpdateAssetRakuten {
 						var kindExpect = "外貨建MMF";
 						if (kind.equals(kindExpect)) {
 							var name = stringArray[2];
-							Currency currency;
-							if (name.contains("米ドル")) {
-								currency = Currency.USD;
-							} else {
-								logger.error("Unexpected name");
-								logger.error("  name  {}!", name);
-								throw new UnexpectedException("Unexpected name");
-							}
 //							var accountType = stringArray[3];
-							var value = new BigDecimal(stringArray[6].replace(",", ""));
-							// LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name
+							BigDecimal value;
+							Currency   currency;
+							{
+								var string = stringArray[15];
+								var m = patValueCurrency.matcher(string);
+								if (m.matches()) {
+									value = new BigDecimal(m.group("value").replace(",", ""));
+									currency =Currency.valueOf(m.group("currency"));
+								} else {
+									logger.error("Unexpected string");
+									logger.error("  string {}!", string);
+									throw new UnexpectedException("Unexpected string");
+								}
+							}
 							list.add(Asset.mmf(dateTime, Company.RAKUTEN, currency, value, name));
 						}
 					}
@@ -209,8 +237,8 @@ public class UpdateAssetRakuten {
 						var kindExpect = "外国債券";
 						if (kind.equals(kindExpect)) {
 							Currency currency = Currency.USD; // FIXME
-							var code = "";
-							var name = stringArray[2];
+							var code  = "";
+							var name  = stringArray[2];
 //							var accountType = stringArray[3];
 							var value = new BigDecimal(stringArray[4].replace(",", ""));
 							list.add(Asset.bond(dateTime, Company.RAKUTEN, currency, value, code, name));
@@ -229,7 +257,7 @@ public class UpdateAssetRakuten {
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		download();
+//		download();
 		update();
 		
 		logger.info("STOP");
