@@ -257,7 +257,7 @@ public class UpdateAssetRakuten {
 	public static void main(String[] args) {
 		logger.info("START");
 				
-//		download();
+		download();
 		update();
 		
 		logger.info("STOP");
