@@ -18,6 +18,11 @@ public class WebBrowserSBI extends WebBrowser {
 	private static final Target BALANCE_JPY      = new Target.Click(By.linkText("口座(円建)"));
 	private static final Target BALANCE_FOREIGN  = new Target.Click(By.linkText("口座(外貨建)"));
 
+	// <area shape="rect" coords=" 99,0,169,19" title="保有証券" alt="保有証券" href="javascript:openTag('/fbonds/BffPossessionBondList.do')">
+	// <area shape="rect" coords="80,0,140,19" href="/ETGate/?_ControlID=WPLETacR002Control&amp;_PageID=DefaultPID&amp;_DataStoreID=DSWPLETacR002Control&amp;_SeqNo=1702607165238_default_task_10_DefaultPID_DefaultAID&amp;getFlg=on&amp;_ActionID=DefaultAID" title="保有証券" alt="保有証券">
+	private static final Target BALANCE_ASSET  = new Target.Click(By.xpath("//area[@title='保有証券']"));
+
+	
 	public void login() {
 		var secret = Secret.read().sbi;
 		login(secret.account, secret.password);
@@ -41,6 +46,9 @@ public class WebBrowserSBI extends WebBrowser {
 	}
 	public void balanceForeign() {
 		BALANCE_FOREIGN.action(this);
+	}
+	public void balanceAsset() {
+		BALANCE_ASSET.action(this);
 	}
 	
 	// Use xpath to locate element
