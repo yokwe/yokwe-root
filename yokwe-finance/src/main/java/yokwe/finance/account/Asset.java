@@ -22,7 +22,7 @@ public class Asset implements Comparable<Asset> {
 		PRESTIA,
 		NIKKO,
 		RAKUTEN,
-		SMBT,
+		SMTB,
 		SUMISHIN,
 		SBI,
 		NOMURA,
