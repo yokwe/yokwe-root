@@ -12,9 +12,12 @@ public class WebBrowserSMTB extends WebBrowser {
 	}
 	
 	private static final Target LOGIN_A = new Target.Get("https://direct.smtb.jp/ap1/ib/login.do", "ログイン");
-	private static final Target LOGIN_B = new Target.Javascript("onPrepareElementForIbLogin('ibLoginActionForm', 'login', '10', this)", "トップページ");
-	private static final Target LOGOUT  = new Target.Javascript("linkSubmitAction('header_myPageForm', 'initial')", "ログアウト");
-	private static final Target BALANCE = new Target.Click(By.linkText("お取引・残高照会"), "お取引・残高照会");
+	private static final Target LOGIN_B = new Target.Click(By.xpath("//input[contains(@value, 'ログイン')]"), "トップページ");
+	
+	private static final Target LOGOUT  = new Target.Click(By.xpath("//img[@alt='ログアウト']"), "ログアウト");
+	
+	// お取引き・残高照会
+	private static final Target BALANCE = new Target.Click(By.xpath("//img[@alt='お取引き・残高照会']"), "お取引・残高照会");
 	
 	public void login() {
 		var secret = Secret.read().smtb;
