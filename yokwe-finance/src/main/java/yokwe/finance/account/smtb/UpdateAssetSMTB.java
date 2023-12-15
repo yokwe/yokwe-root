@@ -22,7 +22,7 @@ public class UpdateAssetSMTB {
 	private static final File    FILE_TOP         = storage.getFile("top.html");
 	private static final File    FILE_BALANCE     = storage.getFile("balance.html");
 	
-	private static void download() {
+	public static void download() {
 		try(var browser = new WebBrowserSMTB()) {
 			logger.info("login");
 			browser.login();
@@ -37,7 +37,7 @@ public class UpdateAssetSMTB {
 		}
 	}
 	
-	private static void update() {
+	public static void update() {
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
