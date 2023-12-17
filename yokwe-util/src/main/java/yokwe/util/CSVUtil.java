@@ -441,7 +441,7 @@ public class CSVUtil {
 		
 		private static Map<String, GetArg<?>> getArgMap = new TreeMap<>();
 		static {
-			getArgMap.put(java.math.BigDecimal.class.getTypeName(),    (String s) -> {s = s.replace(",", ""); return new BigDecimal(s);});
+			getArgMap.put(java.math.BigDecimal.class.getTypeName(),    (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? BigDecimal.ZERO : new BigDecimal(s);});
 			getArgMap.put(java.lang.Integer.class.getTypeName(),       (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Integer.parseInt(s);});
 			getArgMap.put(java.lang.Integer.TYPE.getTypeName(),        (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Integer.parseInt(s);});
 			getArgMap.put(java.lang.Long.class.getTypeName(),          (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Long.parseLong(s);});
