@@ -32,6 +32,7 @@ public final class FXRate implements Comparable<FXRate> {
 		case GBP: return gbp;
 		case AUD: return aud;
 		case NZD: return nzd;
+		case JPY: return BigDecimal.ONE;
 		default:
 			logger.error("Unexpected currency");
 			logger.error("  currency {}!", currency);
