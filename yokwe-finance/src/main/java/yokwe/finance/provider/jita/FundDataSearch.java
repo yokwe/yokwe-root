@@ -245,7 +245,9 @@ public final class FundDataSearch {
         //     "investArea10kindCd10" : "0",
         public String            investArea10kindCd10;
 
-
+        @Ignore
+        public String            nisaGrowthFlg;
+        
         public DividendInfo[]    dividendInfo;
         public InstitutionInfo[] institutionInfo;
 
@@ -341,6 +343,7 @@ public final class FundDataSearch {
         @Ignore
 		//    "nisaFlg" : "2",
         public String            nisaFlg;
+        
         @Ignore
         //    償還までの期間
 		//    "nowToRedemptionDate" : "9999",
