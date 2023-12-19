@@ -1,7 +1,6 @@
 package yokwe.finance.account.rakuten;
 
 import java.io.File;
-import java.time.Duration;
 
 import org.openqa.selenium.By;
 
@@ -46,7 +45,7 @@ public class WebBrowserRakuten extends WebBrowser {
 	public void balance() {
 		MY_MENU.action(this);
 		MY_MENU_BALANCE.action(this);
-		wait.untilPageUpdate(getPage(), Duration.ofMillis(3000));
+		// pause before return
 		sleepRandom(1500);
 	}
 	public void saveAsCSV() {
