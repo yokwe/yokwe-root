@@ -90,9 +90,8 @@ public class UpdateAssetNikko {
 						throw new UnexpectedException("Unpexpeced fundCode");
 					}
 				}
-				var status = AssetRisk.fundCode.getStatus(isinCode);
-				
-				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, status, isinCode, e.fundName));
+				var risk = AssetRisk.fundCode.getRisk(isinCode);
+				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, risk, isinCode, e.fundName));
 			}
 			
 			var foreignStockInfoList = BalancePage.ForeignStockInfo.getInstance(page);
@@ -101,17 +100,16 @@ public class UpdateAssetNikko {
 //				logger.info("foreginStock  {}", e);
 				var currency = Currency.valueOf(e.currency);
 				
-				var units  = new BigDecimal(e.units);
-				var price  = new BigDecimal(e.price);
-				var value  = price.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
-				var code   = e.stockCode;
-				var name   = e.stockName;
+				var units = new BigDecimal(e.units);
+				var price = new BigDecimal(e.price);
+				var value = price.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
+				var risk  = AssetRisk.stockUS.getRisk(e.stockCode);
+				var code  = e.stockCode;
+				var name  = e.stockName;
 				if (usStockMap.containsKey(code)) {
 					name = usStockMap.get(code).name;
 				}
-				var status = AssetRisk.stockUS.getStatus(e.stockCode);
-				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, status, code, name));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, risk, code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);

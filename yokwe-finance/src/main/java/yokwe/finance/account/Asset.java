@@ -5,7 +5,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import yokwe.finance.account.AssetRisk.Status;
 import yokwe.finance.fx.StorageFX;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FXRate;
@@ -46,14 +45,14 @@ public class Asset implements Comparable<Asset> {
 	BigDecimal valueJPY;    // current value of asset in currency
 	
 	// stock and fund
-	Status     status;   // safe unsafe or unknown
+	Risk       risk;   // safe unsafe or unknown
 	
 	// stock, fund and bond
 	String     code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
 	String     name;     // name of asset
 	
 	public Asset(
-		LocalDateTime dateTime, Company company, Type type, Currency currency, BigDecimal value, Status status,
+		LocalDateTime dateTime, Company company, Type type, Currency currency, BigDecimal value, Risk risk,
 		String code, String name) {
 		this.date     = dateTime.toLocalDate();
 		this.company  = company;
@@ -62,33 +61,33 @@ public class Asset implements Comparable<Asset> {
 		this.fxRate   = (currency == Currency.JPY) ? BigDecimal.ONE : latest.rate(currency);
 		this.value    = value;
 		this.valueJPY = value.multiply(fxRate).setScale(0, RoundingMode.HALF_EVEN);
-		this.status   = status;
+		this.risk   = risk;
 		this.code     = code;
 		this.name     = name;
 	}
 	
 	// name
 	public static Asset deposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.DEPOSIT, currency, value, Status.SAFE, "", name);
+		return new Asset(dateTime, company, Type.DEPOSIT, currency, value, Risk.SAFE, "", name);
 	}
 	public static Asset depositTime(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.DEPOSIT_TIME, currency, value, Status.SAFE, "", name);
+		return new Asset(dateTime, company, Type.DEPOSIT_TIME, currency, value, Risk.SAFE, "", name);
 	}
 	public static Asset mrf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.MRF, currency, value, Status.SAFE, "", name);
+		return new Asset(dateTime, company, Type.MRF, currency, value, Risk.SAFE, "", name);
 	}
 	public static Asset mmf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.MMF, currency, value, Status.SAFE, "", name);
+		return new Asset(dateTime, company, Type.MMF, currency, value, Risk.SAFE, "", name);
 	}
 	// code name
-	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, String code, String name) {
-		return new Asset(dateTime, company, Type.FUND, currency, value, status, code, name);
+	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Risk risk, String code, String name) {
+		return new Asset(dateTime, company, Type.FUND, currency, value, risk, code, name);
 	}
-	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Status status, String code, String name) {
-		return new Asset(dateTime, company, Type.STOCK, currency, value, status, code, name);
+	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Risk risk, String code, String name) {
+		return new Asset(dateTime, company, Type.STOCK, currency, value, risk, code, name);
 	}
 	public static Asset bond(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String code, String name) {
-		return new Asset(dateTime, company, Type.BOND, currency, value, Status.SAFE, code, name);
+		return new Asset(dateTime, company, Type.BOND, currency, value, Risk.SAFE, code, name);
 	}
 	
 	@Override
@@ -98,11 +97,11 @@ public class Asset implements Comparable<Asset> {
 		case DEPOSIT_TIME:
 		case MRF:
 		case MMF:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s}", date, company, type, currency, value.toPlainString(), status, name);
+			return String.format("{%s  %s  %s  %s  %s  %s  %s}", date, company, type, currency, value.toPlainString(), risk, name);
 		case FUND:
 		case STOCK:
 		case BOND:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", date, company, type, currency, value.toPlainString(), status, code, name);
+			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", date, company, type, currency, value.toPlainString(), risk, code, name);
 		default:
 			logger.error("Unexpected type");
 			logger.error("  {}!", type);

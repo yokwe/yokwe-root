@@ -139,8 +139,8 @@ public class UpdateAssetPrestia {
 				for(var e: fundInfo) {
 //					logger.info("fundInfo  {}", e);
 					Currency currency = Currency.valueOf(e.currency);
-					var status = AssetRisk.fundPrestia.getStatus(e.fundCode);
-					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, status, e.fundCode, e.fundName));
+					var risk = AssetRisk.fundPrestia.getRisk(e.fundCode);
+					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, risk, e.fundCode, e.fundName));
 				}
 			}
 		}

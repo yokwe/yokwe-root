@@ -17,31 +17,20 @@ public interface AssetRisk {
 
 	public static final Storage storage = Storage.account.base;
 
-	public Status  getStatus(String code);
+	public Risk  getRisk(String code);
 	default public boolean isSafe(String code) {
-		var status = getStatus(code);
-		return status.isSafe();
+		return getRisk(code).isSafe();
 	}
 
-	public enum Status {
-		UNKNOWN,
-		SAFE,
-		UNSAFE;
-		
-		public boolean isSafe() {
-			return this.equals(SAFE);
-		}
-	}
-	
 	public static final class Entry implements Comparable<Entry> {
 	    public String code;
-	    public Status status;
+	    public Risk   risk;
 	    public String name;
 	    
-	    public Entry(String code, Status status, String name) {
-	    	this.code   = code;
-	    	this.status = status;
-	    	this.name   = name;
+	    public Entry(String code, Risk risk, String name) {
+	    	this.code = code;
+	    	this.risk = risk;
+	    	this.name = name;
 	    }
 	    
 		@Override
@@ -51,7 +40,7 @@ public interface AssetRisk {
 		
 		@Override
 		public String toString() {
-			return String.format("{%s  %s  %s}", code, status, name);
+			return String.format("{%s  %s  %s}", code, risk, name);
 		}
 	}
 	
@@ -68,7 +57,7 @@ public interface AssetRisk {
 		private static final Map<String, FundInfoJP> fundMap  = StorageFund.FundInfo.getMap();
 		
 		@Override
-		public Status getStatus(String isinCode) {
+		public Risk getRisk(String isinCode) {
 			Entry entry;
 			{
 				if (entryMap.containsKey(isinCode)) {
@@ -77,7 +66,7 @@ public interface AssetRisk {
 					if (fundMap.containsKey(isinCode)) {
 						// add new entry using fundMap
 						var fund = fundMap.get(isinCode);
-						entry = new Entry(fund.isinCode, Status.UNKNOWN, fund.name);
+						entry = new Entry(fund.isinCode, Risk.UNKNOWN, fund.name);
 						entryMap.put(entry.code, entry);
 						ASSET_RISK_FUND.save(entryMap.values());
 					} else {
@@ -87,10 +76,10 @@ public interface AssetRisk {
 					}
 				}
 			}
-			if (entry.status == Status.UNKNOWN) {
-				logger.warn("status is unknown  {}  {}", entry.code, entry.name);
+			if (entry.risk == Risk.UNKNOWN) {
+				logger.warn("risk is unknown  {}  {}", entry.code, entry.name);
 			}
-			return entry.status;
+			return entry.risk;
 		}
 	}
 	public class ImplFundPrestia implements AssetRisk {
@@ -101,7 +90,7 @@ public interface AssetRisk {
 		private static final Map<String, FundPrestia> fundMap  = StoragePrestia.FundPrestia.getMap();
 		
 		@Override
-		public Status getStatus(String fundCode) {
+		public Risk getRisk(String fundCode) {
 			Entry entry;
 			{
 				if (entryMap.containsKey(fundCode)) {
@@ -110,7 +99,7 @@ public interface AssetRisk {
 					if (fundMap.containsKey(fundCode)) {
 						// add new entry using fundMap
 						var fund = fundMap.get(fundCode);
-						entry = new Entry(fund.fundCode, Status.UNKNOWN, fund.fundName);
+						entry = new Entry(fund.fundCode, Risk.UNKNOWN, fund.fundName);
 						entryMap.put(entry.code, entry);
 						ASSET_RISK_FUND_PRESTIA.save(entryMap.values());
 					} else {
@@ -120,10 +109,10 @@ public interface AssetRisk {
 					}
 				}
 			}
-			if (entry.status == Status.UNKNOWN) {
-				logger.warn("status is unknown  {}  {}", entry.code, entry.name);
+			if (entry.risk == Risk.UNKNOWN) {
+				logger.warn("risk is unknown  {}  {}", entry.code, entry.name);
 			}
-			return entry.status;
+			return entry.risk;
 		}
 	}
 	public class ImplStockUS implements AssetRisk {
@@ -134,7 +123,7 @@ public interface AssetRisk {
 		private static final Map<String, StockInfoUSType>  stockUSMap = StorageStock.StockInfoUSTrading.getMap();
 
 		@Override
-		public Status getStatus(String stockCode) {
+		public Risk getRisk(String stockCode) {
 			Entry entry;
 			{
 				if (entryMap.containsKey(stockCode)) {
@@ -143,7 +132,7 @@ public interface AssetRisk {
 					if (stockUSMap.containsKey(stockCode)) {
 						// add new entry using fundMap
 						var stockUS = stockUSMap.get(stockCode);
-						entry = new Entry(stockUS.stockCode, Status.UNKNOWN, stockUS.name);
+						entry = new Entry(stockUS.stockCode, Risk.UNKNOWN, stockUS.name);
 						entryMap.put(entry.code, entry);
 						ASSET_RISK_STOCK_US.save(entryMap.values());
 					} else {
@@ -153,21 +142,21 @@ public interface AssetRisk {
 					}
 				}
 			}
-			if (entry.status == Status.UNKNOWN) {
-				logger.warn("status is unknown  {}  {}", entry.code, entry.name);
+			if (entry.risk == Risk.UNKNOWN) {
+				logger.warn("risk is unknown  {}  {}", entry.code, entry.name);
 			}
-			return entry.status;
+			return entry.risk;
 		}		
 	}
 	public class ImplStockJP implements AssetRisk {
 		public static final Storage.LoadSave<Entry, String> ASSET_RISK_STOCK_JP =
-				new Storage.LoadSave.Impl<>(Entry.class,  o -> o.code, storage, "asset-risk-stock-jp.csv");
+			new Storage.LoadSave.Impl<>(Entry.class,  o -> o.code, storage, "asset-risk-stock-jp.csv");
 			
 		private static final Map<String, Entry>            entryMap   = ASSET_RISK_STOCK_JP.getMap();
 		private static final Map<String, StockInfoJPType>  stockJPMap = StorageStock.StockInfoJP.getMap();
 
 		@Override
-		public Status getStatus(String stockCode) {
+		public Risk getRisk(String stockCode) {
 			Entry entry;
 			{
 				if (entryMap.containsKey(stockCode)) {
@@ -176,7 +165,7 @@ public interface AssetRisk {
 					if (stockJPMap.containsKey(stockCode)) {
 						// add new entry using fundMap
 						var stockJP = stockJPMap.get(stockCode);
-						entry = new Entry(stockJP.stockCode, Status.UNKNOWN, stockJP.name);
+						entry = new Entry(stockJP.stockCode, Risk.UNKNOWN, stockJP.name);
 						entryMap.put(entry.code, entry);
 						ASSET_RISK_STOCK_JP.save(entryMap.values());
 					} else {
@@ -186,10 +175,10 @@ public interface AssetRisk {
 					}
 				}
 			}
-			if (entry.status == Status.UNKNOWN) {
-				logger.warn("status is unknown  {}  {}", entry.code, entry.name);
+			if (entry.risk == Risk.UNKNOWN) {
+				logger.warn("risk is unknown  {}  {}", entry.code, entry.name);
 			}
-			return entry.status;
+			return entry.risk;
 		}		
 	}
 }

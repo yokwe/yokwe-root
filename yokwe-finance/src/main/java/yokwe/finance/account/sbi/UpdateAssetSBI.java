@@ -109,8 +109,8 @@ public class UpdateAssetSBI {
 				for(var e: stockUSList) {
 //					logger.info("stockUSList  {}", e);
 					var currency = Currency.USD;
-					
-					var code = e.code;
+					var code     = e.code;
+					var risk     = AssetRisk.stockUS.getRisk(code);
 					String name;
 					if (usStockMap.containsKey(code)) {
 						name = usStockMap.get(code).name;
@@ -119,9 +119,7 @@ public class UpdateAssetSBI {
 						logger.error("  code  {}!", code);
 						throw new UnexpectedException("unexpected code");
 					}
-					var status = AssetRisk.stockUS.getStatus(code);
-
-					list.add(Asset.stock(dateTime, Company.SBI, currency, e.value, status, code, name));
+					list.add(Asset.stock(dateTime, Company.SBI, currency, e.value, risk, code, name));
 				}
 			}
 			{

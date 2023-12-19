@@ -151,8 +151,8 @@ public class UpdateAssetRakuten {
 							var name   = stringArray[2];
 //							var accountType = stringArray[3];
 							var value  = new BigDecimal(stringArray[14].replace(",", ""));
-							var status = AssetRisk.stockJP.getStatus(code);
-							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, status, code, name));
+							var risk = AssetRisk.stockJP.getRisk(code);
+							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, risk, code, name));
 						}
 					}
 					{
@@ -172,8 +172,8 @@ public class UpdateAssetRakuten {
 							var code   = fund.isinCode;
 //							var accountType = stringArray[3];
 							var value  = new BigDecimal(stringArray[14].replace(",", ""));
-							var status = AssetRisk.fundCode.getStatus(code); 
-							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, value, status, code, name));
+							var risk = AssetRisk.fundCode.getRisk(code); 
+							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, value, risk, code, name));
 						}
 					}
 					{
@@ -207,8 +207,8 @@ public class UpdateAssetRakuten {
 									throw new UnexpectedException("Unexpected string");
 								}
 							}
-							var status = AssetRisk.stockUS.getStatus(code);
-							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, status, code, name));
+							var risk = AssetRisk.stockUS.getRisk(code);
+							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, risk, code, name));
 						}
 					}
 					{
