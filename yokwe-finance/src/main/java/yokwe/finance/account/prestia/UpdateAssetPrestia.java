@@ -9,8 +9,9 @@ import java.util.ArrayList;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
-import yokwe.finance.account.AssetRisk;
 import yokwe.finance.account.Asset.Company;
+import yokwe.finance.account.AssetRisk;
+import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.prestia.BalancePage.DepositJPY;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoney;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoneyJPY;
@@ -20,7 +21,7 @@ import yokwe.finance.account.prestia.FundPage.FundInfo;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 
-public class UpdateAssetPrestia {
+public class UpdateAssetPrestia implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage = Storage.account.prestia;
@@ -28,8 +29,14 @@ public class UpdateAssetPrestia {
 	private static final File FILE_TOP     = storage.getFile("top.html");
 	private static final File FILE_BALANCE = storage.getFile("balance.html");
 	private static final File FILE_FUND    = storage.getFile("fund.html");
-
-	public static void download() {
+	
+	@Override
+	public Storage getStorage() {
+		return storage;
+	}
+	
+	@Override
+	public void download() {
 		try(var browser = new WebBrowserPrestia()) {
 			logger.info("login");
 			browser.login();
@@ -51,7 +58,8 @@ public class UpdateAssetPrestia {
 		}
 	}
 	
-	public static void update() {
+	@Override
+	public void update() {
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
@@ -147,15 +155,17 @@ public class UpdateAssetPrestia {
 		
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), StoragePrestia.Asset.getPath());
-		StoragePrestia.Asset.save(list);
+		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		save(list);
 	}
 	
+	public static final UpdateAsset instance = new UpdateAssetPrestia();
+
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		download();
-		update();
+		instance.download();
+		instance.update();
 		
 		logger.info("STOP");
 	}

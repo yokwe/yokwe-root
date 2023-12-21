@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import yokwe.finance.Storage;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
-public class FundPrestia implements Comparable<FundPrestia> {	
+public class FundPrestia implements Comparable<FundPrestia> {
+	public static final Storage.LoadSave<FundPrestia, String> FUND_PRESTIA =
+		new Storage.LoadSave.Impl<>(FundPrestia.class, o -> o.fundCode, Storage.account.prestia, "fund-prestia.csv");
+	
+	
 	public String fundCode;
 	public String fundName;
 	
@@ -48,8 +53,10 @@ public class FundPrestia implements Comparable<FundPrestia> {
 		}
 	}
 	
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
 	public static void main(String[] args) {
+		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+		
 		logger.info("START");
 		
 		String url = "https://www.smbctb.co.jp/ib_help/investments_and_reports/mutual_funds_fundscode_list.html";
@@ -72,8 +79,9 @@ public class FundPrestia implements Comparable<FundPrestia> {
 				list.add(new FundPrestia(e.fundCode, e.fundName));
 			}
 		}
-		logger.info("save  {}  {}", list.size(), StoragePrestia.FundPrestia.getPath());
-		StoragePrestia.FundPrestia.save(list);
+		
+		logger.info("save  {}  {}", list.size(), FUND_PRESTIA.getPath());
+		FUND_PRESTIA.save(list);
 		
 		logger.info("STOP");
 	}

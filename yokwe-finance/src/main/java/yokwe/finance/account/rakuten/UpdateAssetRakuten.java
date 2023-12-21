@@ -16,6 +16,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.AssetRisk;
+import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.Currency;
@@ -24,7 +25,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateAssetRakuten {
+public class UpdateAssetRakuten implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage          = Storage.account.rakuten;
@@ -37,7 +38,13 @@ public class UpdateAssetRakuten {
 	
 	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
 	
-	public static void download() {
+	@Override
+	public Storage getStorage() {
+		return storage;
+	}
+	
+	@Override
+	public void download() {
 		// empty DIR_DOWNLOAD
 		{
 			File[] files = DIR_DOWNLOAD.listFiles();
@@ -103,7 +110,8 @@ public class UpdateAssetRakuten {
 	}
 	
 	
-	public static void update() {
+	@Override
+	public void update() {
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
@@ -250,15 +258,17 @@ public class UpdateAssetRakuten {
 
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), StorageRakuten.Asset.getPath());
-		StorageRakuten.Asset.save(list);
+		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		save(list);
 	}
+	
+	public static final UpdateAsset instance = new UpdateAssetRakuten();
 	
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		download();
-		update();
+		instance.download();
+		instance.update();
 		
 		logger.info("STOP");
 	}

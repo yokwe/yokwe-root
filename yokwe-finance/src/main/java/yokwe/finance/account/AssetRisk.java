@@ -4,7 +4,6 @@ import java.util.Map;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.prestia.FundPrestia;
-import yokwe.finance.account.prestia.StoragePrestia;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.FundInfoJP;
@@ -87,7 +86,7 @@ public interface AssetRisk {
 			new Storage.LoadSave.Impl<>(Entry.class,  o -> o.code, storage, "asset-risk-fund-prestia.csv");
 		
 		private static final Map<String, Entry>       entryMap = ASSET_RISK_FUND_PRESTIA.getMap();
-		private static final Map<String, FundPrestia> fundMap  = StoragePrestia.FundPrestia.getMap();
+		private static final Map<String, FundPrestia> fundMap  = FundPrestia.FUND_PRESTIA.getMap();
 		
 		@Override
 		public Risk getRisk(String fundCode) {

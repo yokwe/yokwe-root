@@ -9,12 +9,13 @@ import java.util.ArrayList;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
+import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.smtb.BalancePage.DepositJPY;
 import yokwe.finance.account.smtb.BalancePage.TermDepositJPY;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 
-public class UpdateAssetSMTB {
+public class UpdateAssetSMTB implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage          = Storage.account.smtb;
@@ -22,7 +23,14 @@ public class UpdateAssetSMTB {
 	private static final File    FILE_TOP         = storage.getFile("top.html");
 	private static final File    FILE_BALANCE     = storage.getFile("balance.html");
 	
-	public static void download() {
+	
+	@Override
+	public Storage getStorage() {
+		return storage;
+	}
+	
+	@Override
+	public void download() {
 		try(var browser = new WebBrowserSMTB()) {
 			logger.info("login");
 			browser.login();
@@ -37,7 +45,8 @@ public class UpdateAssetSMTB {
 		}
 	}
 	
-	public static void update() {
+	@Override
+	public void update() {
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
@@ -67,15 +76,17 @@ public class UpdateAssetSMTB {
 		
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), StorageSMTB.Asset.getPath());
-		StorageSMTB.Asset.save(list);
+		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		save(list);
 	}
+	
+	public static final UpdateAsset instance = new UpdateAssetSMTB();
 	
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		download();
-		update();
+		instance.download();
+		instance.update();
 		
 		logger.info("STOP");
 	}

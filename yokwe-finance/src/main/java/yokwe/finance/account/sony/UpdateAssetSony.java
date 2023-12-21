@@ -10,15 +10,16 @@ import java.util.List;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
-import yokwe.finance.account.AssetRisk;
 import yokwe.finance.account.Asset.Company;
+import yokwe.finance.account.AssetRisk;
+import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateAssetSony {
+public class UpdateAssetSony implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage = Storage.account.sony;
@@ -29,6 +30,11 @@ public class UpdateAssetSony {
 	private static final File FILE_BALANCE_DEPOSIT_FOREIGN = storage.getFile("balance-deposit-foreign.html");
 	private static final File FILE_BALANCE_FUND            = storage.getFile("balance-fund.html");
 	
+	
+	@Override
+	public Storage getStorage() {
+		return storage;
+	}
 	
 	private static final List<FundInfoJP> fundInfoList = StorageFund.FundInfo.getList();
 	private static FundInfoJP getFundInfo(String name) {
@@ -51,7 +57,8 @@ public class UpdateAssetSony {
 	}
 	
 	
-	public static void download() {
+	@Override
+	public void download() {
 		try(var browser = new WebBrowserSony()) {
 			logger.info("login");
 			browser.login();
@@ -78,7 +85,8 @@ public class UpdateAssetSony {
 		}
 	}
 	
-	public static void update() {
+	@Override
+	public void update() {
 		var list = new ArrayList<Asset>();
 		
 		{
@@ -172,15 +180,17 @@ public class UpdateAssetSony {
 
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), StorageSony.Asset.getPath());
-		StorageSony.Asset.save(list);
+		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		save(list);
 	}
+	
+	public static final UpdateAsset instance = new UpdateAssetSony();
 	
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		download();
-		update();
+		instance.download();
+		instance.update();
 		
 		logger.info("STOP");
 	}
