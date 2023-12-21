@@ -27,6 +27,7 @@ public class Asset implements Comparable<Asset> {
 		NOMURA,
 		GMO_AOZORA,
 	}
+	
 	public enum Type {
 		DEPOSIT,
 		DEPOSIT_TIME,
@@ -36,12 +37,14 @@ public class Asset implements Comparable<Asset> {
 		FUND,
 		BOND,
 	}
+	
 	LocalDate  date;
 	Company    company;
 	Type       type;
 	Currency   currency;
 	BigDecimal fxRate;
-	BigDecimal value;    // current value of asset in currency
+	BigDecimal jpy;
+	BigDecimal usd;
 	BigDecimal valueJPY;    // current value of asset in currency
 	
 	// stock and fund
@@ -58,10 +61,22 @@ public class Asset implements Comparable<Asset> {
 		this.company  = company;
 		this.type     = type;
 		this.currency = currency;
-		this.fxRate   = (currency == Currency.JPY) ? BigDecimal.ONE : latest.rate(currency);
-		this.value    = value;
-		this.valueJPY = value.multiply(fxRate).setScale(0, RoundingMode.HALF_EVEN);
-		this.risk   = risk;
+		if (currency == Currency.JPY) {
+			this.fxRate   = BigDecimal.ONE;
+			this.jpy      = value;
+			this.usd      = BigDecimal.ZERO;
+			this.valueJPY = value;
+		} else if (currency == Currency.USD) {
+			this.fxRate   = latest.usd;
+			this.jpy      = BigDecimal.ZERO;
+			this.usd      = value;
+			this.valueJPY = value.multiply(fxRate).setScale(0, RoundingMode.HALF_EVEN);
+		} else {
+			logger.error("Unexpeted currency");
+			logger.error("  currency  {}!", currency);
+			throw new UnexpectedException("Unexpeted currency");
+		}
+		this.risk     = risk;
 		this.code     = code;
 		this.name     = name;
 	}
@@ -92,6 +107,17 @@ public class Asset implements Comparable<Asset> {
 	
 	@Override
 	public String toString() {
+		BigDecimal value;
+		if (currency == Currency.JPY) {
+			value = jpy;
+		} else if (currency == Currency.USD) {
+			value = usd;
+		} else {
+			logger.error("Unexpeted currency");
+			logger.error("  currency  {}!", currency);
+			throw new UnexpectedException("Unexpeted currency");
+		}
+		
 		switch(type) {
 		case DEPOSIT:
 		case DEPOSIT_TIME:
