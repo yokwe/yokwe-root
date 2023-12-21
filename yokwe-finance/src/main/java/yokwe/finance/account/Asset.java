@@ -38,21 +38,38 @@ public class Asset implements Comparable<Asset> {
 		BOND,
 	}
 	
-	LocalDate  date;
-	Company    company;
-	Type       type;
-	Currency   currency;
-	BigDecimal fxRate;
-	BigDecimal jpy;
-	BigDecimal usd;
-	BigDecimal valueJPY;    // current value of asset in currency
+	public final LocalDate  date;
+	public final Company    company;
+	public final Type       type;
+	public final Currency   currency;
+	public final BigDecimal fxRate;
+	public final BigDecimal jpy;
+	public final BigDecimal usd;
+	public final BigDecimal valueJPY;    // current value of asset in currency
 	
 	// stock and fund
-	Risk       risk;   // safe unsafe or unknown
+	public Risk       risk;   // safe unsafe or unknown
 	
 	// stock, fund and bond
-	String     code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
-	String     name;     // name of asset
+	public String     code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
+	public String     name;     // name of asset
+	
+	public Asset(
+		LocalDate date, Company company, Type type,
+		Currency currency, BigDecimal fxRate, BigDecimal jpy, BigDecimal usd, BigDecimal valueJPY,
+		Risk risk, String code, String name) {
+		this.date     = date;
+		this.company  = company;
+		this.type     = type;
+		this.currency = currency;
+		this.fxRate   = fxRate;
+		this.jpy      = jpy;
+		this.usd      = usd;
+		this.valueJPY = valueJPY;
+		this.risk     = risk;
+		this.code     = code;
+		this.name     = name;
+	}
 	
 	public Asset(
 		LocalDateTime dateTime, Company company, Type type, Currency currency, BigDecimal value, Risk risk,
