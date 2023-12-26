@@ -21,7 +21,7 @@ import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateAssetSBI implements UpdateAsset {
+public final class UpdateAssetSBI implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage                      = Storage.account.sbi;
@@ -30,6 +30,12 @@ public class UpdateAssetSBI implements UpdateAsset {
 	private static final File    FILE_BALANCE_FOREIGN         = storage.getFile("balance-foreign.html");
 	private static final File    FILE_BALANCE_ASSET_FOREIGN   = storage.getFile("balance-asset-foreign.html");
 	
+	private static final File[] FILES = {
+		FILE_TOP,
+		FILE_BALANCE,
+		FILE_BALANCE_FOREIGN,
+		FILE_BALANCE_ASSET_FOREIGN,
+	};
 	
 	@Override
 	public Storage getStorage() {
@@ -38,6 +44,8 @@ public class UpdateAssetSBI implements UpdateAsset {
 	
 	@Override
 	public void download() {
+		deleteFile(FILES);
+		
 		try(var browser = new WebBrowserSBI()) {
 			logger.info("login");
 			browser.login();
@@ -60,6 +68,9 @@ public class UpdateAssetSBI implements UpdateAsset {
 	
 	@Override
 	public void update() {
+		File file = getFile();
+		file.delete();
+		
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
@@ -67,12 +78,12 @@ public class UpdateAssetSBI implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE;
+				var htmlFile = FILE_BALANCE;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(htmlFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			{
 				var depositJPY = DepositJPY.getInstance(page);
@@ -84,12 +95,12 @@ public class UpdateAssetSBI implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE_FOREIGN;
+				var htmlFile = FILE_BALANCE_FOREIGN;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(htmlFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			{
 				var depositForeign = DepositForeign.getInstance(page);
@@ -104,12 +115,12 @@ public class UpdateAssetSBI implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE_ASSET_FOREIGN;
+				var htmlFile = FILE_BALANCE_ASSET_FOREIGN;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(htmlFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			{
 				var usStockMap = StorageStock.StockInfoUSTrading.getMap();
@@ -151,11 +162,14 @@ public class UpdateAssetSBI implements UpdateAsset {
 		
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		logger.info("save  {}  {}", list.size(), file.getPath());
 		save(list);
 	}
 	
-	public static final UpdateAsset instance = new UpdateAssetSBI();
+	private static final UpdateAsset instance = new UpdateAssetSBI();
+	public static UpdateAsset getInstance() {
+		return instance;
+	}
 	
 	public static void main(String[] args) {
 		logger.info("START");

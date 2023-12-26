@@ -25,7 +25,7 @@ import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateAssetRakuten implements UpdateAsset {
+public final class UpdateAssetRakuten implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage          = Storage.account.rakuten;
@@ -36,6 +36,12 @@ public class UpdateAssetRakuten implements UpdateAsset {
 	private static final File    DIR_DOWNLOAD     = storage.getFile("download");
 	private static final File    FILE_BALANCE_ALL = storage.getFile("balance-all.csv");
 	
+	private static final File[] FILES = {
+		FILE_TOP,
+		FILE_BALANCE,
+		FILE_BALANCE_ALL,
+	};
+
 	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
 	
 	@Override
@@ -45,12 +51,9 @@ public class UpdateAssetRakuten implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		// empty DIR_DOWNLOAD
-		{
-			File[] files = DIR_DOWNLOAD.listFiles();
-			for(var e: files) e.delete();
-		}
-
+		deleteFile(FILES);
+		deleteFile(DIR_DOWNLOAD.listFiles());
+		
 		try(var browser = new WebBrowserRakuten(DIR_DOWNLOAD)) {
 			logger.info("login");
 			browser.login();
@@ -112,6 +115,9 @@ public class UpdateAssetRakuten implements UpdateAsset {
 	
 	@Override
 	public void update() {
+		File file = getFile();
+		file.delete();
+		
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
@@ -119,12 +125,12 @@ public class UpdateAssetRakuten implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE_ALL;
+				var csvFile = FILE_BALANCE_ALL;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(csvFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(csvFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), csvFile.getPath());
 			}
 			
 			var usStockMap = StorageStock.StockInfoUSTrading.getMap();
@@ -258,11 +264,14 @@ public class UpdateAssetRakuten implements UpdateAsset {
 
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		logger.info("save  {}  {}", list.size(), file.getPath());
 		save(list);
 	}
 	
-	public static final UpdateAsset instance = new UpdateAssetRakuten();
+	private static final UpdateAsset instance = new UpdateAssetRakuten();
+	public static UpdateAsset getInstance() {
+		return instance;
+	}
 	
 	public static void main(String[] args) {
 		logger.info("START");

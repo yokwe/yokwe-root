@@ -98,15 +98,10 @@ update-fx-rate:
 
 
 #
-# UPDATE AXCOUNT
+# UPDATE ASSET
 #
-update-account: update-fx-rate
-	ant account-nikko-update-asset-nikko
-	ant account-prestia-update-asset-prestia
-	ant account-rakuten-update-asset-rakuten
-	ant account-sbi-update-asset-sbi
-	ant account-smtb-update-asset-smtb
-	ant account-sony-update-asset-sony
+update-asset-all: update-fx-rate
+	ant account-update-asset-all
 
 
 #

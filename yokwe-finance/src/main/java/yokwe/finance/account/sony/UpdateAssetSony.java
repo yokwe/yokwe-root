@@ -19,7 +19,7 @@ import yokwe.finance.type.FundInfoJP;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateAssetSony implements UpdateAsset {
+public final class UpdateAssetSony implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage = Storage.account.sony;
@@ -29,6 +29,14 @@ public class UpdateAssetSony implements UpdateAsset {
 	private static final File FILE_BALANCE_DEPOSIT         = storage.getFile("balance-deposit.html");
 	private static final File FILE_BALANCE_DEPOSIT_FOREIGN = storage.getFile("balance-deposit-foreign.html");
 	private static final File FILE_BALANCE_FUND            = storage.getFile("balance-fund.html");
+	
+	private static final File[] FILES = {
+		FILE_TOP,
+		FILE_BALANCE,
+		FILE_BALANCE_DEPOSIT,
+		FILE_BALANCE_DEPOSIT_FOREIGN,
+		FILE_BALANCE_FUND,
+	};
 	
 	
 	@Override
@@ -59,6 +67,8 @@ public class UpdateAssetSony implements UpdateAsset {
 	
 	@Override
 	public void download() {
+		deleteFile(FILES);
+		
 		try(var browser = new WebBrowserSony()) {
 			logger.info("login");
 			browser.login();
@@ -87,18 +97,21 @@ public class UpdateAssetSony implements UpdateAsset {
 	
 	@Override
 	public void update() {
+		File file = getFile();
+		file.delete();
+		
 		var list = new ArrayList<Asset>();
 		
 		{
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE_DEPOSIT;
+				var htmlFile = FILE_BALANCE_DEPOSIT;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(htmlFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			
 			{
@@ -113,12 +126,12 @@ public class UpdateAssetSony implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE_FUND;
+				var htmlFile = FILE_BALANCE_FUND;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(htmlFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			{
 				var depositForeignList = BalancePage.DepositForeign.getInstance(page);
@@ -135,12 +148,12 @@ public class UpdateAssetSony implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE_DEPOSIT_FOREIGN;
+				var htmlFile = FILE_BALANCE_DEPOSIT_FOREIGN;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(htmlFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			{
 				var depositForeignList = BalancePage.DepositForeign.getInstance(page);
@@ -157,12 +170,12 @@ public class UpdateAssetSony implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE_FUND;
+				var htmlFile = FILE_BALANCE_FUND;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(htmlFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			{
 				var fundJPYList = BalancePage.FundJPY.getInstance(page);
@@ -180,11 +193,14 @@ public class UpdateAssetSony implements UpdateAsset {
 
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		logger.info("save  {}  {}", list.size(), file.getPath());
 		save(list);
 	}
 	
-	public static final UpdateAsset instance = new UpdateAssetSony();
+	private static final UpdateAsset instance = new UpdateAssetSony();
+	public static UpdateAsset getInstance() {
+		return instance;
+	}
 	
 	public static void main(String[] args) {
 		logger.info("START");

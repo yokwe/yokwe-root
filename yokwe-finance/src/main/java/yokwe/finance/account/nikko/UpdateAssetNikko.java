@@ -20,7 +20,7 @@ import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class UpdateAssetNikko implements UpdateAsset {
+public final class UpdateAssetNikko implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage = Storage.account.nikko;
@@ -29,6 +29,13 @@ public class UpdateAssetNikko implements UpdateAsset {
 	private static final File FILE_BALANCE      = storage.getFile("balance.html");
 	private static final File FILE_BALANCE_BANK = storage.getFile("balance-bank.html");
 	
+	private static final File[] FILES = {
+		FILE_TOP,
+		FILE_BALANCE,
+		FILE_BALANCE_BANK,
+	};
+	
+	
 	@Override
 	public Storage getStorage() {
 		return storage;
@@ -36,6 +43,8 @@ public class UpdateAssetNikko implements UpdateAsset {
 	
 	@Override
 	public void download() {
+		deleteFile(FILES);
+		
 		try(var browser = new WebBrowserNikko()) {
 			logger.info("login");
 			browser.login();
@@ -56,9 +65,11 @@ public class UpdateAssetNikko implements UpdateAsset {
 		
 	@Override
 	public void update() {
-		var list = new ArrayList<Asset>();
+		File file = getFile();
+		file.delete();
 		
-		// build assetList
+		var list = new ArrayList<Asset>();
+		// build list
 		{
 			var fundCodeMap = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
 			
@@ -171,11 +182,14 @@ public class UpdateAssetNikko implements UpdateAsset {
 		
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		logger.info("save  {}  {}", list.size(), file.getPath());
 		save(list);
 	}
 	
-	public static final UpdateAsset instance = new UpdateAssetNikko();
+	private static final UpdateAsset instance = new UpdateAssetNikko();
+	public static UpdateAsset getInstance() {
+		return instance;
+	}
 	
 	public static void main(String[] args) {
 		logger.info("START");

@@ -15,7 +15,7 @@ import yokwe.finance.account.smtb.BalancePage.TermDepositJPY;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 
-public class UpdateAssetSMTB implements UpdateAsset {
+public final class UpdateAssetSMTB implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage          = Storage.account.smtb;
@@ -23,6 +23,10 @@ public class UpdateAssetSMTB implements UpdateAsset {
 	private static final File    FILE_TOP         = storage.getFile("top.html");
 	private static final File    FILE_BALANCE     = storage.getFile("balance.html");
 	
+	private static final File[] FILES = {
+		FILE_TOP,
+		FILE_BALANCE,
+	};
 	
 	@Override
 	public Storage getStorage() {
@@ -31,6 +35,8 @@ public class UpdateAssetSMTB implements UpdateAsset {
 	
 	@Override
 	public void download() {
+		deleteFile(FILES);
+		
 		try(var browser = new WebBrowserSMTB()) {
 			logger.info("login");
 			browser.login();
@@ -47,6 +53,9 @@ public class UpdateAssetSMTB implements UpdateAsset {
 	
 	@Override
 	public void update() {
+		File file = getFile();
+		file.delete();
+		
 		var list = new ArrayList<Asset>();
 		
 		// build assetList
@@ -54,12 +63,12 @@ public class UpdateAssetSMTB implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var file = FILE_BALANCE;
+				var htmlFile = FILE_BALANCE;
 				
-				var instant = FileUtil.getLastModified(file);
+				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
-				page     = FileUtil.read().file(file);
-				logger.info("  {}  {}  {}", dateTime, page.length(), file.getPath());
+				page     = FileUtil.read().file(htmlFile);
+				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			
 			{
@@ -76,11 +85,14 @@ public class UpdateAssetSMTB implements UpdateAsset {
 		
 		for(var e: list) logger.info("list {}", e);
 		
-		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		logger.info("save  {}  {}", list.size(), file.getPath());
 		save(list);
 	}
 	
-	public static final UpdateAsset instance = new UpdateAssetSMTB();
+	private static final UpdateAsset instance = new UpdateAssetSMTB();
+	public static UpdateAsset getInstance() {
+		return instance;
+	}
 	
 	public static void main(String[] args) {
 		logger.info("START");
