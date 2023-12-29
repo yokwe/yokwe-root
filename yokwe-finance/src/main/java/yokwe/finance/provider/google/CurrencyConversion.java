@@ -15,7 +15,7 @@ import yokwe.finance.type.Currency;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.http.HttpUtil;
 
-public class CurrencyPairRate {
+public class CurrencyConversion implements Comparable<CurrencyConversion> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final String URL_QUOTE = "https://www.google.com/finance/quote/%s-%s";
@@ -51,7 +51,7 @@ public class CurrencyPairRate {
 		}
 	}
 	
-	public static CurrencyPairRate getInstance(Currency base, Currency quote) {
+	public static CurrencyConversion getInstance(Currency base, Currency quote) {
 		var now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 		
 		var url = String.format(URL_QUOTE, base.name(), quote.name());
@@ -76,10 +76,10 @@ public class CurrencyPairRate {
 			dateTimeLocal = dateTime.withZoneSameInstant(ZONE_LOCAL).toLocalDateTime();
 		}
 		
-		return new CurrencyPairRate(dateTimeLocal, base, quote, fxRateInfo.value);
+		return new CurrencyConversion(dateTimeLocal, base, quote, fxRateInfo.value);
 	}
 	
-	public static CurrencyPairRate getInstance(Currency base) {
+	public static CurrencyConversion getInstance(Currency base) {
 		return getInstance(base, Currency.JPY);
 	}
 
@@ -88,7 +88,7 @@ public class CurrencyPairRate {
 	public final Currency      quote;
 	public final BigDecimal    rate;
 	
-	public CurrencyPairRate(LocalDateTime dateTime, Currency base, Currency quote, BigDecimal rate) {
+	public CurrencyConversion(LocalDateTime dateTime, Currency base, Currency quote, BigDecimal rate) {
 		this.dateTime = dateTime;
 		this.base     = base;
 		this.quote    = quote;
@@ -100,13 +100,23 @@ public class CurrencyPairRate {
 		return String.format("{%s  %s/%s  %s}", dateTime, base, quote, rate);
 	}
 	
+	@Override
+	public int compareTo(CurrencyConversion that) {
+		int ret = this.dateTime.compareTo(that.dateTime);
+		if (ret == 0) ret = this.base.compareTo(that.base);
+		if (ret == 0) ret = this.quote.compareTo(that.quote);
+		return 0;
+	}
+
 	
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		var usdjpy = getInstance(Currency.USD);
-		
-		logger.info("usdjpy  {}", usdjpy);
+		logger.info("currency conversion  {}", getInstance(Currency.USD));
+		logger.info("currency conversion  {}", getInstance(Currency.EUR));
+		logger.info("currency conversion  {}", getInstance(Currency.GBP));
+		logger.info("currency conversion  {}", getInstance(Currency.AUD));
+		logger.info("currency conversion  {}", getInstance(Currency.NZD));
 		
 		logger.info("STOP");
 	}
