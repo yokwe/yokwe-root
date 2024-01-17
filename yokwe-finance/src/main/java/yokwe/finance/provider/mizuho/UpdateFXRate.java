@@ -26,6 +26,8 @@ public class UpdateFXRate {
 	
 	private static final File    FILE_CSV     = StorageMizuho.storage.getFile("quote.csv");
 	
+	private static final LocalDate EPOCH_DATE = LocalDate.of(2024, 1, 1);
+	
 	public static class Quote {
 		public String DATE;
 		public String USD;
@@ -69,6 +71,8 @@ public class UpdateFXRate {
 	
 	public static void main(String[] args) {
 		logger.info("START");
+		
+		logger.info("EPOCH DATE  {}", EPOCH_DATE);
 		
 		String string = HttpUtil.getInstance().withCharset(ENCODING_CSV).download(URL_CSV).result;
 		logger.info("save  {}  {}", string.length(), FILE_CSV.getPath());
@@ -156,6 +160,9 @@ public class UpdateFXRate {
 			
 			result.add(new FXRate(date, usd, eur, gbp, aud, nzd));
 		}
+		
+		// remove entry before EPOC_DATE
+		result.removeIf(o -> o.date.isBefore(EPOCH_DATE));
 		
 		logger.info("date  {} - {}", result.get(0).date, result.get(result.size() - 1).date);
 		logger.info("save  {}  {}", result.size(), StorageFX.FXRate.getPath());
