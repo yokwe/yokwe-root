@@ -1,19 +1,14 @@
 package yokwe.finance.account;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import yokwe.finance.fx.StorageFX;
 import yokwe.finance.type.Currency;
-import yokwe.finance.type.FXRate;
 import yokwe.util.UnexpectedException;
 
 public class Asset implements Comparable<Asset> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	private static final FXRate latest = StorageFX.getLatest();
 	
 	public enum Company {
 		SONY,
@@ -42,10 +37,7 @@ public class Asset implements Comparable<Asset> {
 	public final Company    company;
 	public final Type       type;
 	public final Currency   currency;
-	public final BigDecimal fxRate;
-	public final BigDecimal jpy;
-	public final BigDecimal usd;
-	public final BigDecimal valueJPY;    // current value of asset in currency
+	public final BigDecimal value;    // value in currency
 	
 	// stock and fund
 	public Risk       risk;   // safe unsafe or unknown
@@ -56,16 +48,13 @@ public class Asset implements Comparable<Asset> {
 	
 	public Asset(
 		LocalDate date, Company company, Type type,
-		Currency currency, BigDecimal fxRate, BigDecimal jpy, BigDecimal usd, BigDecimal valueJPY,
+		Currency currency, BigDecimal value,
 		Risk risk, String code, String name) {
 		this.date     = date;
 		this.company  = company;
 		this.type     = type;
 		this.currency = currency;
-		this.fxRate   = fxRate;
-		this.jpy      = jpy;
-		this.usd      = usd;
-		this.valueJPY = valueJPY;
+		this.value    = value;
 		this.risk     = risk;
 		this.code     = code;
 		this.name     = name;
@@ -78,21 +67,7 @@ public class Asset implements Comparable<Asset> {
 		this.company  = company;
 		this.type     = type;
 		this.currency = currency;
-		if (currency == Currency.JPY) {
-			this.fxRate   = BigDecimal.ONE;
-			this.jpy      = value;
-			this.usd      = BigDecimal.ZERO;
-			this.valueJPY = value;
-		} else if (currency == Currency.USD) {
-			this.fxRate   = latest.usd;
-			this.jpy      = BigDecimal.ZERO;
-			this.usd      = value;
-			this.valueJPY = value.multiply(fxRate).setScale(0, RoundingMode.HALF_EVEN);
-		} else {
-			logger.error("Unexpeted currency");
-			logger.error("  currency  {}!", currency);
-			throw new UnexpectedException("Unexpeted currency");
-		}
+		this.value    = value;
 		this.risk     = risk;
 		this.code     = code;
 		this.name     = name;
@@ -124,17 +99,6 @@ public class Asset implements Comparable<Asset> {
 	
 	@Override
 	public String toString() {
-		BigDecimal value;
-		if (currency == Currency.JPY) {
-			value = jpy;
-		} else if (currency == Currency.USD) {
-			value = usd;
-		} else {
-			logger.error("Unexpeted currency");
-			logger.error("  currency  {}!", currency);
-			throw new UnexpectedException("Unexpeted currency");
-		}
-		
 		switch(type) {
 		case DEPOSIT:
 		case DEPOSIT_TIME:
