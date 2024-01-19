@@ -45,10 +45,10 @@ public final class UpdateAssetAll {
 		return list;
 	}
 	public static List<Asset> getListLast() {
-		var list = ListUtil.getList(Asset.class, getFile());
+		var list = getList();
 		if (!list.isEmpty()) {
-			var lastDate = list.get(list.size() - 1).date;
-			list.removeIf(o -> !o.date.equals(lastDate));
+			var last = list.get(list.size() - 1);
+			list.removeIf(o -> !o.date.equals(last.date));
 		}
 		
 		return list;
@@ -76,31 +76,35 @@ public final class UpdateAssetAll {
 		UpdateAssetSony.getInstance(),
 	};
 	
-	public static List<Asset> getLast() {
+	public static void download() {
+		for(var e: array) e.download();
+	}
+	public static void update() {
+		for(var e: array) e.update();
+	}
+	
+	public static List<Asset> getUpdate() {
 		var list = new ArrayList<Asset>();
 		
-		for(var e: array) {
-			list.addAll(e.getList());
-		}
-		
+		for(var e: array) list.addAll(e.getList());		
 		Collections.sort(list);
 		
 		// sanity check
 		if (list.isEmpty()) {
 			throw new UnexpectedException("Unexpected");
 		}
-		var firstDate = list.get(0).date;
-		var lastDate  = list.get(list.size() - 1).date;
-		if (!firstDate.equals(lastDate)) {
+		var first = list.get(0);
+		var last  = list.get(list.size() - 1);
+		if (!first.date.equals(last.date)) {
 			logger.error("Unexpected date");
-			logger.error("firstDate  {}", firstDate);
-			logger.error("lastDate   {}", lastDate);
+			logger.error("first  {}", first);
+			logger.error("last   {}", last);
 			throw new UnexpectedException("Unexpected date");
 		}
-		if (lastDate.getYear() != THIS_YEAR) {
+		if (last.date.getYear() != THIS_YEAR) {
 			logger.error("Unexpected year");
 			logger.error("THIS_YEAR  {}", THIS_YEAR);
-			logger.error("lastDate   {}", lastDate);
+			logger.error("last       {}", last);
 			throw new UnexpectedException("Unexpected year");
 		}
 
@@ -110,23 +114,23 @@ public final class UpdateAssetAll {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		for(var e: array) e.download();
-		for(var e: array) e.update();
+		download();
+		update();
 		
+		List<Asset> list = getList();
+		// update list
 		{
-			List<Asset> lastList = getLast();
-			var lastDate = lastList.get(0).date;
+			List<Asset> updateList = getUpdate();
+			var updateDate = updateList.get(0).date;
 			
-			List<Asset> list = getList();
 			// remove entry if date is same as lastDate
-			list.removeIf(o -> o.date.equals(lastDate));
-			
-			list.addAll(lastList);
-			
-			var file = getFile();
-			logger.info("save  {}  {}", list.size(), file.getPath());
-			ListUtil.save(Asset.class, file, list);
+			list.removeIf(o -> o.date.equals(updateDate));
+			// add update
+			list.addAll(updateList);
 		}
+		
+		logger.info("save  {}  {}", list.size(), getFile().getPath());
+		save(list);
 		
 		logger.info("STOP");
 	}
