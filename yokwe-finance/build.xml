@@ -422,7 +422,15 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	
+	<target name="report-update-asset-stats">
+		<java module="yokwe.finance/yokwe.finance.report.UpdateAssetStats" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+
 	
 	<!-- Stock -->
 	<target name="stock-update-stock-div-jp">

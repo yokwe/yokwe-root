@@ -207,3 +207,7 @@ report-stock-stats-jp: kill-soffice
 
 report-fund-stats: kill-soffice
 	ant report-update-fund-stats
+
+report-asset-stats: kill-soffice
+	ant report-update-asset-stats
+	
