@@ -14,13 +14,10 @@ public class Asset implements Comparable<Asset> {
 		SONY,
 		SMBC,
 		PRESTIA,
-		NIKKO,
-		RAKUTEN,
 		SMTB,
-		SUMISHIN,
+		RAKUTEN,
+		NIKKO,
 		SBI,
-		NOMURA,
-		GMO_AOZORA,
 	}
 	
 	public enum Type {
