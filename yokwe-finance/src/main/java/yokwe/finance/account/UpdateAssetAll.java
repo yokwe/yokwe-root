@@ -30,9 +30,8 @@ public final class UpdateAssetAll {
 	private static File getFile() {
 		return getFile(THIS_YEAR);
 	}
-	
-	public static List<Asset> getList() {
-		var list = ListUtil.getList(Asset.class, getFile());
+	public static List<Asset> getList(int year) {
+		var list = ListUtil.getList(Asset.class, getFile(year));
 		// sanity check
 		for(var e: list) {
 			if (e.date.getYear() != THIS_YEAR) {
@@ -43,6 +42,9 @@ public final class UpdateAssetAll {
 			}
 		}
 		return list;
+	}
+	public static List<Asset> getList() {
+		return getList(THIS_YEAR);
 	}
 	public static List<Asset> getListLast() {
 		var list = getList();
