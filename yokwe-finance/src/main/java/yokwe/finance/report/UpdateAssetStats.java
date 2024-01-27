@@ -12,11 +12,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import yokwe.finance.account.Asset;
+import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAssetAll;
 import yokwe.finance.fx.StorageFX;
-import yokwe.finance.report.AssetStats.SummaryCategory;
-import yokwe.finance.report.AssetStats.SummaryCompany;
-import yokwe.finance.report.AssetStats.SummaryProduct;
+import yokwe.finance.report.AssetStats.GeneralReport;
+import yokwe.finance.report.AssetStats.CompanyReport;
+import yokwe.finance.report.AssetStats.ProductReport;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FXRate;
 import yokwe.util.StringUtil;
@@ -30,66 +31,118 @@ public class UpdateAssetStats {
 	
 	private static final String URL_TEMPLATE  = StringUtil.toURLString("data/form/ASSET_STATS.ods");
 	
-	private static List<SummaryCompany> getSummaryCompanyList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
-		var list = new ArrayList<SummaryCompany>();
+	private static final int PERIOD_YEAR = 1;
+	
+	private static List<CompanyReport> getCompanyReportList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
+		var list = new ArrayList<CompanyReport>();
 		
 		for(var e: fxRateMap.entrySet()) {
-			var date   = e.getKey();
-			var fxRate = e.getValue();
-			
+			var date      = e.getKey();			
 			var assetList = assetMap.get(date);
 			if (assetList == null) continue;
 			
-			double total   = 0;
-			double sony    = 0;
-			double smbc    = 0;
-			double prestia = 0;
-			double smtb    = 0;
-			double rakuten = 0;
-			double nikko   = 0;
-			double sbi     = 0;
+			double totalJPY   = 0;
+			double sonyJPY    = 0;
+			double smbcJPY    = 0;
+			double prestiaJPY = 0;
+			double smtbJPY    = 0;
+			double rakutenJPY = 0;
+			double nikkoJPY   = 0;
+			double sbiJPY     = 0;
+			
+			double totalUSD   = 0;
+			double sonyUSD    = 0;
+			double smbcUSD    = 0;
+			double prestiaUSD = 0;
+			double smtbUSD    = 0;
+			double rakutenUSD = 0;
+			double nikkoUSD   = 0;
+			double sbiUSD     = 0;
 			
 			for(var asset: assetList) {
 				var value    = asset.value.doubleValue();
 				var currency = asset.currency;
-				var valueJPY = value * fxRate.rate(currency).doubleValue();
 				
 				var company  = asset.company;
 				
-				total += valueJPY;
-				
-				switch(company) {
-				case SONY:
-					sony += valueJPY;
+				switch(currency) {
+				case JPY:
+				{
+					totalJPY += value;
+					
+					switch(company) {
+					case SONY:
+						sonyJPY += value;
+						break;
+					case SMBC:
+						smbcJPY += value;
+						break;
+					case PRESTIA:
+						prestiaJPY += value;
+						break;
+					case SMTB:
+						smtbJPY += value;
+						break;
+					case RAKUTEN:
+						rakutenJPY += value;
+						break;
+					case NIKKO:
+						nikkoJPY += value;
+						break;
+					case SBI:
+						sbiJPY += value;
+						break;
+					default:
+						logger.error("Unexpected company");
+						logger.error("  asset  {}", asset);
+						throw new UnexpectedException("Unexpected company");
+					}
+				}
 					break;
-				case SMBC:
-					smbc += valueJPY;
-					break;
-				case PRESTIA:
-					prestia += valueJPY;
-					break;
-				case SMTB:
-					smtb += valueJPY;
-					break;
-				case RAKUTEN:
-					rakuten += valueJPY;
-					break;
-				case NIKKO:
-					nikko += valueJPY;
-					break;
-				case SBI:
-					sbi += valueJPY;
+				case USD:
+				{
+					totalUSD += value;
+					
+					switch(company) {
+					case SONY:
+						sonyUSD += value;
+						break;
+					case SMBC:
+						smbcUSD += value;
+						break;
+					case PRESTIA:
+						prestiaUSD += value;
+						break;
+					case SMTB:
+						smtbUSD += value;
+						break;
+					case RAKUTEN:
+						rakutenUSD += value;
+						break;
+					case NIKKO:
+						nikkoUSD += value;
+						break;
+					case SBI:
+						sbiUSD += value;
+						break;
+					default:
+						logger.error("Unexpected company");
+						logger.error("  asset  {}", asset);
+						throw new UnexpectedException("Unexpected company");
+					}
+				}
 					break;
 				default:
-					logger.error("Unexpected company");
+					logger.error("Unexpected currency");
 					logger.error("  asset  {}", asset);
-					throw new UnexpectedException("Unexpected company");
+					throw new UnexpectedException("Unexpected currency");
 				}
 			}
 			
-			var company = new SummaryCompany(
-				date, total,
-				sony, smbc, prestia, smtb, rakuten, nikko, sbi
+			var company = new CompanyReport(
+				date,
+				totalJPY, sonyJPY, smbcJPY, prestiaJPY, smtbJPY, rakutenJPY, nikkoJPY, sbiJPY,
+				totalUSD, sonyUSD, smbcUSD, prestiaUSD, smtbUSD, rakutenUSD, nikkoUSD, sbiUSD
 			);
 			
 			list.add(company);
@@ -98,17 +151,13 @@ public class UpdateAssetStats {
 		Collections.sort(list);
 		return list;
 	}
-	private static List<SummaryProduct> getSummaryProductList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
-		var list = new ArrayList<SummaryProduct>();
+	private static List<ProductReport> getProductReportList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
+		var list = new ArrayList<ProductReport>();
 		
 		for(var e: fxRateMap.entrySet()) {
-			var date   = e.getKey();
-			var fxRate = e.getValue();
-			
+			var date      = e.getKey();
 			var assetList = assetMap.get(date);
 			if (assetList == null) continue;
-			
-			double total   = 0;
 			
 			double totalJPY    = 0;
 			double depositJPY  = 0;
@@ -117,8 +166,6 @@ public class UpdateAssetStats {
 			double stockJPY    = 0;
 			
 			double totalUSD    = 0;
-			double rateUSD     = fxRate.rate(Currency.USD).doubleValue();
-			double totalUSDJPY = 0;
 			double depositUSD  = 0;
 			double timeUSD     = 0;
 			double mmfUSD      = 0;
@@ -129,11 +176,8 @@ public class UpdateAssetStats {
 			for(var asset: assetList) {
 				var value    = asset.value.doubleValue();
 				var currency = asset.currency;
-				var valueJPY = value * fxRate.rate(currency).doubleValue();
 				
 				var product  = asset.type;
-				
-				total += valueJPY;
 				
 				switch(currency) {
 				case JPY:
@@ -162,8 +206,7 @@ public class UpdateAssetStats {
 					break;
 				case USD:
 				{
-					totalUSD    += value;
-					totalUSDJPY += valueJPY;
+					totalUSD += value;
 					switch(product) {
 					case DEPOSIT:
 					case MRF:
@@ -198,10 +241,10 @@ public class UpdateAssetStats {
 				}
 			}
 			
-			var product = new SummaryProduct(
-				date, total,
+			var product = new ProductReport(
+				date,
 				totalJPY, depositJPY, timeJPY, fundJPY, stockJPY,
-				totalUSD, rateUSD, totalUSDJPY, depositUSD, timeUSD, mmfUSD, fundUSD, stockUSD, bondUSD
+				totalUSD, depositUSD, timeUSD, mmfUSD, fundUSD, stockUSD, bondUSD
 			);
 			list.add(product);
 		}
@@ -209,8 +252,8 @@ public class UpdateAssetStats {
 		Collections.sort(list);
 		return list;
 	}
-	private static List<SummaryCategory> getSummayCategoryList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
-		var list = new ArrayList<SummaryCategory>();
+	private static List<GeneralReport> getGeneralReportList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
+		var list = new ArrayList<GeneralReport>();
 		
 		for(var e: fxRateMap.entrySet()) {
 			var date   = e.getKey();
@@ -263,7 +306,7 @@ public class UpdateAssetStats {
 				}
 			}
 			
-			var product = new SummaryCategory(
+			var product = new GeneralReport(
 				date, total,
 				jpy, usd, usdRate, usdJPY, safe, unsafe
 			);
@@ -273,11 +316,27 @@ public class UpdateAssetStats {
 		Collections.sort(list);
 		return list;
 	}
-
+	
+	private static Map<LocalDate, List<Asset>> filter(Map<LocalDate, List<Asset>> assetMap, Company company) {
+		var result = new TreeMap<LocalDate, List<Asset>>();
+		
+		for(var e: assetMap.entrySet()) {
+			var key   = e.getKey();
+			var value = e.getValue();
+			
+			var list = new ArrayList<Asset>(value);
+			list.removeIf(o -> o.company != company);
+			
+			result.put(key, list);
+		}
+		
+		return result;
+	}
+	
 	private static void update() {
 		var today = LocalDate.now();
 
-		Map<LocalDate, FXRate> fxRateMap = StorageFX.FXRate.getList().stream().filter(o -> o.date.isAfter(today.minusYears(1))).collect(Collectors.toMap(o -> o.date, Function.identity()));
+		Map<LocalDate, FXRate> fxRateMap = StorageFX.FXRate.getList().stream().filter(o -> o.date.isAfter(today.minusYears(PERIOD_YEAR))).collect(Collectors.toMap(o -> o.date, Function.identity()));
 		Map<LocalDate, List<Asset>> assetMap = new TreeMap<LocalDate, List<Asset>>();
 		{
 			int year = today.getYear();
@@ -303,9 +362,9 @@ public class UpdateAssetStats {
 		}
 		
 		{
-			var companyList  = getSummaryCompanyList(fxRateMap, assetMap);
-			var productList  = getSummaryProductList(fxRateMap, assetMap);
-			var categoryList = getSummayCategoryList(fxRateMap, assetMap);
+			var companyList  = getCompanyReportList(fxRateMap, assetMap);
+			var productList  = getProductReportList(fxRateMap, assetMap);
+			var generalList = getGeneralReportList(fxRateMap, assetMap);
 			
 			String urlReport;
 			{
@@ -325,26 +384,63 @@ public class UpdateAssetStats {
 				SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
 				SpreadSheet docSave = new SpreadSheet();
 				
+				// COMPANY
 				{
-					String sheetName = Sheet.getSheetName(SummaryCompany.class);
-					logger.info("sheet     {}", sheetName);
-					docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
-					logger.info("size      {}", companyList.size());
-					Sheet.fillSheet(docSave, companyList);
+					var sheetNameOld = Sheet.getSheetName(CompanyReport.class);
+					var sheetNameNew = "会社";
+					var list         = companyList;
+
+					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, list);
+					docSave.renameSheet(sheetNameOld, sheetNameNew);
 				}
+				// GENERAL - whole
 				{
-					String sheetName = Sheet.getSheetName(SummaryProduct.class);
-					logger.info("sheet     {}", sheetName);
-					docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
-					logger.info("size      {}", productList.size());
-					Sheet.fillSheet(docSave, productList);
+					var sheetNameOld = Sheet.getSheetName(GeneralReport.class);
+					var sheetNameNew = "概要";
+					var list         = generalList;
+
+					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, list);
+					docSave.renameSheet(sheetNameOld, sheetNameNew);
 				}
+				// PRODUCT - whole
 				{
-					String sheetName = Sheet.getSheetName(SummaryCategory.class);
-					logger.info("sheet     {}", sheetName);
-					docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
-					logger.info("size      {}", categoryList.size());
-					Sheet.fillSheet(docSave, categoryList);
+					var sheetNameOld = Sheet.getSheetName(ProductReport.class);
+					var sheetNameNew = "商品";
+					var list         = productList;
+
+					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, list);
+					docSave.renameSheet(sheetNameOld, sheetNameNew);
+				}
+				// GENERAL - company
+				{
+					for(var company: Company.values()) {
+						{
+							var sheetNameOld = Sheet.getSheetName(GeneralReport.class);
+							var sheetNameNew = company + "-概要";
+							var list         = getGeneralReportList(fxRateMap, filter(assetMap, company));
+							
+							logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+							docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+							Sheet.fillSheet(docSave, list);
+							docSave.renameSheet(sheetNameOld, sheetNameNew);
+						}
+						{
+							var sheetNameOld = Sheet.getSheetName(ProductReport.class);
+							var sheetNameNew = company + "-商品";
+							var list         = getProductReportList(fxRateMap, filter(assetMap, company));
+							
+							logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+							docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+							Sheet.fillSheet(docSave, list);
+							docSave.renameSheet(sheetNameOld, sheetNameNew);
+						}
+					}
 				}
 				
 				// remove first sheet

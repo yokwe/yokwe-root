@@ -7,44 +7,74 @@ import yokwe.util.libreoffice.Sheet;
 
 public class AssetStats {
 	
-	@Sheet.SheetName("サマリー会社")
+	@Sheet.SheetName("会社レポート")
 	@Sheet.HeaderRow(0)
 	@Sheet.DataRow(1)
-	public static class SummaryCompany extends Sheet implements Comparable<SummaryCompany> {
+	public static class CompanyReport extends Sheet implements Comparable<CompanyReport> {
 		@Sheet.ColumnName("日付")      public String date    = "";
-		@Sheet.ColumnName("合計")      public double total   = 0;
-		@Sheet.ColumnName("ソニー")    public double sony    = 0;
-		@Sheet.ColumnName("三井住友")  public double smbc    = 0;
-		@Sheet.ColumnName("PRESTIA")   public double prestia = 0;
-		@Sheet.ColumnName("SMTB")      public double smtb    = 0;
-		@Sheet.ColumnName("楽天証券")  public double rakuten = 0;
-		@Sheet.ColumnName("日興証券")  public double nikko   = 0;
-		@Sheet.ColumnName("SBI証券")   public double sbi     = 0;
 		
-		public SummaryCompany(
+		@Sheet.ColumnName("円資産")        public double totalJPY   = 0;
+		@Sheet.ColumnName("ソニー円")      public double sonyJPY    = 0;
+		@Sheet.ColumnName("三井住友円")    public double smbcJPY    = 0;
+		@Sheet.ColumnName("PRESTIA円")     public double prestiaJPY = 0;
+		@Sheet.ColumnName("SMTB円")        public double smtbJPY    = 0;
+		@Sheet.ColumnName("楽天証券円")    public double rakutenJPY = 0;
+		@Sheet.ColumnName("日興証券円")    public double nikkoJPY   = 0;
+		@Sheet.ColumnName("SBI証券円")     public double sbiJPY     = 0;
+		
+		@Sheet.ColumnName("ドル資産")      public double totalUSD   = 0;
+		@Sheet.ColumnName("ソニードル")    public double sonyUSD    = 0;
+		@Sheet.ColumnName("三井住友ドル")  public double smbcUSD    = 0;
+		@Sheet.ColumnName("PRESTIAドル")   public double prestiaUSD = 0;
+		@Sheet.ColumnName("SMTBドル")      public double smtbUSD    = 0;
+		@Sheet.ColumnName("楽天証券ドル")  public double rakutenUSD = 0;
+		@Sheet.ColumnName("日興証券ドル")  public double nikkoUSD   = 0;
+		@Sheet.ColumnName("SBI証券ドル")   public double sbiUSD     = 0;
+		
+		public CompanyReport(
 			LocalDate date,
-			double total,
-			double sony,
-			double smbc,
-			double prestia,
-			double smtb,
-			double rakuten,
-			double nikko,
-			double sbi
+			
+			double totalJPY,
+			double sonyJPY,
+			double smbcJPY,
+			double prestiaJPY,
+			double smtbJPY,
+			double rakutenJPY,
+			double nikkoJPY,
+			double sbiJPY,
+			
+			double totalUSD,
+			double sonyUSD,
+			double smbcUSD,
+			double prestiaUSD,
+			double smtbUSD,
+			double rakutenUSD,
+			double nikkoUSD,
+			double sbiUSD
 			) {
 			this.date    = date.toString();
-			this.total   = total;
-			this.sony    = sony;
-			this.smbc    = smbc;
-			this.prestia = prestia;
-			this.smtb    = smtb;
-			this.rakuten = rakuten;
-			this.nikko   = nikko;
-			this.sbi     = sbi;
+			
+			this.totalJPY   = totalJPY;
+			this.sonyJPY    = sonyJPY;
+			this.smbcJPY    = smbcJPY;
+			this.prestiaJPY = prestiaJPY;
+			this.smtbJPY    = smtbJPY;
+			this.rakutenJPY = rakutenJPY;
+			this.nikkoJPY   = nikkoJPY;
+			this.sbiJPY     = sbiJPY;
+			
+			this.totalUSD   = totalUSD;
+			this.sonyUSD    = sonyUSD;
+			this.smbcUSD    = smbcUSD;
+			this.prestiaUSD = prestiaUSD;
+			this.smtbUSD    = smtbUSD;
+			this.rakutenUSD = rakutenUSD;
+			this.nikkoUSD   = nikkoUSD;
+			this.sbiUSD     = sbiUSD;
 		}
 
 		@Override
-		public int compareTo(SummaryCompany that) {
+		public int compareTo(CompanyReport that) {
 			return this.date.compareTo(that.date);
 		}
 		@Override
@@ -53,12 +83,11 @@ public class AssetStats {
 		}
 	}
 	
-	@Sheet.SheetName("サマリー商品")
+	@Sheet.SheetName("商品レポート")
 	@Sheet.HeaderRow(0)
 	@Sheet.DataRow(1)
-	public static class SummaryProduct extends Sheet implements Comparable<SummaryProduct> {
+	public static class ProductReport extends Sheet implements Comparable<ProductReport> {
 		@Sheet.ColumnName("日付")         public String date        = "";
-		@Sheet.ColumnName("合計")         public double total       = 0;
 		
 		@Sheet.ColumnName("円資産")       public double totalJPY    = 0;
 		@Sheet.ColumnName("円普通預金")   public double depositJPY  = 0;
@@ -67,8 +96,6 @@ public class AssetStats {
 		@Sheet.ColumnName("円株式")       public double stockJPY    = 0;
 		
 		@Sheet.ColumnName("ドル資産")     public double totalUSD    = 0;
-		@Sheet.ColumnName("ドルレート")   public double rateUSD     = 0;
-		@Sheet.ColumnName("ドル資産円")   public double totalUSDJPY = 0;
 		@Sheet.ColumnName("ドル普通預金") public double depositUSD  = 0;
 		@Sheet.ColumnName("ドル定期預金") public double timeUSD     = 0;
 		@Sheet.ColumnName("ドルMMF")      public double mmfUSD      = 0;
@@ -76,17 +103,16 @@ public class AssetStats {
 		@Sheet.ColumnName("ドル株式")     public double stockUSD    = 0;
 		@Sheet.ColumnName("ドル債権")     public double bondUSD     = 0;
 		
-		public SummaryProduct(
+		public ProductReport(
 			LocalDate date,
-			double total,
+			
 			double totalJPY,
 			double depositJPY,
 			double timeJPY,
 			double fundJPY,
 			double stockJPY,
+			
 			double totalUSD,
-			double rateUSD,
-			double totalUSDJPY,
 			double depositUSD,
 			double timeUSD,
 			double mmfUSD,
@@ -95,15 +121,14 @@ public class AssetStats {
 			double bondUSD
 			) {
 			this.date        = date.toString();
-			this.total       = total;
+			
 			this.totalJPY    = totalJPY;
 			this.depositJPY  = depositJPY;
 			this.timeJPY     = timeJPY;
 			this.fundJPY     = fundJPY;
 			this.stockJPY    = stockJPY;
+			
 			this.totalUSD    = totalUSD;
-			this.rateUSD     = rateUSD;
-			this.totalUSDJPY = totalUSDJPY;
 			this.depositUSD  = depositUSD;
 			this.timeUSD     = timeUSD;
 			this.mmfUSD      = mmfUSD;
@@ -113,7 +138,7 @@ public class AssetStats {
 		}
 
 		@Override
-		public int compareTo(SummaryProduct that) {
+		public int compareTo(ProductReport that) {
 			return this.date.compareTo(that.date);
 		}
 		@Override
@@ -122,10 +147,10 @@ public class AssetStats {
 		}
 	}
 	
-	@Sheet.SheetName("サマリーカテゴリ")
+	@Sheet.SheetName("概要レポート")
 	@Sheet.HeaderRow(0)
 	@Sheet.DataRow(1)
-	public static class SummaryCategory extends Sheet implements Comparable<SummaryCategory> {
+	public static class GeneralReport extends Sheet implements Comparable<GeneralReport> {
 		@Sheet.ColumnName("日付")       public String date    = "";
 		@Sheet.ColumnName("合計")       public double total   = 0;
 		@Sheet.ColumnName("円資産")     public double jpy     = 0;
@@ -135,7 +160,7 @@ public class AssetStats {
 		@Sheet.ColumnName("安全資産")   public double safe    = 0;
 		@Sheet.ColumnName("非安全資産") public double unsafe  = 0;
 		
-		public SummaryCategory(
+		public GeneralReport(
 			LocalDate date,
 			double total,
 			double jpy,
@@ -156,7 +181,7 @@ public class AssetStats {
 		}
 
 		@Override
-		public int compareTo(SummaryCategory that) {
+		public int compareTo(GeneralReport that) {
 			return this.date.compareTo(that.date);
 		}
 		@Override
