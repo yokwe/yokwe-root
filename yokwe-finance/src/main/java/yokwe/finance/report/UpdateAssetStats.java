@@ -20,6 +20,7 @@ import yokwe.finance.report.AssetStats.CompanyReport;
 import yokwe.finance.report.AssetStats.ProductReport;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FXRate;
+import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.LibreOffice;
@@ -335,6 +336,10 @@ public class UpdateAssetStats {
 	
 	private static void update() {
 		var today = LocalDate.now();
+		if (MarketHoliday.JP.isClosed(today)) {
+			logger.warn("market is closed in Japan.  {}", today);
+			return;
+		}
 
 		Map<LocalDate, FXRate> fxRateMap = StorageFX.FXRate.getList().stream().filter(o -> o.date.isAfter(today.minusYears(PERIOD_YEAR))).collect(Collectors.toMap(o -> o.date, Function.identity()));
 		Map<LocalDate, List<Asset>> assetMap = new TreeMap<LocalDate, List<Asset>>();
