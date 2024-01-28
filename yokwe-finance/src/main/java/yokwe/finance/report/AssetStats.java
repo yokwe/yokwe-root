@@ -180,14 +180,14 @@ public class AssetStats {
 		@Sheet.ColumnName("日付")         public String date        = "";
 		
 		@Sheet.ColumnName("円資産")       public double totalJPY    = 0;
-		@Sheet.ColumnName("円普通預金")   public double depositJPY  = 0;
+		@Sheet.ColumnName("円預金")       public double depositJPY  = 0;
 		@Sheet.ColumnName("円定期預金")   public double timeJPY     = 0;
 		@Sheet.ColumnName("円投資信託")   public double fundJPY     = 0;
 		@Sheet.ColumnName("円株式")       public double stockJPY    = 0;
 		@Sheet.ColumnName("円債権")       public double bondJPY     = 0;
 		
 		@Sheet.ColumnName("ドル資産")     public double totalUSD    = 0;
-		@Sheet.ColumnName("ドル普通預金") public double depositUSD  = 0;
+		@Sheet.ColumnName("ドル預金")     public double depositUSD  = 0;
 		@Sheet.ColumnName("ドル定期預金") public double timeUSD     = 0;
 		@Sheet.ColumnName("ドル投資信託") public double fundUSD     = 0;
 		@Sheet.ColumnName("ドル株式")     public double stockUSD    = 0;
@@ -243,7 +243,7 @@ public class AssetStats {
 		@Sheet.ColumnName("日付")       public String date        = "";
 		
 		@Sheet.ColumnName("合計")       public double total    = 0;
-		@Sheet.ColumnName("普通預金")   public double deposit  = 0;
+		@Sheet.ColumnName("預金")   	public double deposit  = 0;
 		@Sheet.ColumnName("定期預金")   public double time     = 0;
 		@Sheet.ColumnName("投資信託")   public double fund     = 0;
 		@Sheet.ColumnName("株式")       public double stock    = 0;
