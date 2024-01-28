@@ -14,6 +14,7 @@ import yokwe.finance.account.sbi.UpdateAssetSBI;
 import yokwe.finance.account.smtb.UpdateAssetSMTB;
 import yokwe.finance.account.sony.UpdateAssetSony;
 import yokwe.util.ListUtil;
+import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 
 public final class UpdateAssetAll {
@@ -115,6 +116,14 @@ public final class UpdateAssetAll {
 	
 	public static void main(String[] args) {
 		logger.info("START");
+		
+		{
+			var today = LocalDate.now();
+			if (MarketHoliday.JP.isClosed(today)) {
+				logger.warn("market is closed in Japan.  {}", today);
+				return;
+			}
+		}
 		
 		download();
 		update();

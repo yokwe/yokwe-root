@@ -6,6 +6,48 @@ import yokwe.util.StringUtil;
 import yokwe.util.libreoffice.Sheet;
 
 public class AssetStats {
+	@Sheet.SheetName("概要レポート")
+	@Sheet.HeaderRow(0)
+	@Sheet.DataRow(1)
+	public static class GeneralReport extends Sheet implements Comparable<GeneralReport> {
+		@Sheet.ColumnName("日付")       public String date    = "";
+		@Sheet.ColumnName("合計")       public double total   = 0;
+		@Sheet.ColumnName("円資産")     public double jpy     = 0;
+		@Sheet.ColumnName("ドル資産")   public double usd     = 0;
+		@Sheet.ColumnName("ドルレート") public double usdRate = 0;
+		@Sheet.ColumnName("ドル資産円") public double usdJPY  = 0;
+		@Sheet.ColumnName("安全資産")   public double safe    = 0;
+		@Sheet.ColumnName("非安全資産") public double unsafe  = 0;
+		
+		public GeneralReport(
+			LocalDate date,
+			double total,
+			double jpy,
+			double usd,
+			double usdRate,
+			double usdJPY,
+			double safe,
+			double unsafe
+			) {
+			this.date    = date.toString();
+			this.total   = total;
+			this.jpy     = jpy;
+			this.usd     = usd;
+			this.usdRate = usdRate;
+			this.usdJPY  = usdJPY;
+			this.safe    = safe;
+			this.unsafe  = unsafe;
+		}
+
+		@Override
+		public int compareTo(GeneralReport that) {
+			return this.date.compareTo(that.date);
+		}
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+	}
 	
 	@Sheet.SheetName("会社レポート")
 	@Sheet.HeaderRow(0)
@@ -82,6 +124,54 @@ public class AssetStats {
 			return StringUtil.toString(this);
 		}
 	}
+	@Sheet.SheetName("会社レポート円")
+	@Sheet.HeaderRow(0)
+	@Sheet.DataRow(1)
+	public static class CompanyReportJPY extends Sheet implements Comparable<CompanyReportJPY> {
+		@Sheet.ColumnName("日付")      public String date    = "";
+		
+		@Sheet.ColumnName("合計")        public double total   = 0;
+		@Sheet.ColumnName("ソニー")      public double sony    = 0;
+		@Sheet.ColumnName("三井住友")    public double smbc    = 0;
+		@Sheet.ColumnName("PRESTIA")     public double prestia = 0;
+		@Sheet.ColumnName("SMTB")        public double smtb    = 0;
+		@Sheet.ColumnName("楽天証券")    public double rakuten = 0;
+		@Sheet.ColumnName("日興証券")    public double nikko   = 0;
+		@Sheet.ColumnName("SBI証券")     public double sbi     = 0;
+		
+		public CompanyReportJPY(
+			LocalDate date,
+			
+			double total,
+			double sony,
+			double smbc,
+			double prestia,
+			double smtb,
+			double rakuten,
+			double nikko,
+			double sbi
+			) {
+			this.date    = date.toString();
+			
+			this.total   = total;
+			this.sony    = sony;
+			this.smbc    = smbc;
+			this.prestia = prestia;
+			this.smtb    = smtb;
+			this.rakuten = rakuten;
+			this.nikko   = nikko;
+			this.sbi     = sbi;
+		}
+
+		@Override
+		public int compareTo(CompanyReportJPY that) {
+			return this.date.compareTo(that.date);
+		}
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+	}
 	
 	@Sheet.SheetName("商品レポート")
 	@Sheet.HeaderRow(0)
@@ -94,11 +184,11 @@ public class AssetStats {
 		@Sheet.ColumnName("円定期預金")   public double timeJPY     = 0;
 		@Sheet.ColumnName("円投資信託")   public double fundJPY     = 0;
 		@Sheet.ColumnName("円株式")       public double stockJPY    = 0;
+		@Sheet.ColumnName("円債権")       public double bondJPY     = 0;
 		
 		@Sheet.ColumnName("ドル資産")     public double totalUSD    = 0;
 		@Sheet.ColumnName("ドル普通預金") public double depositUSD  = 0;
 		@Sheet.ColumnName("ドル定期預金") public double timeUSD     = 0;
-		@Sheet.ColumnName("ドルMMF")      public double mmfUSD      = 0;
 		@Sheet.ColumnName("ドル投資信託") public double fundUSD     = 0;
 		@Sheet.ColumnName("ドル株式")     public double stockUSD    = 0;
 		@Sheet.ColumnName("ドル債権")     public double bondUSD     = 0;
@@ -111,11 +201,11 @@ public class AssetStats {
 			double timeJPY,
 			double fundJPY,
 			double stockJPY,
+			double bondJPY,
 			
 			double totalUSD,
 			double depositUSD,
 			double timeUSD,
-			double mmfUSD,
 			double fundUSD,
 			double stockUSD,
 			double bondUSD
@@ -127,11 +217,11 @@ public class AssetStats {
 			this.timeJPY     = timeJPY;
 			this.fundJPY     = fundJPY;
 			this.stockJPY    = stockJPY;
+			this.bondJPY     = bondJPY;
 			
 			this.totalUSD    = totalUSD;
 			this.depositUSD  = depositUSD;
 			this.timeUSD     = timeUSD;
-			this.mmfUSD      = mmfUSD;
 			this.fundUSD     = fundUSD;
 			this.stockUSD    = stockUSD;
 			this.bondUSD     = bondUSD;
@@ -146,42 +236,41 @@ public class AssetStats {
 			return StringUtil.toString(this);
 		}
 	}
-	
-	@Sheet.SheetName("概要レポート")
+	@Sheet.SheetName("商品レポート円")
 	@Sheet.HeaderRow(0)
 	@Sheet.DataRow(1)
-	public static class GeneralReport extends Sheet implements Comparable<GeneralReport> {
-		@Sheet.ColumnName("日付")       public String date    = "";
-		@Sheet.ColumnName("合計")       public double total   = 0;
-		@Sheet.ColumnName("円資産")     public double jpy     = 0;
-		@Sheet.ColumnName("ドル資産")   public double usd     = 0;
-		@Sheet.ColumnName("ドルレート") public double usdRate = 0;
-		@Sheet.ColumnName("ドル資産円") public double usdJPY  = 0;
-		@Sheet.ColumnName("安全資産")   public double safe    = 0;
-		@Sheet.ColumnName("非安全資産") public double unsafe  = 0;
+	public static class ProductReportJPY extends Sheet implements Comparable<ProductReportJPY> {
+		@Sheet.ColumnName("日付")       public String date        = "";
 		
-		public GeneralReport(
+		@Sheet.ColumnName("合計")       public double total    = 0;
+		@Sheet.ColumnName("普通預金")   public double deposit  = 0;
+		@Sheet.ColumnName("定期預金")   public double time     = 0;
+		@Sheet.ColumnName("投資信託")   public double fund     = 0;
+		@Sheet.ColumnName("株式")       public double stock    = 0;
+		@Sheet.ColumnName("債権")       public double bond     = 0;
+		
+		public ProductReportJPY(
 			LocalDate date,
+			
 			double total,
-			double jpy,
-			double usd,
-			double usdRate,
-			double usdJPY,
-			double safe,
-			double unsafe
+			double deposit,
+			double time,
+			double fund,
+			double stock,
+			double bond
 			) {
-			this.date    = date.toString();
-			this.total   = total;
-			this.jpy     = jpy;
-			this.usd     = usd;
-			this.usdRate = usdRate;
-			this.usdJPY  = usdJPY;
-			this.safe    = safe;
-			this.unsafe  = unsafe;
+			this.date        = date.toString();
+			
+			this.total    = total;
+			this.deposit  = deposit;
+			this.time     = time;
+			this.fund     = fund;
+			this.stock    = stock;
+			this.bond     = bond;
 		}
 
 		@Override
-		public int compareTo(GeneralReport that) {
+		public int compareTo(ProductReportJPY that) {
 			return this.date.compareTo(that.date);
 		}
 		@Override
