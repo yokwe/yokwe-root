@@ -20,7 +20,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 
-public class UpdateStockDivJPYahoo {
+public class UpdateStockSplitJPYahoo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final long      GRACE_PERIOD_IN_DAYS = 6;
@@ -67,13 +67,13 @@ public class UpdateStockDivJPYahoo {
 			LocalDate  startDate;
 			LocalDate  stopDatePlusOne = LocalDate.ofInstant(now, ZONE_ID).plusDays(1);
 			
-			String path = StorageYahoo.StockDivJPYahoo.getPath(stockCode);
+			String path = StorageYahoo.StockSplitJPYahoo.getPath(stockCode);
 			if (FileUtil.canRead(path)) {
 				Instant  lastModified = FileUtil.getLastModified(path);
 				Duration duration     = Duration.between(lastModified, now);
 				if (GRACE_PERIOD_IN_DAYS < duration.toDays()) {
 					// after grace period
-					var list =  StorageYahoo.StockDivJPYahoo.getList(stockCode);
+					var list =  StorageYahoo.StockSplitJPYahoo.getList(stockCode);
 					if (list.isEmpty()) {
 						startDate = EPOCH_DATE;
 						countA++;
@@ -130,9 +130,9 @@ public class UpdateStockDivJPYahoo {
 			
 			String stockCode = task.stockCode;
 			
-			var divList = Download.JP.getDividend(stockCode, task.startDate, task.stopDatePlusOne);
-			if (divList == null) {
-				logger.warn("divList is null  {}", task);
+			var splitList = Download.JP.getSplit(stockCode, task.startDate, task.stopDatePlusOne);
+			if (splitList == null) {
+				logger.warn("splitList is null  {}", task);
 				try {
 					Thread.sleep(SLEEP_IN_MILLI * 4);
 				} catch (InterruptedException e) {
@@ -143,11 +143,11 @@ public class UpdateStockDivJPYahoo {
 			}
 			
 			// list has existing values
-			var list = StorageYahoo.StockDivJPYahoo.getList(stockCode);
-			if (divList.isEmpty()) {
+			var list = StorageYahoo.StockSplitJPYahoo.getList(stockCode);
+			if (splitList.isEmpty()) {
 				if (list.isEmpty()) {
 					// Update last modified time of file
-					StorageYahoo.StockDivJPYahoo.save(stockCode, list);
+					StorageYahoo.StockSplitJPYahoo.save(stockCode, list);
 				}
 				countB++;
 				continue;
@@ -155,28 +155,28 @@ public class UpdateStockDivJPYahoo {
 			
 			var map = list.stream().collect(Collectors.toMap(o -> o.date, Function.identity()));
 			int countChange =0;
-			for(var div: divList) {
-				var oldDiv = map.get(div.date);
-				if (oldDiv != null) {
+			for(var split: splitList) {
+				var oldSplit = map.get(split.date);
+				if (oldSplit != null) {
 					// unexpected
-					if (oldDiv.compareTo(div) == 0) {
+					if (oldSplit.compareTo(split) == 0) {
 						// has same value
 						continue;
 					} else {
 						// different value
-						logger.warn("Unexpected div");
-						logger.error("  old  {}", oldDiv);
-						logger.error("  new  {}", div);
-						throw new UnexpectedException("Unexpected div");
+						logger.warn("Unexpected split");
+						logger.error("  old  {}", oldSplit);
+						logger.error("  new  {}", split);
+						throw new UnexpectedException("Unexpected split");
 					}
 				}
-				map.put(div.date, div);
+				map.put(split.date, split);
 				countChange++;
 			}
 			countC++;
 			if (countChange != 0) countMod++;
 
-			StorageYahoo.StockDivJPYahoo.save(stockCode, map.values());
+			StorageYahoo.StockSplitJPYahoo.save(stockCode, map.values());
 		}
 		
 		logger.info("countA   {}", countA);
@@ -216,11 +216,11 @@ public class UpdateStockDivJPYahoo {
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
 		for(var e: StorageStock.StockInfoJP.getList()) {
-			File file = new File(StorageYahoo.StockDivJPYahoo.getPath(e.stockCode));
+			File file = new File(StorageYahoo.StockSplitJPYahoo.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StorageYahoo.StockDivJPYahoo.getPath(), StorageYahoo.StockDivJPYahoo.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StorageYahoo.StockSplitJPYahoo.getPath(), StorageYahoo.StockSplitJPYahoo.getPathDelist());
 	}
 
 	public static void main(String[] args) throws IOException {

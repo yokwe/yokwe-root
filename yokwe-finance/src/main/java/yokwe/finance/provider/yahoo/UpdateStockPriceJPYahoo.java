@@ -2,6 +2,7 @@ package yokwe.finance.provider.yahoo;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,15 +16,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import yokwe.finance.stock.StorageStock;
+import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 
-public class UpdateStockDivJPYahoo {
+public class UpdateStockPriceJPYahoo {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final long      GRACE_PERIOD_IN_DAYS = 6;
+	private static final long      GRACE_PERIOD_IN_HOUR = 23;
 	private static final LocalDate EPOCH_DATE           = LocalDate.of(2010, 1, 1);
 	private static final ZoneId    ZONE_ID              = ZoneId.of("Asia/Tokyo");
 	private static final long      SLEEP_IN_MILLI       = 1500;
@@ -67,13 +69,13 @@ public class UpdateStockDivJPYahoo {
 			LocalDate  startDate;
 			LocalDate  stopDatePlusOne = LocalDate.ofInstant(now, ZONE_ID).plusDays(1);
 			
-			String path = StorageYahoo.StockDivJPYahoo.getPath(stockCode);
+			String path = StorageYahoo.StockPriceJPYahoo.getPath(stockCode);
 			if (FileUtil.canRead(path)) {
 				Instant  lastModified = FileUtil.getLastModified(path);
 				Duration duration     = Duration.between(lastModified, now);
-				if (GRACE_PERIOD_IN_DAYS < duration.toDays()) {
+				if (GRACE_PERIOD_IN_HOUR < duration.toHours()) {
 					// after grace period
-					var list =  StorageYahoo.StockDivJPYahoo.getList(stockCode);
+					var list =  StorageYahoo.StockPriceJPYahoo.getList(stockCode);
 					if (list.isEmpty()) {
 						startDate = EPOCH_DATE;
 						countA++;
@@ -116,7 +118,6 @@ public class UpdateStockDivJPYahoo {
 		int count    = 0;
 		int countA   = 0;
 		int countB   = 0;
-		int countC   = 0;
 		int countMod = 0;
 		Collections.shuffle(taskList);
 		for(var task: taskList) {
@@ -130,9 +131,9 @@ public class UpdateStockDivJPYahoo {
 			
 			String stockCode = task.stockCode;
 			
-			var divList = Download.JP.getDividend(stockCode, task.startDate, task.stopDatePlusOne);
-			if (divList == null) {
-				logger.warn("divList is null  {}", task);
+			var priceList = Download.JP.getPrice(stockCode, task.startDate, task.stopDatePlusOne);
+			if (priceList == null) {
+				logger.warn("priceList is null  {}", task);
 				try {
 					Thread.sleep(SLEEP_IN_MILLI * 4);
 				} catch (InterruptedException e) {
@@ -143,53 +144,74 @@ public class UpdateStockDivJPYahoo {
 			}
 			
 			// list has existing values
-			var list = StorageYahoo.StockDivJPYahoo.getList(stockCode);
-			if (divList.isEmpty()) {
-				if (list.isEmpty()) {
-					// Update last modified time of file
-					StorageYahoo.StockDivJPYahoo.save(stockCode, list);
-				}
-				countB++;
-				continue;
-			}
-			
-			var map = list.stream().collect(Collectors.toMap(o -> o.date, Function.identity()));
-			int countChange =0;
-			for(var div: divList) {
-				var oldDiv = map.get(div.date);
-				if (oldDiv != null) {
+			var map = StorageYahoo.StockPriceJPYahoo.getList(stockCode).stream().collect(Collectors.toMap(o -> o.date, Function.identity()));
+			int countSkip   = 0;
+			int countChange = 0;
+			// update map
+			for(var price: priceList) {
+				var oldPrice = map.get(price.date);
+				if (oldPrice != null) {
 					// unexpected
-					if (oldDiv.compareTo(div) == 0) {
+					if (oldPrice.compareTo(price) == 0) {
 						// has same value
 						continue;
 					} else {
 						// different value
-						logger.warn("Unexpected div");
-						logger.error("  old  {}", oldDiv);
-						logger.error("  new  {}", div);
-						throw new UnexpectedException("Unexpected div");
+						logger.warn("Unexpected price");
+						logger.error("  old  {}", oldPrice);
+						logger.error("  new  {}", price);
+						throw new UnexpectedException("Unexpected price");
 					}
 				}
-				map.put(div.date, div);
+				map.put(price.date, price);
 				countChange++;
 			}
-			countC++;
+			
+			// build list from map
+			var list = new ArrayList<OHLCV>(map.size());
+			{
+				// sort before process
+				var mapList = new ArrayList<>(map.values());
+				Collections.sort(mapList);
+				
+				BigDecimal lastClose = null;
+				for(var e: mapList) {
+					if (e.volume == 0) {
+						if (lastClose == null) {
+							countSkip++;
+							continue;
+						} else {
+							// use lastClose for open, high, low and close
+							e.open = e.high = e.low = e.close = lastClose;
+						}
+					}
+					lastClose = e.close;
+					
+					list.add(e);
+				}
+			}
+			
+			countB++;
 			if (countChange != 0) countMod++;
+			if (countSkip++ != 0) {
+				logger.warn("skip  {}  {}", stockCode, countSkip);
+			}
 
-			StorageYahoo.StockDivJPYahoo.save(stockCode, map.values());
+
+			StorageYahoo.StockPriceJPYahoo.save(stockCode, list);
 		}
 		
 		logger.info("countA   {}", countA);
 		logger.info("countB   {}", countB);
-		logger.info("countC   {}", countC);
 		logger.info("countMod {}", countMod);
 		
 		return countMod;
 	}
 	
 	private static void update() {
-		logger.info("grace period  {} days", GRACE_PERIOD_IN_DAYS);
-
+		logger.info("GRACE_PERIOD_IN_HOUR  {}", GRACE_PERIOD_IN_HOUR);
+		logger.info("EPOCH_DATE            {}", EPOCH_DATE);
+		
 		// Use StockInfo of stock us
 		var stockList = StorageStock.StockInfoJP.getList().stream().filter(o -> o.type.isDomesticStock() || o.type.isForeignStock()).collect(Collectors.toList());
 		logger.info("stock     {}", stockList.size());
@@ -216,11 +238,11 @@ public class UpdateStockDivJPYahoo {
 	private static void moveUnknownFile() {
 		Set<String> validNameSet = new TreeSet<>();
 		for(var e: StorageStock.StockInfoJP.getList()) {
-			File file = new File(StorageYahoo.StockDivJPYahoo.getPath(e.stockCode));
+			File file = new File(StorageYahoo.StockPriceJPYahoo.getPath(e.stockCode));
 			validNameSet.add(file.getName());
 		}
 		
-		FileUtil.moveUnknownFile(validNameSet, StorageYahoo.StockDivJPYahoo.getPath(), StorageYahoo.StockDivJPYahoo.getPathDelist());
+		FileUtil.moveUnknownFile(validNameSet, StorageYahoo.StockPriceJPYahoo.getPath(), StorageYahoo.StockPriceJPYahoo.getPathDelist());
 	}
 
 	public static void main(String[] args) throws IOException {

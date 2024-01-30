@@ -387,6 +387,30 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="provider-yahoo-update-stock-div-jp-yahoo">
+		<java module="yokwe.finance/yokwe.finance.provider.yahoo.UpdateStockDivJPYahoo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provider-yahoo-update-stock-price-jp-yahoo">
+		<java module="yokwe.finance/yokwe.finance.provider.yahoo.UpdateStockPriceJPYahoo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provider-yahoo-update-stock-split-jp-yahoo">
+		<java module="yokwe.finance/yokwe.finance.provider.yahoo.UpdateStockSplitJPYahoo" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 	
 	<!-- Report -->

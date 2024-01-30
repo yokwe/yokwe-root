@@ -25,5 +25,16 @@ public class Split implements Comparable<Split>{
 	public int compareTo(Split that) {
 		return this.date.compareTo(that.date);
 	}
-
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Split) {
+			Split that = (Split)o;
+			return
+				that.date.equals(that.date) &&
+				that.detail.equals(that.detail);
+		} else {
+			return false;
+		}
+	}
 }
