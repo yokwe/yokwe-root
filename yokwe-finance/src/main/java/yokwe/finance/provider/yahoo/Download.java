@@ -2,6 +2,7 @@ package yokwe.finance.provider.yahoo;
 
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +15,8 @@ import java.util.stream.Collectors;
 
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.OHLCV;
+import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockInfoUSType;
 import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
@@ -74,9 +77,10 @@ public class Download {
 			this.value = value;
 		}
 	}
-
-	private static String getURL(String symbol, LocalDate period1, LocalDate period2, Interval interval, Events events) {
-		String url = URL + symbol;
+	
+	// NOTE period is between period1(inclusive) and period2(exclusive)
+	private static String getURL(String stockCode, LocalDate period1, LocalDate period2, Interval interval, Events events) {
+		String url = URL + stockCode;
 		
 		LinkedHashMap<String, String> map = new LinkedHashMap<>();
 		map.put("period1",  String.valueOf(period1.atStartOfDay().toEpochSecond(ZoneOffset.UTC)));
@@ -89,8 +93,8 @@ public class Download {
 		return String.format("%s?%s", url, queryString);
 	}
 	
-	private static String getString(String symbol, LocalDate period1, LocalDate period2, Interval interval, Events event) {
-		String url = getURL(symbol, period1, period2, interval, event);
+	private static String getString(String stockCode, LocalDate period1, LocalDate period2, Interval interval, Events event) {
+		String url = getURL(stockCode, period1, period2, interval, event);
 		
 		HttpUtil httpUtil = HttpUtil.getInstance();
 		HttpUtil.Result result = httpUtil.download(url);
@@ -109,8 +113,8 @@ public class Download {
 	//
 	// Price
 	//
-	public static List<OHLCV> getPrice(String symbol, LocalDate period1, LocalDate period2, Interval interval) {
-		String string = getString(symbol, period1, period2, interval, Events.PRICE);
+	private static List<OHLCV> getPrice(String stockCode, LocalDate period1, LocalDate period2, Interval interval) {
+		String string = getString(stockCode, period1, period2, interval, Events.PRICE);
 		if (string == null) return null;
 		
 		List<OHLCV> list = new ArrayList<>();
@@ -129,23 +133,23 @@ public class Download {
 		
 		return list;
 	}
-	public static List<OHLCV> getPrice(String symbol, LocalDate period1, LocalDate period2) {
-		return getPrice(symbol, period1, period2, Interval.DAILY);
+	private static List<OHLCV> getPrice(String stockCode, LocalDate period1, LocalDate period2) {
+		return getPrice(stockCode, period1, period2, Interval.DAILY);
 	}
 	
 	
 	//
 	// Dividend
 	//
-	public static List<DailyValue> getDividend(String symbol, LocalDate startDate, LocalDate stopDatePlusOne, Interval interval) {
+	private static List<DailyValue> getDividend(String stockCode, LocalDate period1, LocalDate period2, Interval interval) {
 		// sanity check
-		if (!stopDatePlusOne.isAfter(startDate)) {
+		if (!period2.isAfter(period1)) {
 			logger.error("Unexpected date rage");
-			logger.error("  {}  {}  {}", symbol, startDate, stopDatePlusOne);
+			logger.error("  {}  {}  {}", stockCode, period1, period2);
 			throw new UnexpectedException("Unexpected date rage");
 		}
 		
-		String string = getString(symbol, startDate, stopDatePlusOne, interval, Events.DIVIDEND);
+		String string = getString(stockCode, period1, period2, interval, Events.DIVIDEND);
 		if (string == null) return null;	
 
 		List<DailyValue> list = new ArrayList<>();
@@ -160,15 +164,15 @@ public class Download {
 		
 		return list;
 	}
-	public static List<DailyValue> getDividend(String symbol, LocalDate startDate, LocalDate stopDatePlusOne) {
-		return getDividend(symbol, startDate, stopDatePlusOne, Interval.DAILY);
+	private static List<DailyValue> getDividend(String stockCode, LocalDate period1, LocalDate period2) {
+		return getDividend(stockCode, period1, period2, Interval.DAILY);
 	}
 	
 	//
 	// Split
 	//
-	public static List<Split> getSplit(String symbol, LocalDate period1, LocalDate period2, Interval interval) {
-		String string = getString(symbol, period1, period2, interval, Events.SPLIT);
+	private static List<Split> getSplit(String stockCode, LocalDate period1, LocalDate period2, Interval interval) {
+		String string = getString(stockCode, period1, period2, interval, Events.SPLIT);
 		if (string == null) return null;	
 
 		List<Split> list = new ArrayList<>();
@@ -182,15 +186,15 @@ public class Download {
 		
 		return list;
 	}
-	public static List<Split> getSplit(String symbol, LocalDate period1, LocalDate period2) {
-		return getSplit(symbol, period1, period2, Interval.DAILY);
+	private static List<Split> getSplit(String stockCode, LocalDate period1, LocalDate period2) {
+		return getSplit(stockCode, period1, period2, Interval.DAILY);
 	}
 	
 	//
 	// Capital Gain
 	//
-	public static List<CapitalGain> getCapitalGain(String symbol, LocalDate period1, LocalDate period2, Interval interval) {
-		String string = getString(symbol, period1, period2, interval, Events.CAPITAL);
+	private static List<CapitalGain> getCapitalGain(String stockCode, LocalDate period1, LocalDate period2, Interval interval) {
+		String string = getString(stockCode, period1, period2, interval, Events.CAPITAL);
 		if (string == null) return null;	
 		
 		List<CapitalGain> list = new ArrayList<>();
@@ -204,43 +208,89 @@ public class Download {
 		
 		return list;
 	}
-	public static List<CapitalGain> getCapitalGain(String symbol, LocalDate period1, LocalDate period2) {
-		return getCapitalGain(symbol, period1, period2, Interval.DAILY);
+	private static List<CapitalGain> getCapitalGain(String stockCode, LocalDate period1, LocalDate period2) {
+		return getCapitalGain(stockCode, period1, period2, Interval.DAILY);
 	}
 	
+	public static final class US {
+		public static String toYahooStockCode(String stockCode) {
+			return StockInfoUSType.toYahooSymbol(stockCode);
+		}
+		
+		public static List<OHLCV> getPrice(String stockCode, LocalDate period1, LocalDate period2) {
+			return Download.getPrice(toYahooStockCode(stockCode), period1, period2);
+		}
+		public static List<DailyValue> getDividend(String stockCode, LocalDate period1, LocalDate period2) {
+			return Download.getDividend(toYahooStockCode(stockCode), period1, period2);
+		}
+		public static List<Split> getSplit(String stockCode, LocalDate period1, LocalDate period2) {
+			return Download.getSplit(toYahooStockCode(stockCode), period1, period2);
+		}
+		public static List<CapitalGain> getCapitalGain(String stockCode, LocalDate period1, LocalDate period2) {
+			return Download.getCapitalGain(toYahooStockCode(stockCode), period1, period2);
+		}
+	}
+	public static final class JP {
+		public static String toYahooStockCode(String stockCode) {
+			return StockInfoJPType.toYahooSymbol(stockCode);
+		}
+		
+		public static List<OHLCV> getPrice(String stockCode, LocalDate period1, LocalDate period2) {
+			var list = Download.getPrice(toYahooStockCode(stockCode), period1, period2);
+			// normalize value
+			for(var e: list) {
+				e.open  = e.open.setScale(1, RoundingMode.HALF_EVEN);
+				e.high  = e.high.setScale(1, RoundingMode.HALF_EVEN);
+				e.low   = e.low.setScale(1, RoundingMode.HALF_EVEN);
+				e.close = e.close.setScale(1, RoundingMode.HALF_EVEN);
+			}
+			return list;
+		}
+		public static List<DailyValue> getDividend(String stockCode, LocalDate period1, LocalDate period2) {
+			return Download.getDividend(toYahooStockCode(stockCode), period1, period2);
+		}
+		public static List<Split> getSplit(String stockCode, LocalDate period1, LocalDate period2) {
+			return Download.getSplit(toYahooStockCode(stockCode), period1, period2);
+		}
+		public static List<CapitalGain> getCapitalGain(String stockCode, LocalDate period1, LocalDate period2) {
+			return Download.getCapitalGain(toYahooStockCode(stockCode), period1, period2);
+		}
+	}
+	
+
 	
 //	static void testPrice() {
 //		String methodName = ClassUtil.getCallerMethodName();
 //		
-//		String symbol = "AMZN";
+//		String stockCode = "AMZN";
 //		int year = 2023;
 //		int month = 6;
 //		LocalDate period1 = LocalDate.of(year, month, 01);
 //		LocalDate period2 = LocalDate.of(year, month, 10);
 //		LocalDate period3 = LocalDate.of(year, month, 20);
 //		
-//		var list12 = getPrice(symbol, period1, period2);
-//		var list23 = getPrice(symbol, period2, period3);
+//		var list12 = getPrice(stockCode, period1, period2);
+//		var list23 = getPrice(stockCode, period2, period3);
 //		
 //		for(var e: list12) {
-//			logger.info("{}  list12  {}  {}", methodName, symbol, e);
+//			logger.info("{}  list12  {}  {}", methodName, stockCode, e);
 //		}
 //		for(var e: list23) {
-//			logger.info("{}  list23  {}  {}", methodName, symbol, e);
+//			logger.info("{}  list23  {}  {}", methodName, stockCode, e);
 //		}
 //	}
 //	
 //	static void testDividend() {
 //		String methodName = ClassUtil.getCallerMethodName();
 //
-//		String symbol = "QQQ";
+//		String stockCode = "QQQ";
 //		LocalDate period1 = LocalDate.of(2000, 1, 1);
 //		LocalDate period2 = LocalDate.now();
 //		
-//		var list12 = getDividend(symbol, period1, period2);
+//		var list12 = getDividend(stockCode, period1, period2);
 //		
 //		for(var e: list12) {
-//			logger.info("{}  list12  {}  {}", methodName, symbol, e);
+//			logger.info("{}  list12  {}  {}", methodName, stockCode, e);
 //		}
 //	}
 //	
@@ -250,34 +300,34 @@ public class Download {
 //		// CRF 2008-12-23 1:2
 //		// CRF 2014-12-29 1:4
 //		// AMZN 2022-06-06 20:1
-//		String symbol = "AMZN";
+//		String stockCode = "AMZN";
 //		int year = 2022;
 //		int month = 5;
 //		LocalDate period1 = LocalDate.of(year, month + 0, 1);
 //		LocalDate period2 = LocalDate.of(year, month + 1, 1);
 //		LocalDate period3 = LocalDate.of(year, month + 2, 1);
 //		
-//		var list12 = getSplit(symbol, period1, period2);
-//		var list23 = getSplit(symbol, period2, period3);
+//		var list12 = getSplit(stockCode, period1, period2);
+//		var list23 = getSplit(stockCode, period2, period3);
 //		
 //		for(var e: list12) {
-//			logger.info("{}  list12  {}  {}", methodName, symbol, e);
+//			logger.info("{}  list12  {}  {}", methodName, stockCode, e);
 //		}
 //		for(var e: list23) {
-//			logger.info("{}  list23  {}  {}", methodName, symbol, e);
+//			logger.info("{}  list23  {}  {}", methodName, stockCode, e);
 //		}
 //	}
 //	static void testCapitalGain() {
 //		String methodName = ClassUtil.getCallerMethodName();
 //		
-//		String symbol = "CRF";
+//		String stockCode = "CRF";
 //		LocalDate period1 = LocalDate.of(1980, 1, 1);
 //		LocalDate period2 = LocalDate.now();
 //		
-//		var list12 = getCapitalGain(symbol, period1, period2);
+//		var list12 = getCapitalGain(stockCode, period1, period2);
 //		
 //		for(var e: list12) {
-//			logger.info("{}  list12  {}  {}", methodName, symbol, e);
+//			logger.info("{}  list12  {}  {}", methodName, stockCode, e);
 //		}
 //	}
 //	public static void main(String[] args) {
