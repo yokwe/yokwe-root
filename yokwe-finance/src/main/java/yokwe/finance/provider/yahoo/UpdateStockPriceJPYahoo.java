@@ -212,8 +212,8 @@ public class UpdateStockPriceJPYahoo {
 		logger.info("GRACE_PERIOD_IN_HOUR  {}", GRACE_PERIOD_IN_HOUR);
 		logger.info("EPOCH_DATE            {}", EPOCH_DATE);
 		
-		// Use StockInfo of stock us
-		var stockList = StorageStock.StockInfoJP.getList().stream().filter(o -> o.type.isDomesticStock() || o.type.isForeignStock()).collect(Collectors.toList());
+		// Use StorageStock.StockInfoJP
+		var stockList = StorageStock.StockInfoJP.getList();
 		logger.info("stock     {}", stockList.size());
 		
 		for(int count = 1; count < 10; count++) {
