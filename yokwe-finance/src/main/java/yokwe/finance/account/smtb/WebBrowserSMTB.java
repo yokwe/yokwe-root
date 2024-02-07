@@ -19,6 +19,9 @@ public class WebBrowserSMTB extends WebBrowser {
 	// お取引き・残高照会
 	private static final Target BALANCE = new Target.Click(By.xpath("//img[@alt='お取引き・残高照会']"), "お取引・残高照会");
 	
+	//  残高明細・売却
+	private static final Target FUND = new Target.Click(By.xpath("//input[contains(@value, '残高明細・売却')]"), "投資信託売却｜保管残高明細");
+	
 	public void login() {
 		var secret = Secret.read().smtb;
 		login(secret.account, secret.password);
@@ -39,4 +42,9 @@ public class WebBrowserSMTB extends WebBrowser {
 	public void balance() {
 		BALANCE.action(this);
 	}
+	
+	public void fund() {
+		FUND.action(this);
+	}
+	
 }
