@@ -46,16 +46,20 @@ public final class UpdateAssetSony implements UpdateAsset {
 	
 	private static final List<FundInfoJP> fundInfoList = StorageFund.FundInfo.getList();
 	private static FundInfoJP getFundInfo(String name) {
-		String isinCode = null;
 		for(var e: fundInfoList) {
 			if (e.name.equals(name)) return e;
 		}
-		if (isinCode == null) {
-			if (name.contains("(")) {
-				String nameB = name.substring(0, name.indexOf("("));
-				for(var e: fundInfoList) {
-					if (e.name.equals(nameB)) return e;
-				}
+		if (name.contains("(")) {
+			String nameB = name.substring(0, name.indexOf("("));
+			for(var e: fundInfoList) {
+				if (e.name.equals(nameB)) return e;
+			}
+		}
+		{
+			String nameStripped = name.replace("　", "");
+			for(var e: fundInfoList) {
+				String fundNameStripped = e.name.replace("　", "");
+				if (fundNameStripped.equals(nameStripped)) return e;
 			}
 		}
 		
