@@ -6,10 +6,12 @@ import yokwe.util.StringUtil;
 import yokwe.util.libreoffice.Sheet;
 
 public class AssetStats {
-	@Sheet.SheetName("会社ー概要レポート")
 	@Sheet.HeaderRow(0)
 	@Sheet.DataRow(1)
-	public static class CompanyGeneralReport extends Sheet implements Comparable<CompanyGeneralReport> {
+	public static class CompanyGeneralReport extends Sheet {
+		public static final String SHEET_NAME_VALUE   = "会社ー概要ー値";
+		public static final String SHEET_NAME_PERCENT = "会社ー概要ー割合";
+		
 		@Sheet.ColumnName("会社")       public String company = "";
 		@Sheet.ColumnName("合計")       public double total   = 0;
 		@Sheet.ColumnName("円資産")     public double jpy     = 0;
@@ -50,65 +52,7 @@ public class AssetStats {
 			this.stock   = stock;
 			this.bond    = bond;
 		}
-
-		@Override
-		public int compareTo(CompanyGeneralReport that) {
-			return this.company.compareTo(that.company);
-		}
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-	}
-	@Sheet.SheetName("会社ー概要ー割合レポート")
-	@Sheet.HeaderRow(0)
-	@Sheet.DataRow(1)
-	public static class CompanyGeneraPercentReport extends Sheet implements Comparable<CompanyGeneraPercentReport> {
-		@Sheet.ColumnName("会社")       public String company = "";
-		@Sheet.ColumnName("合計")       public double total   = 0;
-		@Sheet.ColumnName("円資産")     public double jpy     = 0;
-		@Sheet.ColumnName("ドル資産円") public double usdJPY  = 0;
-		@Sheet.ColumnName("ドル資産")   public double usd     = 0;
-		@Sheet.ColumnName("安全資産")   public double safe    = 0;
-		@Sheet.ColumnName("非安全資産") public double unsafe  = 0;
-		@Sheet.ColumnName("預金")       public double deposit = 0;
-		@Sheet.ColumnName("定期預金")   public double term    = 0;
-		@Sheet.ColumnName("投資信託")   public double fund    = 0;
-		@Sheet.ColumnName("株式")       public double stock   = 0;
-		@Sheet.ColumnName("債権")       public double bond    = 0;
-
-		public CompanyGeneraPercentReport(
-			String company,
-			double total,
-			double jpy,
-			double usdJPY,
-			double usd,
-			double safe,
-			double unsafe,
-			double deposit,
-			double term,
-			double fund,
-			double stock,
-			double bond
-			) {
-			this.company = company;
-			this.total   = total;
-			this.jpy     = jpy;
-			this.usdJPY  = usdJPY;
-			this.usd     = usd;
-			this.safe    = safe;
-			this.unsafe  = unsafe;
-			this.deposit = deposit;
-			this.term    = term;
-			this.fund    = fund;
-			this.stock   = stock;
-			this.bond    = bond;
-		}
-
-		@Override
-		public int compareTo(CompanyGeneraPercentReport that) {
-			return this.company.compareTo(that.company);
-		}
+		
 		@Override
 		public String toString() {
 			return StringUtil.toString(this);

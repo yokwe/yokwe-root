@@ -16,7 +16,6 @@ import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAssetAll;
 import yokwe.finance.fx.StorageFX;
 import yokwe.finance.report.AssetStats.GeneralReport;
-import yokwe.finance.report.AssetStats.CompanyGeneraPercentReport;
 import yokwe.finance.report.AssetStats.CompanyGeneralReport;
 import yokwe.finance.report.AssetStats.CompanyReport;
 import yokwe.finance.report.AssetStats.CompanyReportJPY;
@@ -666,36 +665,36 @@ public class UpdateAssetStats {
 				
 				// COMPANY GENERAL
 				{
-					var sheetNameOld = Sheet.getSheetName(CompanyGeneralReport.class);
-					var sheetNameNew = "会社　概要";
+					var sheetNameOld = CompanyGeneralReport.SHEET_NAME_VALUE;
+					var sheetNameNew = "会社　概要　値";
 					var list         = companyGeneralList;
 
 					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
 					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-					Sheet.fillSheet(docSave, list);
+					Sheet.fillSheet(docSave, list, sheetNameOld);
 					docSave.renameSheet(sheetNameOld, sheetNameNew);
 				}
-				// COMPANY GENERAL
+				// COMPANY GENERAL PERCENT
 				{
-					var sheetNameOld = Sheet.getSheetName(CompanyGeneraPercentReport.class);
+					var sheetNameOld = CompanyGeneralReport.SHEET_NAME_PERCENT;
 					var sheetNameNew = "会社　概要　割合";
-					var list         = new ArrayList<CompanyGeneraPercentReport>();
+					var list         = new ArrayList<CompanyGeneralReport>();
 					{
 						var totalJPY = companyGeneralList.get(companyGeneralList.size() - 1).total;
 						for(var e: companyGeneralList) {
-							double total   = e.total / totalJPY;
-							double jpy     = e.jpy / totalJPY;
-							double usdJPY  = e.usdJPY / totalJPY;
+							double total   = e.total   / totalJPY;
+							double jpy     = e.jpy     / totalJPY;
+							double usdJPY  = e.usdJPY  / totalJPY;
 							double usd     = e.usd;
-							double safe    = e.safe / totalJPY;
-							double unsafe  = e.unsafe / totalJPY;
+							double safe    = e.safe    / totalJPY;
+							double unsafe  = e.unsafe  / totalJPY;
 							double deposit = e.deposit / totalJPY;
-							double term    = e.term / totalJPY;
-							double fund    = e.fund / totalJPY;
-							double stock   = e.stock / totalJPY;
-							double bond    = e.bond / totalJPY;
+							double term    = e.term    / totalJPY;
+							double fund    = e.fund    / totalJPY;
+							double stock   = e.stock   / totalJPY;
+							double bond    = e.bond    / totalJPY;
 							
-							var report = new CompanyGeneraPercentReport(
+							var report = new CompanyGeneralReport(
 									e.company, total,
 									jpy, usdJPY, usd, safe, unsafe,
 									deposit, term, fund, stock, bond
@@ -706,7 +705,7 @@ public class UpdateAssetStats {
 
 					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
 					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-					Sheet.fillSheet(docSave, list);
+					Sheet.fillSheet(docSave, list, sheetNameOld);
 					docSave.renameSheet(sheetNameOld, sheetNameNew);
 				}
 				
