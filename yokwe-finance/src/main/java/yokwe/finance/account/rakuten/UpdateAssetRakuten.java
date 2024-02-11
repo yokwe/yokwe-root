@@ -244,7 +244,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 									throw new UnexpectedException("Unexpected string");
 								}
 							}
-							list.add(Asset.mmf(dateTime, Company.RAKUTEN, currency, value, name));
+							list.add(Asset.deposit(dateTime, Company.RAKUTEN, currency, value, name));
 						}
 					}
 					{

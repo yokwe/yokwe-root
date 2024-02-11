@@ -11,28 +11,36 @@ public class Asset implements Comparable<Asset> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public enum Company {
-		SONY,
-		SMBC,
-		PRESTIA,
-		SMTB,
-		RAKUTEN,
-		NIKKO,
-		SBI,
+		SONY   ("ソニー銀行"),
+		SMBC   ("三井住友銀行"),
+		PRESTIA("プレスティア"),
+		SMTB   ("SMTB"),
+		RAKUTEN("楽天証券"),
+		NIKKO  ("日興証券"),
+		SBI    ("SBI証券");
+		
+		public final String description;
+		private Company(String nweValue) {
+			this.description = nweValue;
+		}
 	}
 	
-	public enum Type {
-		DEPOSIT,
-		DEPOSIT_TIME,
-		MRF,
-		MMF,
-		STOCK, // include ETF, ETN, REIT
-		FUND,
-		BOND,
+	public enum Product {
+		DEPOSIT      ("預金"),      // includes saving, MRF, MMF
+		TERM_DEPOSIT ("定期預金"),
+		STOCK        ("株式"),      // includes ETF, ETN, REIT
+		FUND         ("投資信託"),
+		BOND         ("債権");
+		
+		public final String description;
+		private Product(String nweValue) {
+			this.description = nweValue;
+		}
 	}
 	
 	public final LocalDate  date;
 	public final Company    company;
-	public final Type       type;
+	public final Product    product;
 	public final Currency   currency;
 	public final BigDecimal value;    // value in currency
 	
@@ -44,12 +52,12 @@ public class Asset implements Comparable<Asset> {
 	public String     name;     // name of asset
 	
 	public Asset(
-		LocalDate date, Company company, Type type,
+		LocalDate date, Company company, Product product,
 		Currency currency, BigDecimal value,
 		Risk risk, String code, String name) {
 		this.date     = date;
 		this.company  = company;
-		this.type     = type;
+		this.product  = product;
 		this.currency = currency;
 		this.value    = value;
 		this.risk     = risk;
@@ -58,11 +66,11 @@ public class Asset implements Comparable<Asset> {
 	}
 	
 	public Asset(
-		LocalDateTime dateTime, Company company, Type type, Currency currency, BigDecimal value, Risk risk,
+		LocalDateTime dateTime, Company company, Product product, Currency currency, BigDecimal value, Risk risk,
 		String code, String name) {
 		this.date     = dateTime.toLocalDate();
 		this.company  = company;
-		this.type     = type;
+		this.product  = product;
 		this.currency = currency;
 		this.value    = value;
 		this.risk     = risk;
@@ -72,43 +80,35 @@ public class Asset implements Comparable<Asset> {
 	
 	// name
 	public static Asset deposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.DEPOSIT, currency, value, Risk.SAFE, "", name);
+		return new Asset(dateTime, company, Product.DEPOSIT, currency, value, Risk.SAFE, "", name);
 	}
 	public static Asset depositTime(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.DEPOSIT_TIME, currency, value, Risk.SAFE, "", name);
-	}
-	public static Asset mrf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.MRF, currency, value, Risk.SAFE, "", name);
-	}
-	public static Asset mmf(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Type.MMF, currency, value, Risk.SAFE, "", name);
+		return new Asset(dateTime, company, Product.TERM_DEPOSIT, currency, value, Risk.SAFE, "", name);
 	}
 	// code name
 	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Risk risk, String code, String name) {
-		return new Asset(dateTime, company, Type.FUND, currency, value, risk, code, name);
+		return new Asset(dateTime, company, Product.FUND, currency, value, risk, code, name);
 	}
 	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Risk risk, String code, String name) {
-		return new Asset(dateTime, company, Type.STOCK, currency, value, risk, code, name);
+		return new Asset(dateTime, company, Product.STOCK, currency, value, risk, code, name);
 	}
 	public static Asset bond(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String code, String name) {
-		return new Asset(dateTime, company, Type.BOND, currency, value, Risk.SAFE, code, name);
+		return new Asset(dateTime, company, Product.BOND, currency, value, Risk.SAFE, code, name);
 	}
 	
 	@Override
 	public String toString() {
-		switch(type) {
+		switch(product) {
 		case DEPOSIT:
-		case DEPOSIT_TIME:
-		case MRF:
-		case MMF:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s}", date, company, type, currency, value.toPlainString(), risk, name);
+		case TERM_DEPOSIT:
+			return String.format("{%s  %s  %s  %s  %s  %s  %s}", date, company, product, currency, value.toPlainString(), risk, name);
 		case FUND:
 		case STOCK:
 		case BOND:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", date, company, type, currency, value.toPlainString(), risk, code, name);
+			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", date, company, product, currency, value.toPlainString(), risk, code, name);
 		default:
 			logger.error("Unexpected type");
-			logger.error("  {}!", type);
+			logger.error("  {}!", product);
 			throw new UnexpectedException("Unexpected type");
 		}
 	}
@@ -116,7 +116,7 @@ public class Asset implements Comparable<Asset> {
 	public int compareTo(Asset that) {
 		int ret = this.date.compareTo(that.date);
 		if (ret == 0) ret = this.company.compareTo(that.company);
-		if (ret == 0) ret = this.type.compareTo(that.type);
+		if (ret == 0) ret = this.product.compareTo(that.product);
 		if (ret == 0) ret = this.currency.compareTo(that.currency);
 		if (ret == 0) ret = this.code.compareTo(that.code);
 		if (ret == 0) ret = this.name.compareTo(that.name);

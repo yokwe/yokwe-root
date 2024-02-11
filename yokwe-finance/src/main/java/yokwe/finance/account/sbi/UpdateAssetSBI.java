@@ -155,7 +155,7 @@ public final class UpdateAssetSBI implements UpdateAsset {
 				for(var e: mmfInfoList) {
 //					logger.info("mmfInfoList  {}", e);
 					var currency = Currency.USD;
-					list.add(Asset.mmf(dateTime, Company.SBI, currency, e.value, e.name));
+					list.add(Asset.deposit(dateTime, Company.SBI, currency, e.value, e.name));
 				}
 			}
 		}

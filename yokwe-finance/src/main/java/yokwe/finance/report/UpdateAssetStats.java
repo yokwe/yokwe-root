@@ -16,6 +16,8 @@ import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAssetAll;
 import yokwe.finance.fx.StorageFX;
 import yokwe.finance.report.AssetStats.GeneralReport;
+import yokwe.finance.report.AssetStats.CompanyGeneraPercentReport;
+import yokwe.finance.report.AssetStats.CompanyGeneralReport;
 import yokwe.finance.report.AssetStats.CompanyReport;
 import yokwe.finance.report.AssetStats.CompanyReportJPY;
 import yokwe.finance.report.AssetStats.ProductReport;
@@ -34,6 +36,131 @@ public class UpdateAssetStats {
 	private static final String URL_TEMPLATE  = StringUtil.toURLString("data/form/ASSET_STATS.ods");
 	
 	private static final int PERIOD_YEAR = 1;
+	
+	private static List<CompanyGeneralReport> getCompanyGeneralReportList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
+		var list   = new ArrayList<CompanyGeneralReport>();
+		
+		var date      = fxRateMap.keySet().stream().max(LocalDate::compareTo).get();
+		var fxRate    = fxRateMap.get(date);
+		var assetList = assetMap.get(date);
+		
+		for(var company: Company.values()) {
+			double total   = 0;
+			double jpy     = 0;
+			double usdJPY  = 0;
+			double usd     = 0;
+			double safe    = 0;
+			double unsafe  = 0;
+			double deposit = 0;
+			double term    = 0;
+			double fund    = 0;
+			double stock   = 0;
+			double bond    = 0;
+			
+			for(var asset: assetList) {
+				if (asset.company != company) continue;
+				
+				var value    = asset.value.doubleValue();
+				var currency = asset.currency;
+				var valueJPY = value * fxRate.rate(currency).doubleValue();
+				var risk     = asset.risk;
+				var product  = asset.product;
+				
+				total += valueJPY;
+				
+				switch(currency) {
+				case JPY:
+					jpy += value;
+					break;
+				case USD:
+					usdJPY += valueJPY;
+					usd    += value;
+					break;
+				default:
+					logger.error("Unexpected currency");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected currency");
+				}
+				
+				switch(risk) {
+				case SAFE:
+					safe += valueJPY;
+					break;
+				case UNSAFE:
+					unsafe += valueJPY;
+					break;
+				default:
+					logger.error("Unexpected risk");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected risk");
+				}
+				
+				switch(product) {
+				case DEPOSIT:
+					deposit += valueJPY;
+					break;
+				case TERM_DEPOSIT:
+					term += valueJPY;
+					break;
+				case STOCK:
+					stock += valueJPY;
+					break;
+				case FUND:
+					fund += valueJPY;
+					break;
+				case BOND:
+					bond += valueJPY;
+					break;
+				default:
+					logger.error("Unexpected product");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected product");
+				}
+			}
+			
+			var report = new CompanyGeneralReport(
+				company.description, total,
+				jpy, usdJPY, usd, safe, unsafe,
+				deposit, term, fund, stock, bond
+			);
+			list.add(report);
+		}
+		{
+			double total   = 0;
+			double jpy     = 0;
+			double usdJPY  = 0;
+			double usd     = 0;
+			double safe    = 0;
+			double unsafe  = 0;
+			double deposit = 0;
+			double term    = 0;
+			double fund    = 0;
+			double stock   = 0;
+			double bond    = 0;
+			
+			for(var e: list) {
+				total   += e.total;
+				jpy     += e.jpy;
+				usdJPY  += e.usdJPY;
+				usd     += e.usd;
+				safe    += e.safe;
+				unsafe  += e.unsafe;
+				deposit += e.deposit;
+				term    += e.term;
+				fund    += e.fund;
+				stock   += e.safe;
+				bond    += e.bond;
+			}
+			var report = new CompanyGeneralReport(
+					date.toString(), total,
+					jpy, usdJPY, usd, safe, unsafe,
+					deposit, term, fund, stock, bond
+				);
+			list.add(report);
+		}
+		
+		return list;
+	}
 	
 	private static List<GeneralReport> getGeneralReportList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
 		var list = new ArrayList<GeneralReport>();
@@ -323,7 +450,7 @@ public class UpdateAssetStats {
 				var value    = asset.value.doubleValue();
 				var currency = asset.currency;
 				
-				var product  = asset.type;
+				var product  = asset.product;
 				
 				switch(currency) {
 				case JPY:
@@ -331,10 +458,9 @@ public class UpdateAssetStats {
 					totalJPY += value;
 					switch(product) {
 					case DEPOSIT:
-					case MRF:
 						depositJPY += value;
 						break;
-					case DEPOSIT_TIME:
+					case TERM_DEPOSIT:
 						timeJPY += value;
 						break;
 					case STOCK:
@@ -358,10 +484,9 @@ public class UpdateAssetStats {
 					totalUSD += value;
 					switch(product) {
 					case DEPOSIT:
-					case MMF:
 						depositUSD += value;
 						break;
-					case DEPOSIT_TIME:
+					case TERM_DEPOSIT:
 						timeUSD += value;
 						break;
 					case STOCK:
@@ -430,16 +555,14 @@ public class UpdateAssetStats {
 				
 				var valueJPY = value * fxRate.rate(currency).doubleValue();
 				
-				var product  = asset.type;
+				var product  = asset.product;
 				
 				total += valueJPY;
 				switch(product) {
 				case DEPOSIT:
-				case MRF:
-				case MMF:
 					deposit += valueJPY;
 					break;
-				case DEPOSIT_TIME:
+				case TERM_DEPOSIT:
 					time += valueJPY;
 					break;
 				case STOCK:
@@ -514,6 +637,9 @@ public class UpdateAssetStats {
 		}
 		
 		{
+			var companyGeneralList     = getCompanyGeneralReportList(fxRateMap, assetMap);
+			
+
 			var generalList     = getGeneralReportList(fxRateMap, assetMap);
 			var companyList     = getCompanyReportList(fxRateMap, assetMap);
 			var companyListJPY  = getCompanyReportJPYList(fxRateMap, assetMap);
@@ -538,11 +664,45 @@ public class UpdateAssetStats {
 				SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
 				SpreadSheet docSave = new SpreadSheet();
 				
-				// GENERAL - whole
+				// COMPANY GENERAL
 				{
-					var sheetNameOld = Sheet.getSheetName(GeneralReport.class);
-					var sheetNameNew = "概要";
-					var list         = generalList;
+					var sheetNameOld = Sheet.getSheetName(CompanyGeneralReport.class);
+					var sheetNameNew = "会社　概要";
+					var list         = companyGeneralList;
+
+					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, list);
+					docSave.renameSheet(sheetNameOld, sheetNameNew);
+				}
+				// COMPANY GENERAL
+				{
+					var sheetNameOld = Sheet.getSheetName(CompanyGeneraPercentReport.class);
+					var sheetNameNew = "会社　概要　割合";
+					var list         = new ArrayList<CompanyGeneraPercentReport>();
+					{
+						var totalJPY = companyGeneralList.get(companyGeneralList.size() - 1).total;
+						for(var e: companyGeneralList) {
+							double total   = e.total / totalJPY;
+							double jpy     = e.jpy / totalJPY;
+							double usdJPY  = e.usdJPY / totalJPY;
+							double usd     = e.usd;
+							double safe    = e.safe / totalJPY;
+							double unsafe  = e.unsafe / totalJPY;
+							double deposit = e.deposit / totalJPY;
+							double term    = e.term / totalJPY;
+							double fund    = e.fund / totalJPY;
+							double stock   = e.stock / totalJPY;
+							double bond    = e.bond / totalJPY;
+							
+							var report = new CompanyGeneraPercentReport(
+									e.company, total,
+									jpy, usdJPY, usd, safe, unsafe,
+									deposit, term, fund, stock, bond
+								);
+							list.add(report);
+						}
+					}
 
 					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
 					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
@@ -550,73 +710,85 @@ public class UpdateAssetStats {
 					docSave.renameSheet(sheetNameOld, sheetNameNew);
 				}
 				
-				// COMPANY
-				{
-					var sheetNameOld = Sheet.getSheetName(CompanyReportJPY.class);
-					var sheetNameNew = "会社円";
-					var list         = companyListJPY;
-
-					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
-					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-					Sheet.fillSheet(docSave, list);
-					docSave.renameSheet(sheetNameOld, sheetNameNew);
-				}
-				{
-					var sheetNameOld = Sheet.getSheetName(CompanyReport.class);
-					var sheetNameNew = "会社";
-					var list         = companyList;
-
-					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
-					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-					Sheet.fillSheet(docSave, list);
-					docSave.renameSheet(sheetNameOld, sheetNameNew);
-				}
-				// PRODUCT - whole
-				{
-					var sheetNameOld = Sheet.getSheetName(ProductReportJPY.class);
-					var sheetNameNew = "商品円";
-					var list         = productListJPY;
-
-					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
-					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-					Sheet.fillSheet(docSave, list);
-					docSave.renameSheet(sheetNameOld, sheetNameNew);
-				}
-				{
-					var sheetNameOld = Sheet.getSheetName(ProductReport.class);
-					var sheetNameNew = "商品";
-					var list         = productList;
-
-					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
-					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-					Sheet.fillSheet(docSave, list);
-					docSave.renameSheet(sheetNameOld, sheetNameNew);
-				}
-				// GENERAL - company
-				{
-					for(var company: Company.values()) {
-						{
-							var sheetNameOld = Sheet.getSheetName(GeneralReport.class);
-							var sheetNameNew = company + "-概要";
-							var list         = getGeneralReportList(fxRateMap, filter(assetMap, company));
-							
-							logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
-							docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-							Sheet.fillSheet(docSave, list);
-							docSave.renameSheet(sheetNameOld, sheetNameNew);
-						}
-						{
-							var sheetNameOld = Sheet.getSheetName(ProductReport.class);
-							var sheetNameNew = company + "-商品";
-							var list         = getProductReportList(fxRateMap, filter(assetMap, company));
-							
-							logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
-							docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-							Sheet.fillSheet(docSave, list);
-							docSave.renameSheet(sheetNameOld, sheetNameNew);
-						}
-					}
-				}
+//				// GENERAL - whole
+//				{
+//					var sheetNameOld = Sheet.getSheetName(GeneralReport.class);
+//					var sheetNameNew = "概要";
+//					var list         = generalList;
+//
+//					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+//					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+//					Sheet.fillSheet(docSave, list);
+//					docSave.renameSheet(sheetNameOld, sheetNameNew);
+//				}
+//				
+//				// COMPANY
+//				{
+//					var sheetNameOld = Sheet.getSheetName(CompanyReportJPY.class);
+//					var sheetNameNew = "会社円";
+//					var list         = companyListJPY;
+//
+//					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+//					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+//					Sheet.fillSheet(docSave, list);
+//					docSave.renameSheet(sheetNameOld, sheetNameNew);
+//				}
+//				{
+//					var sheetNameOld = Sheet.getSheetName(CompanyReport.class);
+//					var sheetNameNew = "会社";
+//					var list         = companyList;
+//
+//					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+//					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+//					Sheet.fillSheet(docSave, list);
+//					docSave.renameSheet(sheetNameOld, sheetNameNew);
+//				}
+//				// PRODUCT - whole
+//				{
+//					var sheetNameOld = Sheet.getSheetName(ProductReportJPY.class);
+//					var sheetNameNew = "商品円";
+//					var list         = productListJPY;
+//
+//					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+//					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+//					Sheet.fillSheet(docSave, list);
+//					docSave.renameSheet(sheetNameOld, sheetNameNew);
+//				}
+//				{
+//					var sheetNameOld = Sheet.getSheetName(ProductReport.class);
+//					var sheetNameNew = "商品";
+//					var list         = productList;
+//
+//					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+//					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+//					Sheet.fillSheet(docSave, list);
+//					docSave.renameSheet(sheetNameOld, sheetNameNew);
+//				}
+//				// GENERAL - company
+//				{
+//					for(var company: Company.values()) {
+//						{
+//							var sheetNameOld = Sheet.getSheetName(GeneralReport.class);
+//							var sheetNameNew = company + "-概要";
+//							var list         = getGeneralReportList(fxRateMap, filter(assetMap, company));
+//							
+//							logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+//							docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+//							Sheet.fillSheet(docSave, list);
+//							docSave.renameSheet(sheetNameOld, sheetNameNew);
+//						}
+//						{
+//							var sheetNameOld = Sheet.getSheetName(ProductReport.class);
+//							var sheetNameNew = company + "-商品";
+//							var list         = getProductReportList(fxRateMap, filter(assetMap, company));
+//							
+//							logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+//							docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+//							Sheet.fillSheet(docSave, list);
+//							docSave.renameSheet(sheetNameOld, sheetNameNew);
+//						}
+//					}
+//				}
 				
 				// remove first sheet
 				docSave.removeSheet(docSave.getSheetName(0));

@@ -87,8 +87,7 @@ public final class UpdateAssetNikko implements UpdateAsset {
 			
 			{
 				var mrfInfo = BalancePage.MRFInfo.getInstance(page);
-//				logger.info("mrfInfo  {}", mrfInfo);
-				list.add(Asset.mrf(dateTime, Company.NIKKO, Currency.JPY, BigDecimal.valueOf(mrfInfo.value), "MRF"));
+				list.add(Asset.deposit(dateTime, Company.NIKKO, Currency.JPY, BigDecimal.valueOf(mrfInfo.value), "MRF"));
 			}
 			
 			
@@ -136,7 +135,7 @@ public final class UpdateAssetNikko implements UpdateAsset {
 				var currency = Currency.valueOf(e.currency);
 				var value    = new BigDecimal(e.value);
 				
-				list.add(Asset.mmf(dateTime, Company.NIKKO, currency, value, e.name));
+				list.add(Asset.deposit(dateTime, Company.NIKKO, currency, value, e.name));
 			}
 			
 			var foreignBondList = BalancePage.ForeignBondInfo.getInstance(page);
