@@ -148,7 +148,7 @@ public class UpdateAssetStats {
 				deposit += e.deposit;
 				term    += e.term;
 				fund    += e.fund;
-				stock   += e.safe;
+				stock   += e.stock;
 				bond    += e.bond;
 			}
 			var report = new CompanyGeneralReport(
@@ -764,18 +764,19 @@ public class UpdateAssetStats {
 					var sheetNameNew = "会社　概要　割合";
 					var list         = new ArrayList<CompanyGeneralReport>();
 					{
+						var grandTotal = companyGeneralList.get(companyGeneralList.size() - 1).total;
 						for(var e: companyGeneralList) {
-							double total   = e.total   / e.total;
-							double jpy     = e.jpy     / e.total;
-							double usdJPY  = e.usdJPY  / e.total;
+							double total   = e.total   / grandTotal;
+							double jpy     = e.jpy     / grandTotal;
+							double usdJPY  = e.usdJPY  / grandTotal;
 							double usd     = e.usd;
-							double safe    = e.safe    / e.total;
-							double unsafe  = e.unsafe  / e.total;
-							double deposit = e.deposit / e.total;
-							double term    = e.term    / e.total;
-							double fund    = e.fund    / e.total;
-							double stock   = e.stock   / e.total;
-							double bond    = e.bond    / e.total;
+							double safe    = e.safe    / grandTotal;
+							double unsafe  = e.unsafe  / grandTotal;
+							double deposit = e.deposit / grandTotal;
+							double term    = e.term    / grandTotal;
+							double fund    = e.fund    / grandTotal;
+							double stock   = e.stock   / grandTotal;
+							double bond    = e.bond    / grandTotal;
 							
 							var report = new CompanyGeneralReport(
 									e.company, total,
