@@ -9,7 +9,7 @@ public class AssetStats {
 	@Sheet.HeaderRow(0)
 	@Sheet.DataRow(1)
 	public static class CompanyGeneralReport extends Sheet {
-		public static final String SHEET_NAME_VALUE   = "会社ー概要ー値";
+		public static final String SHEET_NAME_VALUE   = "会社ー概要ー金額";
 		public static final String SHEET_NAME_PERCENT = "会社ー概要ー割合";
 		
 		@Sheet.ColumnName("会社")       public String company = "";
@@ -58,6 +58,53 @@ public class AssetStats {
 			return StringUtil.toString(this);
 		}
 	}
+	@Sheet.HeaderRow(0)
+	@Sheet.DataRow(1)
+	public static class DailyCompanyReport extends Sheet {
+		public static final String SHEET_NAME_VALUE   = "日付ー会社ー金額";
+		public static final String SHEET_NAME_PERCENT = "日付ー会社ー割合";
+		
+		@Sheet.ColumnName("日付")        public String date    = "";
+		
+		@Sheet.ColumnName("合計")        public double total   = 0;
+		@Sheet.ColumnName("ソニー")      public double sony    = 0;
+		@Sheet.ColumnName("三井住友")    public double smbc    = 0;
+		@Sheet.ColumnName("PRESTIA")     public double prestia = 0;
+		@Sheet.ColumnName("SMTB")        public double smtb    = 0;
+		@Sheet.ColumnName("楽天証券")    public double rakuten = 0;
+		@Sheet.ColumnName("日興証券")    public double nikko   = 0;
+		@Sheet.ColumnName("SBI証券")     public double sbi     = 0;
+		
+		public DailyCompanyReport(
+			String date,
+			
+			double total,
+			double sony,
+			double smbc,
+			double prestia,
+			double smtb,
+			double rakuten,
+			double nikko,
+			double sbi
+			) {
+			this.date    = date;
+			
+			this.total   = total;
+			this.sony    = sony;
+			this.smbc    = smbc;
+			this.prestia = prestia;
+			this.smtb    = smtb;
+			this.rakuten = rakuten;
+			this.nikko   = nikko;
+			this.sbi     = sbi;
+		}
+		
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+	}
+	
 	
 	
 	

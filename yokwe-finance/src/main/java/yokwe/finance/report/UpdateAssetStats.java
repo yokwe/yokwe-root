@@ -19,6 +19,7 @@ import yokwe.finance.report.AssetStats.GeneralReport;
 import yokwe.finance.report.AssetStats.CompanyGeneralReport;
 import yokwe.finance.report.AssetStats.CompanyReport;
 import yokwe.finance.report.AssetStats.CompanyReportJPY;
+import yokwe.finance.report.AssetStats.DailyCompanyReport;
 import yokwe.finance.report.AssetStats.ProductReport;
 import yokwe.finance.report.AssetStats.ProductReportJPY;
 import yokwe.finance.type.Currency;
@@ -160,6 +161,88 @@ public class UpdateAssetStats {
 		
 		return list;
 	}
+	
+	private static List<DailyCompanyReport> getDailyCompanyReportList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
+		var list = new ArrayList<DailyCompanyReport>();
+		
+		var dateList = fxRateMap.keySet().stream().collect(Collectors.toList());
+		Collections.sort(dateList);
+		for(var date: dateList) {
+			var assetList = assetMap.get(date);
+			var fxRate    = fxRateMap.get(date);
+			if (assetList == null) continue;
+			if (fxRate == null) continue;
+			
+			double total   = 0;
+			double sony    = 0;
+			double smbc    = 0;
+			double prestia = 0;
+			double smtb    = 0;
+			double rakuten = 0;
+			double nikko   = 0;
+			double sbi     = 0;
+			
+			for(var asset: assetList) {
+				var value    = asset.value.doubleValue();
+				var currency = asset.currency;
+				var company  = asset.company;
+				
+				switch(currency) {
+				case JPY:
+				case USD:
+					break;
+				default:
+					logger.error("Unexpected currency");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected currency");
+				}
+				
+				var valueJPY = value * fxRate.rate(currency).doubleValue();
+				
+				total += valueJPY;
+				
+				switch(company) {
+				case SONY:
+					sony += valueJPY;
+					break;
+				case SMBC:
+					smbc += valueJPY;
+					break;
+				case PRESTIA:
+					prestia += valueJPY;
+					break;
+				case SMTB:
+					smtb += valueJPY;
+					break;
+				case RAKUTEN:
+					rakuten += valueJPY;
+					break;
+				case NIKKO:
+					nikko += valueJPY;
+					break;
+				case SBI:
+					sbi += valueJPY;
+					break;
+				default:
+					logger.error("Unexpected company");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected company");
+				}
+			}
+			
+			var company = new DailyCompanyReport(
+				date.toString(),
+				total, sony, smbc, prestia, smtb, rakuten, nikko, sbi
+			);
+			
+			list.add(company);
+		}
+		
+		return list;
+	}
+	
+	
+	
 	
 	private static List<GeneralReport> getGeneralReportList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
 		var list = new ArrayList<GeneralReport>();
@@ -636,8 +719,9 @@ public class UpdateAssetStats {
 		}
 		
 		{
-			var companyGeneralList     = getCompanyGeneralReportList(fxRateMap, assetMap);
-			
+			var companyGeneralList = getCompanyGeneralReportList(fxRateMap, assetMap);
+			var dailyCompnaylList  = getDailyCompanyReportList(fxRateMap, assetMap);
+
 
 			var generalList     = getGeneralReportList(fxRateMap, assetMap);
 			var companyList     = getCompanyReportList(fxRateMap, assetMap);
@@ -666,7 +750,7 @@ public class UpdateAssetStats {
 				// COMPANY GENERAL
 				{
 					var sheetNameOld = CompanyGeneralReport.SHEET_NAME_VALUE;
-					var sheetNameNew = "会社　概要　値";
+					var sheetNameNew = "会社　概要　金額";
 					var list         = companyGeneralList;
 
 					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
@@ -680,19 +764,18 @@ public class UpdateAssetStats {
 					var sheetNameNew = "会社　概要　割合";
 					var list         = new ArrayList<CompanyGeneralReport>();
 					{
-						var totalJPY = companyGeneralList.get(companyGeneralList.size() - 1).total;
 						for(var e: companyGeneralList) {
-							double total   = e.total   / totalJPY;
-							double jpy     = e.jpy     / totalJPY;
-							double usdJPY  = e.usdJPY  / totalJPY;
+							double total   = e.total   / e.total;
+							double jpy     = e.jpy     / e.total;
+							double usdJPY  = e.usdJPY  / e.total;
 							double usd     = e.usd;
-							double safe    = e.safe    / totalJPY;
-							double unsafe  = e.unsafe  / totalJPY;
-							double deposit = e.deposit / totalJPY;
-							double term    = e.term    / totalJPY;
-							double fund    = e.fund    / totalJPY;
-							double stock   = e.stock   / totalJPY;
-							double bond    = e.bond    / totalJPY;
+							double safe    = e.safe    / e.total;
+							double unsafe  = e.unsafe  / e.total;
+							double deposit = e.deposit / e.total;
+							double term    = e.term    / e.total;
+							double fund    = e.fund    / e.total;
+							double stock   = e.stock   / e.total;
+							double bond    = e.bond    / e.total;
 							
 							var report = new CompanyGeneralReport(
 									e.company, total,
@@ -708,6 +791,47 @@ public class UpdateAssetStats {
 					Sheet.fillSheet(docSave, list, sheetNameOld);
 					docSave.renameSheet(sheetNameOld, sheetNameNew);
 				}
+				// DAILY COMPANY
+				{
+					var sheetNameOld = DailyCompanyReport.SHEET_NAME_VALUE;
+					var sheetNameNew = "日付　会社　金額";
+					var list         = dailyCompnaylList;
+
+					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, list, sheetNameOld);
+					docSave.renameSheet(sheetNameOld, sheetNameNew);
+				}
+				// DAILY COMPANY PERCENT
+				{
+					var sheetNameOld = DailyCompanyReport.SHEET_NAME_PERCENT;
+					var sheetNameNew = "日付　概要　割合";
+					var list         = new ArrayList<DailyCompanyReport>();
+					{
+						for(var e: dailyCompnaylList) {
+							double total   = e.total   / e.total;
+							double sony    = e.sony    / e.total;
+							double smbc    = e.smbc    / e.total;
+							double prestia = e.prestia / e.total;
+							double smtb    = e.smtb    / e.total;
+							double rakuten = e.rakuten / e.total;
+							double nikko   = e.nikko   / e.total;
+							double sbi     = e.sbi     / e.total;
+							
+							var company = new DailyCompanyReport(
+								e.date,
+								total, sony, smbc, prestia, smtb, rakuten, nikko, sbi
+							);
+							list.add(company);
+						}
+					}
+
+					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, list, sheetNameOld);
+					docSave.renameSheet(sheetNameOld, sheetNameNew);
+				}
+				
 				
 //				// GENERAL - whole
 //				{
