@@ -17,9 +17,11 @@ import yokwe.finance.account.UpdateAssetAll;
 import yokwe.finance.fx.StorageFX;
 import yokwe.finance.report.AssetStats.GeneralReport;
 import yokwe.finance.report.AssetStats.CompanyGeneralReport;
+import yokwe.finance.report.AssetStats.CompanyProductReport;
 import yokwe.finance.report.AssetStats.CompanyReport;
 import yokwe.finance.report.AssetStats.CompanyReportJPY;
 import yokwe.finance.report.AssetStats.DailyCompanyReport;
+import yokwe.finance.report.AssetStats.DailyProductReport;
 import yokwe.finance.report.AssetStats.ProductReport;
 import yokwe.finance.report.AssetStats.ProductReportJPY;
 import yokwe.finance.type.Currency;
@@ -152,10 +154,10 @@ public class UpdateAssetStats {
 				bond    += e.bond;
 			}
 			var report = new CompanyGeneralReport(
-					date.toString(), total,
-					jpy, usdJPY, usd, safe, unsafe,
-					deposit, term, fund, stock, bond
-				);
+				date.toString(), total,
+				jpy, usdJPY, usd, safe, unsafe,
+				deposit, term, fund, stock, bond
+			);
 			list.add(report);
 		}
 		
@@ -241,6 +243,149 @@ public class UpdateAssetStats {
 		return list;
 	}
 	
+	private static List<CompanyProductReport> getCompanyProductReportList(Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap) {
+		var list = new ArrayList<CompanyProductReport>();
+		
+		var date      = fxRateMap.keySet().stream().max(LocalDate::compareTo).get();
+		var fxRate    = fxRateMap.get(date);
+		var assetList = assetMap.get(date);
+		
+		for(var company: Company.values()) {
+			double total       = 0;
+			
+			double totalJPY    = 0;
+			double depositJPY  = 0;
+			double termJPY     = 0;
+			double fundJPY     = 0;
+			double stockJPY    = 0;
+			double bondJPY     = 0;
+			
+			double totalUSD    = 0;
+			double depositUSD  = 0;
+			double termUSD     = 0;
+			double fundUSD     = 0;
+			double stockUSD    = 0;
+			double bondUSD     = 0;
+			
+			for(var asset: assetList) {
+				if (asset.company != company) continue;
+				
+				var value    = asset.value.doubleValue();
+				var currency = asset.currency;
+				var valueJPY = value * fxRate.rate(currency).doubleValue();
+				var product  = asset.product;
+				
+				total += valueJPY;
+				
+				switch(currency) {
+				case JPY:
+					totalJPY += value;
+					
+					switch(product) {
+					case DEPOSIT:
+						depositJPY += value;
+						break;
+					case TERM_DEPOSIT:
+						termJPY += value;
+						break;
+					case STOCK:
+						stockJPY += value;
+						break;
+					case FUND:
+						fundJPY += value;
+						break;
+					case BOND:
+						bondJPY += value;
+						break;
+					default:
+						logger.error("Unexpected product");
+						logger.error("  asset  {}", asset);
+						throw new UnexpectedException("Unexpected product");
+					}
+					break;
+				case USD:
+					totalUSD += value;
+					
+					switch(product) {
+					case DEPOSIT:
+						depositUSD += value;
+						break;
+					case TERM_DEPOSIT:
+						termUSD += value;
+						break;
+					case STOCK:
+						stockUSD += value;
+						break;
+					case FUND:
+						fundUSD += value;
+						break;
+					case BOND:
+						bondUSD += value;
+						break;
+					default:
+						logger.error("Unexpected product");
+						logger.error("  asset  {}", asset);
+						throw new UnexpectedException("Unexpected product");
+					}
+					break;
+				default:
+					logger.error("Unexpected currency");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected currency");
+				}
+			}
+			
+			var companyProduct = new CompanyProductReport(
+				company.description, total,
+				totalJPY, depositJPY, termJPY, fundJPY, stockJPY, bondJPY,
+				totalUSD, depositUSD, termUSD, fundUSD, stockUSD, bondUSD
+			);
+			list.add(companyProduct);
+		}
+		{
+			double total       = 0;
+			
+			double totalJPY    = 0;
+			double depositJPY  = 0;
+			double termJPY     = 0;
+			double fundJPY     = 0;
+			double stockJPY    = 0;
+			double bondJPY     = 0;
+			
+			double totalUSD    = 0;
+			double depositUSD  = 0;
+			double termUSD     = 0;
+			double fundUSD     = 0;
+			double stockUSD    = 0;
+			double bondUSD     = 0;
+			
+			for(var e: list) {
+				total += e.total;
+				
+				totalJPY    += e.totalJPY;
+				depositJPY  += e.depositJPY ;
+				termJPY     += e.termJPY;
+				fundJPY     += e.fundJPY;
+				stockJPY    += e.stockJPY;
+				bondJPY     += e.bondJPY;
+				
+				totalUSD    += e.totalUSD;
+				depositUSD  += e.depositUSD;
+				termUSD     += e.termUSD;
+				fundUSD     += e.fundUSD;
+				stockUSD    += e.stockUSD;
+				bondUSD     += e.bondUSD;
+			}
+			
+			var companyProduct = new CompanyProductReport(
+				date.toString(), total,
+				totalJPY, depositJPY, termJPY, fundJPY, stockJPY, bondJPY,
+				totalUSD, depositUSD, termUSD, fundUSD, stockUSD, bondUSD
+			);
+			list.add(companyProduct);
+		}
+		return list;
+	}
 	
 	
 	
@@ -721,7 +866,7 @@ public class UpdateAssetStats {
 		{
 			var companyGeneralList = getCompanyGeneralReportList(fxRateMap, assetMap);
 			var dailyCompnaylList  = getDailyCompanyReportList(fxRateMap, assetMap);
-
+			var companyProductList = getCompanyProductReportList(fxRateMap, assetMap);
 
 			var generalList     = getGeneralReportList(fxRateMap, assetMap);
 			var companyList     = getCompanyReportList(fxRateMap, assetMap);
@@ -747,7 +892,7 @@ public class UpdateAssetStats {
 				SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
 				SpreadSheet docSave = new SpreadSheet();
 				
-				// COMPANY GENERAL
+				// COMPANY GENERAL vALUE
 				{
 					var sheetNameOld = CompanyGeneralReport.SHEET_NAME_VALUE;
 					var sheetNameNew = "会社　概要　金額";
@@ -779,10 +924,10 @@ public class UpdateAssetStats {
 							double bond    = e.bond    / grandTotal;
 							
 							var report = new CompanyGeneralReport(
-									e.company, total,
-									jpy, usdJPY, usd, safe, unsafe,
-									deposit, term, fund, stock, bond
-								);
+								e.company, total,
+								jpy, usdJPY, usd, safe, unsafe,
+								deposit, term, fund, stock, bond
+							);
 							list.add(report);
 						}
 					}
@@ -792,7 +937,7 @@ public class UpdateAssetStats {
 					Sheet.fillSheet(docSave, list, sheetNameOld);
 					docSave.renameSheet(sheetNameOld, sheetNameNew);
 				}
-				// DAILY COMPANY
+				// DAILY COMPANY VALUE
 				{
 					var sheetNameOld = DailyCompanyReport.SHEET_NAME_VALUE;
 					var sheetNameNew = "日付　会社　金額";
@@ -832,6 +977,62 @@ public class UpdateAssetStats {
 					Sheet.fillSheet(docSave, list, sheetNameOld);
 					docSave.renameSheet(sheetNameOld, sheetNameNew);
 				}
+				
+				
+				// COMPANY PRODUCT VALUE
+				{
+					var sheetNameOld = CompanyProductReport.SHEET_NAME_VALUE;
+					var sheetNameNew = "会社　商品　金額";
+					var list         = companyProductList;
+
+					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, list, sheetNameOld);
+					docSave.renameSheet(sheetNameOld, sheetNameNew);
+				}
+				// COMPANY PRODUCT PERCENT
+				{
+					var sheetNameOld = CompanyProductReport.SHEET_NAME_PERCENT;
+					var sheetNameNew = "会社　商品　割合";
+					var list         = new ArrayList<CompanyProductReport>();
+					{
+						var last = companyProductList.get(companyGeneralList.size() - 1);
+						var date = LocalDate.parse(last.company);
+						var usdRate = fxRateMap.get(date).usd.doubleValue();
+						
+						var grandTotal = companyProductList.get(companyGeneralList.size() - 1).total;
+						for(var e: companyProductList) {
+							double total       = e.total / grandTotal;
+							
+							double totalJPY    = e.totalJPY   / grandTotal;
+							double depositJPY  = e.depositJPY / grandTotal;
+							double termJPY     = e.termJPY    / grandTotal;
+							double fundJPY     = e.fundJPY    / grandTotal;
+							double stockJPY    = e.stockJPY   / grandTotal;
+							double bondJPY     = e.bondJPY    / grandTotal;
+							
+							double totalUSD    = e.totalUSD   * usdRate / grandTotal;
+							double depositUSD  = e.depositUSD * usdRate / grandTotal;
+							double termUSD     = e.termUSD    * usdRate / grandTotal;
+							double fundUSD     = e.fundUSD    * usdRate / grandTotal;
+							double stockUSD    = e.stockUSD   * usdRate / grandTotal;
+							double bondUSD     = e.bondUSD    * usdRate / grandTotal;
+							
+							var report = new CompanyProductReport(
+								e.company, total,
+								totalJPY, depositJPY, termJPY, fundJPY, stockJPY, bondJPY,
+								totalUSD, depositUSD, termUSD, fundUSD, stockUSD, bondUSD
+							);
+							list.add(report);
+						}
+					}
+
+					logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+					docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+					Sheet.fillSheet(docSave, list, sheetNameOld);
+					docSave.renameSheet(sheetNameOld, sheetNameNew);
+				}
+
 				
 				
 //				// GENERAL - whole
