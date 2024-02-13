@@ -15,7 +15,7 @@ import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAssetAll;
 import yokwe.finance.fx.StorageFX;
-import yokwe.finance.report.AssetStats.DailyCompanyGeneralReport;
+import yokwe.finance.report.AssetStats.DailyCompanyOverviewReport;
 import yokwe.finance.report.AssetStats.DailyCompanyProductReport;
 import yokwe.finance.report.AssetStats.DailyTotalCompanyReport;
 import yokwe.finance.type.FXRate;
@@ -32,8 +32,107 @@ public class UpdateAssetStats {
 	
 	private static final int PERIOD_YEAR = 1;
 	
-	private static final String COMPANY_GRAND_TOTAL = "＊総合計＊";
+	private static final String COMPANY_GRAND_TOTAL = "＊口座合計＊";
 	
+	private static void buildDailyCompanyOverviewReportList (
+		Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap,
+		List<DailyCompanyOverviewReport> valueList, List<DailyCompanyOverviewReport> percentList) {
+		valueList.clear();
+		percentList.clear();
+		
+		var dateList = fxRateMap.keySet().stream().collect(Collectors.toList());
+		Collections.sort(dateList);
+		for(var date: dateList) {
+			var assetList = assetMap.get(date);
+			var fxRate    = fxRateMap.get(date);
+			if (assetList == null) continue;
+			if (fxRate == null) continue;
+			
+			var map = new TreeMap<Company, DailyCompanyOverviewReport>();
+			for(var e: Company.values()) {
+				var report = new DailyCompanyOverviewReport();
+				report.date    = date.toString();
+				report.company = e.description;
+				map.put(e, report);
+			}
+			var grandTotal = new DailyCompanyOverviewReport();
+			grandTotal.date    = date.toString();
+			grandTotal.company = COMPANY_GRAND_TOTAL;
+			
+			for(var asset: assetList) {
+				var value    = asset.value.doubleValue();
+				var currency = asset.currency;
+				var valueJPY = value * fxRate.rate(currency).doubleValue();
+				var company  = asset.company;
+				var product  = asset.product;
+				var risk     = asset.risk;
+				
+				var report = map.get(company);
+				
+				report.total += valueJPY;
+				
+				switch(currency) {
+				case JPY:
+					report.jpy += value;
+					break;
+				case USD:
+					report.usdJPY += valueJPY;
+					report.usd    += value;
+					break;
+				default:
+					logger.error("Unexpected currency");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected currency");
+				}
+				
+				switch(risk) {
+				case SAFE:
+					report.safe += valueJPY;
+					break;
+				case UNSAFE:
+					report.unsafe += valueJPY;
+					break;
+				default:
+					logger.error("Unexpected risk");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected risk");
+				}
+				
+				switch(product) {
+				case DEPOSIT:
+					report.deposit += valueJPY;
+					break;
+				case TERM_DEPOSIT:
+					report.term += valueJPY;
+					break;
+				case STOCK:
+					report.stock += valueJPY;
+					break;
+				case FUND:
+					report.fund += valueJPY;
+					break;
+				case BOND:
+					report.bond += valueJPY;
+					break;
+				default:
+					logger.error("Unexpected product");
+					logger.error("  asset  {}", asset);
+					throw new UnexpectedException("Unexpected product");
+				}
+			}
+			for(var company: Company.values()) {
+				var report = map.get(company);
+				grandTotal.add(report);
+				valueList.add(report);
+			}
+			valueList.add(grandTotal);
+			
+			for(var company: Company.values()) {
+				percentList.add(map.get(company).percent(grandTotal.total));
+			}
+			percentList.add(grandTotal.percent(grandTotal.total));
+		}
+	}
 	private static void buildDailyCompanyProductReportList(
 			Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap,
 			List<DailyCompanyProductReport> valueList, List<DailyCompanyProductReport> percentList) {
@@ -139,105 +238,6 @@ public class UpdateAssetStats {
 				percentList.add(map.get(company).percent(grandTotal.total, usdRate));
 			}
 			percentList.add(grandTotal.percent(grandTotal.total, usdRate));
-		}
-	}
-	private static void buildDailyCompanyGeneralReportList (
-		Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap,
-		List<DailyCompanyGeneralReport> valueList, List<DailyCompanyGeneralReport> percentList) {
-		valueList.clear();
-		percentList.clear();
-		
-		var dateList = fxRateMap.keySet().stream().collect(Collectors.toList());
-		Collections.sort(dateList);
-		for(var date: dateList) {
-			var assetList = assetMap.get(date);
-			var fxRate    = fxRateMap.get(date);
-			if (assetList == null) continue;
-			if (fxRate == null) continue;
-			
-			var map = new TreeMap<Company, DailyCompanyGeneralReport>();
-			for(var e: Company.values()) {
-				var report = new DailyCompanyGeneralReport();
-				report.date    = date.toString();
-				report.company = e.description;
-				map.put(e, report);
-			}
-			var grandTotal = new DailyCompanyGeneralReport();
-			grandTotal.date    = date.toString();
-			grandTotal.company = COMPANY_GRAND_TOTAL;
-			
-			for(var asset: assetList) {
-				var value    = asset.value.doubleValue();
-				var currency = asset.currency;
-				var valueJPY = value * fxRate.rate(currency).doubleValue();
-				var company  = asset.company;
-				var product  = asset.product;
-				var risk     = asset.risk;
-				
-				var report = map.get(company);
-				
-				report.total += valueJPY;
-				
-				switch(currency) {
-				case JPY:
-					report.jpy += value;
-					break;
-				case USD:
-					report.usdJPY += valueJPY;
-					report.usd    += value;
-					break;
-				default:
-					logger.error("Unexpected currency");
-					logger.error("  asset  {}", asset);
-					throw new UnexpectedException("Unexpected currency");
-				}
-				
-				switch(risk) {
-				case SAFE:
-					report.safe += valueJPY;
-					break;
-				case UNSAFE:
-					report.unsafe += valueJPY;
-					break;
-				default:
-					logger.error("Unexpected risk");
-					logger.error("  asset  {}", asset);
-					throw new UnexpectedException("Unexpected risk");
-				}
-				
-				switch(product) {
-				case DEPOSIT:
-					report.deposit += valueJPY;
-					break;
-				case TERM_DEPOSIT:
-					report.term += valueJPY;
-					break;
-				case STOCK:
-					report.stock += valueJPY;
-					break;
-				case FUND:
-					report.fund += valueJPY;
-					break;
-				case BOND:
-					report.bond += valueJPY;
-					break;
-				default:
-					logger.error("Unexpected product");
-					logger.error("  asset  {}", asset);
-					throw new UnexpectedException("Unexpected product");
-				}
-			}
-			for(var company: Company.values()) {
-				var report = map.get(company);
-				grandTotal.add(report);
-				valueList.add(report);
-			}
-			valueList.add(grandTotal);
-			
-			for(var company: Company.values()) {
-				percentList.add(map.get(company).percent(grandTotal.total));
-			}
-			percentList.add(grandTotal.percent(grandTotal.total));
 		}
 	}
 	private static void buildDailyTotalCompanyReportList  (
@@ -375,7 +375,33 @@ public class UpdateAssetStats {
 				SpreadSheet docLoad = new SpreadSheet(URL_TEMPLATE, true);
 				SpreadSheet docSave = new SpreadSheet();
 								
-				// DAILY COMPANY PRODUCT VALUE
+				// DAILY COMPANY GENERAL VALUE
+				{
+					var priceList   = new ArrayList<DailyCompanyOverviewReport>();
+					var percentList = new ArrayList<DailyCompanyOverviewReport>();
+					buildDailyCompanyOverviewReportList(fxRateMap, assetMap, priceList, percentList);
+					{
+						var sheetNameOld = DailyCompanyOverviewReport.SHEET_NAME_VALUE;
+						var sheetNameNew = "日付　会社　概要　金額";
+						var list         = priceList;
+
+						logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+						docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+						Sheet.fillSheet(docSave, list, sheetNameOld);
+						docSave.renameSheet(sheetNameOld, sheetNameNew);
+					}
+					{
+						var sheetNameOld = DailyCompanyOverviewReport.SHEET_NAME_PERCENT;
+						var sheetNameNew = "日付　会社　概要　割合";
+						var list         = percentList;
+
+						logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+						docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+						Sheet.fillSheet(docSave, list, sheetNameOld);
+						docSave.renameSheet(sheetNameOld, sheetNameNew);
+					}
+				}
+				// DAILY COMPANY PRODUCT
 				{
 					var priceList   = new ArrayList<DailyCompanyProductReport>();
 					var percentList = new ArrayList<DailyCompanyProductReport>();
@@ -401,34 +427,7 @@ public class UpdateAssetStats {
 						docSave.renameSheet(sheetNameOld, sheetNameNew);
 					}
 				}
-				// DAILY COMPANY GENERAL VALUE
-				{
-					var priceList   = new ArrayList<DailyCompanyGeneralReport>();
-					var percentList = new ArrayList<DailyCompanyGeneralReport>();
-					buildDailyCompanyGeneralReportList(fxRateMap, assetMap, priceList, percentList);
-					{
-						var sheetNameOld = DailyCompanyGeneralReport.SHEET_NAME_VALUE;
-						var sheetNameNew = "日付　会社　概要　金額";
-						var list         = priceList;
-
-						logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
-						docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-						Sheet.fillSheet(docSave, list, sheetNameOld);
-						docSave.renameSheet(sheetNameOld, sheetNameNew);
-					}
-					{
-						var sheetNameOld = DailyCompanyGeneralReport.SHEET_NAME_PERCENT;
-						var sheetNameNew = "日付　会社　概要　割合";
-						var list         = percentList;
-
-						logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
-						docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
-						Sheet.fillSheet(docSave, list, sheetNameOld);
-						docSave.renameSheet(sheetNameOld, sheetNameNew);
-					}
-				}
-				// buildDailyTotalCompanyReportList
-				// DAILY COMPANY GENERAL VALUE
+				// DAILY TOTAL COMPANY
 				{
 					var priceList   = new ArrayList<DailyTotalCompanyReport>();
 					var percentList = new ArrayList<DailyTotalCompanyReport>();
