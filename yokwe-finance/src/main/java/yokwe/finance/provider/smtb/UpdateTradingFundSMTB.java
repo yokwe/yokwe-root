@@ -18,7 +18,7 @@ import yokwe.util.http.HttpUtil;
 public class UpdateTradingFundSMTB {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE  = true;
+	private static final boolean DEBUG_USE_FILE  = false;
 	
 	private static final int MAXDISP = 100;
 	private static String getURL(int pageNo) { // pageNo starts from zero
