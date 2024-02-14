@@ -348,6 +348,7 @@ public interface Storage {
 		public static final Storage prestia =  new Storage.Impl(base, "prestia");
 		public static final Storage rakuten =  new Storage.Impl(base, "rakuten");
 		public static final Storage sbi     =  new Storage.Impl(base, "sbi");
+		public static final Storage smtb    =  new Storage.Impl(base, "smtb");
 		public static final Storage sony    =  new Storage.Impl(base, "sony");
 		public static final Storage yahoo   =  new Storage.Impl(base, "yahoo");
 	}
