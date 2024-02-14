@@ -17,6 +17,7 @@ import yokwe.finance.provider.nomura.StorageNomura;
 import yokwe.finance.provider.prestia.StoragePrestia;
 import yokwe.finance.provider.rakuten.StorageRakuten;
 import yokwe.finance.provider.sbi.StorageSBI;
+import yokwe.finance.provider.smtb.StorageSMTB;
 import yokwe.finance.provider.sony.StorageSony;
 import yokwe.finance.stats.MonthlyStats;
 import yokwe.finance.type.DailyValue;
@@ -94,6 +95,7 @@ public class UpdateFundStats {
 		var sbiMap     = StorageSBI.TradingFundSBI.getMap();
 		var sonyMap    = StorageSony.TradingFundSony.getMap();
 		var prestiaMap = StoragePrestia.TradingFundPrestia.getMap();
+		var smtbMap    = StorageSMTB.TradingFundSMTB.getMap();
 		logger.info("clickMap   {}", clickMap.size());
 		logger.info("nikkoMap   {}", nikkoMap.size());
 		logger.info("nomuraMap  {}", nomuraMap.size());
@@ -101,6 +103,7 @@ public class UpdateFundStats {
 		logger.info("sbiMapt    {}", sbiMap.size());
 		logger.info("sonyMap    {}", sonyMap.size());
 		logger.info("prestiaMap {}", prestiaMap.size());
+		logger.info("smtbMap    {}", smtbMap.size());
 		
 		var nisaFundMap = StorageRakuten.NisaFundRakuten.getMap();
 		logger.info("nisaFund   {}", nisaFundMap.size());
@@ -219,6 +222,7 @@ public class UpdateFundStats {
 				fundStats.sbi     = !sbiMap.containsKey(fund.isinCode)     ? null: sbiMap.get(fund.isinCode).salesFee;
 				fundStats.sony    = !sonyMap.containsKey(fund.isinCode)    ? null: sonyMap.get(fund.isinCode).salesFee;
 				fundStats.prestia = !prestiaMap.containsKey(fund.isinCode) ? null: prestiaMap.get(fund.isinCode).salesFee;
+				fundStats.smtb    = !smtbMap.containsKey(fund.isinCode)    ? null: smtbMap.get(fund.isinCode).salesFee;
 				
 				if (nisaFundMap.containsKey(isinCode)) {
 					fundStats.nisa = BigDecimal.valueOf(nisaFundMap.get(isinCode).accumulable.value);
