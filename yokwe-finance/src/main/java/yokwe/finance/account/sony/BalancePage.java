@@ -80,7 +80,7 @@ public class BalancePage {
 	//	<script type="text/javascript">writeLink('0', '103030441','1');</script>
 	//	</div></td>
 	//	</tr>
-	
+	// 残高口数	個別元本	時価評価額	取得金額	
 	//
 	// 投資信託
 	//
@@ -89,9 +89,9 @@ public class BalancePage {
 			"<tr>\\s+" +
 			"<td .+?><p>.+?<br><a .+?fndNmLink.+?>(?<name>.+?)</a></p></td>\\s+" +
 			"<td><p>(?<value>[0-9,]+)円</p></td>\\s+" +
-			"<td><p>[0-9,]+口</p></td>\\s+" +
-			"<td><p>[0-9,]+円</p></td>\\s+" +
-			"<td><p>[-0-9,]+円</p></td>\\s+" +
+			"<td><p>(?<units>[0-9,]+)口</p></td>\\s+" +
+			"<td><p>(?<unitPrice>[0-9,]+)円</p></td>\\s+" +
+			"<td><p>(?<profit>[-0-9,]+)円</p></td>\\s+" +
 			"<td .+?><div .+?>.+?</div></td>\\s+" +
 			"</tr>" +
 			"",
@@ -103,10 +103,16 @@ public class BalancePage {
 		
 		public final String     name;
 		public final BigDecimal value;
+		public final BigDecimal units;
+		public final BigDecimal unitPrice;
+		public final BigDecimal profit;
 		
-		public FundJPY(String name, BigDecimal value) {
-			this.name  = name;
-			this.value = value;
+		public FundJPY(String name, BigDecimal value, BigDecimal units, BigDecimal unitPrice, BigDecimal profit) {
+			this.name      = name;
+			this.value     = value;
+			this.units     = units;
+			this.unitPrice = unitPrice;
+			this.profit    = profit;
 		}
 		
 		@Override
