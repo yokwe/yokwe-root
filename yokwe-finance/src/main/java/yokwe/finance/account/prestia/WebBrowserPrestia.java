@@ -16,7 +16,7 @@ public class WebBrowserPrestia extends WebBrowser {
 	
 	private static final Target FUND_ENTER_A = new Target.Click(By.id("header-nav-label-3"));
 	private static final Target FUND_ENTER_B = new Target.Click(By.linkText("投資信託サービス"), "インターネットバンキング投資信託");
-	private static final Target FUND_BALANCE = new Target.Click(By.xpath("//*[@id=\"navi02_03\"]/li[2]/a"));
+	private static final Target FUND_RETURNS = new Target.Click(By.xpath("//*[@id=\"navi02_03\"]/li[4]/a")); // トータルリターン
 	private static final Target FUND_EXIT    = new Target.Click(By.xpath("//*[@id=\"header\"]/img[1]"), "プレスティア オンライン");
 	
 	public WebBrowserPrestia() {
@@ -49,12 +49,12 @@ public class WebBrowserPrestia extends WebBrowser {
 		FUND_ENTER_A.action(this);
 		FUND_ENTER_B.action(this);
 	}
-	public void fundBalance() {
+	public void fundReturns() {
 		// hover mouse to navi02_03_active
 		moveMouse(By.id("navi02_03_active"));
 		
 		// click 
-		FUND_BALANCE.action(this);
+		FUND_RETURNS.action(this);
 	}
 	public void fundExit() {
 		FUND_EXIT.action(this);
