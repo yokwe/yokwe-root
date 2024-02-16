@@ -45,7 +45,9 @@ public class Asset implements Comparable<Asset> {
 	public final BigDecimal value;    // value in currency
 	
 	// stock and fund
-	public Risk       risk;   // safe unsafe or unknown
+	public Risk       assetRisk;      // safe unsafe or unknown
+	public Risk       currencyRisk;   // safe unsafe or unknown
+	public BigDecimal cost;           // value - cost = profit
 	
 	// stock, fund and bond
 	public String     code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
@@ -54,46 +56,50 @@ public class Asset implements Comparable<Asset> {
 	public Asset(
 		LocalDate date, Company company, Product product,
 		Currency currency, BigDecimal value,
-		Risk risk, String code, String name) {
-		this.date     = date;
-		this.company  = company;
-		this.product  = product;
-		this.currency = currency;
-		this.value    = value;
-		this.risk     = risk;
-		this.code     = code;
-		this.name     = name;
+		Risk assetRisk, Risk currencyRisk, BigDecimal cost, String code, String name) {
+		this.date         = date;
+		this.company      = company;
+		this.product      = product;
+		this.currency     = currency;
+		this.value        = value;
+		this.assetRisk    = assetRisk;
+		this.currencyRisk = currencyRisk;
+		this.cost         = cost;
+		this.code         = code;
+		this.name         = name;
 	}
 	
 	public Asset(
-		LocalDateTime dateTime, Company company, Product product, Currency currency, BigDecimal value, Risk risk,
-		String code, String name) {
-		this.date     = dateTime.toLocalDate();
-		this.company  = company;
-		this.product  = product;
-		this.currency = currency;
-		this.value    = value;
-		this.risk     = risk;
-		this.code     = code;
-		this.name     = name;
+		LocalDateTime dateTime, Company company, Product product, Currency currency, BigDecimal value,
+		Risk assetRisk, Risk currencyRisk, BigDecimal cost, String code, String name) {
+		this.date         = dateTime.toLocalDate();
+		this.company      = company;
+		this.product      = product;
+		this.currency     = currency;
+		this.value        = value;
+		this.assetRisk    = assetRisk;
+		this.currencyRisk = currencyRisk;
+		this.cost         = cost;
+		this.code         = code;
+		this.name         = name;
 	}
 	
 	// name
 	public static Asset deposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Product.DEPOSIT, currency, value, Risk.SAFE, "", name);
+		return new Asset(dateTime, company, Product.DEPOSIT, currency, value, Risk.SAFE, Risk.SAFE, value, "", name);
 	}
-	public static Asset depositTime(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Product.TERM_DEPOSIT, currency, value, Risk.SAFE, "", name);
+	public static Asset termDeposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
+		return new Asset(dateTime, company, Product.TERM_DEPOSIT, currency, value, Risk.SAFE, Risk.SAFE, value, "", name);
 	}
 	// code name
-	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Risk risk, String code, String name) {
-		return new Asset(dateTime, company, Product.FUND, currency, value, risk, code, name);
+	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, AssetRisk.Entry entry, BigDecimal cost, String code, String name) {
+		return new Asset(dateTime, company, Product.FUND, currency, value, entry.assetRisk, entry.currencyRisk, cost, code, name);
 	}
-	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, Risk risk, String code, String name) {
-		return new Asset(dateTime, company, Product.STOCK, currency, value, risk, code, name);
+	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, AssetRisk.Entry entry, BigDecimal cost, String code, String name) {
+		return new Asset(dateTime, company, Product.STOCK, currency, value, entry.assetRisk, entry.currencyRisk, cost, code, name);
 	}
-	public static Asset bond(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String code, String name) {
-		return new Asset(dateTime, company, Product.BOND, currency, value, Risk.SAFE, code, name);
+	public static Asset bond(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, BigDecimal cost, String code, String name) {
+		return new Asset(dateTime, company, Product.BOND, currency, value, Risk.SAFE, Risk.SAFE, cost, code, name);
 	}
 	
 	@Override
@@ -101,11 +107,11 @@ public class Asset implements Comparable<Asset> {
 		switch(product) {
 		case DEPOSIT:
 		case TERM_DEPOSIT:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s}", date, company, product, currency, value.toPlainString(), risk, name);
+			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s  %s}", date, company, product, currency, value.toPlainString(), assetRisk, currencyRisk, cost, name);
 		case FUND:
 		case STOCK:
 		case BOND:
-			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s}", date, company, product, currency, value.toPlainString(), risk, code, name);
+			return String.format("{%s  %s  %s  %s  %s  %s  %s  %s  %s  %s}", date, company, product, currency, value.toPlainString(), assetRisk, currencyRisk, cost, code, name);
 		default:
 			logger.error("Unexpected type");
 			logger.error("  {}!", product);
