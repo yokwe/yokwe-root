@@ -17,7 +17,7 @@ import yokwe.finance.account.prestia.BalancePage.DepositMultiMoney;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoneyJPY;
 import yokwe.finance.account.prestia.BalancePage.DepositUSD;
 import yokwe.finance.account.prestia.BalancePage.TermDepositForeign;
-import yokwe.finance.account.prestia.FundPage.FundInfo;
+import yokwe.finance.account.prestia.FundPage.FundReturns;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 
@@ -28,12 +28,12 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 	
 	private static final File FILE_TOP     = storage.getFile("top.html");
 	private static final File FILE_BALANCE = storage.getFile("balance.html");
-	private static final File FILE_FUND    = storage.getFile("fund.html");
+	private static final File FILE_FUND_RETURNS    = storage.getFile("fund-returns.html");
 	
 	private static final File[] FILES = {
 		FILE_TOP,
 		FILE_BALANCE,
-		FILE_FUND,
+		FILE_FUND_RETURNS,
 	};
 
 	@Override
@@ -57,8 +57,8 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 			
 			logger.info("fund");
 			browser.fundEnter();
-			browser.fundBalance();
-			browser.savePage(FILE_FUND);
+			browser.fundReturns();
+			browser.savePage(FILE_FUND_RETURNS);
 			browser.fundExit();
 			
 			logger.info("logout");
@@ -134,7 +134,7 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 					var value = e.value;
 					if (value.compareTo(BigDecimal.ZERO) != 0) {
 						Currency currency = Currency.valueOf(e.currency);
-						list.add(Asset.depositTime(dateTime, Company.PRESTIA, currency, e.value, "外貨定期預金"));
+						list.add(Asset.termDeposit(dateTime, Company.PRESTIA, currency, e.value, "外貨定期預金"));
 					}
 				}
 			}
@@ -143,7 +143,7 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 			LocalDateTime dateTime;
 			String        page;
 			{
-				var htmlFile = FILE_FUND;
+				var htmlFile = FILE_FUND_RETURNS;
 				
 				var instant = FileUtil.getLastModified(htmlFile);
 				dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).truncatedTo(ChronoUnit.SECONDS);
@@ -151,15 +151,17 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 				
 				page = FileUtil.read().file(htmlFile);
 			}
-			// 投資信託
+			// 投資信託　トータルリターン
 			{
-				var fundInfo = FundInfo.getInstance(page);
-//				logger.info("fundInfo  {}", fundInfo.size());
-				for(var e: fundInfo) {
-//					logger.info("fundInfo  {}", e);
-					Currency currency = Currency.valueOf(e.currency);
-					var risk = AssetRisk.fundPrestia.getRisk(e.fundCode);
-					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, risk, e.fundCode, e.fundName));
+				var fundReturnsList = FundReturns.getInstance(page);
+				logger.info("fundReturnsList  {}", fundReturnsList.size());
+				
+				for(var e: fundReturnsList) {
+					logger.info("fundReturns  {}", e);
+					Currency currency = Currency.USD; // assume USD
+					var entry = AssetRisk.fundPrestia.getEntry(e.fundCode);
+					var cost = e.buyTotal.subtract(e.soldTotal).stripTrailingZeros();
+					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, entry, cost, e.fundCode, e.fundName));
 				}
 			}
 		}
