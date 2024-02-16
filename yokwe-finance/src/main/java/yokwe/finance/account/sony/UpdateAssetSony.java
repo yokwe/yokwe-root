@@ -185,12 +185,14 @@ public final class UpdateAssetSony implements UpdateAsset {
 				var fundJPYList = BalancePage.FundJPY.getInstance(page);
 				for(var e: fundJPYList) {
 //					logger.info("fundJPYList {}", e);
-					var fund  = getFundInfo(e.name.replace("　", ""));
-					var name  = fund.name;
-					var code  = fund.isinCode;
-					var value = e.value;
-					var risk  = AssetRisk.fundCode.getRisk(code); 
-					list.add(Asset.fund(dateTime, Company.SONY, Currency.JPY, value, risk, code, name));
+					var fund   = getFundInfo(e.name.replace("　", ""));
+					var name   = fund.name;
+					var code   = fund.isinCode;
+					var value  = e.value;
+					var profit = e.profit;
+					var cost   = e.value.add(profit);
+					var entry  = AssetRisk.fundCode.getEntry(code);
+					list.add(Asset.fund(dateTime, Company.SONY, Currency.JPY, value, entry, cost, code, name));
 				}
 			}
 		}
@@ -209,7 +211,7 @@ public final class UpdateAssetSony implements UpdateAsset {
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		instance.download();
+//		instance.download();
 		instance.update();
 		
 		logger.info("STOP");
