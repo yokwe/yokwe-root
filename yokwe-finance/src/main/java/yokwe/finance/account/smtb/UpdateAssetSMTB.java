@@ -88,7 +88,7 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 			{
 				var termDepositJPY = TermDepositJPY.getInstance(page);
 //				logger.info("depositJPY  {}", depositJPY);
-				list.add(Asset.depositTime(dateTime, Company.SMTB, Currency.JPY, termDepositJPY.value, "円定期預金"));
+				list.add(Asset.termDeposit(dateTime, Company.SMTB, Currency.JPY, termDepositJPY.value, "円定期預金"));
 			}
 		}
 		{
@@ -110,10 +110,12 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 //					logger.info("fund  {}", fund);
 					var fundInfo = fundInfoMap.get(fund.fundCode);
 					var isinCode = fundInfo.isinCode;
-					var risk     = AssetRisk.fundCode.getRisk(isinCode);
+					var entry    = AssetRisk.fundCode.getEntry(isinCode);
+					var value    = fund.value;
+					var cost     = fund.cost;
 					var name     = fundInfo.name;
 //					logger.info("fund  {}  {}  {}", isinCode, risk, fundInfo.name);
-					list.add(Asset.fund(dateTime, Company.SMTB, Currency.JPY, fund.value, risk, isinCode, name));
+					list.add(Asset.fund(dateTime, Company.SMTB, Currency.JPY, value, entry, cost, isinCode, name));
 				}
 			}
 		}
@@ -132,7 +134,7 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		instance.download();
+//		instance.download();
 		instance.update();
 		
 		logger.info("STOP");
