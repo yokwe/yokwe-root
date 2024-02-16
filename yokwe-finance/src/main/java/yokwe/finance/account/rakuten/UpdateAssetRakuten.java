@@ -4,13 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -21,6 +21,7 @@ import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
+import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -135,8 +136,6 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 			
 			var usStockMap = StorageStock.StockInfoUSTrading.getMap();
 			
-			var patValueCurrency = Pattern.compile("(?<value>[0-9,\\.]+) (?<currency>...)");
-			
 			var br = new BufferedReader(new StringReader(page));
 			for(;;) {
 				var stringArray = CSVUtil.parseLine(br, ',');
@@ -152,110 +151,97 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 						list.add(Asset.deposit(dateTime, Company.RAKUTEN, Currency.JPY, value, kindExpect));
 					}
 				} else if (length == 18) {
+					if (kind.equals("種別")) continue;
+					
+					var code      = stringArray[1];
+					var name      = stringArray[2];
+					var units     = new BigDecimal(stringArray[4].replace(",", ""));
+					var unitCost  = new BigDecimal(stringArray[6].replace(",", ""));
+					var unitPrice = new BigDecimal(stringArray[8].replace(",", ""));
+					var currency  = Currency.valueOf(stringArray[9].replace("円/USD", "USD").replace("円", "JPY").replace("％", "USD"));
+
+					var valueJPY  = new BigDecimal(stringArray[14].replace(",", "")); // 時価評価額[円]
+					var profitJPY = new BigDecimal(stringArray[16].replace(",", "")); // 評価損益[円]
+					var costJPY   = valueJPY.subtract(profitJPY);                     // コスト = 時価評価額[円] - 評価損益[円]
+
 					{
 						var kindExpect = "国内株式";
 						if (kind.equals(kindExpect)) {
-							Currency currency = Currency.JPY;
-							String code;
-							{
-								var string = stringArray[1];
-								code = (string.length() == 4) ? string + "0" : string;
+							if (currency != Currency.JPY) {
+								logger.error("Unexpected currency");
+								logger.error("{}  {}  {}", kind, code, name);
+								throw new UnexpectedException("Unexpected currency");
 							}
 							
-							var name   = stringArray[2];
-//							var accountType = stringArray[3];
-							var value  = new BigDecimal(stringArray[14].replace(",", ""));
-							var risk = AssetRisk.stockJP.getRisk(code);
-							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, risk, code, name));
+							code = StockInfoJPType.toStockCode5(code);
+							var entry = AssetRisk.stockJP.getEntry(code);
+							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, valueJPY, entry, costJPY, code, name));
 						}
 					}
 					{
 						var kindExpect = "投資信託";
 						if (kind.equals(kindExpect)) {
-							Currency currency;
-							{
-								var string = stringArray[7];
-								if (string.equals("円")) {
-									currency = Currency.JPY;
-								} else {
-									currency = Currency.valueOf(string);
-								}
+							if (currency != Currency.JPY) {
+								logger.error("Unexpected currency");
+								logger.error("{}  {}  {}", kind, code, name);
+								throw new UnexpectedException("Unexpected currency");
 							}
-							var fund   = getFundInfo(stringArray[2]);
-							var name   = fund.name;
-							var code   = fund.isinCode;
-//							var accountType = stringArray[3];
-							var value  = new BigDecimal(stringArray[14].replace(",", ""));
-							var risk = AssetRisk.fundCode.getRisk(code); 
-							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, value, risk, code, name));
+							var fund  = getFundInfo(stringArray[2]);
+							name  = fund.name;
+							code  = fund.isinCode;
+							var entry = AssetRisk.fundCode.getEntry(code); 
+							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, valueJPY, entry, costJPY, code, name));
 						}
 					}
 					{
 						var kindExpect = "外貨預り金";
 						if (kind.equals(kindExpect)) {
-							var value    = new BigDecimal(stringArray[4].replace(",", "")).setScale(2);
-							var currency = Currency.valueOf(stringArray[5]);
+							if (currency != Currency.USD) {
+								logger.error("Unexpected currency");
+								logger.error("{}  {}  {}", kind, code, name);
+								throw new UnexpectedException("Unexpected currency");
+							}
+
+							var value = units.setScale(2);
 							list.add(Asset.deposit(dateTime, Company.RAKUTEN, currency, value, kindExpect));
 						}
 					}
 					{
 						var kindExpect = "米国株式";
 						if (kind.equals(kindExpect)) {
-							var code = stringArray[1];
-							var name = stringArray[2];
 							if (usStockMap.containsKey(code)) {
 								name = usStockMap.get(code).name;
 							}
-//							var accountType = stringArray[3];
-							BigDecimal value;
-							Currency   currency;
-							{
-								var string = stringArray[15];
-								var m = patValueCurrency.matcher(string);
-								if (m.matches()) {
-									value = new BigDecimal(m.group("value").replace(",", ""));
-									currency =Currency.valueOf(m.group("currency"));
-								} else {
-									logger.error("Unexpected string");
-									logger.error("  string {}!", string);
-									throw new UnexpectedException("Unexpected string");
-								}
-							}
-							var risk = AssetRisk.stockUS.getRisk(code);
-							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, risk, code, name));
+							BigDecimal value = units.multiply(unitPrice).setScale(2, RoundingMode.HALF_EVEN);
+							BigDecimal cost = units.multiply(unitCost).setScale(2, RoundingMode.HALF_EVEN);
+							var entry = AssetRisk.stockUS.getEntry(code); 
+							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, entry, cost, code, name));
 						}
 					}
 					{
 						var kindExpect = "外貨建MMF";
 						if (kind.equals(kindExpect)) {
-							var name = stringArray[2];
-//							var accountType = stringArray[3];
-							BigDecimal value;
-							Currency   currency;
-							{
-								var string = stringArray[15];
-								var m = patValueCurrency.matcher(string);
-								if (m.matches()) {
-									value = new BigDecimal(m.group("value").replace(",", ""));
-									currency =Currency.valueOf(m.group("currency"));
-								} else {
-									logger.error("Unexpected string");
-									logger.error("  string {}!", string);
-									throw new UnexpectedException("Unexpected string");
-								}
+							if (currency != Currency.USD) {
+								logger.error("Unexpected currency");
+								logger.error("{}  {}  {}", kind, code, name);
+								logger.error("currency  {}", currency);
+								throw new UnexpectedException("Unexpected currency");
 							}
+							BigDecimal value = units.multiply(unitPrice).setScale(2, RoundingMode.HALF_EVEN);
 							list.add(Asset.deposit(dateTime, Company.RAKUTEN, currency, value, name));
 						}
 					}
 					{
 						var kindExpect = "外国債券";
 						if (kind.equals(kindExpect)) {
-							Currency currency = Currency.USD; // FIXME
-							var code  = "";
-							var name  = stringArray[2];
-//							var accountType = stringArray[3];
-							var value = new BigDecimal(stringArray[4].replace(",", ""));
-							list.add(Asset.bond(dateTime, Company.RAKUTEN, currency, value, code, name));
+							if (currency != Currency.USD) {
+								logger.error("Unexpected currency");
+								logger.error("{}  {}  {}", kind, code, name);
+								throw new UnexpectedException("Unexpected currency");
+							}
+							var value = units;
+							var cost  = value; // FIXME get cost of foreign bond
+							list.add(Asset.bond(dateTime, Company.RAKUTEN, currency, value, cost, code, name));
 						}
 					}
 				}
