@@ -1,6 +1,7 @@
 package yokwe.finance.account.sbi;
 
 import java.io.File;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -124,13 +125,13 @@ public final class UpdateAssetSBI implements UpdateAsset {
 			}
 			{
 				var usStockMap = StorageStock.StockInfoUSTrading.getMap();
-
+				
 				var stockUSList = StockUS.getInstance(page);
 				for(var e: stockUSList) {
 //					logger.info("stockUSList  {}", e);
 					var currency = Currency.USD;
 					var code     = e.code;
-					var risk     = AssetRisk.stockUS.getRisk(code);
+					var entry    = AssetRisk.stockUS.getEntry(code);
 					String name;
 					if (usStockMap.containsKey(code)) {
 						name = usStockMap.get(code).name;
@@ -139,7 +140,9 @@ public final class UpdateAssetSBI implements UpdateAsset {
 						logger.error("  code  {}!", code);
 						throw new UnexpectedException("unexpected code");
 					}
-					list.add(Asset.stock(dateTime, Company.SBI, currency, e.value, risk, code, name));
+					var value = e.value;
+					var cost  = value; // FIXME get cost of us stock
+					list.add(Asset.stock(dateTime, Company.SBI, currency, value, entry, cost, code, name));
 				}
 			}
 			{
@@ -147,7 +150,9 @@ public final class UpdateAssetSBI implements UpdateAsset {
 				for(var e: bondForeignList) {
 //					logger.info("bondForeignList  {}", e);
 					var currency = Currency.USD;
-					list.add(Asset.bond(dateTime, Company.SBI, currency, e.value, e.code, e.name));
+					var value = e.value;
+					var cost  = value.multiply(e.cost).movePointLeft(3).setScale(2, RoundingMode.HALF_EVEN);					
+					list.add(Asset.bond(dateTime, Company.SBI, currency, value, cost, e.code, e.name));
 				}
 			}
 			{
