@@ -65,7 +65,7 @@ public class UpdateAssetStats {
 				var valueJPY = value * fxRate.rate(currency).doubleValue();
 				var company  = asset.company;
 				var product  = asset.product;
-				var risk     = asset.risk;
+				var risk     = asset.assetRisk;
 				
 				var report = map.get(company);
 				
