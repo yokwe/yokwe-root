@@ -92,8 +92,8 @@ public class BalancePage {
 	public static class MMFInfo {
 		public static final Pattern PAT = Pattern.compile(
 			"<a href=\"https://site2\\.sbisec\\.co\\.jp/ETGate/\\?_ControlID=WPLETfiR001Control&amp;_PageID=WPLETfiR001Mlst10&amp;_DataStoreID=DSWPLETfiR001Control.+?>(?<name>.+?)</a>\\s+</td>\\s+" +
-			"<td .+?>.+?</td>\\s+" +
-			"<td .+?>\\s+(?<value>[0-9,\\.]+)<br>\\s+(?<fxRateCost>[0-9,\\.]+)\\s+</td>\\s+" +
+			"<td .+?>\\s+(?<units>[0-9,\\.]+)<br>\\s+(?<factor>[0-9,\\.]+)\\s+</td>\\s+" +
+			"<td .+?>\\s+(?<value>[0-9,\\.]+)<br>\\s+(?<buyFXRate>[0-9,\\.]+)\\s+</td>\\s+" +
 			"",
 			Pattern.DOTALL
 		);
@@ -102,13 +102,17 @@ public class BalancePage {
 		}
 		
 		public final String     name;
+		public final BigDecimal units;
+		public final BigDecimal factor;
 		public final BigDecimal value;
-		public final BigDecimal fxRateCost;
+		public final BigDecimal buyFXRate;
 		
-		public MMFInfo(String name, BigDecimal value, BigDecimal fxRateCost) {
-			this.name       = name;
-			this.value      = value;
-			this.fxRateCost = fxRateCost;
+		public MMFInfo(String name, BigDecimal units, BigDecimal factor, BigDecimal value, BigDecimal buyFXRate) {
+			this.name      = name;
+			this.units     = units;
+			this.factor    = factor;
+			this.value     = value;
+			this.buyFXRate = buyFXRate;
 		}
 		
 		@Override
@@ -116,14 +120,13 @@ public class BalancePage {
 			return StringUtil.toString(this);
 		}
 	}
-
-
+	
+	
 	public static class BondForeign {
 		public static final Pattern PAT = Pattern.compile(
 			"<a href=\"https://search\\.sbisec\\.co\\.jp/v2/popwin/info/connect/bond/(?<code>[A-Z0-9]+)\\.html\".+?>\\s+[A-Z0-9]+ (?<name>.+?)\\s+</a>\\s+</td>\\s+" +
-			"<td .+?>\\s+(?<value>[0-9,\\.]+)<br>.+?</td>\\s+" +
-			"<td .+?>.+?<br>\\s+(?<fxRateCost>[0-9,\\.]+)\\s+</td>\\s+" +
-			"<td .+?>\\s+(?<cost>[0-9,\\.]+)<br>.+?</td>\\s+" +
+			"<td .+?>\\s+(?<faceValue>[0-9,\\.]+)<br>.+?</td>\\s+" +
+			"<td .+?>\\s+(?<buyRatio>.+?)<br>\\s+(?<buyFXRate>[0-9,\\.]+)\\s+</td>\\s+" +
 			"",
 			Pattern.DOTALL
 		);
@@ -133,16 +136,16 @@ public class BalancePage {
 		
 		public final String     code;
 		public final String     name;
-		public final BigDecimal value;
-		public final BigDecimal fxRateCost;
-		public final BigDecimal cost;
+		public final BigDecimal faceValue;
+		public final BigDecimal buyRatio;
+		public final BigDecimal buyFXRate;
 		
-		public BondForeign(String code, String name, BigDecimal value, BigDecimal fxRateCost, BigDecimal cost) {
+		public BondForeign(String code, String name, BigDecimal faceValue, BigDecimal buyRatio, BigDecimal buyFXRate) {
 			this.code       = code;
 			this.name       = name;
-			this.value      = value;
-			this.fxRateCost = fxRateCost;
-			this.cost       = cost;
+			this.faceValue  = faceValue;
+			this.buyRatio   = buyRatio;
+			this.buyFXRate  = buyFXRate;
 		}
 		
 		@Override

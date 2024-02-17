@@ -150,8 +150,8 @@ public final class UpdateAssetSBI implements UpdateAsset {
 				for(var e: bondForeignList) {
 //					logger.info("bondForeignList  {}", e);
 					var currency = Currency.USD;
-					var value = e.value;
-					var cost  = value.multiply(e.cost).movePointLeft(3).setScale(2, RoundingMode.HALF_EVEN);					
+					var value = e.faceValue;
+					var cost  = value.multiply(e.buyRatio).movePointLeft(2).setScale(2, RoundingMode.HALF_EVEN);
 					list.add(Asset.bond(dateTime, Company.SBI, currency, value, cost, e.code, e.name));
 				}
 			}
