@@ -227,7 +227,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 								logger.error("currency  {}", currency);
 								throw new UnexpectedException("Unexpected currency");
 							}
-							BigDecimal value = units.multiply(unitPrice).setScale(2, RoundingMode.HALF_EVEN);
+							BigDecimal value = units.movePointLeft(2).setScale(2, RoundingMode.HALF_EVEN);
 							list.add(Asset.deposit(dateTime, Company.RAKUTEN, currency, value, name));
 						}
 					}
