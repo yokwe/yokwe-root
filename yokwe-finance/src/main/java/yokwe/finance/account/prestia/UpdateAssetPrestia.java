@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.AssetRisk;
+import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.prestia.BalancePage.DepositJPY;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoney;
@@ -158,10 +158,10 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 				
 				for(var e: fundReturnsList) {
 					logger.info("fundReturns  {}", e);
-					Currency currency = Currency.USD; // assume USD
-					var entry = AssetRisk.fundPrestia.getEntry(e.fundCode);
-					var cost = e.buyTotal.subtract(e.soldTotal).stripTrailingZeros();
-					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, entry, cost, e.fundCode, e.fundName));
+					var currency  = Currency.USD; // assume USD
+					var assetInfo = AssetInfo.fundPrestia.getAssetInfo(e.fundCode);
+					var cost      = e.buyTotal.subtract(e.soldTotal).stripTrailingZeros();
+					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, assetInfo, cost, e.fundCode, e.fundName));
 				}
 			}
 		}

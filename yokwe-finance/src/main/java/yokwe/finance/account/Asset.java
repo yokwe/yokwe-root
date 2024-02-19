@@ -92,11 +92,11 @@ public class Asset implements Comparable<Asset> {
 		return new Asset(dateTime, company, Product.TERM_DEPOSIT, currency, value, Risk.SAFE, Risk.SAFE, value, "", name);
 	}
 	// code name
-	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, AssetRisk.Entry entry, BigDecimal cost, String code, String name) {
-		return new Asset(dateTime, company, Product.FUND, currency, value, entry.assetRisk, entry.currencyRisk, cost, code, name);
+	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, AssetInfo assetInfo, BigDecimal cost, String code, String name) {
+		return new Asset(dateTime, company, Product.FUND, currency, value, assetInfo.assetRisk, assetInfo.currencyRisk, cost, code, name);
 	}
-	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, AssetRisk.Entry entry, BigDecimal cost, String code, String name) {
-		return new Asset(dateTime, company, Product.STOCK, currency, value, entry.assetRisk, entry.currencyRisk, cost, code, name);
+	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, AssetInfo assetInfo, BigDecimal cost, String code, String name) {
+		return new Asset(dateTime, company, Product.STOCK, currency, value, assetInfo.assetRisk, assetInfo.currencyRisk, cost, code, name);
 	}
 	public static Asset bond(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, BigDecimal cost, String code, String name) {
 		return new Asset(dateTime, company, Product.BOND, currency, value, Risk.SAFE, Risk.SAFE, cost, code, name);

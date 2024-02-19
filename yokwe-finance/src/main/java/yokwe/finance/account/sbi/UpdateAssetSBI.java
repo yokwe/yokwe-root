@@ -10,17 +10,15 @@ import java.util.ArrayList;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.AssetRisk;
+import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.sbi.BalancePage.BondForeign;
 import yokwe.finance.account.sbi.BalancePage.DepositForeign;
 import yokwe.finance.account.sbi.BalancePage.DepositJPY;
 import yokwe.finance.account.sbi.BalancePage.MMFInfo;
 import yokwe.finance.account.sbi.BalancePage.StockUS;
-import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
-import yokwe.util.UnexpectedException;
 
 public final class UpdateAssetSBI implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -124,25 +122,16 @@ public final class UpdateAssetSBI implements UpdateAsset {
 				logger.info("  {}  {}  {}", dateTime, page.length(), htmlFile.getPath());
 			}
 			{
-				var usStockMap = StorageStock.StockInfoUSTrading.getMap();
-				
 				var stockUSList = StockUS.getInstance(page);
 				for(var e: stockUSList) {
 //					logger.info("stockUSList  {}", e);
-					var currency = Currency.USD;
-					var code     = e.code;
-					var entry    = AssetRisk.stockUS.getEntry(code);
-					String name;
-					if (usStockMap.containsKey(code)) {
-						name = usStockMap.get(code).name;
-					} else {
-						logger.error("unexpected code");
-						logger.error("  code  {}!", code);
-						throw new UnexpectedException("unexpected code");
-					}
-					var value = e.value;
-					var cost  = value; // FIXME get cost of us stock
-					list.add(Asset.stock(dateTime, Company.SBI, currency, value, entry, cost, code, name));
+					var currency  = Currency.USD;
+					var code      = e.code;
+					var assetInfo = AssetInfo.stockUS.getAssetInfo(code);
+					var name      = assetInfo.name;
+					var value     = e.value;
+					var cost      = value; // FIXME get cost of us stock
+					list.add(Asset.stock(dateTime, Company.SBI, currency, value, assetInfo, cost, code, name));
 				}
 			}
 			{
@@ -150,8 +139,8 @@ public final class UpdateAssetSBI implements UpdateAsset {
 				for(var e: bondForeignList) {
 //					logger.info("bondForeignList  {}", e);
 					var currency = Currency.USD;
-					var value = e.faceValue;
-					var cost  = value.multiply(e.buyRatio).movePointLeft(2).setScale(2, RoundingMode.HALF_EVEN);
+					var value    = e.faceValue;
+					var cost     = value.multiply(e.buyRatio).movePointLeft(2).setScale(2, RoundingMode.HALF_EVEN);
 					list.add(Asset.bond(dateTime, Company.SBI, currency, value, cost, e.code, e.name));
 				}
 			}

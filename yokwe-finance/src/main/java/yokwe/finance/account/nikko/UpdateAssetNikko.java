@@ -12,10 +12,9 @@ import java.util.stream.Collectors;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.AssetRisk;
+import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
-import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -113,29 +112,26 @@ public final class UpdateAssetNikko implements UpdateAsset {
 						throw new UnexpectedException("Unpexpeced fundCode");
 					}
 				}
-				var entry = AssetRisk.fundCode.getEntry(isinCode);
-				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, entry, cost, isinCode, e.fundName));
+				var assetInfo = AssetInfo.fundCode.getAssetInfo(isinCode);
+				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, assetInfo, cost, isinCode, e.fundName));
 			}
 			
 			var foreignStockInfoList = BalancePage.ForeignStockInfo.getInstance(page);
-			var usStockMap = StorageStock.StockInfoUSTrading.getMap();
 			for(var e: foreignStockInfoList) {
 //				logger.info("foreginStock  {}", e);
 				var currency = Currency.valueOf(e.currency);
 				
-				var fxRate   = new BigDecimal(e.fxRate);
-				var valueJPY = new BigDecimal(e.valueJPY);
-				var costJPY  = new BigDecimal(e.costJPY);
-				var value    = valueJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
-				var cost     = costJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
+				var fxRate    = new BigDecimal(e.fxRate);
+				var valueJPY  = new BigDecimal(e.valueJPY);
+				var costJPY   = new BigDecimal(e.costJPY);
 				
-				var entry  = AssetRisk.stockUS.getEntry(e.stockCode);
-				var code  = e.stockCode;
-				var name  = e.stockName;
-				if (usStockMap.containsKey(code)) {
-					name = usStockMap.get(code).name;
-				}
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, entry, cost, code, name));
+				var value     = valueJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
+				var cost      = costJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
+				var code      = e.stockCode;
+				var assetInfo = AssetInfo.stockUS.getAssetInfo(code);
+				var name      = assetInfo.name;
+				
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, assetInfo, cost, code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);

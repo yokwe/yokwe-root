@@ -15,7 +15,7 @@ import java.util.List;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.AssetRisk;
+import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
@@ -174,8 +174,8 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 							}
 							
 							code = StockInfoJPType.toStockCode5(code);
-							var entry = AssetRisk.stockJP.getEntry(code);
-							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, valueJPY, entry, costJPY, code, name));
+							var assetInfo = AssetInfo.stockJP.getAssetInfo(code);
+							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, valueJPY, assetInfo, costJPY, code, name));
 						}
 					}
 					{
@@ -189,8 +189,8 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 							var fund  = getFundInfo(stringArray[2]);
 							name  = fund.name;
 							code  = fund.isinCode;
-							var entry = AssetRisk.fundCode.getEntry(code); 
-							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, valueJPY, entry, costJPY, code, name));
+							var assetInfo = AssetInfo.fundCode.getAssetInfo(code); 
+							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, valueJPY, assetInfo, costJPY, code, name));
 						}
 					}
 					{
@@ -212,10 +212,10 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 							if (usStockMap.containsKey(code)) {
 								name = usStockMap.get(code).name;
 							}
-							BigDecimal value = units.multiply(unitPrice).setScale(2, RoundingMode.HALF_EVEN);
-							BigDecimal cost = units.multiply(unitCost).setScale(2, RoundingMode.HALF_EVEN);
-							var entry = AssetRisk.stockUS.getEntry(code); 
-							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, entry, cost, code, name));
+							var value     = units.multiply(unitPrice).setScale(2, RoundingMode.HALF_EVEN);
+							var cost      = units.multiply(unitCost).setScale(2, RoundingMode.HALF_EVEN);
+							var assetInfo = AssetInfo.stockUS.getAssetInfo(code); 
+							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, assetInfo, cost, code, name));
 						}
 					}
 					{

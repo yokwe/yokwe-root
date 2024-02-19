@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.AssetRisk;
+import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.smtb.BalancePage.DepositJPY;
 import yokwe.finance.account.smtb.BalancePage.Fund;
@@ -108,14 +108,14 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 				var fundList    = Fund.getInstance(page);
 				for(var fund: fundList) {
 //					logger.info("fund  {}", fund);
-					var fundInfo = fundInfoMap.get(fund.fundCode);
-					var isinCode = fundInfo.isinCode;
-					var entry    = AssetRisk.fundCode.getEntry(isinCode);
-					var value    = fund.value;
-					var cost     = fund.cost;
-					var name     = fundInfo.name;
+					var fundInfo  = fundInfoMap.get(fund.fundCode);
+					var code      = fundInfo.isinCode;
+					var assetInfo = AssetInfo.fundCode.getAssetInfo(code);
+					var value     = fund.value;
+					var cost      = fund.cost;
+					var name      = fundInfo.name;
 //					logger.info("fund  {}  {}  {}", isinCode, risk, fundInfo.name);
-					list.add(Asset.fund(dateTime, Company.SMTB, Currency.JPY, value, entry, cost, isinCode, name));
+					list.add(Asset.fund(dateTime, Company.SMTB, Currency.JPY, value, assetInfo, cost, code, name));
 				}
 			}
 		}
