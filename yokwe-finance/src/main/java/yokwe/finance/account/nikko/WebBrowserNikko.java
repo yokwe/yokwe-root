@@ -1,5 +1,7 @@
 package yokwe.finance.account.nikko;
 
+import java.io.File;
+
 import org.openqa.selenium.By;
 
 import yokwe.finance.account.Secret;
@@ -21,6 +23,14 @@ public class WebBrowserNikko extends WebBrowser {
 	
 	private static final Target NEXT_30_ITEMS     = new Target.Click(By.linkText("次の30件"));
 	
+	private static final Target TRADE_HISTORY           = new Target.Click(By.linkText("お取引履歴"), "お取引履歴 - 検索");
+	private static final Target TRADE_HISTORY_3_MONTH   = new Target.Click(By.xpath("//input[@id='term02']"));
+	private static final Target TRADE_HISTORY_DOWNLOAD  = new Target.Click(By.xpath("//input[@id='dlBtn']"));
+
+	
+	public WebBrowserNikko(File file) {
+		super(file);
+	}
 	public WebBrowserNikko() {
 		super();
 	}
@@ -59,5 +69,12 @@ public class WebBrowserNikko extends WebBrowser {
 	}
 	public void next30Items() {
 		NEXT_30_ITEMS.action(this);
+	}
+	public void tradeHistory() {
+		TRADE_HISTORY.action(this);
+	}
+	public void tradeHistoryDownload() {
+		TRADE_HISTORY_3_MONTH.action(this);
+		TRADE_HISTORY_DOWNLOAD.action(this);
 	}
 }

@@ -3,6 +3,7 @@ package yokwe.finance.account.nikko;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -24,16 +25,21 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	
 	private static final Storage storage = Storage.account.nikko;
 	
-	private static final File FILE_TOP          = storage.getFile("top.html");
-	private static final File FILE_BALANCE      = storage.getFile("balance.html");
-	private static final File FILE_BALANCE_BANK = storage.getFile("balance-bank.html");
+	private static final File FILE_TOP           = storage.getFile("top.html");
+	private static final File FILE_BALANCE       = storage.getFile("balance.html");
+	private static final File FILE_BALANCE_BANK  = storage.getFile("balance-bank.html");
+	private static final File FILE_TRADE_HISTORY = storage.getFile("trade-history.csv");
+	
+	private static final File DIR_DOWNLOAD       = storage.getFile("download");
 	
 	private static final File[] FILES = {
 		FILE_TOP,
 		FILE_BALANCE,
 		FILE_BALANCE_BANK,
+		FILE_TRADE_HISTORY,
 	};
 	
+	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
 	
 	@Override
 	public Storage getStorage() {
@@ -43,8 +49,9 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	@Override
 	public void download() {
 		deleteFile(FILES);
+		deleteFile(DIR_DOWNLOAD.listFiles());
 		
-		try(var browser = new WebBrowserNikko()) {
+		try(var browser = new WebBrowserNikko(DIR_DOWNLOAD)) {
 			logger.info("login");
 			browser.login();
 			browser.savePage(FILE_TOP);
@@ -56,6 +63,32 @@ public final class UpdateAssetNikko implements UpdateAsset {
 			logger.info("balance bank");
 			browser.balanceBank();
 			browser.savePage(FILE_BALANCE_BANK);
+						
+			// download csv file
+			{
+				logger.info("trade history");
+				browser.trade();
+				browser.tradeHistory();
+				browser.tradeHistoryDownload();
+				browser.sleep(1000);
+				
+				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().startsWith("Torireki"));
+				if (files.length == 1) {
+					var file = files[0];
+					browser.wait.untilDownloadFinish(file);
+					
+					String string = FileUtil.read().withCharset(CHARSET_CSV).file(file);
+					FileUtil.write().file(FILE_TRADE_HISTORY, string);
+					logger.info("save  {}  {}", string.length(), FILE_TRADE_HISTORY.getPath());
+				} else {
+					logger.error("Unexpected download file");
+					logger.error("  files  {}", files.length);
+					for(var i = 0; i < files.length; i++) {
+						logger.error("  files  {}  {}", i, files[i].getPath());
+					}
+					throw new UnexpectedException("Unexpected download file");
+				}
+			}
 			
 			logger.info("logout");
 			browser.logout();
