@@ -4,10 +4,12 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
@@ -17,6 +19,7 @@ import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
+import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -28,6 +31,8 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	private static final File FILE_TOP           = storage.getFile("top.html");
 	private static final File FILE_BALANCE       = storage.getFile("balance.html");
 	private static final File FILE_BALANCE_BANK  = storage.getFile("balance-bank.html");
+	
+	private static final File FILE_TORIREKI      = storage.getFile("torireki.csv");
 	private static final File FILE_TRADE_HISTORY = storage.getFile("trade-history.csv");
 	
 	private static final File DIR_DOWNLOAD       = storage.getFile("download");
@@ -36,7 +41,7 @@ public final class UpdateAssetNikko implements UpdateAsset {
 		FILE_TOP,
 		FILE_BALANCE,
 		FILE_BALANCE_BANK,
-		FILE_TRADE_HISTORY,
+		FILE_TORIREKI,
 	};
 	
 	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
@@ -78,8 +83,8 @@ public final class UpdateAssetNikko implements UpdateAsset {
 					browser.wait.untilDownloadFinish(file);
 					
 					String string = FileUtil.read().withCharset(CHARSET_CSV).file(file);
-					FileUtil.write().file(FILE_TRADE_HISTORY, string);
-					logger.info("save  {}  {}", string.length(), FILE_TRADE_HISTORY.getPath());
+					FileUtil.write().file(FILE_TORIREKI, string);
+					logger.info("save  {}  {}", string.length(), FILE_TORIREKI.getPath());
 				} else {
 					logger.error("Unexpected download file");
 					logger.error("  files  {}", files.length);
@@ -222,6 +227,31 @@ public final class UpdateAssetNikko implements UpdateAsset {
 		
 		logger.info("save  {}  {}", list.size(), file.getPath());
 		save(list);
+		
+		// update trade history
+		{
+			var tradeHistory = CSVUtil.read(TradeHistory.class).file(FILE_TRADE_HISTORY);
+			var torireki     = CSVUtil.read(Torireki.class).file(FILE_TORIREKI);
+			
+			if (tradeHistory == null) tradeHistory = new ArrayList<TradeHistory>();
+			if (torireki     == null) torireki     = new ArrayList<Torireki>();
+			
+			var candidateList = torireki.stream().map(o -> o.toTradeHistory()).collect(Collectors.toList());
+			{
+				Set<LocalDate> dateSet = tradeHistory.stream().map(o -> o.settlementDate).collect(Collectors.toSet());
+				dateSet.add(LocalDate.now());
+				candidateList.removeIf(o -> dateSet.contains(o.settlementDate));
+			}
+			if (!candidateList.isEmpty()) {
+				logger.info("candidateList  {}", candidateList.size());
+			}
+			
+			var tradeHistoryNew = new ArrayList<TradeHistory>(candidateList.size() + tradeHistory.size());
+			tradeHistoryNew.addAll(candidateList);
+			tradeHistoryNew.addAll(tradeHistory);
+			logger.info("save  {}  {}", tradeHistoryNew.size(), FILE_TRADE_HISTORY.getPath());
+			CSVUtil.write(TradeHistory.class).file(FILE_TRADE_HISTORY, tradeHistoryNew);
+		}
 	}
 	
 	private static final UpdateAsset instance = new UpdateAssetNikko();
