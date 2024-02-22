@@ -55,7 +55,7 @@ public class AssetInfo implements Comparable<AssetInfo> {
 			fundCode = new ProviderImpl(loadSave, nameMap);
 		}
 		{
-			var loadSave = new Storage.LoadSave.Impl<>(AssetInfo.class,  o -> o.code, storage, "asset-info-prestia.csv");			
+			var loadSave = new Storage.LoadSave.Impl<>(AssetInfo.class,  o -> o.code, storage, "asset-info-fund-prestia.csv");			
 			var nameMap  = FundPrestia.FUND_PRESTIA.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.fundName));
 			
 			fundPrestia = new ProviderImpl(loadSave, nameMap);
