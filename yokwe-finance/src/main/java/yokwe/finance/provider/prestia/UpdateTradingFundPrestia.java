@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 import yokwe.finance.fund.StorageFund;
+import yokwe.finance.type.Currency;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
@@ -50,9 +51,11 @@ public class UpdateTradingFundPrestia {
 	
 	public static class Screener {
 	    public static final class Rows {
-	        @JSON.Name("isin")           @JSON.Optional public String isinCode; // STRING STRING
-	        @JSON.Name("secId")                         public String secId;    // STRING STRING
-	        @JSON.Name("customFundName")                public String fundName; // STRING STRING
+	        @JSON.Name("SecId")                         public String secId;                       // STRING STRING
+	        @JSON.Name("PriceCurrency")                 public String priceCurrency;               // STRING STRING
+	        @JSON.Name("isin")           @JSON.Optional public String isinCode;                    // STRING STRING
+	        @JSON.Name("customInstitutionSecurityId")   public String customInstitutionSecurityId; // STRING STRING
+	        @JSON.Name("customFundName")                public String fundName;                    // STRING STRING
 
 	        @Override
 	        public String toString() {
@@ -82,7 +85,8 @@ public class UpdateTradingFundPrestia {
 			map.put("pageSize", "1000");
 			map.put("outputType", "json");
 			map.put("languageId",  "ja-JP");
-			map.put("securityDataPoints", "isin|secId|customFundName");
+			
+			map.put("securityDataPoints", "SecId|PriceCurrency|isin|customInstitutionSecurityId|customFundName");
 			String queryString = map.entrySet().stream().map(o -> o.getKey() + "=" + URLEncoder.encode(o.getValue(), StandardCharsets.UTF_8)).collect(Collectors.joining("&"));
 
 			String url      = String.format("%s?%s", URL, queryString);
@@ -95,8 +99,10 @@ public class UpdateTradingFundPrestia {
 		var screener = JSON.unmarshal(Screener.class, page);
 		logger.info("screener  {}  {}  {}  {}", screener.page, screener.pageSize, screener.rows.length, screener.total);
 		
-		var list = new ArrayList<TradingFundType>();
+		// build trading fund
 		{
+			var list = new ArrayList<TradingFundType>();
+
 			var isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 			int countA = 0;
 			int countB = 0;
@@ -132,9 +138,28 @@ public class UpdateTradingFundPrestia {
 			logger.info("countB    {}", countB);
 			logger.info("countC    {}", countC);
 			logger.info("countD    {}", countD);
+			
+			logger.info("save  {}  {}", list.size(), StoragePrestia.TradingFundPrestia.getPath());
+			StoragePrestia.TradingFundPrestia.save(list);
 		}
-		logger.info("save  {}  {}", list.size(), StoragePrestia.TradingFundPrestia.getPath());
-		StoragePrestia.TradingFundPrestia.save(list);
+		
+		// build fund info prestia
+		{
+			var list = new ArrayList<FundInfoPrestia>();
+			
+			for(var row: screener.rows) {
+			    String   secId    = row.secId;
+			    Currency currency = Currency.getInstance(row.priceCurrency);
+			    String   fundCode = row.customInstitutionSecurityId;
+			    String   isinCode = row.isinCode;
+			    String   fundName = row.fundName;
+			    
+			    list.add(new FundInfoPrestia(secId, currency, fundCode, isinCode, fundName));
+			}
+			
+			logger.info("save  {}  {}", list.size(), StoragePrestia.FundInfoPrestia.getPath());
+			StoragePrestia.FundInfoPrestia.save(list);
+		}
 	}
 	
 	public static void main(String[] args) {
