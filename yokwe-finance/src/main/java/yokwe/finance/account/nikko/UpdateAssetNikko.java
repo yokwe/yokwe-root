@@ -163,11 +163,12 @@ public final class UpdateAssetNikko implements UpdateAsset {
 				var costJPY   = new BigDecimal(e.costJPY);
 				
 				var value     = valueJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
+				var units     = Integer.valueOf(e.units);
 				var cost      = costJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
 				var code      = e.stockCode;
 				var name      = e.stockName;
 				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, cost, code, name));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, units, cost, code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);

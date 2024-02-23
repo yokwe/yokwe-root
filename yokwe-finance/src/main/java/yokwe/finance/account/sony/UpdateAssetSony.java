@@ -185,8 +185,9 @@ public final class UpdateAssetSony implements UpdateAsset {
 				for(var e: fundJPYList) {
 //					logger.info("fundJPYList {}", e);
 					var fund      = getFundInfo(e.name.replace("　", ""));
-					var value     = e.value;
 					var profit    = e.profit;
+
+					var value     = e.value;
 					var cost      = e.value.add(profit);
 					var code      = fund.isinCode;
 					var name      = fund.name;

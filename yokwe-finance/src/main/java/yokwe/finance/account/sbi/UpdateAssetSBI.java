@@ -132,6 +132,7 @@ public final class UpdateAssetSBI implements UpdateAsset {
 					var code      = e.code;
 					var name      = stockNameMap.get(code);
 					var value     = e.value;
+					int units     = -1; // FIXME
 					var cost      = value; // FIXME get cost of us stock
 					
 					// sanity check
@@ -140,7 +141,7 @@ public final class UpdateAssetSBI implements UpdateAsset {
 						logger.error("  stockUS  {}", e);
 						throw new UnexpectedException("Unexpected code");
 					}
-					list.add(Asset.stock(dateTime, Company.SBI, currency, value, cost, code, name));
+					list.add(Asset.stock(dateTime, Company.SBI, currency, value, units, cost, code, name));
 				}
 			}
 			{
