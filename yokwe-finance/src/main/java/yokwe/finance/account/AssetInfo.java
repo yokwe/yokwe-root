@@ -1,22 +1,14 @@
 package yokwe.finance.account;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.account.prestia.FundPrestia;
-import yokwe.finance.fund.StorageFund;
-import yokwe.finance.stock.StorageStock;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class AssetInfo implements Comparable<AssetInfo> {
 	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public interface Provider {
-		AssetInfo getAssetInfo(String code);
-	}
-
     public final String code;
     public final Risk   assetRisk;
     public final Risk   currencyRisk;
@@ -39,74 +31,90 @@ public class AssetInfo implements Comparable<AssetInfo> {
 	@Override
 	public String toString() {
 		return StringUtil.toString(this);
-	}
-    
-	private static final Storage storage = Storage.account.base;
+	}	
 	
-	public static final Provider fundCode;
-	public static final Provider fundPrestia;
-	public static final Provider stockUS;
-	public static final Provider stockJP;
-	static {
-		{
-			var loadSave = new Storage.LoadSave.Impl<>(AssetInfo.class,  o -> o.code, storage, "asset-info-fund.csv");
-			var nameMap  = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.isinCode, o -> o.name));
-			
-			fundCode = new ProviderImpl(loadSave, nameMap);
+	
+	public static AssetInfo getInstance(Asset asset) {
+		switch (asset.product) {
+		case DEPOSIT:
+			return AssetInfo.DEPOSIT;
+		case TERM_DEPOSIT:
+			return AssetInfo.TERM_DEPOSIT;
+		case STOCK:
+			switch(asset.currency) {
+			case JPY:
+				return AssetInfo.stockJP.getAssetInfo(asset);
+			case USD:
+				return AssetInfo.stockUS.getAssetInfo(asset);
+			default:
+				logger.error("Uexpected product");
+				logger.error("  asset  {}", asset);
+				throw new UnexpectedException("Uexpected product");
+			}
+		case FUND:
+			return AssetInfo.fundCode.getAssetInfo(asset);
+		case BOND:
+			return AssetInfo.BOND;
+		default:
+			logger.error("Uexpected product");
+			logger.error("  asset  {}", asset);
+			throw new UnexpectedException("Uexpected product");
 		}
+	}
+	
+	private static final AssetInfo DEPOSIT      = new AssetInfo("", Risk.SAFE, Risk.SAFE, "DEPOSIT");
+	private static final AssetInfo TERM_DEPOSIT = new AssetInfo("", Risk.SAFE, Risk.SAFE, "TERM_DEPOSIT");
+	private static final AssetInfo BOND         = new AssetInfo("", Risk.SAFE, Risk.SAFE, "BOND");
+	
+	private interface Provider {
+		AssetInfo getAssetInfo(Asset asset);
+	}
+	private static final Provider fundCode;
+	private static final Provider stockUS;
+	private static final Provider stockJP;
+	
+	static {
+		Storage storage = Storage.account.base;
+		
 		{
-			var loadSave = new Storage.LoadSave.Impl<>(AssetInfo.class,  o -> o.code, storage, "asset-info-fund-prestia.csv");			
-			var nameMap  = FundPrestia.FUND_PRESTIA.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.fundName));
-			
-			fundPrestia = new ProviderImpl(loadSave, nameMap);
+			var loadSave = new Storage.LoadSave.Impl<>(AssetInfo.class,  o -> o.code, storage, "asset-info-fund.csv");			
+			fundCode = new ProviderImpl(loadSave);
 		}
 		{
 			var loadSave = new Storage.LoadSave.Impl<>(AssetInfo.class,  o -> o.code, storage, "asset-info-stock-us.csv");			
-			var nameMap  = StorageStock.StockInfoUSTrading.getList().stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
-			
-			stockUS = new ProviderImpl(loadSave, nameMap);
+			stockUS = new ProviderImpl(loadSave);
 		}
 		{
 			var loadSave = new Storage.LoadSave.Impl<>(AssetInfo.class,  o -> o.code, storage, "asset-info-stock-jp.csv");			
-			var nameMap  = StorageStock.StockInfoJP.getList().stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
-			
-			stockJP = new ProviderImpl(loadSave, nameMap);
+			stockJP = new ProviderImpl(loadSave);
 		}
 	}
-
 
     private static class ProviderImpl implements Provider {
     	private final Storage.LoadSave<AssetInfo, String> loadSave;
 		private final Map<String, AssetInfo> assetInfoMap;
-		private final Map<String, String>    nameMap;
 		
-		ProviderImpl(Storage.LoadSave<AssetInfo, String> loadSave, Map<String, String> nameMap) {
+		ProviderImpl(Storage.LoadSave<AssetInfo, String> loadSave) {
 			this.loadSave     = loadSave;
 			this.assetInfoMap = loadSave.getMap();
-			this.nameMap      = nameMap;
 		}
 		
 		@Override
-		public AssetInfo getAssetInfo(String code) {
+		public AssetInfo getAssetInfo(Asset asset) {
+			var code = asset.code;
+			var name = asset.name;
+			
 			var ret = assetInfoMap.get(code);
 			if (ret == null) {
-				var name = nameMap.get(code);
-				if (name == null) {
-					logger.error("Unexpected code");
-					logger.error("code  {}!", code);
-					throw new UnexpectedException("Unexpected code");
-				}
+				// add new entry to assetInfoMap
 				ret = new AssetInfo(code, name);
 				assetInfoMap.put(code, ret);
 				// save changes
 				loadSave.save(assetInfoMap.values());
 			}
 			// sanity check
-			if (ret.assetRisk == Risk.UNKNOWN) {
-				logger.warn("assetRisk is unknown  {}", ret.toString());
-			}
-			if (ret.currencyRisk == Risk.UNKNOWN) {
-				logger.warn("currencyRisk is unknown  {}", ret.toString());
+			if (ret.assetRisk == Risk.UNKNOWN || ret.currencyRisk == Risk.UNKNOWN) {
+				logger.warn("assetInfo has UNKNOWN  {}", ret);
 			}
 			return ret;
 		}
