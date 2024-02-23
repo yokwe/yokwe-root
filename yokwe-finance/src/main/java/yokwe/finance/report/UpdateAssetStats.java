@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
+import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAssetAll;
 import yokwe.finance.fx.StorageFX;
 import yokwe.finance.report.AssetStats.DailyCompanyOverviewReport;
@@ -60,12 +61,12 @@ public class UpdateAssetStats {
 			grandTotal.company = COMPANY_GRAND_TOTAL;
 			
 			for(var asset: assetList) {
-				var value    = asset.value.doubleValue();
-				var currency = asset.currency;
-				var valueJPY = value * fxRate.rate(currency).doubleValue();
-				var company  = asset.company;
-				var product  = asset.product;
-				var risk     = asset.assetRisk;
+				var value     = asset.value.doubleValue();
+				var currency  = asset.currency;
+				var valueJPY  = value * fxRate.rate(currency).doubleValue();
+				var company   = asset.company;
+				var product   = asset.product;
+				var assetInfo = AssetInfo.getInstance(asset);
 				
 				var report = map.get(company);
 				
@@ -85,7 +86,7 @@ public class UpdateAssetStats {
 					throw new UnexpectedException("Unexpected currency");
 				}
 				
-				switch(risk) {
+				switch(assetInfo.assetRisk) {
 				case SAFE:
 					report.safe += valueJPY;
 					break;
