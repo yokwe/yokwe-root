@@ -41,13 +41,11 @@ public class UpdateAssetStats {
 		valueList.clear();
 		percentList.clear();
 		
-		var dateList = fxRateMap.keySet().stream().collect(Collectors.toList());
+		var dateList = assetMap.keySet().stream().collect(Collectors.toList());
 		Collections.sort(dateList);
 		for(var date: dateList) {
 			var assetList = assetMap.get(date);
 			var fxRate    = fxRateMap.get(date);
-			if (assetList == null) continue;
-			if (fxRate == null) continue;
 			
 			var map = new TreeMap<Company, DailyCompanyOverviewReport>();
 			for(var e: Company.values()) {
@@ -140,13 +138,11 @@ public class UpdateAssetStats {
 		valueList.clear();
 		percentList.clear();
 		
-		var dateList = fxRateMap.keySet().stream().collect(Collectors.toList());
+		var dateList = assetMap.keySet().stream().collect(Collectors.toList());
 		Collections.sort(dateList);
 		for(var date: dateList) {
 			var assetList = assetMap.get(date);
 			var fxRate    = fxRateMap.get(date);
-			if (assetList == null) continue;
-			if (fxRate == null) continue;
 			var usdRate = fxRate.usd.doubleValue();
 			
 			var map = new TreeMap<Company, DailyCompanyProductReport>();
@@ -247,13 +243,11 @@ public class UpdateAssetStats {
 		valueList.clear();
 		percentList.clear();
 		
-		var dateList = fxRateMap.keySet().stream().collect(Collectors.toList());
+		var dateList = assetMap.keySet().stream().collect(Collectors.toList());
 		Collections.sort(dateList);
 		for(var date: dateList) {
 			var assetList = assetMap.get(date);
 			var fxRate    = fxRateMap.get(date);
-			if (assetList == null) continue;
-			if (fxRate == null) continue;
 			
 			double total   = 0;
 			double sony    = 0;
@@ -344,15 +338,32 @@ public class UpdateAssetStats {
 			Collections.sort(assetList);
 			
 			for(var e: assetList) {
-				var date = e.date;
-				
-				if (fxRateMap.containsKey(date)) {
+				{
+					var date = e.date;
 					List<Asset> list = assetMap.get(date);
 					if (list == null) {
 						list = new ArrayList<>();
 						assetMap.put(date, list);
 					}
 					list.add(e);
+				}
+				
+				// fill gap in fxRateMap using previous data if needed
+				if (!fxRateMap.containsKey(e.date)) {
+					for(int i = 1; i < 100; i++) {
+						if (i == 10) {
+							logger.error("Unexpected");
+							logger.error("  date  {}", e.date);
+							throw new UnexpectedException("Unexpected");
+						}
+						var date = e.date.minusDays(i);
+						var fxRate = fxRateMap.get(date);
+						if (fxRate != null) {
+							logger.info("fxRateMap  use {} for {}", date, e.date);
+							fxRateMap.put(e.date, fxRate);
+							break;
+						}
+					}
 				}
 			}
 		}
