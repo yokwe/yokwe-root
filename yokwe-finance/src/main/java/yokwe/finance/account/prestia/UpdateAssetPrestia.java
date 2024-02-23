@@ -6,11 +6,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.prestia.BalancePage.DepositJPY;
 import yokwe.finance.account.prestia.BalancePage.DepositMultiMoney;
@@ -18,8 +19,10 @@ import yokwe.finance.account.prestia.BalancePage.DepositMultiMoneyJPY;
 import yokwe.finance.account.prestia.BalancePage.DepositUSD;
 import yokwe.finance.account.prestia.BalancePage.TermDepositForeign;
 import yokwe.finance.account.prestia.FundPage.FundReturns;
+import yokwe.finance.provider.prestia.StoragePrestia;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
+import yokwe.util.UnexpectedException;
 
 public final class UpdateAssetPrestia implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -153,15 +156,27 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 			}
 			// 投資信託　トータルリターン
 			{
+				// .filter(o -> !o.isinCode.isEmpty())
+				var fundInfoMap     = StoragePrestia.FundInfoPrestia.getList().stream().collect(Collectors.toMap(o -> o.fundCode, Function.identity()));
+				
 				var fundReturnsList = FundReturns.getInstance(page);
 				logger.info("fundReturnsList  {}", fundReturnsList.size());
 				
 				for(var e: fundReturnsList) {
 					logger.info("fundReturns  {}", e);
-					var currency  = Currency.USD; // assume USD
-					var assetInfo = AssetInfo.fundPrestia.getAssetInfo(e.fundCode);
+					var fundInfo = fundInfoMap.get(e.fundCode);
+					if (fundInfo == null) {
+						logger.error("Unexpected fundCode");
+						logger.error("  fundReturns  {}", e.toString());
+						throw new UnexpectedException("Unexpected fundCode");
+					}
+					
+					var currency  = fundInfo.currency;
+					var value     = e.value;
 					var cost      = e.buyTotal.subtract(e.soldTotal).stripTrailingZeros();
-					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, e.value, assetInfo, cost, e.fundCode, e.fundName));
+					var fundCode  = fundInfo.isinCode;
+					var fundName  = e.fundName;
+					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, value, cost, fundCode, fundName));
 				}
 			}
 		}

@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
@@ -150,8 +149,8 @@ public final class UpdateAssetNikko implements UpdateAsset {
 						throw new UnexpectedException("Unpexpeced fundCode");
 					}
 				}
-				var assetInfo = AssetInfo.fundCode.getAssetInfo(isinCode);
-				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, assetInfo, cost, isinCode, e.fundName));
+				var name = e.fundName;
+				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, cost, isinCode, name));
 			}
 			
 			var foreignStockInfoList = BalancePage.ForeignStockInfo.getInstance(page);
@@ -166,10 +165,9 @@ public final class UpdateAssetNikko implements UpdateAsset {
 				var value     = valueJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
 				var cost      = costJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
 				var code      = e.stockCode;
-				var assetInfo = AssetInfo.stockUS.getAssetInfo(code);
-				var name      = assetInfo.name;
+				var name      = e.stockName;
 				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, assetInfo, cost, code, name));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, cost, code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);
@@ -177,8 +175,9 @@ public final class UpdateAssetNikko implements UpdateAsset {
 //				logger.info("foreignMMF  {}", e);
 				var currency = Currency.valueOf(e.currency);
 				var value    = new BigDecimal(e.value);
+				var name     = e.name;
 				
-				list.add(Asset.deposit(dateTime, Company.NIKKO, currency, value, e.name));
+				list.add(Asset.deposit(dateTime, Company.NIKKO, currency, value, name));
 			}
 			
 			var foreignBondList = BalancePage.ForeignBondInfo.getInstance(page);
@@ -187,7 +186,9 @@ public final class UpdateAssetNikko implements UpdateAsset {
 				var currency = Currency.valueOf(e.currency);
 				var value    = new BigDecimal(e.units);
 				var cost     = value;  // FIXME get cost of foreign bond
-				list.add(Asset.bond(dateTime, Company.NIKKO, currency, value, cost, e.code, e.name));
+				var code     = e.code;
+				var name     = e.name;
+				list.add(Asset.bond(dateTime, Company.NIKKO, currency, value, cost, code, name));
 			}
 		}
 		
@@ -218,7 +219,7 @@ public final class UpdateAssetNikko implements UpdateAsset {
 				var termDeposit = BalanceBankPage.TermDepositInfo.getInstance(page);
 //				logger.info("termDeposit  {}", termDeposit);
 				if (termDeposit.value != 0) {
-					list.add(Asset.termDeposit(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(termDeposit.value), "DEPOSIT_TERM"));
+					list.add(Asset.termDeposit(dateTime, Company.SMBC, Currency.JPY, BigDecimal.valueOf(termDeposit.value), "TERM_DEPOSIT"));
 				}
 			}
 		}

@@ -11,7 +11,6 @@ import java.util.List;
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
-import yokwe.finance.account.AssetInfo;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
@@ -186,13 +185,12 @@ public final class UpdateAssetSony implements UpdateAsset {
 				for(var e: fundJPYList) {
 //					logger.info("fundJPYList {}", e);
 					var fund      = getFundInfo(e.name.replace("　", ""));
-					var name      = fund.name;
-					var code      = fund.isinCode;
 					var value     = e.value;
 					var profit    = e.profit;
 					var cost      = e.value.add(profit);
-					var assetInfo = AssetInfo.fundCode.getAssetInfo(code);
-					list.add(Asset.fund(dateTime, Company.SONY, Currency.JPY, value, assetInfo, cost, code, name));
+					var code      = fund.isinCode;
+					var name      = fund.name;
+					list.add(Asset.fund(dateTime, Company.SONY, Currency.JPY, value, cost, code, name));
 				}
 			}
 		}
