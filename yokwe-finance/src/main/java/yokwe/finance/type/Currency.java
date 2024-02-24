@@ -22,7 +22,7 @@ public enum Currency {
 	}
 	
 	public final String description;
-	private Currency(String nweValue) {
-		this.description = nweValue;
+	private Currency(String description) {
+		this.description = description;
 	}
 }
