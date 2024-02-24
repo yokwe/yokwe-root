@@ -188,7 +188,7 @@ public final class UpdateAssetSony implements UpdateAsset {
 					var profit    = e.profit;
 
 					var value     = e.value;
-					var cost      = e.value.add(profit);
+					var cost      = e.value.subtract(profit);
 					var code      = fund.isinCode;
 					var name      = fund.name;
 					list.add(Asset.fund(dateTime, Company.SONY, Currency.JPY, value, cost, code, name));
