@@ -259,4 +259,53 @@ public class AssetStats {
 			return StringUtil.toString(this);
 		}
 	}
+	
+	@Sheet.HeaderRow(0)
+	@Sheet.DataRow(1)
+	public static class DailyProductProfitReport extends Sheet {
+		public static final String SHEET_NAME_VALUE   = "日付ー商品ー損益ー金額";
+		
+		@Sheet.ColumnName("日付")   public String date     = "";
+		@Sheet.ColumnName("商品")   public String product  = "";
+		@Sheet.ColumnName("会社")   public String company  = "";
+		@Sheet.ColumnName("通貨")   public String currency = "";
+		@Sheet.ColumnName("コード") public String code     = "";
+		@Sheet.ColumnName("名前")   public String name     = "";
+		
+		@Sheet.ColumnName("取得額") public double cost          = 0;
+		@Sheet.ColumnName("評価額") public double value         = 0;
+		@Sheet.ColumnName("損益額") public double profitValue   = 0;
+		@Sheet.ColumnName("損益率") public double profitPercent = 0;
+		
+		@Sheet.ColumnName("損益寄与率") public double profitContribution = 0;
+		
+		public DailyProductProfitReport(
+			String date,
+			String product,
+			String company,
+			String currency,
+			String code,
+			String name,
+			double cost,
+			double value,
+			double profit
+			) {
+			this.date     = date;
+			this.product  = product;
+			this.company  = company;
+			this.currency = currency;
+			this.code     = code;
+			this.name     = name;
+			
+			this.cost          = cost;
+			this.value         = value;
+			this.profitValue   = profit;
+			this.profitPercent = profit / cost;
+		}
+		public DailyProductProfitReport() {}
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+	}
 }

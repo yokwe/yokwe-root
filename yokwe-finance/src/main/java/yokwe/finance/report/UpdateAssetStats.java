@@ -18,6 +18,7 @@ import yokwe.finance.account.UpdateAssetAll;
 import yokwe.finance.fx.StorageFX;
 import yokwe.finance.report.AssetStats.DailyCompanyOverviewReport;
 import yokwe.finance.report.AssetStats.DailyCompanyProductReport;
+import yokwe.finance.report.AssetStats.DailyProductProfitReport;
 import yokwe.finance.report.AssetStats.DailyTotalCompanyReport;
 import yokwe.finance.type.FXRate;
 import yokwe.util.StringUtil;
@@ -33,7 +34,7 @@ public class UpdateAssetStats {
 	
 	private static final int PERIOD_YEAR = 1;
 	
-	private static final String COMPANY_GRAND_TOTAL = "＊口座合計＊";
+	private static final String GRAND_TOTAL = "＊合計＊";
 	
 	private static void buildDailyCompanyOverviewReportList (
 		Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap,
@@ -56,7 +57,7 @@ public class UpdateAssetStats {
 			}
 			var grandTotal = new DailyCompanyOverviewReport();
 			grandTotal.date    = date.toString();
-			grandTotal.company = COMPANY_GRAND_TOTAL;
+			grandTotal.company = GRAND_TOTAL;
 			
 			for(var asset: assetList) {
 				var value     = asset.value.doubleValue();
@@ -154,7 +155,7 @@ public class UpdateAssetStats {
 			}
 			var grandTotal = new DailyCompanyProductReport();
 			grandTotal.date    = date.toString();
-			grandTotal.company = COMPANY_GRAND_TOTAL;
+			grandTotal.company = GRAND_TOTAL;
 			
 			for(var asset: assetList) {
 				var value    = asset.value.doubleValue();
@@ -318,7 +319,57 @@ public class UpdateAssetStats {
 		}
 	}
 	
-	
+	private static void buildDailyProductProfitReportList  (
+		Map<LocalDate, FXRate> fxRateMap, Map<LocalDate, List<Asset>> assetMap,
+		List<DailyProductProfitReport> valueList) {
+		valueList.clear();
+		
+		var dateList = assetMap.keySet().stream().collect(Collectors.toList());
+		Collections.sort(dateList);
+		for(var date: dateList) {
+			var assetList = assetMap.get(date);
+			var fxRate    = fxRateMap.get(date);
+			
+			var totalCostJPY  = 0.0;
+			var totalValueJPY = 0.0;
+			
+			for(var asset: assetList) {
+				switch(asset.product) {
+				case STOCK:
+				case FUND:
+					break;
+				default:
+					continue;
+				}
+				
+				var value    = asset.value.doubleValue();
+				var cost     = asset.cost.doubleValue();
+				var rate     = fxRate.rate(asset.currency).doubleValue();
+				
+				var product   = asset.product.description;
+				var currency  = asset.currency.description;
+				var code      = asset.code;
+				var company   = asset.company.description;
+				var name      = asset.name;
+				
+				var costJPY   = cost  * rate;
+				var valueJPY  = value * rate;
+				var profitJPY = valueJPY - costJPY;
+				
+				valueList.add(new DailyProductProfitReport(date.toString(), product, company, currency, code, name, costJPY, valueJPY, profitJPY));
+				
+				totalCostJPY  += costJPY;
+				totalValueJPY += valueJPY;
+			}
+			
+			var totalProfitValueJPY = totalValueJPY - totalCostJPY;
+			valueList.add(new DailyProductProfitReport(date.toString(), GRAND_TOTAL, "", "", "", "", totalCostJPY, totalValueJPY, totalProfitValueJPY));
+			
+			for(var e: valueList) {
+				e.profitContribution = e.profitValue / totalProfitValueJPY;
+			}
+		}
+	}
 	
 	
 	
@@ -458,6 +509,21 @@ public class UpdateAssetStats {
 						var sheetNameOld = DailyTotalCompanyReport.SHEET_NAME_PERCENT;
 						var sheetNameNew = "日付　合計　会社　割合";
 						var list         = percentList;
+
+						logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
+						docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
+						Sheet.fillSheet(docSave, list, sheetNameOld);
+						docSave.renameSheet(sheetNameOld, sheetNameNew);
+					}
+				}
+				// DAILY PRODUCT PROFIT
+				{
+					var priceList   = new ArrayList<DailyProductProfitReport>();
+					buildDailyProductProfitReportList(fxRateMap, assetMap, priceList);
+					{
+						var sheetNameOld = DailyProductProfitReport.SHEET_NAME_VALUE;
+						var sheetNameNew = "日付　商品　損益　金額";
+						var list         = priceList;
 
 						logger.info("sheet     {}  {}  {}", sheetNameOld, sheetNameNew, list.size());
 						docSave.importSheet(docLoad, sheetNameOld, docSave.getSheetCount());
