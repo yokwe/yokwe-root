@@ -43,4 +43,8 @@ public class StorageJPX {
 	// stock price jpxs
 	public static final Storage.LoadSave2<OHLCV, ChronoLocalDate> StockPriceJPX =
 		new Storage.LoadSave2.Impl<>(OHLCV.class, o -> o.date, storage, "stock-price-jpx", o -> o + ".csv");
+	
+	// stock split
+	public static final Storage.LoadSave<StockSplitType, String> StockSplit =
+		new Storage.LoadSave.Impl<>(StockSplitType.class, StockSplitType::getKey, storage, "stock-split.csv");
 }
