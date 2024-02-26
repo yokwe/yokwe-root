@@ -183,7 +183,7 @@ public class UpdateStockSplit {
 //			logger.info("page  {}  {}", page.length(), name);
 			
 			var csvURLList = CSVURL.getInstance(page);
-			logger.info("csvURL    {}  {}", csvURLList.size(), name);
+//			logger.info("csvURL    {}  {}", csvURLList.size(), name);
 			var csvMap = csvURLList.stream().collect(Collectors.toMap(o -> o.name.substring(0, o.name.indexOf("-")), Function.identity()));
 
 			var titleIDList = TitleID.getInstance(page);
@@ -208,6 +208,8 @@ public class UpdateStockSplit {
 						throw new UnexpectedException("Unexpected dateString");
 					}
 				}
+				logger.info("date      {}", date);
+
 				if (date.isBefore(today) && dateSet.contains(date)) {
 					// already processed
 					//logger.info("skip  {}", date);
