@@ -4,7 +4,6 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -151,31 +150,31 @@ public class UpdateStockSplit {
 			var name = "index.html";
 			var file = getFile(name);
 			var page = download(getURL(name), file, DEBUG_USE_FILE);
-			logger.info("page  {}  {}", page.length(), name);
+//			logger.info("page  {}  {}", page.length(), name);
 			
 			var list = OptionValue.getInstance(page);
-			logger.info("list  {}", list.size());
+//			logger.info("list  {}", list.size());
 			for(var e: list) {
 				nameList.add(e.name);
 			}
 		}
+		logger.info("nameList  {}", nameList.size());
 		
 		// 2023年3月 末日
 		// 2023年3月21日
 		var datePat  = Pattern.compile("(?<yyyy>[0-9]+)年(?<mm>[0-9]+)月(?<dd>[0-9]+| 末)日");
 		var ratioPat = Pattern.compile("(?<before>[0-9]+?):(?<after>[0-9]+?)");
 		
-		var stockSplitMap = StorageJPX.StockSplit.getMap();
-		var stockSplitMapDateSet = new TreeSet<>();
-		if (!stockSplitMap.isEmpty()) {
-			var dateList = stockSplitMap.values().stream().map(o -> o.date).distinct().collect(Collectors.toList());
-			stockSplitMapDateSet.addAll(dateList);
-			Collections.sort(dateList);
-			var dateFirst = dateList.get(0);
-			var dateLast  = dateList.get(dateList.size() - 1);
-			logger.info("stockSplitMap  {}  {}  {}", stockSplitMap.size(), dateFirst, dateLast);
+		var map = StorageJPX.StockSplit.getMap();
+		logger.info("map       {}", map.size());
+
+		var dateSet = new TreeSet<LocalDate>();
+		{
+			var dateList = map.values().stream().map(o -> o.date).distinct().sorted().collect(Collectors.toList());
+			logger.info("dateList  {}  {}  {}", dateList.size(), dateList.get(0), dateList.get(dateList.size() - 1));
+			dateSet.addAll(dateList);
 		}
-		
+
 		var today = LocalDate.now();
 		int countMod = 0;
 		for(var name: nameList) {
@@ -184,7 +183,7 @@ public class UpdateStockSplit {
 //			logger.info("page  {}  {}", page.length(), name);
 			
 			var csvURLList = CSVURL.getInstance(page);
-			logger.info("csvURL  {}  {}", csvURLList.size(), name);
+			logger.info("csvURL    {}  {}", csvURLList.size(), name);
 			var csvMap = csvURLList.stream().collect(Collectors.toMap(o -> o.name.substring(0, o.name.indexOf("-")), Function.identity()));
 
 			var titleIDList = TitleID.getInstance(page);
@@ -209,7 +208,7 @@ public class UpdateStockSplit {
 						throw new UnexpectedException("Unexpected dateString");
 					}
 				}
-				if (date.isBefore(today) && stockSplitMapDateSet.contains(date)) {
+				if (date.isBefore(today) && dateSet.contains(date)) {
 					// already processed
 					//logger.info("skip  {}", date);
 					continue;
@@ -231,8 +230,8 @@ public class UpdateStockSplit {
 						var after  = Integer.valueOf(m.group("after"));
 						var split = new StockSplitType(date, stockCode, before, after, csvData.name);
 						var key = split.getKey();
-						if (stockSplitMap.containsKey(key)) {
-							var old = stockSplitMap.get(key);
+						if (map.containsKey(key)) {
+							var old = map.get(key);
 							if (old.equals(split)) {
 								// OK
 							} else {
@@ -242,7 +241,7 @@ public class UpdateStockSplit {
 								throw new UnexpectedException("Unexpected split");
 							}
 						} else {
-							stockSplitMap.put(key, split);
+							map.put(key, split);
 							countMod++;
 						}
 					} else {
@@ -255,8 +254,8 @@ public class UpdateStockSplit {
 		}
 		logger.info("countMod  {}", countMod);
 		if (countMod != 0) {
-			logger.info("save  {}  {}", stockSplitMap.size(), StorageJPX.StockSplit.getPath());
-			StorageJPX.StockSplit.save(stockSplitMap.values());
+			logger.info("save      {}  {}", map.size(), StorageJPX.StockSplit.getPath());
+			StorageJPX.StockSplit.save(map.values());
 		}
 	}
 	
