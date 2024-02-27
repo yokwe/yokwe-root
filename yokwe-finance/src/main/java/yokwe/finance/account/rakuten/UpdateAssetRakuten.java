@@ -94,17 +94,13 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 	
 	private static final List<FundInfoJP> fundInfoList = StorageFund.FundInfo.getList();
 	private static FundInfoJP getFundInfo(String name) {
-		String isinCode = null;
+		var alternateNameA = name.replace("(", "（").replace(")", "）");
+		var alternateNameB = name.contains("(") ? name.substring(0, name.indexOf("(")) : name;
+		
 		for(var e: fundInfoList) {
 			if (e.name.equals(name)) return e;
-		}
-		if (isinCode == null) {
-			if (name.contains("(")) {
-				String nameB = name.substring(0, name.indexOf("("));
-				for(var e: fundInfoList) {
-					if (e.name.equals(nameB)) return e;
-				}
-			}
+			if (e.name.equals(alternateNameA)) return e;
+			if (e.name.equals(alternateNameB)) return e;
 		}
 		
 		logger.error("Unexpected name");
