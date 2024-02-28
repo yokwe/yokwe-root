@@ -9,8 +9,8 @@ import yokwe.util.StringUtil;
 
 public class FundPage {
 	public static class FundReturns {
-		public static final Pattern PAT = Pattern.compile(
-			"<tr>\\s+<td colspan=\"7\" class=\"GAI_FUND_NAME .+?><a .+?fundcode=(?<fundCode>.+?)'.+?>(?<fundName>.+?)</a></td>\\s+</tr>\\s+" +
+		private static String PAT_STRING = 
+			"<tr>\\s+<td colspan=\"7\" class=\"#CLASS_NAME# .+?><a .+?fundcode=(?<fundCode>.+?)'.+?>(?<fundName>.+?)</a></td>\\s+</tr>\\s+" +
 			"<tr>\\s+" +
 			"<td .+?>(?<accountTypeA>.+?)<br>\\s+(?<accountTypeB>.+?)</td>\\s+" +
 			"<td .+?>(?<units>.+?)</td>\\s+" +
@@ -24,11 +24,21 @@ public class FundPage {
 			"<td .+?>(?<dateStart>.+?)</td>\\s+" +
 			"<td .+?>(?<unitPrice>.+?)</td>\\s+" +
 			"</tr>\\s+" +
-			"",
-			Pattern.DOTALL
-		);
-		public static List<FundReturns> getInstance(String page) {
-			return ScrapeUtil.getList(FundReturns.class, PAT, page);
+			"";
+
+		private static Pattern getPattern(String className) {
+			var patternString = PAT_STRING.replace("#CLASS_NAME#", className);
+			return Pattern.compile(patternString, Pattern.DOTALL);
+		}
+		
+		
+		public static List<FundReturns> getInstanceUS(String page) {
+			var pat = getPattern("GAI_FUND_NAME");
+			return ScrapeUtil.getList(FundReturns.class, pat, page);
+		}
+		public static List<FundReturns> getInstanceJP(String page) {
+			var pat = getPattern("NAI_FUND_NAME");
+			return ScrapeUtil.getList(FundReturns.class, pat, page);
 		}
 		
 		public final String     fundCode;

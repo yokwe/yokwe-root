@@ -156,27 +156,29 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 			}
 			// 投資信託　トータルリターン
 			{
-				// .filter(o -> !o.isinCode.isEmpty())
-				var fundInfoMap     = StoragePrestia.FundInfoPrestia.getList().stream().collect(Collectors.toMap(o -> o.fundCode, Function.identity()));
+				var fundInfoMap   = StoragePrestia.FundInfoPrestia.getList().stream().collect(Collectors.toMap(o -> o.fundCode, Function.identity()));
 				
-				var fundReturnsList = FundReturns.getInstance(page);
-				logger.info("fundReturnsList  {}", fundReturnsList.size());
-				
-				for(var e: fundReturnsList) {
-					logger.info("fundReturns  {}", e);
-					var fundInfo = fundInfoMap.get(e.fundCode);
-					if (fundInfo == null) {
-						logger.error("Unexpected fundCode");
-						logger.error("  fundReturns  {}", e.toString());
-						throw new UnexpectedException("Unexpected fundCode");
-					}
+				{
+					var fundReturnsList = new ArrayList<FundReturns>();
+					fundReturnsList.addAll(FundReturns.getInstanceUS(page));
+					fundReturnsList.addAll(FundReturns.getInstanceJP(page));
 					
-					var currency  = fundInfo.currency;
-					var value     = e.value;
-					var cost      = e.buyTotal.subtract(e.soldTotal).stripTrailingZeros();
-					var fundCode  = fundInfo.isinCode;
-					var fundName  = e.fundName;
-					list.add(Asset.fund(dateTime, Company.PRESTIA, currency, value, cost, fundCode, fundName));
+					for(var e: fundReturnsList) {
+//						logger.info("fundReturns  {}", e);
+						var fundInfo = fundInfoMap.get(e.fundCode);
+						if (fundInfo == null) {
+							logger.error("Unexpected fundCode");
+							logger.error("  fundReturns  {}", e.toString());
+							throw new UnexpectedException("Unexpected fundCode");
+						}
+						
+						var currency  = fundInfo.currency;
+						var value     = e.value;
+						var cost      = e.buyTotal.subtract(e.soldTotal).stripTrailingZeros();
+						var fundCode  = fundInfo.isinCode;
+						var fundName  = e.fundName;
+						list.add(Asset.fund(dateTime, Company.PRESTIA, currency, value, cost, fundCode, fundName));
+					}
 				}
 			}
 		}
