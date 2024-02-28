@@ -330,8 +330,11 @@ public class UpdateAssetStats {
 			var assetList = assetMap.get(date);
 			var fxRate    = fxRateMap.get(date);
 			
-			var totalCostJPY  = 0.0;
-			var totalValueJPY = 0.0;
+			var totalCost    = 0.0;
+			var totalValue   = 0.0;
+			var totalProfit  = 0.0;
+			
+			var reportList = new ArrayList<DailyProductProfitReport>();
 			
 			for(var asset: assetList) {
 				switch(asset.product) {
@@ -356,18 +359,21 @@ public class UpdateAssetStats {
 				var valueJPY  = value * rate;
 				var profitJPY = valueJPY - costJPY;
 				
-				valueList.add(new DailyProductProfitReport(date.toString(), product, company, currency, code, name, costJPY, valueJPY, profitJPY));
+				totalCost   += costJPY;
+				totalValue  += valueJPY;
+				totalProfit += profitJPY;
 				
-				totalCostJPY  += costJPY;
-				totalValueJPY += valueJPY;
+				reportList.add(new DailyProductProfitReport(date.toString(), product, company, currency, code, name, costJPY, valueJPY, profitJPY));
 			}
 			
-			var totalProfitValueJPY = totalValueJPY - totalCostJPY;
-			valueList.add(new DailyProductProfitReport(date.toString(), GRAND_TOTAL, "", "", "", "", totalCostJPY, totalValueJPY, totalProfitValueJPY));
+			// add total
+			reportList.add(new DailyProductProfitReport(date.toString(), GRAND_TOTAL, "", "", "", "", totalCost, totalValue, totalProfit));
 			
-			for(var e: valueList) {
-				e.profitContribution = e.profitValue / totalProfitValueJPY;
+			// update profitContribution
+			for(var e: reportList) {
+				e.profitContribution = e.profitValue / totalProfit;
 			}
+			valueList.addAll(reportList);
 		}
 	}
 	
