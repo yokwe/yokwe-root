@@ -6,13 +6,17 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
+import yokwe.finance.provider.sony.FundInfoSony;
+import yokwe.finance.provider.sony.StorageSony;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.FileUtil;
@@ -43,28 +47,36 @@ public final class UpdateAssetSony implements UpdateAsset {
 		return storage;
 	}
 	
-	private static final List<FundInfoJP> fundInfoList = StorageFund.FundInfo.getList();
-	private static FundInfoJP getFundInfo(String name) {
-		for(var e: fundInfoList) {
-			if (e.name.equals(name)) return e;
+	
+	private static final Map<String, FundInfoSony> fundInfoSonyMap = StorageSony.FundInfoSony.getList().stream().collect(Collectors.toMap(o -> o.sbFundCode, Function.identity()));
+	private static final Map<String, FundInfoJP>   fundInfoMap     = StorageFund.FundInfo.getMap();
+	private static FundInfoJP getFundInfo(String fundCode, String fundName) {
+		// 109020441 => 09020441
+		// 123456789    12345678
+		if (fundCode.length() != 9) {
+			logger.error("Unexpected fundCode");
+			logger.error("  fundCode  {}!", fundCode);
+			logger.error("  fundName  {}!", fundName);
+			throw new UnexpectedException("Unexpected fundCode");
 		}
-		if (name.contains("(")) {
-			String nameB = name.substring(0, name.indexOf("("));
-			for(var e: fundInfoList) {
-				if (e.name.equals(nameB)) return e;
-			}
+		var fundCode8 = fundCode.substring(1);
+//		logger.info("getFundInfo  {}  {}", fundCode, fundName);
+		var fundInfoSony = fundInfoSonyMap.get(fundCode8);
+		if (fundInfoSony == null) {
+			logger.error("Unexpected fundCode");
+			logger.error("  fundCode  {}!", fundCode);
+			logger.error("  fundName  {}!", fundName);
+			throw new UnexpectedException("Unexpected fundCode");
 		}
-		{
-			String nameStripped = name.replace("　", "");
-			for(var e: fundInfoList) {
-				String fundNameStripped = e.name.replace("　", "");
-				if (fundNameStripped.equals(nameStripped)) return e;
-			}
+		var fundInfo = fundInfoMap.get(fundInfoSony.isinCode);
+		if (fundInfo == null) {
+			logger.error("Unexpected isinCode");
+			logger.error("  fundCode      {}!", fundCode);
+			logger.error("  fundName      {}!", fundName);
+			logger.error("  fundInfoSony  {}", fundInfoSony);
+			throw new UnexpectedException("Unexpected fundCode");
 		}
-		
-		logger.error("Unexpected name");
-		logger.error("  name  {}!", name);
-		throw new UnexpectedException("Unexpected name");
+		return fundInfo;
 	}
 	
 	
@@ -182,13 +194,12 @@ public final class UpdateAssetSony implements UpdateAsset {
 			}
 			{
 				var fundJPYList = BalancePage.FundJPY.getInstance(page);
+//				logger.info("fundJPYList  {}", fundJPYList.size());
 				for(var e: fundJPYList) {
 //					logger.info("fundJPYList {}", e);
-					var fund      = getFundInfo(e.name.replace("　", ""));
-					var profit    = e.profit;
-
+					var fund      = getFundInfo(e.fundCode, e.name);
 					var value     = e.value;
-					var cost      = e.value.subtract(profit);
+					var cost      = e.value.subtract(e.profit);
 					var code      = fund.isinCode;
 					var name      = fund.name;
 					list.add(Asset.fund(dateTime, Company.SONY, Currency.JPY, value, cost, code, name));
@@ -210,7 +221,7 @@ public final class UpdateAssetSony implements UpdateAsset {
 	public static void main(String[] args) {
 		logger.info("START");
 				
-//		instance.download();
+		instance.download();
 		instance.update();
 		
 		logger.info("STOP");
