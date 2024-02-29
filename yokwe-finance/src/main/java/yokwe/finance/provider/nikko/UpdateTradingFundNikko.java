@@ -55,7 +55,7 @@ public class UpdateTradingFundNikko {
 		public String company;
 		public String type;
 		public String salesFee;
-		public String fundCode; // Do not use this fundCode. Instead get fundCode from nikkoCode using NikkoFundInfo
+		public String fundCode; // Do not use this fundCode.
 		public String flag;
 		
 		@Override
@@ -66,6 +66,9 @@ public class UpdateTradingFundNikko {
 	
 	
 	private static void update() {
+		var fundCodeMap = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
+		logger.info("fundCode  {}", fundCodeMap.size());
+
 		String page;
 		{
 			String filePath = StorageNikko.storage.getPath("coursedata.csv");
@@ -76,10 +79,7 @@ public class UpdateTradingFundNikko {
 		
 		var list = new ArrayList<TradingFundType>();
 		{
-			Pattern pat = Pattern.compile("(?<percent>[0-9]+\\.[0-9]+)％");
-			var fundCodeMap = StorageFund.FundInfo.getList().stream().collect(Collectors.toMap(o -> o.fundCode, o -> o.isinCode));
-			logger.info("fundCode  {}", fundCodeMap.size());
-
+			Pattern pat     = Pattern.compile("(?<percent>[0-9]+\\.[0-9]+)％");
 			Pattern patFund = Pattern.compile("銘柄コード：(?<nikkoCode>.{4})　投信協会コード：(?<fundCode>.{8})");
 			
 			int countA = 0;
@@ -158,6 +158,13 @@ public class UpdateTradingFundNikko {
 			logger.info("countF  {}", countF);
 			logger.info("countG  {}", countG);
 			logger.info("countH  {}", countH);
+		}
+		
+		{
+			logger.info("list  {}", list.size());
+			var fundCodeSet = StorageNikko.FundInfoNikko.getList().stream().filter(o -> o.isDirect() && o.hasProspectus()).map(o -> o.isinCode).collect(Collectors.toSet());
+			list.removeIf(o -> !fundCodeSet.contains(o.isinCode));
+			logger.info("list  {}", list.size());
 		}
 		
 		logger.info("save  {}  {}", list.size(), StorageNikko.TradingFundNikko.getPath());
