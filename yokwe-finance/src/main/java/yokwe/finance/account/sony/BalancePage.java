@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
+import yokwe.util.StringUtil;
 
 public class BalancePage {
 	//
@@ -87,7 +88,7 @@ public class BalancePage {
 	public static class FundJPY {
 		public static final Pattern PAT = Pattern.compile(
 			"<tr>\\s+" +
-			"<td .+?><p>.+?<br><a .+?fndNmLink.+?>(?<name>.+?)</a></p></td>\\s+" +
+			"<td .+?><p>.+?<br><a .+?fndNmLink\\('(?<fundCode>.+?)'\\)\">(?<name>.+?)</a></p></td>\\s+" +
 			"<td><p>(?<value>[0-9,]+)円</p></td>\\s+" +
 			"<td><p>(?<units>[0-9,]+)口</p></td>\\s+" +
 			"<td><p>(?<unitPrice>[0-9,]+)円</p></td>\\s+" +
@@ -101,13 +102,15 @@ public class BalancePage {
 			return ScrapeUtil.getList(FundJPY.class, PAT, page);
 		}
 		
+		public final String     fundCode;
 		public final String     name;
 		public final BigDecimal value;
 		public final BigDecimal units;
 		public final BigDecimal unitPrice;
 		public final BigDecimal profit;
 		
-		public FundJPY(String name, BigDecimal value, BigDecimal units, BigDecimal unitPrice, BigDecimal profit) {
+		public FundJPY(String fundCode, String name, BigDecimal value, BigDecimal units, BigDecimal unitPrice, BigDecimal profit) {
+			this.fundCode  = fundCode;
 			this.name      = name;
 			this.value     = value;
 			this.units     = units;
@@ -117,7 +120,8 @@ public class BalancePage {
 		
 		@Override
 		public String toString() {
-			return String.format("{%s  %s}", name, value.toPlainString());
+			return StringUtil.toString(this);
+//			return String.format("{%s  %s}", name, value.toPlainString());
 		}
 	}
 }
