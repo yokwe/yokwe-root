@@ -286,6 +286,14 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="provider-nikko-update-fund-info-nikko">
+		<java module="yokwe.finance/yokwe.finance.provider.nikko.UpdateFundInfoNikko" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 	
 	<!-- Provider Nomura -->

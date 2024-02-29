@@ -125,6 +125,7 @@ update-manebu:
 update-trading-fund:
 	ant provider-click-update-trading-fund-click
 	ant provider-monex-update-trading-fund-monex
+	ant provider-nikko-update-fund-info-nikko
 	ant provider-nikko-update-trading-fund-nikko
 	ant provider-nomura-update-trading-fund-nomura
 	ant provider-prestia-update-trading-fund-prestia
