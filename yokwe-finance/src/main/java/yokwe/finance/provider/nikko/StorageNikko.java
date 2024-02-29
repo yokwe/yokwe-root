@@ -13,4 +13,7 @@ public class StorageNikko {
 	// trading-stock-nikko
 	public static final Storage.LoadSave<TradingStockType, String> TradingStockNikko =
 		new Storage.LoadSave.Impl<>(TradingStockType.class,  o -> o.stockCode, storage, "trading-stock-nikko.csv");
+	// fund-info-nikko
+	public static final Storage.LoadSave<FundInfoNikko, String> FundInfoNikko =
+		new Storage.LoadSave.Impl<>(FundInfoNikko.class,  o -> o.isinCode, storage, "fund-info-nikko.csv");
 }
