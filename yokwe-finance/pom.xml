@@ -34,13 +34,13 @@
 		<dependency>
 		    <groupId>org.seleniumhq.selenium</groupId>
 		    <artifactId>selenium-java</artifactId>
-		    <version>4.17.0</version>
+		    <version>4.18.1</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-safari-driver -->
 		<dependency>
 		    <groupId>org.seleniumhq.selenium</groupId>
 		    <artifactId>selenium-safari-driver</artifactId>
-		    <version>4.17.0</version>
+		    <version>4.18.1</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/org.slf4j/jul-to-slf4j -->
