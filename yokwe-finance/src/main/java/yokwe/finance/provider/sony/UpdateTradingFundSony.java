@@ -51,11 +51,11 @@ public class UpdateTradingFundSony {
 	
 	public static class FundData {
 		public static class Entry {
-	        @JSON.Name("SBFundCode")         @JSON.Ignore public String sbFundCode;         // STRING INT
+	        @JSON.Name("SBFundCode")                      public String sbFundCode;         // STRING INT
 	        @JSON.Name("FundMei")                         public String fundMei;            // STRING STRING
-	        @JSON.Name("FundAisyo")          @JSON.Ignore public String fundAisyo;          // STRING STRING
+	        @JSON.Name("FundAisyo")                       public String fundAisyo;          // STRING STRING
 	        @JSON.Name("KanaCode")           @JSON.Ignore public String kanaCode;           // STRING INT
-	        @JSON.Name("TukaCode")           @JSON.Ignore public String tukaCode;           // STRING STRING
+	        @JSON.Name("TukaCode")                        public String tukaCode;           // STRING STRING
 	        @JSON.Name("MSCategoryCodeDai")  @JSON.Ignore public String msCategoryCodeDai;  // STRING INT
 	        @JSON.Name("CategoryMeisyo")     @JSON.Ignore public String categoryMeisyo;     // STRING STRING
 	        @JSON.Name("ToshiTarget")        @JSON.Ignore public String toshiTarget;        // STRING INT
@@ -147,38 +147,56 @@ public class UpdateTradingFundSony {
 		logger.info("dateTime  {}", dateTime);
 		logger.info("fundData  {}", fundData.map.size());
 		
-		var list = new ArrayList<TradingFundType>();
+		// build trading fund sony
 		{
-			var isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
-			
-			int countA = 0;
-			int countB = 0;
-			int countC = 0;
-			for(var e: fundData.map.entrySet()) {
-				String isinCode = e.getKey();
-				String fundName = e.getValue().fundMei;
+			var list = new ArrayList<TradingFundType>();
+			{
+				var isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 				
-				if (isinCodeSet.contains(isinCode)) {
-					list.add(new TradingFundType(isinCode, BigDecimal.ZERO));
-					countA++;
-				} else {
-					if (isinCode.startsWith("JP")) {
-						logger.warn("Unexpected isinCode  {}  {}", isinCode, fundName);
-						countB++;
+				int countA = 0;
+				int countB = 0;
+				int countC = 0;
+				for(var e: fundData.map.entrySet()) {
+					String isinCode = e.getKey();
+					String fundName = e.getValue().fundMei;
+					
+					if (isinCodeSet.contains(isinCode)) {
+						list.add(new TradingFundType(isinCode, BigDecimal.ZERO));
+						countA++;
 					} else {
-						// ignore foreign registered fund
-						logger.warn("Ignore foreign fund  {}  {}", isinCode, fundName);
-						countC++;
+						if (isinCode.startsWith("JP")) {
+							logger.warn("Unexpected isinCode  {}  {}", isinCode, fundName);
+							countB++;
+						} else {
+							// ignore foreign registered fund
+							logger.warn("Ignore foreign fund  {}  {}", isinCode, fundName);
+							countC++;
+						}
 					}
 				}
+				logger.info("countA    {}", countA);
+				logger.info("countB    {}", countB);
+				logger.info("countC    {}", countC);
 			}
-			logger.info("countA    {}", countA);
-			logger.info("countB    {}", countB);
-			logger.info("countC    {}", countC);
+			
+			logger.info("save  {}  {}", list.size(), StorageSony.TradingFundSony.getPath());
+			StorageSony.TradingFundSony.save(list);
 		}
 		
-		logger.info("save  {}  {}", list.size(), StorageSony.TradingFundSony.getPath());
-		StorageSony.TradingFundSony.save(list);
+		// build fund info sony
+		{
+			var list = new ArrayList<FundInfoSony>();
+			
+			for(var e: fundData.map.entrySet()) {
+				var isinCode = e.getKey();
+				var entry    = e.getValue();
+				
+				list.add(new FundInfoSony(isinCode, entry.sbFundCode, entry.fundMei));
+			}
+			
+			logger.info("save  {}  {}", list.size(), StorageSony.FundInfoSony.getPath());
+			StorageSony.FundInfoSony.save(list);
+		}
 	}
 	
 	public static void main(String[] args) {

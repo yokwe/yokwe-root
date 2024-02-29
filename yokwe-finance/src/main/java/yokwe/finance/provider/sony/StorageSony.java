@@ -9,4 +9,8 @@ public class StorageSony {
 	// trading-fund-nomura
 	public static final Storage.LoadSave<TradingFundType, String> TradingFundSony =
 		new Storage.LoadSave.Impl<>(TradingFundType.class,  o -> o.isinCode, storage, "trading-fund-sony.csv");
+	
+	// trading-fund-nomura
+	public static final Storage.LoadSave<FundInfoSony, String> FundInfoSony =
+		new Storage.LoadSave.Impl<>(FundInfoSony.class,  o -> o.isinCode, storage, "fund-info-sony.csv");
 }
