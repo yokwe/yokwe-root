@@ -24,6 +24,10 @@ public class AssetInfo implements Comparable<AssetInfo> {
     	this(code, Risk.UNKNOWN, Risk.UNKNOWN, name);
     }
     
+    public boolean hasUnknownRisk() {
+    	return assetRisk == Risk.UNKNOWN || currencyRisk == Risk.UNKNOWN;
+    }
+    
 	@Override
 	public int compareTo(AssetInfo that) {
 		return this.code.compareTo(that.code);
@@ -111,10 +115,6 @@ public class AssetInfo implements Comparable<AssetInfo> {
 				assetInfoMap.put(code, ret);
 				// save changes
 				loadSave.save(assetInfoMap.values());
-			}
-			// sanity check
-			if (ret.assetRisk == Risk.UNKNOWN || ret.currencyRisk == Risk.UNKNOWN) {
-				logger.warn("assetInfo has UNKNOWN  {}", ret);
 			}
 			return ret;
 		}
