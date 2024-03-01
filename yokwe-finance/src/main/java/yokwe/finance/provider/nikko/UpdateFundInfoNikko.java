@@ -138,9 +138,9 @@ public class UpdateFundInfoNikko {
 				
 				var isinCode   = fundCodeMap.get(fundInfo.fundCode);
 				if (isinCode == null) {
-					logger.error("Unpexpected fundCode");
-					logger.error("  fundInfo  {}", fundInfo);
-					throw new UnexpectedException("Unpexpected fundCode");
+					// In case fund is redemption, it disappeared from fundList
+					logger.warn("Unpexpected fundCode  {}", fundInfo);
+					continue;
 				}
 				int prospectus = fundInfo.prospectus ? 1 : 0;
 				int sougou     = fundInfo.sougou     ? 1 : 0;
@@ -155,9 +155,7 @@ public class UpdateFundInfoNikko {
 			
 			if (countFund != MAXDISP && !file.equals(fileLast)) {
 				// somethign goes wrong
-				logger.error("Uexpected countFund");
-				logger.error("  countFund  {}", countFund);
-				throw new UnexpectedException("Uexpected countFund");
+				logger.warn("Uexpected countFund  {}", countFund);
 			}
 		}
 		
