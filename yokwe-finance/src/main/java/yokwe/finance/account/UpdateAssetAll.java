@@ -123,21 +123,29 @@ public final class UpdateAssetAll {
 		download();
 		update();
 		
-		List<Asset> list = getList();
+		List<Asset> assetList = getList();
 		// update list
 		{
 			List<Asset> updateList = getUpdate();
 			var updateDate = updateList.get(0).date;
 			
 			// remove entry if date is same as lastDate
-			list.removeIf(o -> o.date.equals(updateDate));
+			assetList.removeIf(o -> o.date.equals(updateDate));
 			// add update
-			list.addAll(updateList);
+			assetList.addAll(updateList);
 		}
 		
-		logger.info("save  {}  {}", list.size(), getFile().getPath());
-		save(list);
+		// sanity check for assetInfo of asset
+		for(var asset: assetList) {
+			var assetInfo = AssetInfo.getInstance(asset);
+			if (assetInfo.hasUnknownRisk()) {
+				logger.warn("Has UNKNOWN  assetInfo  {}", assetInfo);
+			}
+		}
 		
+		logger.info("save  {}  {}", assetList.size(), getFile().getPath());
+		save(assetList);
+				
 		logger.info("STOP");
 	}
 }
