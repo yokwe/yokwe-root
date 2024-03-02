@@ -1,35 +1,28 @@
 package yokwe.finance.provider.prestia;
 
 import java.io.File;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
+import yokwe.finance.Storage;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.FileUtil;
-import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
-import yokwe.util.json.JSON;
 
 public class UpdateTradingFundPrestia {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE  = false;
+	static final Storage storage = StoragePrestia.storage;
 	
-	private static final String URL     = "https://lt.morningstar.com/api/rest.svc/smbctbfund/security/screener";
-	private static final String CHARSET = "UTF-8";
+	public static final boolean DEBUG_USE_FILE  = false;
 	
-	
-	private static String download(String url, String charset, String filePath, boolean useFile) {
+	public static String download(String url, Charset charset, File file, boolean useFile) {
 		final String page;
 		{
-			File file = new File(filePath);
 			if (useFile && file.exists()) {
 				page = FileUtil.read().file(file);
 			} else {
@@ -48,117 +41,70 @@ public class UpdateTradingFundPrestia {
 		return page;
 	}
 	
-	
-	public static class Screener {
-	    public static final class Rows {
-	        @JSON.Name("SecId")                         public String secId;                       // STRING STRING
-	        @JSON.Name("PriceCurrency")                 public String priceCurrency;               // STRING STRING
-	        @JSON.Name("isin")           @JSON.Optional public String isinCode;                    // STRING STRING
-	        @JSON.Name("customInstitutionSecurityId")   public String customInstitutionSecurityId; // STRING STRING
-	        @JSON.Name("customFundName")                public String fundName;                    // STRING STRING
-
-	        @Override
-	        public String toString() {
-	            return StringUtil.toString(this);
-	        }
-	    }
-
-	    @JSON.Name("page")     public BigDecimal page;     // NUMBER INT
-	    @JSON.Name("pageSize") public BigDecimal pageSize; // NUMBER INT
-	    @JSON.Name("rows")     public Rows[]     rows;     // ARRAY 168
-	    @JSON.Name("total")    public BigDecimal total;    // NUMBER INT
-
-	    @Override
-	    public String toString() {
-	        return StringUtil.toString(this);
-	    }
-	}
-
-	
 	private static void update() {
-		//
-		String page;
-		{
-			// page=1&pageSize=1000&outputType=json&languageId=ja-JP&securityDataPoints=isin|secId|customFundName";
-			LinkedHashMap<String, String> map = new LinkedHashMap<>();
-			map.put("page",  "1");
-			map.put("pageSize", "1000");
-			map.put("outputType", "json");
-			map.put("languageId",  "ja-JP");
-			
-			map.put("securityDataPoints", "SecId|PriceCurrency|isin|customInstitutionSecurityId|customFundName");
-			String queryString = map.entrySet().stream().map(o -> o.getKey() + "=" + URLEncoder.encode(o.getValue(), StandardCharsets.UTF_8)).collect(Collectors.joining("&"));
-
-			String url      = String.format("%s?%s", URL, queryString);
-			String filePath = StoragePrestia.storage.getPath("screener.json");
-			page = download(url, CHARSET, filePath, DEBUG_USE_FILE);
-			
-			logger.info("page  {}", page.length());
-		}
-		
-		var screener = JSON.unmarshal(Screener.class, page);
+		var screener = Screener.getInstance();
 		logger.info("screener  {}  {}  {}  {}", screener.page, screener.pageSize, screener.rows.length, screener.total);
 		
-		// build trading fund
+		// build fundInfoList
+		var fundInfoList = new ArrayList<FundInfoPrestia>();
+		{			
+			for(int i = 0; i < screener.rows.length; i++) {
+				var row = screener.rows[i];
+				logger.info("{}  /  {}  {}", i, screener.rows.length, row.secId);
+				
+			    var secId    = row.secId;
+			    var currency = Currency.getInstance(row.priceCurrency);
+			    var fundCode = row.customInstitutionSecurityId;
+			    var isinCode = row.isinCode == null ? "" : row.isinCode;
+			    
+			    var mfSnapshot = MFsnapshot.getInstance(secId);
+			    var salesFee = mfSnapshot.getBuyFee();
+			    
+			    var fundName = row.fundName;
+			    
+			    fundInfoList.add(new FundInfoPrestia(secId, currency, fundCode, isinCode, salesFee, fundName));
+			}
+			
+			logger.info("save  {}  {}", fundInfoList.size(), StoragePrestia.FundInfoPrestia.getPath());
+			StoragePrestia.FundInfoPrestia.save(fundInfoList);
+		}
+		
+		// build tradingFundList from fundInfoList
+		var tradingFundList = new ArrayList<TradingFundType>();
 		{
-			var list = new ArrayList<TradingFundType>();
-
-			var isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+			var isinSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
+			
 			int countA = 0;
 			int countB = 0;
 			int countC = 0;
 			int countD = 0;
-
-			for(var row: screener.rows) {
-				String isinCode = row.isinCode;
-				String fundName = row.fundName;
-				
-				if (isinCodeSet.contains(isinCode)) {
-					// FIXME find out buy fee of fund using link below
-					//       Use Custom.CustomBuyFeeNote
-					//       https://gllt.morningstar.com/api/rest.svc/smbctbfund/security_details/F00000XM7M?viewId=MFsnapshot&idtype=msid&responseViewFormat=json
-					list.add(new TradingFundType(isinCode, TradingFundType.SALES_FEE_UNKNOWN));
+			for(var e: fundInfoList) {
+				var isinCode = e.isinCode;
+				if (isinCode.isEmpty()) {
 					countA++;
 				} else {
-					if (isinCode.startsWith("JP")) {
-						logger.warn("Unexpected isinCode  {}  {}", isinCode, fundName);
+					if (isinSet.contains(isinCode)) {
+						tradingFundList.add(new TradingFundType(e.isinCode, e.salesFee));
 						countB++;
-					} else if (isinCode.isEmpty()) {
-						// no isinCode
-						logger.warn("Ignore no isinCode   {}", fundName);
-						countC++;
 					} else {
-						// ignore foreign registered fund
-//						logger.warn("Ignore foreign fund  {}  {}", isinCode, fundName);
-						countD++;
+						if (isinCode.startsWith("JP")) {
+							logger.warn("Unexpected isinCode  {}  {}", e.isinCode, e.fundName);
+							countC++;
+						} else {
+//							logger.warn("Unexpected isinCode  {}  {}", e.isinCode, e.fundName);
+							countD++;
+						}
 					}
 				}
 			}
+			
 			logger.info("countA    {}", countA);
 			logger.info("countB    {}", countB);
 			logger.info("countC    {}", countC);
 			logger.info("countD    {}", countD);
 			
-			logger.info("save  {}  {}", list.size(), StoragePrestia.TradingFundPrestia.getPath());
-			StoragePrestia.TradingFundPrestia.save(list);
-		}
-		
-		// build fund info prestia
-		{
-			var list = new ArrayList<FundInfoPrestia>();
-			
-			for(var row: screener.rows) {
-			    String   secId    = row.secId;
-			    Currency currency = Currency.getInstance(row.priceCurrency);
-			    String   fundCode = row.customInstitutionSecurityId;
-			    String   isinCode = row.isinCode;
-			    String   fundName = row.fundName;
-			    
-			    list.add(new FundInfoPrestia(secId, currency, fundCode, isinCode, fundName));
-			}
-			
-			logger.info("save  {}  {}", list.size(), StoragePrestia.FundInfoPrestia.getPath());
-			StoragePrestia.FundInfoPrestia.save(list);
+			logger.info("save  {}  {}", tradingFundList.size(), StoragePrestia.TradingFundPrestia.getPath());
+			StoragePrestia.TradingFundPrestia.save(tradingFundList);
 		}
 	}
 	
