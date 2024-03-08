@@ -25,6 +25,8 @@ public class WebBrowserNikko extends WebBrowser {
 	
 	private static final Target TRADE_HISTORY           = new Target.Click(By.linkText("お取引履歴"), "お取引履歴 - 検索");
 	private static final Target TRADE_HISTORY_3_MONTH   = new Target.Click(By.xpath("//input[@id='term02']"));
+//	private static final Target TRADE_HISTORY_1_YEAR    = new Target.Click(By.xpath("//input[@id='term03']"));
+//	private static final Target TRADE_HISTORY_3_YEAR    = new Target.Click(By.xpath("//input[@id='term04']"));
 	private static final Target TRADE_HISTORY_DOWNLOAD  = new Target.Click(By.xpath("//input[@id='dlBtn']"));
 
 	
