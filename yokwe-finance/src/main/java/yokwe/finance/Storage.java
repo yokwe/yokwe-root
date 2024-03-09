@@ -311,6 +311,7 @@ public interface Storage {
 	
 	public static final Storage root     = new Impl(DATA_PATH);
 	
+	public static final Storage chart    = new Impl(root, "chart");
 	public static final Storage fund     = new Impl(root, "fund");
 	public static final Storage fx       = new Impl(root, "fx");
 	public static final Storage report   = new Impl(root, "report");
