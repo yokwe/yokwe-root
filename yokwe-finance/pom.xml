@@ -28,7 +28,12 @@
             <artifactId>jfreechart</artifactId>
             <version>1.5.4</version>
         </dependency>
-        
+        <!-- https://mvnrepository.com/artifact/org.knowm.xchart/xchart -->
+		<dependency>
+		    <groupId>org.knowm.xchart</groupId>
+		    <artifactId>xchart</artifactId>
+		    <version>3.8.7</version>
+		</dependency>
         
 		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
 		<dependency>
