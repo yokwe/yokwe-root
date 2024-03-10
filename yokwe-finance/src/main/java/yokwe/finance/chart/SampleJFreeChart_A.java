@@ -132,7 +132,7 @@ public class SampleJFreeChart_A {
     	
 		final File file;
 		{
-			var path = String.format("tmp/chart/%s.png", title);
+			var path = String.format("tmp/chart/jfreechart-%s.png", title);
 			file = new File(path);
 		}
 		logger.info("file  {}", file.getPath());

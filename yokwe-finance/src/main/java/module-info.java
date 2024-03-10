@@ -25,6 +25,9 @@ open module yokwe.finance {
 	// for VetoableChangeListener used in jfreechart
 	requires java.desktop;
 	
+	// xchart
+	requires transitive org.knowm.xchart;
+	
 	
 	// selenium
 	requires transitive org.seleniumhq.selenium.api;
