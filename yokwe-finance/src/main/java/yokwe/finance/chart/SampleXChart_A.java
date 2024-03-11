@@ -3,6 +3,7 @@ package yokwe.finance.chart;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ import org.knowm.xchart.OHLCChartBuilder;
 
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.OHLCV;
-import yokwe.util.MarketHoliday;
 import yokwe.util.UnexpectedException;
 
 public class SampleXChart_A {
@@ -44,6 +44,28 @@ public class SampleXChart_A {
 				throw new UnexpectedException("Unexpected intValue");
 			}
 		}
+	}
+	
+	private static boolean isWeekday(LocalDate date) {
+		return
+			switch (date.getDayOfWeek()) {
+				case SATURDAY, SUNDAY -> false;
+				default -> true;
+			};
+	}
+	private static LocalDate getNextWeekday(LocalDate date) {
+		for(;;) {
+			date = date.plusDays(1);
+			if (isWeekday(date)) break;
+		}
+		return date;
+	}
+	private static LocalDate getPreviousWeekday(LocalDate date) {
+		for(;;) {
+			date = date.minusDays(1);
+			if (isWeekday(date)) break;
+		}
+		return date;
 	}
 	private static void drawChart(String title, int width, int height, List<OHLCV> list) {
     	{
@@ -85,7 +107,7 @@ public class SampleXChart_A {
 	    	{
 	    		var date = list.get(0).date;
 	    		for(var i = 1; i < 30; i++) {
-	    			date = MarketHoliday.JP.getPreviousTradingDate(date);
+	    			date = getPreviousWeekday(date);
 	    			localDateMap.put(0 - i, date);
 	    		}
 	    	}
@@ -93,7 +115,7 @@ public class SampleXChart_A {
 	    		int size = list.size();
 	    		var date = list.get(size - 1).date;
 	    		for(var i = 0; i < 30; i++) {
-	    			date = MarketHoliday.JP.getNextTradingDate(date);
+	    			date = getNextWeekday(date);
 	    			localDateMap.put(size + i, date);
 	    		}
 	    	}
