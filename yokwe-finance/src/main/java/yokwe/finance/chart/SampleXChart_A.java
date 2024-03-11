@@ -3,7 +3,6 @@ package yokwe.finance.chart;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -46,27 +45,6 @@ public class SampleXChart_A {
 		}
 	}
 	
-	private static boolean isWeekday(LocalDate date) {
-		return
-			switch (date.getDayOfWeek()) {
-				case SATURDAY, SUNDAY -> false;
-				default -> true;
-			};
-	}
-	private static LocalDate getNextWeekday(LocalDate date) {
-		for(;;) {
-			date = date.plusDays(1);
-			if (isWeekday(date)) break;
-		}
-		return date;
-	}
-	private static LocalDate getPreviousWeekday(LocalDate date) {
-		for(;;) {
-			date = date.minusDays(1);
-			if (isWeekday(date)) break;
-		}
-		return date;
-	}
 	private static void drawChart(String title, int width, int height, List<OHLCV> list) {
     	{
     		var first = list.get(0);
@@ -100,23 +78,25 @@ public class SampleXChart_A {
 	    }
 	    
 	    Map<Integer, LocalDate> localDateMap = new TreeMap<>();
+	    // build localDateMap
 	    {
 	    	for(int i = 0; i < list.size(); i++) {
 	    		localDateMap.put(i,  list.get(i).date);
 	    	}
+	    	// fill dummy data  -  before firstDate
 	    	{
-	    		var date = list.get(0).date;
+	    		var base      = 0;
+	    		var firstDate = list.get(base).date;
 	    		for(var i = 1; i < 30; i++) {
-	    			date = getPreviousWeekday(date);
-	    			localDateMap.put(0 - i, date);
+	    			localDateMap.put(base - i, firstDate.minusDays(i));
 	    		}
 	    	}
+	    	// fill dummy data -  after lastDate
 	    	{
-	    		int size = list.size();
-	    		var date = list.get(size - 1).date;
-	    		for(var i = 0; i < 30; i++) {
-	    			date = getNextWeekday(date);
-	    			localDateMap.put(size + i, date);
+	    		var base     = list.size() - 1;
+	    		var lastDate = list.get(base).date;
+	    		for(var i = 1; i < 30; i++) {
+	    			localDateMap.put(base + i, lastDate.plusDays(i));
 	    		}
 	    	}
 	    }
