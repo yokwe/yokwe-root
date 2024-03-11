@@ -9,9 +9,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
@@ -20,14 +17,10 @@ import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.DateTickUnit;
 import org.jfree.chart.axis.DateTickUnitType;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.TickUnit;
-import org.jfree.chart.axis.TickUnitSource;
-import org.jfree.chart.axis.Timeline;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;
 import org.jfree.data.xy.DefaultOHLCDataset;
 import org.jfree.data.xy.OHLCDataItem;
 import org.jfree.data.xy.OHLCDataset;
-import org.jfree.data.xy.XYDataset;
 
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.OHLCV;
@@ -36,7 +29,7 @@ import yokwe.util.UnexpectedException;
 public class SampleJFreeChart_A {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
- 	private static ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
+ 	private static ZoneId DEFAULT_ZONE_ID = ZoneId.of("UTC");
 	private static Date toDate(LocalDate localDate) {
 		return Date.from(localDate.atStartOfDay(DEFAULT_ZONE_ID).toInstant());
 	}
@@ -67,60 +60,6 @@ public class SampleJFreeChart_A {
             //return the same color as that used to fill the candle
             return yOpen < yClose ? getUpPaint() : getDownPaint();
         }
-    }
-    
-    public static class DefaultTimeLine implements Timeline {
-    	private Set<Long> set = new TreeSet<>();
-    	
-    	public DefaultTimeLine(List<LocalDate> list) {
-    		for(var e: list) {
-    			set.add(toDate(e).getTime());
-     		}    		
-    	}
-    	
-		@Override
-		public long toTimelineValue(long millisecond) {
-			return millisecond;
-		}
-
-		@Override
-		public long toTimelineValue(Date date) {
-			return date.getTime();
-		}
-
-		@Override
-		public long toMillisecond(long timelineValue) {
-			return timelineValue;
-		}
-
-		@Override
-		public boolean containsDomainValue(long millisecond) {
-			var ret = set.contains(toTimelineValue(millisecond));
-//			logger.info("containsDomainValue  BB {}", millisecond);
-			return ret;
-		}
-
-		@Override
-		public boolean containsDomainValue(Date date) {
-			var ret = set.contains(toTimelineValue(date));
-//			logger.info("containsDomainValue  AA  {}  {}", date, ret);
-			return ret;
-		}
-
-		@Override
-		public boolean containsDomainRange(long fromMillisecond, long toMillisecond) {
-			Date fromDate = new Date(fromMillisecond);
-			Date toDate   = new Date(fromMillisecond);
-			
-			logger.info("containsDomainRange  {}  {}", fromDate.toString(), toDate.toString());
-			return false;
-		}
-
-		@Override
-		public boolean containsDomainRange(Date fromDate, Date toDate) {
-			return containsDomainRange(fromDate.getTime(), toDate.getTime());
-		}
-    	
     }
     
     static void drawChart(String title, int width, int height, List<OHLCV> list) {
