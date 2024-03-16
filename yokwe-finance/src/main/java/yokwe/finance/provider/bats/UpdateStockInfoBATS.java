@@ -32,6 +32,8 @@ public class UpdateStockInfoBATS {
 		typeMap.put("Futures-Linked Securities",      Type.ETN);
 		//
 		typeMap.put("Primary Equity",                 Type.COMMON);
+		//
+		typeMap.put("Warrant",                        Type.WARRANT);
 	}
 	
 	private static void update() {
