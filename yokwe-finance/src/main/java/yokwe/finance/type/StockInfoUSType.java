@@ -37,7 +37,9 @@ public final class StockInfoUSType implements Comparable<StockInfoUSType> {
 		TRUST  (SimpleType.STOCK), // TRUST
 		
 		UNIT   (SimpleType.OTHER), // UNIT
-		UBI    (SimpleType.OTHER); // UNITS_OF_BENEFICIAL_INTEREST
+		UBI    (SimpleType.OTHER), // UNITS_OF_BENEFICIAL_INTEREST
+		
+		WARRANT(SimpleType.OTHER); // WARRANT
 
 		public final SimpleType simpleType;
 		
