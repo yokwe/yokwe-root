@@ -28,8 +28,8 @@ open module yokwe.util {
 	// mail from jakarta ee
 	requires jakarta.mail;
 	
-	requires logback.classic;
-	requires logback.core;
+	requires ch.qos.logback.classic;
+	requires ch.qos.logback.core;
 	requires transitive org.slf4j;
 	
 	requires transitive org.libreoffice.uno;
