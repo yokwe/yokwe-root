@@ -2,7 +2,7 @@ open module yokwe.finance {
 	exports yokwe.finance;
 	
 	// http
-	requires httpcore5;
+	requires org.apache.httpcomponents.core5.httpcore5;
 	requires httpcore5.h2;
 	
 	// json

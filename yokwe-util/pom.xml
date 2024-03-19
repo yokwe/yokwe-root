@@ -30,22 +30,22 @@
 		    <artifactId>commons-net</artifactId>
 		    <version>3.10.0</version>
 		</dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
+        <!-- yokwe.utl.http.HttpUtil use httpcore5-->
+       	<dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
+            <version>5.2.4</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
-        <!-- NOTE upgrade to 5.3.X -->
+        <!-- Download use httpclient -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.5</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
-        <!-- NOTE upgrade to 5.2.X -->
-       <dependency>
-            <groupId>org.apache.httpcomponents.core5</groupId>
-            <artifactId>httpcore5</artifactId>
-            <version>5.0</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5-h2 -->
-        <!-- NOTE upgrade to 5.2.X -->
+        <!-- DownloadAsync use httpcore5-h2 -->
         <dependency>
             <groupId>org.apache.httpcomponents.core5</groupId>
             <artifactId>httpcore5-h2</artifactId>

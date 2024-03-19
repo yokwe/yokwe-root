@@ -12,9 +12,9 @@ open module yokwe.util {
 	requires commons.math3;
 	requires org.apache.commons.net;
 	
+	requires org.apache.httpcomponents.core5.httpcore5;
 	requires httpclient;
 	requires httpcore;
-	requires transitive httpcore5;
 	requires transitive httpcore5.h2;
 	
 	// json from jakarta ee

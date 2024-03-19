@@ -8,7 +8,7 @@ open module yokwe.stock.us {
 	exports yokwe.stock.us.sbi;
 
 	// http
-	requires httpcore5;
+	requires org.apache.httpcomponents.core5.httpcore5;
 	requires httpcore5.h2;
 	
 	// json
