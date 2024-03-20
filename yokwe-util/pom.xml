@@ -30,6 +30,7 @@
 		    <artifactId>commons-net</artifactId>
 		    <version>3.10.0</version>
 		</dependency>
+		
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
        	<dependency>
             <groupId>org.apache.httpcomponents.core5</groupId>
@@ -42,13 +43,13 @@
 		    <artifactId>httpcore5-h2</artifactId>
 		    <version>5.2.4</version>
 		</dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
-        <!-- NOTE update to 5.X.X -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.5</version>
-        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5 -->
+		<dependency>
+		    <groupId>org.apache.httpcomponents.client5</groupId>
+		    <artifactId>httpclient5</artifactId>
+		    <version>5.3.1</version>
+		</dependency>
+        
         <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
