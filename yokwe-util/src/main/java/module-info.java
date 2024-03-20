@@ -12,18 +12,17 @@ open module yokwe.util {
 	requires commons.math3;
 	requires org.apache.commons.net;
 	
-	requires org.apache.httpcomponents.core5.httpcore5;
+	requires transitive org.apache.httpcomponents.core5.httpcore5;
 	requires org.apache.httpcomponents.core5.httpcore5.h2;
-	requires httpclient;
-	requires httpcore;
+	requires org.apache.httpcomponents.client5.httpclient5;
 	
 	// json from jakarta ee
-	requires jakarta.json;
-	requires jakarta.json.bind;
+	requires transitive jakarta.json;
+	requires transitive jakarta.json.bind;
 	
 	// xml bind from jakarta ee
 	requires transitive java.xml;
-	requires jakarta.xml.bind;
+	requires transitive jakarta.xml.bind;
 	
 	// mail from jakarta ee
 	requires jakarta.mail;
