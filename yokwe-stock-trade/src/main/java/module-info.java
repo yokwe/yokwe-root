@@ -7,7 +7,7 @@ open module yokwe.stock.trade {
 
 	// http
 	requires org.apache.httpcomponents.core5.httpcore5;
-	requires httpcore5.h2;
+	requires org.apache.httpcomponents.core5.httpcore5.h2;
 	
 	// json
 	requires transitive jakarta.json;

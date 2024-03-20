@@ -13,9 +13,9 @@ open module yokwe.util {
 	requires org.apache.commons.net;
 	
 	requires org.apache.httpcomponents.core5.httpcore5;
+	requires org.apache.httpcomponents.core5.httpcore5.h2;
 	requires httpclient;
 	requires httpcore;
-	requires transitive httpcore5.h2;
 	
 	// json from jakarta ee
 	requires jakarta.json;
