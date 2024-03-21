@@ -2,9 +2,10 @@
 #
 #
 
-
 DATA_PATH_FILE := data/DataPathLocation
 DATA_PATH := $(shell cat $(DATA_PATH_FILE))
+
+CHROME_MAJOR_VERSION := 122
 
 .PHONY: all build check-data-path
 
@@ -15,6 +16,30 @@ all: check-data-path
 
 update-crontab:
 	crontab data/crontab
+
+
+download-google-chrome-for-testing:
+	mkdir -p tmp/google-chrome-for-testing; cd tmp/google-chrome-for-testing; \
+	echo "chrome major version $(CHROME_MAJOR_VERSION)"; \
+	curl -s --output chrome-version https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_$(CHROME_MAJOR_VERSION); \
+	chrome_version=`/bin/cat chrome-version`; \
+	echo "chrome version       $${chrome_version}"; \
+	mkdir -p $${chrome_version}; \
+	rm $${chrome_version}/chrome-mac-arm64.zip; \
+	rm $${chrome_version}/chromedriver-mac-arm64.zip;  \
+	curl --output $${chrome_version}/chrome-mac-arm64.zip       https://storage.googleapis.com/chrome-for-testing-public/$${chrome_version}/mac-arm64/chrome-mac-arm64.zip; \
+	curl --output $${chrome_version}/chromedriver-mac-arm64.zip https://storage.googleapis.com/chrome-for-testing-public/$${chrome_version}/mac-arm64/chromedriver-mac-arm64.zip; \
+	ls -lha $${chrome_version}
+
+setup-google-chrome-for-testing:
+	mkdir -p tmp/google-chrome-for-testing; cd tmp/google-chrome-for-testing; \
+	chrome_version=`/bin/cat chrome-version`; \
+	echo "chrome version       $${chrome_version}"; \
+	rm -rf chrome-mac-arm64; \
+	rm -rf chromedriver-mac-arm64;  \
+	unzip -q $${chrome_version}/chrome-mac-arm64.zip ; \
+	unzip -q $${chrome_version}/chromedriver-mac-arm64.zip ; \
+	ls -lha
 
 
 build:
