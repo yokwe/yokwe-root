@@ -18,9 +18,6 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.safari.SafariDriver;
-import org.openqa.selenium.safari.SafariDriverService;
-import org.openqa.selenium.safari.SafariOptions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -41,24 +38,16 @@ public class WebBrowser implements Closeable{
 	private static final int      DEFAULT_WINDOW_Y        = 0;
 	private static final int      DEFAULT_WINDOW_WIDTH    = 1280;
 	
-	// FIXME after update to macos 14.1.1, safari webdriver don't start
-	public static WebDriver getWebDriverSafari(boolean logging) {
-		var options = new SafariOptions();
-		var result  = Manager.getResult(options);
-		
-		var service = new SafariDriverService.Builder().withLogging(logging).build();		
-		// NOTE need to invoke setExecutable.
-		service.setExecutable(result.driverPath);
-		
-		return new SafariDriver(service, options);
-	}
+	// path of chrome for testing
+	private static final String BROWSER_PATH = "tmp/chrome-for-testing/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing";
+	private static final String DRIVER_PATH  = "tmp/chrome-for-testing/chromedriver-mac-arm64/chromedriver";
 	
 	public static WebDriver getWebDriverChrome(ChromeOptions options) {
-		var result = Manager.getResult(options);
-		
+		// set path of browser and driver of chrome for testing
+		options.setBinary(BROWSER_PATH);
+
 		var service = new ChromeDriverService.Builder().build();
-		// NOTE need to invoke setExecutable.
-		service.setExecutable(result.driverPath);
+		service.setExecutable(DRIVER_PATH);
 		
 		return new ChromeDriver(service, options);
 	}
