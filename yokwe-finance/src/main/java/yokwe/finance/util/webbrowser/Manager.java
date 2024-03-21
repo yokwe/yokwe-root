@@ -39,7 +39,7 @@ public class Manager {
 	    
 	    @Override
 	    public String toString() {
-	    	return String.format("{%d  %s  %s  %s}", code, driverPath, browserPath);
+	    	return String.format("{%d  %s  %s}", code, driverPath, browserPath);
 	    }
 	}
 	
