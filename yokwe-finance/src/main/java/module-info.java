@@ -16,7 +16,6 @@ open module yokwe.finance {
 	
 	// selenium
 	requires transitive org.seleniumhq.selenium.api;
-	requires transitive org.seleniumhq.selenium.manager;
 	requires transitive org.seleniumhq.selenium.json;
 	requires transitive org.seleniumhq.selenium.http;
 	requires transitive org.seleniumhq.selenium.os;
@@ -24,7 +23,6 @@ open module yokwe.finance {
 	//
 	requires dev.failsafe.core;
 	requires org.seleniumhq.selenium.chrome_driver;
-	requires org.seleniumhq.selenium.safari_driver;
 	requires org.seleniumhq.selenium.support;
 	
 	requires jul.to.slf4j;
