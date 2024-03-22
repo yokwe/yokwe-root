@@ -160,7 +160,7 @@ update-trading-fund:
 	ant provider-prestia-update-trading-fund-prestia
 	ant provider-rakuten-update-trading-fund-rakuten
 	ant provider-sbi-update-trading-fund-sbi
-	ant provider-smtb-update-trading-fund-smtb:
+	ant provider-smtb-update-trading-fund-smtb
 	ant provider-sony-update-trading-fund-sony
 
 update-fund: check-data-path
