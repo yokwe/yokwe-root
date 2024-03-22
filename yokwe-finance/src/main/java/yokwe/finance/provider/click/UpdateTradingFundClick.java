@@ -66,6 +66,8 @@ public class UpdateTradingFundClick {
 			String netassetsio; // netassetsio: 321.58
 			String commission;  // commission: 0.00000000
 			String mgtfee;      // mgtfee: 0.09372000
+			String nisaSaving;  // nisaSaving: 1
+			String nisaGrowth;  // nisaGrowth: 1
 		}
 		
 		public String state;
