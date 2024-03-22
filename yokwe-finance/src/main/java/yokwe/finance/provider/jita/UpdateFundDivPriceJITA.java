@@ -13,6 +13,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.FundPriceJP;
 import yokwe.util.CSVUtil;
+import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -82,6 +83,10 @@ public class UpdateFundDivPriceJITA {
 		public int compareTo(CSVData that) {
 			return this.date.compareTo(that.date);
 		}
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
 	}
 	private static class DivPriceConsumer implements Consumer<String> {
 		public final String isinCode;
@@ -121,6 +126,12 @@ public class UpdateFundDivPriceJITA {
 						throw new UnexpectedException("Unexpected date");
 					}
 				}
+				// sanity check
+				if (divPrice.price.isEmpty() || divPrice.nav.isEmpty()) {
+					logger.warn("Skip unexpected divPrice  {}  {}", isinCode, divPrice);
+					continue;
+				}
+				
 				BigDecimal price  = new BigDecimal(divPrice.price);
 				BigDecimal nav    = new BigDecimal(divPrice.nav).scaleByPowerOfTen(6); // 純資産総額（百万円）
 				String     div    = divPrice.div.trim();
