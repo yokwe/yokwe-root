@@ -30,8 +30,9 @@ public class WebBrowserPrestia extends WebBrowser {
 	public void login(String account, String password) {
 		LOGIN_A.action(this);
 		
-		sendKey(By.id("dispuserId"),   account);
-		sendKey(By.id("disppassword"), password);
+		// To prevent pop up dialog for new login, use 0 for sleep
+		sendKey(By.id("dispuserId"),   account, 0);
+		sendKey(By.id("disppassword"), password, 0);
 		
 		LOGIN_B.action(this);
 		wait.untilPageContains("代表口座");
