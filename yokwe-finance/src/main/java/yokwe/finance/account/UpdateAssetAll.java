@@ -1,6 +1,8 @@
 package yokwe.finance.account;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +15,7 @@ import yokwe.finance.account.rakuten.UpdateAssetRakuten;
 import yokwe.finance.account.sbi.UpdateAssetSBI;
 import yokwe.finance.account.smtb.UpdateAssetSMTB;
 import yokwe.finance.account.sony.UpdateAssetSony;
+import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 
@@ -69,13 +72,27 @@ public final class UpdateAssetAll {
 	}
 	
 	
+	private static final Instant  INSTANT_NOW       = Instant.now();
+	private static final Duration GRACE_PERIOD_FILE = Duration.ofHours(1);
+	private static boolean needsUpdateFile(File file, Duration gracePeriod) {
+		if (file.exists()) {
+			var lastModified = FileUtil.getLastModified(file);
+			var duration     = Duration.between(lastModified, INSTANT_NOW);
+			return duration.compareTo(gracePeriod) < 0;
+		} else {
+			return true;
+		}
+	}
+	private static boolean needsUpdateFile(File file) {
+		return needsUpdateFile(file, GRACE_PERIOD_FILE);
+	}
+	
 	private static final UpdateAsset[] array = {
-		UpdateAssetNikko.getInstance(),
 		UpdateAssetPrestia.getInstance(),
+		UpdateAssetNikko.getInstance(),
 		UpdateAssetRakuten.getInstance(),
-		UpdateAssetSBI.getInstance(),
-		UpdateAssetSMTB.getInstance(),
 		UpdateAssetSony.getInstance(),
+		UpdateAssetSMTB.getInstance(),
 	};
 	
 	public static void download() {
