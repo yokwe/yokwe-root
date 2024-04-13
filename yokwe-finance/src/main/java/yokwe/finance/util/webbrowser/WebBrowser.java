@@ -42,12 +42,17 @@ public class WebBrowser implements Closeable{
 	private static final String BROWSER_PATH = "tmp/chrome-for-testing/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing";
 	private static final String DRIVER_PATH  = "tmp/chrome-for-testing/chromedriver-mac-arm64/chromedriver";
 	
+	// headless
+	private static final boolean USE_HEADLESS = true;
+	
 	public static WebDriver getWebDriverChrome(ChromeOptions options) {
 		// set path of browser and driver of chrome for testing
 		options.setBinary(BROWSER_PATH);
-
+		
 		var service = new ChromeDriverService.Builder().build();
 		service.setExecutable(DRIVER_PATH);
+		
+		if (USE_HEADLESS) options.addArguments("--headless");
 		
 		return new ChromeDriver(service, options);
 	}
