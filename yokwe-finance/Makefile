@@ -57,8 +57,8 @@ check-data-path:
 	@echo "DATA_PATH_FILE  !$(DATA_PATH_FILE)!"
 	@echo "DATA_PATH       !$(DATA_PATH)!"
 	@if [ ! -d $(DATA_PATH) ]; then \
-	  	  echo "no directory  !${DATA_PATH}!" ; \
-	  exit 1 ; \
+		echo "no directory  !${DATA_PATH}!" ; \
+		exit 1 ; \
 	fi
 
 
