@@ -269,7 +269,7 @@ public class WebBrowser implements Closeable{
 
 			@Override
 			public String toString() {
-				return "wait page title contains " + string;
+				return "get window title contains " + string;
 			}
 		};
 	}
