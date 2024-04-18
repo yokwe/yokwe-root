@@ -274,6 +274,7 @@ public class WebBrowser implements Closeable{
 		};
 	}
 	public void switchToWindoTitleContains(String string, Duration timeout) {
+		if (driver.getTitle().contains(string)) return;  // no need to switch window
 		var handle = wait.untilExpectedCondition(getWindoHandleTitleContains(string), timeout);
 		driver.switchTo().window(handle);
 	}
