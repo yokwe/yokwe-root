@@ -10,8 +10,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.openqa.selenium.By;
+
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
+import yokwe.finance.account.Secret;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
@@ -19,6 +22,8 @@ import yokwe.finance.provider.sony.FundInfoSony;
 import yokwe.finance.provider.sony.StorageSony;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -33,13 +38,57 @@ public final class UpdateAssetSony implements UpdateAsset {
 	private static final File FILE_BALANCE_DEPOSIT_FOREIGN = storage.getFile("balance-deposit-foreign.html");
 	private static final File FILE_BALANCE_FUND            = storage.getFile("balance-fund.html");
 	
-	private static final File[] FILES = {
-		FILE_TOP,
-		FILE_BALANCE,
-		FILE_BALANCE_DEPOSIT,
-		FILE_BALANCE_DEPOSIT_FOREIGN,
-		FILE_BALANCE_FUND,
-	};
+	
+	private static final Target LOGIN_A = new Target.Get("https://o2o.moneykit.net/NBG100001G01.html", "ログイン");
+	private static final Target LOGIN_B = new Target.Click(By.linkText("ログイン"), "MONEYKit - ソニー銀行");
+	
+	private static final Target LOGOUT_A = new Target.Click(By.id("logout"));
+	private static final Target LOGOUT_B = new Target.Javascript("subYes()", "THANK YOU");
+	private static final Target LOGOUT_C = new Target.Javascript("allClose()");
+	
+	private static final Target TOP      = new Target.Javascript("hometop(1)");
+	
+	private static final Target BALANCE                 = new Target.Javascript("hometop(10)");
+	private static final Target BALANCE_DEPOSIT         = new Target.Javascript("balancecommon(1)");
+	private static final Target BALANCE_DEPOSIT_FOREIGN = new Target.Javascript("balancecommon(2)");
+	private static final Target BALANCE_FUND            = new Target.Javascript("balancecommon(3)");
+
+	public static void login(WebBrowser browser) {
+		var secret = Secret.read().sony;
+		login(browser, secret.account, secret.password);
+	}
+	public static void login(WebBrowser browser, String account, String password) {
+		LOGIN_A.action(browser);
+		browser.sendKey(By.name("KozaNo"),   account);
+		browser.sendKey(By.name("Password"), password);
+		
+		LOGIN_B.action(browser);
+	}
+	
+	public static void logout(WebBrowser browser) {
+		LOGOUT_A.action(browser);
+		browser.switchToByTitleContains("ログアウト");
+		
+		LOGOUT_B.action(browser);
+		LOGOUT_C.action(browser);
+	}
+	
+	public static void top(WebBrowser browser) {
+		TOP.action(browser);
+	}
+	
+	public static void balance(WebBrowser browser) {
+		BALANCE.action(browser);
+	}
+	public static void balanceDeopsit(WebBrowser browser) {
+		BALANCE_DEPOSIT.action(browser);
+	}
+	public static void balanceDeopsitForeign(WebBrowser browser) {
+		BALANCE_DEPOSIT_FOREIGN.action(browser);
+	}
+	public static void balanceFund(WebBrowser browser) {
+		BALANCE_FUND.action(browser);
+	}
 	
 	
 	@Override
@@ -82,31 +131,29 @@ public final class UpdateAssetSony implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		deleteFile(FILES);
-		
-		try(var browser = new WebBrowserSony()) {
+		try(var browser = new WebBrowser()) {
 			logger.info("login");
-			browser.login();
+			login(browser);
 			browser.savePage(FILE_TOP);
 			
 			logger.info("balance");
-			browser.balance();
+			balance(browser);
 			browser.savePage(FILE_BALANCE);
 			
 			logger.info("balance deposit");
-			browser.balanceDeopsit();
+			balanceDeopsit(browser);
 			browser.savePage(FILE_BALANCE_DEPOSIT);
 			
 			logger.info("balance deposit foreign");
-			browser.balanceDeopsitForeign();
+			balanceDeopsitForeign(browser);
 			browser.savePage(FILE_BALANCE_DEPOSIT_FOREIGN);
 			
 			logger.info("balance fund");
-			browser.balanceFund();
+			balanceFund(browser);
 			browser.savePage(FILE_BALANCE_FUND);
 			
 			logger.info("logout");
-			browser.logout();
+			logout(browser);
 		}
 	}
 	
