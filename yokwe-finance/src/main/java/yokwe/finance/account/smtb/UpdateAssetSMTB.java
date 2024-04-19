@@ -7,8 +7,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import org.openqa.selenium.By;
+
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
+import yokwe.finance.account.Secret;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.smtb.BalancePage.DepositJPY;
@@ -16,6 +19,8 @@ import yokwe.finance.account.smtb.BalancePage.Fund;
 import yokwe.finance.account.smtb.BalancePage.TermDepositJPY;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -28,10 +33,42 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 	private static final File    FILE_BALANCE     = storage.getFile("balance.html");
 	private static final File    FILE_FUND        = storage.getFile("fund.html");
 	
-	private static final File[] FILES = {
-		FILE_TOP,
-		FILE_BALANCE,
-	};
+	
+	private static final Target LOGIN_A = new Target.Get("https://direct.smtb.jp/ap1/ib/login.do", "ログイン");
+	private static final Target LOGIN_B = new Target.Click(By.xpath("//input[contains(@value, 'ログイン')]"), "トップページ");
+	
+	private static final Target LOGOUT  = new Target.Click(By.xpath("//img[@alt='ログアウト']"), "ログアウト");
+	
+	// お取引き・残高照会
+	private static final Target BALANCE = new Target.Click(By.xpath("//img[@alt='お取引き・残高照会']"), "お取引・残高照会");
+	
+	//  残高明細・売却
+	private static final Target FUND = new Target.Click(By.xpath("//input[contains(@value, '残高明細・売却')]"), "投資信託売却｜保管残高明細");
+	
+	public static void login(WebBrowser browser) {
+		var secret = Secret.read().smtb;
+		login(browser, secret.account, secret.password);
+	}
+	public static void login(WebBrowser browser, String account, String password) {
+		LOGIN_A.action(browser);
+		
+		browser.sendKey(By.name("kaiinNo"),    account);
+		browser.sendKey(By.name("ibpassword"), password);
+		
+		LOGIN_B.action(browser);
+	}
+	
+	public static void logout(WebBrowser browser) {
+		LOGOUT.action(browser);
+	}
+	
+	public static void balance(WebBrowser browser) {
+		BALANCE.action(browser);
+	}
+	
+	public static void fund(WebBrowser browser) {
+		FUND.action(browser);
+	}
 	
 	@Override
 	public Storage getStorage() {
@@ -40,23 +77,21 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		deleteFile(FILES);
-		
-		try(var browser = new WebBrowserSMTB()) {
+		try(var browser = new WebBrowser()) {
 			logger.info("login");
-			browser.login();
+			login(browser);
 			browser.savePage(FILE_TOP);
 			
 			logger.info("balance");
-			browser.balance();
+			balance(browser);
 			browser.savePage(FILE_BALANCE);
 			
 			logger.info("fund");
-			browser.fund();
+			fund(browser);
 			browser.savePage(FILE_FUND);
 			
 			logger.info("logout");
-			browser.logout();
+			logout(browser);
 		}
 	}
 	
