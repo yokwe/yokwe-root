@@ -12,7 +12,6 @@ import yokwe.finance.Storage;
 import yokwe.finance.account.nikko.UpdateAssetNikko;
 import yokwe.finance.account.prestia.UpdateAssetPrestia;
 import yokwe.finance.account.rakuten.UpdateAssetRakuten;
-import yokwe.finance.account.sbi.UpdateAssetSBI;
 import yokwe.finance.account.smtb.UpdateAssetSMTB;
 import yokwe.finance.account.sony.UpdateAssetSony;
 import yokwe.util.FileUtil;
@@ -72,19 +71,15 @@ public final class UpdateAssetAll {
 	}
 	
 	
-	private static final Instant  INSTANT_NOW       = Instant.now();
-	private static final Duration GRACE_PERIOD_FILE = Duration.ofHours(1);
-	private static boolean needsUpdateFile(File file, Duration gracePeriod) {
+	private static final Duration DEFAULT_GRACE_PERIOD_FILE = Duration.ofHours(1);
+	private static boolean needsUpdateFile(File file) {
 		if (file.exists()) {
 			var lastModified = FileUtil.getLastModified(file);
-			var duration     = Duration.between(lastModified, INSTANT_NOW);
-			return duration.compareTo(gracePeriod) < 0;
+			var duration     = Duration.between(lastModified, Instant.now());
+			return duration.compareTo(DEFAULT_GRACE_PERIOD_FILE) < 0;
 		} else {
 			return true;
 		}
-	}
-	private static boolean needsUpdateFile(File file) {
-		return needsUpdateFile(file, GRACE_PERIOD_FILE);
 	}
 	
 	private static final UpdateAsset[] array = {
@@ -95,12 +90,6 @@ public final class UpdateAssetAll {
 		UpdateAssetSMTB.getInstance(),
 	};
 	
-	public static void download() {
-		for(var e: array) e.download();
-	}
-	public static void update() {
-		for(var e: array) e.update();
-	}
 	
 	public static List<Asset> getUpdate() {
 		var list = new ArrayList<Asset>();
@@ -137,8 +126,18 @@ public final class UpdateAssetAll {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		download();
-		update();
+		logger.info("update start");
+		for(var e: array) {
+			var file = e.getFile();
+			if (needsUpdateFile(file)) {
+				logger.info("update  {}", file.getPath());
+				e.download();
+				e.update();
+			} else {
+				logger.info("skip    {}", file.getPath());
+			}
+		}
+		logger.info("update stop");
 		
 		List<Asset> assetList = getList();
 		// update list
