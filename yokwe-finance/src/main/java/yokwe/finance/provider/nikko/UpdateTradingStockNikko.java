@@ -7,11 +7,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.account.nikko.WebBrowserNikko;
+import yokwe.finance.account.nikko.UpdateAssetNikko;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.finance.type.TradingStockType.FeeType;
 import yokwe.finance.type.TradingStockType.TradeType;
+import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
@@ -151,15 +152,15 @@ public class UpdateTradingStockNikko {
 	
 	private static int download() {
 		logger.info("download");
-		try(var browser = new WebBrowserNikko()) {
+		try(var browser = new WebBrowser()) {
 			logger.info("login");
-			browser.login();
+			UpdateAssetNikko.login(browser);
 			
 			logger.info("trade");
-			browser.trade();
+			UpdateAssetNikko.trade(browser);
 			
 			logger.info("listStockUS");
-			browser.listStockUS();
+			UpdateAssetNikko.listStockUS(browser);
 			
 			int pageNoMax = ShowPageInfo.getInstance(browser.getPage()).stream().mapToInt(o -> o.pageNo).max().getAsInt();
 			logger.info("pageNoMax  {}", pageNoMax);
@@ -171,7 +172,7 @@ public class UpdateTradingStockNikko {
 				FileUtil.write().file(getPath(pageNo), page);				
 				
 				if (page.contains("次の30件")) {
-					browser.next30Items();
+					UpdateAssetNikko.next30Items(browser);
 					
 					// sanity check
 					{
@@ -192,7 +193,7 @@ public class UpdateTradingStockNikko {
 			}
 			
 			logger.info("logout");
-			browser.logout();
+			UpdateAssetNikko.logout(browser);
 			
 			logger.info("close");
 			browser.close();

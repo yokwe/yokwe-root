@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.finance.Storage;
-import yokwe.finance.account.nikko.WebBrowserNikko;
+import yokwe.finance.account.nikko.UpdateAssetNikko;
 import yokwe.finance.provider.nikko.UpdateTradingStockNikko.StockInfo;
+import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -18,15 +19,15 @@ public class UpdateForeignBond {
 	}
 
 	private static int download() {
-		try(var browser = new WebBrowserNikko()) {
+		try(var browser = new WebBrowser()) {
 			logger.info("login");
-			browser.login();
+			UpdateAssetNikko.login(browser);
 			
 			logger.info("trade");
-			browser.trade();
+			UpdateAssetNikko.trade(browser);
 			
 			logger.info("listForeignBond");
-			browser.listForeignBond();
+			UpdateAssetNikko.listForeignBond(browser);
 			
 			int pageNo = 0;
 			for(;;) {
@@ -36,7 +37,7 @@ public class UpdateForeignBond {
 				
 				if (page.contains("次の30件")) {
 					pageNo++;
-					browser.next30Items();
+					UpdateAssetNikko.next30Items(browser);
 					continue;
 				}
 				break;

@@ -12,12 +12,17 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.openqa.selenium.By;
+
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
+import yokwe.finance.account.Secret;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -36,14 +41,71 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	
 	private static final File DIR_DOWNLOAD       = storage.getFile("download");
 	
-	private static final File[] FILES = {
-		FILE_TOP,
-		FILE_BALANCE,
-		FILE_BALANCE_BANK,
-		FILE_TORIREKI,
-	};
-	
 	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
+	
+	
+	private static final Target LOGIN_A = new Target.Get("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/", "ログイン");
+	private static final Target LOGIN_B = new Target.Click(By.name("logIn"), "トップ");
+
+	private static final Target LOGOUT  = new Target.Click(By.name("btn_logout"), "ログアウト");
+	
+	private static final Target BALANCE      = new Target.Click(By.name("menu04"), "口座残高");
+	private static final Target BALANCE_BANK = new Target.Click(By.linkText("銀行・証券残高一覧"), "銀行・証券残高一覧");
+	
+	private static final Target TRADE                   = new Target.Click(By.name("menu03"), "お取引");
+	private static final Target TRADE_LIST_STOCK_US     = new Target.Click(By.linkText("米国株式"), "米国株式 - 取扱銘柄一覧");
+	private static final Target TRADE_LIST_FOREIGN_BOND = new Target.Click(By.linkText("外国債券"), "外国債券 - 取扱銘柄一覧");
+	
+	private static final Target NEXT_30_ITEMS     = new Target.Click(By.linkText("次の30件"));
+	
+	private static final Target TRADE_HISTORY           = new Target.Click(By.linkText("お取引履歴"), "お取引履歴 - 検索");
+	private static final Target TRADE_HISTORY_3_MONTH   = new Target.Click(By.xpath("//input[@id='term02']"));
+//	private static final Target TRADE_HISTORY_1_YEAR    = new Target.Click(By.xpath("//input[@id='term03']"));
+//	private static final Target TRADE_HISTORY_3_YEAR    = new Target.Click(By.xpath("//input[@id='term04']"));
+	private static final Target TRADE_HISTORY_DOWNLOAD  = new Target.Click(By.xpath("//input[@id='dlBtn']"));
+	
+	public static void login(WebBrowser webBrowser) {
+		var secret = Secret.read().nikko;
+		login(webBrowser, secret.branch, secret.account, secret.password);
+	}
+	public static void login(WebBrowser webBrowser, String branch, String account, String password) {
+		LOGIN_A.action(webBrowser);
+		
+		webBrowser.sendKey(By.name("koza1"),  branch);
+		webBrowser.sendKey(By.name("koza2"),  account);
+		webBrowser.sendKey(By.name("passwd"), password);
+		
+		LOGIN_B.action(webBrowser);
+	}
+	public static void logout(WebBrowser webBrowser) {
+		LOGOUT.action(webBrowser);
+	}
+	public static void balance(WebBrowser webBrowser) {
+		BALANCE.action(webBrowser);
+	}
+	public static void balanceBank(WebBrowser webBrowser) {
+		BALANCE_BANK.action(webBrowser);
+	}
+	public static void trade(WebBrowser webBrowser) {
+		TRADE.action(webBrowser);
+	}
+	public static void listStockUS(WebBrowser webBrowser) {
+		TRADE_LIST_STOCK_US.action(webBrowser);
+	}
+	public static void listForeignBond(WebBrowser webBrowser) {
+		TRADE_LIST_FOREIGN_BOND.action(webBrowser);
+	}
+	public static void next30Items(WebBrowser webBrowser) {
+		NEXT_30_ITEMS.action(webBrowser);
+	}
+	public static void tradeHistory(WebBrowser webBrowser) {
+		TRADE_HISTORY.action(webBrowser);
+	}
+	public static void tradeHistoryDownload(WebBrowser webBrowser) {
+		TRADE_HISTORY_3_MONTH.action(webBrowser);
+		TRADE_HISTORY_DOWNLOAD.action(webBrowser);
+	}
+
 	
 	@Override
 	public Storage getStorage() {
@@ -52,28 +114,27 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		deleteFile(FILES);
-		deleteFile(DIR_DOWNLOAD.listFiles());
+		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
 		
-		try(var browser = new WebBrowserNikko(DIR_DOWNLOAD)) {
+		try(var browser = new WebBrowser(DIR_DOWNLOAD)) {
 			logger.info("login");
-			browser.login();
+			login(browser);
 			browser.savePage(FILE_TOP);
 			
 			logger.info("balance");
-			browser.balance();
+			balance(browser);
 			browser.savePage(FILE_BALANCE);
 			
 			logger.info("balance bank");
-			browser.balanceBank();
+			balanceBank(browser);
 			browser.savePage(FILE_BALANCE_BANK);
 						
 			// download csv file
 			{
 				logger.info("trade history");
-				browser.trade();
-				browser.tradeHistory();
-				browser.tradeHistoryDownload();
+				trade(browser);
+				tradeHistory(browser);
+				tradeHistoryDownload(browser);
 				browser.sleep(1000);
 				
 				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().startsWith("Torireki"));
@@ -95,7 +156,7 @@ public final class UpdateAssetNikko implements UpdateAsset {
 			}
 			
 			logger.info("logout");
-			browser.logout();
+			logout(browser);
 		}
 	}
 		
