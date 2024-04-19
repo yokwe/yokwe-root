@@ -99,9 +99,9 @@ public final class UpdateAssetAll {
 		for(var e: array) list.addAll(e.getList());		
 		Collections.sort(list);
 		
-		for(var e: list) {
-			logger.info("list  {}", e);
-		}
+//		for(var e: list) {
+//			logger.info("list  {}", e);
+//		}
 		
 		// sanity check
 		if (list.isEmpty()) {
