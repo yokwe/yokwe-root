@@ -12,8 +12,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openqa.selenium.By;
+
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
+import yokwe.finance.account.Secret;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
@@ -21,6 +24,8 @@ import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
@@ -36,13 +41,49 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 	private static final File    DIR_DOWNLOAD     = storage.getFile("download");
 	private static final File    FILE_BALANCE_ALL = storage.getFile("balance-all.csv");
 	
-	private static final File[] FILES = {
-		FILE_TOP,
-		FILE_BALANCE,
-		FILE_BALANCE_ALL,
-	};
+	
+	private static final Target LOGIN_A = new Target.Get("https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html", "総合口座ログイン | 楽天証券");
+	private static final Target LOGIN_B = new Target.Click(By.id("login-btn"), "ホーム");
+	private static final Target LOGOUT  = new Target.Javascript("logoutDialog()");
+	
+	private static final Target MY_MENU         = new Target.Click(By.xpath("//span[@class='pcm-gl-g-header-mymenu-btn']"));	
+	private static final Target MY_MENU_BALANCE = new Target.Click(By.xpath("//a[text()='保有商品一覧']"),    "保有商品一覧-すべて");
+	
+	private static final Target SAVE_AS_CSV = new Target.Click(By.xpath("//img[@alt='CSVで保存']"));
 
 	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
+	
+	public static void login(WebBrowser browser) {
+		var secret = Secret.read().rakuten;
+		login(browser, secret.account, secret.password);
+	}
+	public static void login(WebBrowser browser, String account, String password) {
+		LOGIN_A.action(browser);
+		
+		browser.sendKey(By.name("loginid"), account);
+		browser.sendKey(By.name("passwd"),  password);
+		
+		LOGIN_B.action(browser);
+		browser.sleepRandom();
+	}
+	
+	public void logout(WebBrowser browser) {
+		LOGOUT.action(browser);
+		browser.wait.untilAlertIsPresent().accept();
+		browser.sleepRandom();
+	}
+	
+	public void balance(WebBrowser browser) {
+		MY_MENU.action(browser);
+		MY_MENU_BALANCE.action(browser);
+		// pause before return
+		browser.sleepRandom(1500);
+	}
+	public void saveAsCSV(WebBrowser browser) {
+		SAVE_AS_CSV.action(browser);
+		browser.sleepRandom();
+	}
+
 	
 	@Override
 	public Storage getStorage() {
@@ -51,21 +92,20 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		deleteFile(FILES);
-		deleteFile(DIR_DOWNLOAD.listFiles());
+		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
 		
-		try(var browser = new WebBrowserRakuten(DIR_DOWNLOAD)) {
+		try(var browser = new WebBrowser(DIR_DOWNLOAD)) {
 			logger.info("login");
-			browser.login();
+			login(browser);
 			browser.savePage(FILE_TOP);
 			
 			logger.info("balance");
-			browser.balance();
+			balance(browser);
 			browser.savePage(FILE_BALANCE);
 			
 			// download csv file
 			{
-				browser.saveAsCSV();
+				saveAsCSV(browser);
 				browser.sleep(1000);
 				
 				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().startsWith("assetbalance(all)_"));
@@ -88,7 +128,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 			}
 			
 			logger.info("logout");
-			browser.logout();
+			logout(browser);
 		}
 	}
 	
