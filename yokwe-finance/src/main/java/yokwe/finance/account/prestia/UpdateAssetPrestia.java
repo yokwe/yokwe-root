@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.openqa.selenium.By;
+
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
+import yokwe.finance.account.Secret;
 import yokwe.finance.account.Asset.Company;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.prestia.BalancePage.DepositJPY;
@@ -21,6 +24,8 @@ import yokwe.finance.account.prestia.BalancePage.TermDepositForeign;
 import yokwe.finance.account.prestia.FundPage.FundReturns;
 import yokwe.finance.provider.prestia.StoragePrestia;
 import yokwe.finance.type.Currency;
+import yokwe.finance.util.webbrowser.Target;
+import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -29,16 +34,66 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 	
 	private static final Storage storage = Storage.account.prestia;
 	
-	private static final File FILE_TOP     = storage.getFile("top.html");
-	private static final File FILE_BALANCE = storage.getFile("balance.html");
+	private static final File FILE_BALANCE         = storage.getFile("balance.html");
 	private static final File FILE_FUND_RETURNS    = storage.getFile("fund-returns.html");
 	
-	private static final File[] FILES = {
-		FILE_TOP,
-		FILE_BALANCE,
-		FILE_FUND_RETURNS,
-	};
+	private static final Target LOGIN_A = new Target.Get("https://login.smbctb.co.jp/ib/portal/POSNIN1prestiatop.prst", "プレスティア オンライン");
+	private static final Target LOGIN_B = new Target.Click(By.linkText("サインオン"));
+	private static final Target LOGOUT  = new Target.Click(By.linkText("サインオフ"));
+	
+	private static final Target BALANCE_A = new Target.Click(By.id("header-nav-label-0"));
+	private static final Target BALANCE_B = new Target.Click(By.linkText("口座残高"));
+	
+	private static final Target FUND_ENTER_A = new Target.Click(By.id("header-nav-label-3"));
+	private static final Target FUND_ENTER_B = new Target.Click(By.linkText("投資信託サービス"), "インターネットバンキング投資信託");
+	private static final Target FUND_RETURNS = new Target.Click(By.xpath("//*[@id=\"navi02_03\"]/li[4]/a")); // トータルリターン
+	private static final Target FUND_EXIT    = new Target.Click(By.xpath("//*[@id=\"header\"]/img[1]"), "プレスティア オンライン");
+	
+	
+	private static void login(WebBrowser webBrowser) {
+		var secret = Secret.read().prestia;
+		login(webBrowser, secret.account, secret.password);
+	}
+	private static void login(WebBrowser webBrowser, String account, String password) {
+		LOGIN_A.action(webBrowser);
+		webBrowser.savePage(storage.getFile("login-a.html"));
+		
+		// To prevent pop up dialog for new login, use 0 for sleep
+		webBrowser.sendKey(By.id("dispuserId"),   account, 0);
+		webBrowser.sendKey(By.id("disppassword"), password, 0);
+		
+		LOGIN_B.action(webBrowser);
+		webBrowser.wait.untilPageContains("代表口座");
+		webBrowser.savePage(storage.getFile("login-b.html"));
+	}
+	private static void logout(WebBrowser webBrowser) {
+		LOGOUT.action(webBrowser);
+		webBrowser.wait.untilPageContains("サインオフが完了しました");
+	}
+	private static void balance(WebBrowser webBrowser) {
+		BALANCE_A.action(webBrowser);
+		BALANCE_B.action(webBrowser);
+	}
+	private static void fundEnter(WebBrowser webBrowser) {
+		FUND_ENTER_A.action(webBrowser);
+		FUND_ENTER_B.action(webBrowser);
+	}
+	private static void fundReturns(WebBrowser webBrowser) {
+		// hover mouse to navi02_03_active
+		webBrowser.moveMouse(By.id("navi02_03_active"));
+		
+		// click 
+		FUND_RETURNS.action(webBrowser);
+	}
+	private static void fundExit(WebBrowser webBrowser) {
+		FUND_EXIT.action(webBrowser);
+	}
+	
+	private static void savePage(WebBrowser webBrowser, File file) {
+		webBrowser.savePage(file);
+	}
 
+	
 	@Override
 	public Storage getStorage() {
 		return storage;
@@ -46,26 +101,22 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		deleteFile(FILES);
-		
-		try(var browser = new WebBrowserPrestia()) {
+		try(var browser = new WebBrowser()) {
 			logger.info("login");
-			browser.login();
-			
-			browser.savePage(FILE_TOP);
+			login(browser);
 			
 			logger.info("balance");
-			browser.balance();
-			browser.savePage(FILE_BALANCE);
+			balance(browser);
+			savePage(browser, FILE_BALANCE);
 			
 			logger.info("fund");
-			browser.fundEnter();
-			browser.fundReturns();
-			browser.savePage(FILE_FUND_RETURNS);
-			browser.fundExit();
+			fundEnter(browser);
+			fundReturns(browser);
+			savePage(browser, FILE_FUND_RETURNS);
+			fundExit(browser);
 			
 			logger.info("logout");
-			browser.logout();
+			logout(browser);
 		}
 	}
 	
