@@ -4,6 +4,7 @@ import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,8 +76,9 @@ public final class UpdateAssetAll {
 	private static boolean needsUpdateFile(File file) {
 		if (file.exists()) {
 			var lastModified = FileUtil.getLastModified(file);
-			var duration     = Duration.between(lastModified, Instant.now());
-			return duration.compareTo(DEFAULT_GRACE_PERIOD_FILE) < 0;
+			var duration     = Duration.between(lastModified, Instant.now()).truncatedTo(ChronoUnit.SECONDS);
+			// if duration is greater than DEFAULT_GRACE_PERIOD_FILE, return true
+			return 0 < duration.compareTo(DEFAULT_GRACE_PERIOD_FILE);
 		} else {
 			return true;
 		}
@@ -126,18 +128,28 @@ public final class UpdateAssetAll {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		logger.info("update start");
-		for(var e: array) {
-			var file = e.getFile();
-			if (needsUpdateFile(file)) {
-				logger.info("update  {}", file.getPath());
-				e.download();
-				e.update();
-			} else {
-				logger.info("skip    {}", file.getPath());
+		{
+			var list = new ArrayList<UpdateAsset>();
+			logger.info("check  start");
+			for(var e: array) {
+				var file = e.getFile();
+				if (needsUpdateFile(file)) {
+					logger.info("update  {}", file.getPath());
+					list.add(e);
+				} else {
+					logger.info("skip    {}", file.getPath());
+				}
+			}
+			logger.info("check  stop");
+			if (!list.isEmpty()) {
+				logger.info("update start");
+				for(var e: list) {
+					e.download();
+					e.update();
+				}
+				logger.info("update stop");
 			}
 		}
-		logger.info("update stop");
 		
 		List<Asset> assetList = getList();
 		// update list
