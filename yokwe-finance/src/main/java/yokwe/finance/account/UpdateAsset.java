@@ -29,8 +29,4 @@ public interface UpdateAsset {
 	default void save(Collection<Asset> collection) {
 		ListUtil.save(Asset.class, getFile(), collection);
 	}
-	
-	default void deleteFile(File[] array) {
-		for(var e: array) e.delete();
-	}
 }
