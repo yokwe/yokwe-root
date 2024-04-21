@@ -152,14 +152,10 @@ update-manebu:
 # FUND
 #
 update-trading-fund:
-	ant provider-click-update-trading-fund-click
-	ant provider-monex-update-trading-fund-monex
 	ant provider-nikko-update-fund-info-nikko
 	ant provider-nikko-update-trading-fund-nikko
-	ant provider-nomura-update-trading-fund-nomura
 	ant provider-prestia-update-trading-fund-prestia
 	ant provider-rakuten-update-trading-fund-rakuten
-	ant provider-sbi-update-trading-fund-sbi
 	ant provider-smtb-update-trading-fund-smtb
 	ant provider-sony-update-trading-fund-sony
 
@@ -211,11 +207,8 @@ update-stock-info-us:
 	ant stock-update-stock-info-us
 
 update-trading-stock:
-	ant provider-monex-update-trading-stock-monex
-	ant provider-moomoo-update-trading-stock-moomoo
 	ant provider-nikko-update-trading-stock-nikko
 	ant provider-rakuten-update-trading-stock-rakuten
-	ant provider-sbi-update-trading-stock-sbi
 
 update-stock-price-us:
 	ant stock-update-stock-price-us

@@ -55,17 +55,12 @@ public final class StockStatsUS extends Sheet implements Comparable<StockStatsUS
 	
 	@Sheet.ColumnName("nisa") public String nisa;
 	
-	@Sheet.ColumnName("MONEX")  public String monex;
-	@Sheet.ColumnName("SBI")    public String sbi;
 	@Sheet.ColumnName("楽天")   public String rakuten;
 	@Sheet.ColumnName("日興")   public String nikko;
-	@Sheet.ColumnName("MOOMOO") public String moomoo;
 
 	public StockStatsUS() {
 		stockCode = null;
 		
-		monex     = null;
-		sbi       = null;
 		rakuten   = null;
 		nikko     = null;
 

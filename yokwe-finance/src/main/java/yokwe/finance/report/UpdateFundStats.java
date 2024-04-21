@@ -9,14 +9,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import yokwe.finance.fund.StorageFund;
-import yokwe.finance.provider.click.StorageClick;
 import yokwe.finance.provider.nikkei.DivScoreType;
 import yokwe.finance.provider.nikkei.StorageNikkei;
 import yokwe.finance.provider.nikko.StorageNikko;
-import yokwe.finance.provider.nomura.StorageNomura;
 import yokwe.finance.provider.prestia.StoragePrestia;
 import yokwe.finance.provider.rakuten.StorageRakuten;
-import yokwe.finance.provider.sbi.StorageSBI;
 import yokwe.finance.provider.smtb.StorageSMTB;
 import yokwe.finance.provider.sony.StorageSony;
 import yokwe.finance.stats.MonthlyStats;
@@ -88,19 +85,13 @@ public class UpdateFundStats {
 		var nikkeiMap = StorageNikkei.DivScore.getMap();
 		logger.info("nikkeiMap  {}", nikkeiMap.size());
 		
-		var clickMap   = StorageClick.TradingFundClick.getMap();
 		var nikkoMap   = StorageNikko.TradingFundNikko.getMap();
-		var nomuraMap  = StorageNomura.TradingFundNomura.getMap();
 		var rakutenMap = StorageRakuten.TradingFundRakuten.getMap();
-		var sbiMap     = StorageSBI.TradingFundSBI.getMap();
 		var sonyMap    = StorageSony.TradingFundSony.getMap();
 		var prestiaMap = StoragePrestia.TradingFundPrestia.getMap();
 		var smtbMap    = StorageSMTB.TradingFundSMTB.getMap();
-		logger.info("clickMap   {}", clickMap.size());
 		logger.info("nikkoMap   {}", nikkoMap.size());
-		logger.info("nomuraMap  {}", nomuraMap.size());
 		logger.info("rakutenMap {}", rakutenMap.size());
-		logger.info("sbiMapt    {}", sbiMap.size());
 		logger.info("sonyMap    {}", sonyMap.size());
 		logger.info("prestiaMap {}", prestiaMap.size());
 		logger.info("smtbMap    {}", smtbMap.size());
@@ -215,11 +206,8 @@ public class UpdateFundStats {
 			
 			if (fundStats.stockCode.isEmpty()) {
 				// FUND
-				fundStats.click   = !clickMap.containsKey(fund.isinCode)   ? null: clickMap.get(fund.isinCode).salesFee;
 				fundStats.nikko   = !nikkoMap.containsKey(fund.isinCode)   ? null: nikkoMap.get(fund.isinCode).salesFee;
-				fundStats.nomura  = !nomuraMap.containsKey(fund.isinCode)  ? null: nomuraMap.get(fund.isinCode).salesFee;
 				fundStats.rakuten = !rakutenMap.containsKey(fund.isinCode) ? null: rakutenMap.get(fund.isinCode).salesFee;
-				fundStats.sbi     = !sbiMap.containsKey(fund.isinCode)     ? null: sbiMap.get(fund.isinCode).salesFee;
 				fundStats.sony    = !sonyMap.containsKey(fund.isinCode)    ? null: sonyMap.get(fund.isinCode).salesFee;
 				fundStats.prestia = !prestiaMap.containsKey(fund.isinCode) ? null: prestiaMap.get(fund.isinCode).salesFee;
 				fundStats.smtb    = !smtbMap.containsKey(fund.isinCode)    ? null: smtbMap.get(fund.isinCode).salesFee;
@@ -231,11 +219,8 @@ public class UpdateFundStats {
 				}
 			} else {
 				// ETF
-				fundStats.click   = BigDecimal.ZERO;;
 				fundStats.nikko   = BigDecimal.ZERO;;
-				fundStats.nomura  = BigDecimal.ZERO;;
 				fundStats.rakuten = BigDecimal.ZERO;;
-				fundStats.sbi     = BigDecimal.ZERO;;
 				fundStats.sony    = null;
 				fundStats.prestia = null;
 				

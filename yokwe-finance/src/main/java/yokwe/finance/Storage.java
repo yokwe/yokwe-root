@@ -331,22 +331,17 @@ public interface Storage {
 		public static final Storage base = new Impl(root, "provider");
 
 		public static final Storage bats    =  new Storage.Impl(base, "bats");
-		public static final Storage click   =  new Storage.Impl(base, "click");
 		public static final Storage jita    =  new Storage.Impl(base, "jita");
 		public static final Storage jpx     =  new Storage.Impl(base, "jpx");
 		public static final Storage jreit   =  new Storage.Impl(base, "jreit");
 		public static final Storage manebu  =  new Storage.Impl(base, "manebu");
 		public static final Storage mizuho  =  new Storage.Impl(base, "mizuho");
-		public static final Storage monex   =  new Storage.Impl(base, "monex");
-		public static final Storage moomoo  =  new Storage.Impl(base, "moomoo");
 		public static final Storage nasdaq  =  new Storage.Impl(base, "nasdaq");
 		public static final Storage nikkei  =  new Storage.Impl(base, "nikkei");
 		public static final Storage nikko   =  new Storage.Impl(base, "nikko");
-		public static final Storage nomura  =  new Storage.Impl(base, "nomura");
 		public static final Storage nyse    =  new Storage.Impl(base, "nyse");
 		public static final Storage prestia =  new Storage.Impl(base, "prestia");
 		public static final Storage rakuten =  new Storage.Impl(base, "rakuten");
-		public static final Storage sbi     =  new Storage.Impl(base, "sbi");
 		public static final Storage smtb    =  new Storage.Impl(base, "smtb");
 		public static final Storage sony    =  new Storage.Impl(base, "sony");
 		public static final Storage yahoo   =  new Storage.Impl(base, "yahoo");

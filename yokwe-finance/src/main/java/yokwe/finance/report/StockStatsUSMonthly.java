@@ -61,11 +61,8 @@ public class StockStatsUSMonthly extends Sheet implements Comparable<StockStatsU
 	@Sheet.ColumnName("名前")     public String name;
 	@Sheet.ColumnName("|")        public String bar = "|";
 	
-	@Sheet.ColumnName("MONEX")  public String monex;
-	@Sheet.ColumnName("SBI")    public String sbi;
-	@Sheet.ColumnName("楽天")   public String rakuten;
-	@Sheet.ColumnName("日興")   public String nikko;
-	@Sheet.ColumnName("MOOMOO") public String moomoo;
+	@Sheet.ColumnName("楽天")     public String rakuten;
+	@Sheet.ColumnName("日興")     public String nikko;
 	
 	
     @Override

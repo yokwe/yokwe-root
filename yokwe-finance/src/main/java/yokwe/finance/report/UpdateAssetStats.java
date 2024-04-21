@@ -257,7 +257,6 @@ public class UpdateAssetStats {
 			double smtb    = 0;
 			double rakuten = 0;
 			double nikko   = 0;
-			double sbi     = 0;
 			
 			for(var asset: assetList) {
 				var value    = asset.value.doubleValue();
@@ -297,9 +296,6 @@ public class UpdateAssetStats {
 				case NIKKO:
 					nikko += valueJPY;
 					break;
-				case SBI:
-					sbi += valueJPY;
-					break;
 				default:
 					logger.error("Unexpected company");
 					logger.error("  asset  {}", asset);
@@ -309,7 +305,7 @@ public class UpdateAssetStats {
 			
 			var company = new DailyTotalCompanyReport(
 				date.toString(),
-				total, sony, smbc, prestia, smtb, rakuten, nikko, sbi
+				total, sony, smbc, prestia, smtb, rakuten, nikko
 			);
 			
 			valueList.add(company);

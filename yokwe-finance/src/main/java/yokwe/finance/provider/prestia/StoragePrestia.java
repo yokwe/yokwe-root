@@ -6,7 +6,7 @@ import yokwe.finance.type.TradingFundType;
 public class StoragePrestia {
 	public static final Storage storage = Storage.provider.prestia;
 	
-	// trading-fund-nomura
+	// trading-fund-prestia
 	public static final Storage.LoadSave<TradingFundType, String> TradingFundPrestia =
 		new Storage.LoadSave.Impl<>(TradingFundType.class,  o -> o.isinCode, storage, "trading-fund-prestia.csv");
 	

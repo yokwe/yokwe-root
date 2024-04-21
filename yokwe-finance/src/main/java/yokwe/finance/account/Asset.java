@@ -16,8 +16,7 @@ public class Asset implements Comparable<Asset> {
 		PRESTIA("プレスティア"),
 		SMTB   ("SMTB"),
 		RAKUTEN("楽天証券"),
-		NIKKO  ("日興証券"),
-		SBI    ("SBI証券");
+		NIKKO  ("日興証券");
 		
 		public final String description;
 		private Company(String nweValue) {

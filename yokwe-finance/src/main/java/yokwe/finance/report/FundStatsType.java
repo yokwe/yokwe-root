@@ -84,15 +84,9 @@ public class FundStatsType extends Sheet implements Comparable<FundStatsType> {
 	@Sheet.ColumnName("|")        public String bar = "|";
 	
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
-	@Sheet.ColumnName("CLICK")      public BigDecimal click;
-	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
 	@Sheet.ColumnName("日興")       public BigDecimal nikko;
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
-	@Sheet.ColumnName("野村")       public BigDecimal nomura;
-	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
 	@Sheet.ColumnName("楽天")       public BigDecimal rakuten;
-	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
-	@Sheet.ColumnName("SBI")        public BigDecimal sbi;
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
 	@Sheet.ColumnName("ソニー")     public BigDecimal sony;
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)

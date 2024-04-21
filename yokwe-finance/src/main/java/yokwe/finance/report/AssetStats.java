@@ -213,7 +213,6 @@ public class AssetStats {
 		@Sheet.ColumnName("SMTB")        public double smtb    = 0;
 		@Sheet.ColumnName("楽天証券")    public double rakuten = 0;
 		@Sheet.ColumnName("日興証券")    public double nikko   = 0;
-		@Sheet.ColumnName("SBI証券")     public double sbi     = 0;
 		
 		public DailyTotalCompanyReport(
 			String date,
@@ -224,8 +223,7 @@ public class AssetStats {
 			double prestia,
 			double smtb,
 			double rakuten,
-			double nikko,
-			double sbi
+			double nikko
 			) {
 			this.date    = date;
 			this.total   = total;
@@ -236,7 +234,6 @@ public class AssetStats {
 			this.smtb    = smtb;
 			this.rakuten = rakuten;
 			this.nikko   = nikko;
-			this.sbi     = sbi;
 		}
 		public DailyTotalCompanyReport() {}
 		public DailyTotalCompanyReport percent(double grandTotal) {
@@ -250,7 +247,6 @@ public class AssetStats {
 			ret.smtb    = this.smtb    / grandTotal;
 			ret.rakuten = this.rakuten / grandTotal;
 			ret.nikko   = this.nikko   / grandTotal;
-			ret.sbi     = this.sbi     / grandTotal;
 			
 			return ret;
 		}

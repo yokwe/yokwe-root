@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import yokwe.finance.provider.monex.StorageMonex;
-import yokwe.finance.provider.moomoo.StorageMoomoo;
 import yokwe.finance.provider.rakuten.StorageRakuten;
-import yokwe.finance.provider.sbi.StorageSBI;
 import yokwe.finance.provider.yahoo.StorageYahoo;
 import yokwe.finance.stats.MonthlyStats;
 import yokwe.finance.stock.StorageStock;
@@ -43,10 +40,7 @@ public class UpdateStockStatsUSMonthly {
 		
 		var list = new ArrayList<StockStatsUSMonthly>();
 		{
-			var monexMap       = StorageMonex.TradingStockMonex.getMap();
-			var sbiMap         = StorageSBI.TradingStockSBI.getMap();
 			var rakutenMap     = StorageRakuten.TradingStockRakuten.getMap();
-			var moomooMap      = StorageMoomoo.TradingStockMoomoo.getMap();
 			var companyInfoMap = StorageYahoo.CompanyInfoUSYahoo.getMap();
 			
 			for(var stockInfo: StorageStock.StockInfoUSTrading.getList()) {
@@ -85,15 +79,12 @@ public class UpdateStockStatsUSMonthly {
 					}
 				}
 				
-				stats.age        = Finance.durationInYearMonth(monthlyStats.firstDate, monthlyStats.lastDate);
+				stats.age       = Finance.durationInYearMonth(monthlyStats.firstDate, monthlyStats.lastDate);
 
 				stats.name      = stockInfo.name;
 				
-				stats.monex     = tradingString(monexMap, stockCode);
 				stats.nikko     = ""; // FIXME
-				stats.sbi       = tradingString(sbiMap, stockCode);
 				stats.rakuten   = tradingString(rakutenMap, stockCode);
-				stats.moomoo    = tradingString(moomooMap, stockCode);
 
 				// 1 year
 				{

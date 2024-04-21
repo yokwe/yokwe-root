@@ -82,7 +82,6 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 		// hover mouse to navi02_03_active
 		webBrowser.moveMouse(By.id("navi02_03_active"));
 		
-		// click 
 		FUND_RETURNS.action(webBrowser);
 	}
 	private static void fundExit(WebBrowser webBrowser) {
