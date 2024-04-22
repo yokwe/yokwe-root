@@ -72,7 +72,7 @@ public final class UpdateAssetAll {
 	}
 	
 	
-	private static final Duration DEFAULT_GRACE_PERIOD_FILE = Duration.ofHours(1);
+	private static final Duration DEFAULT_GRACE_PERIOD_FILE = Duration.ofHours(6);
 	private static boolean needsUpdateFile(File file) {
 		if (file.exists()) {
 			var lastModified = FileUtil.getLastModified(file);
