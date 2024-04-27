@@ -129,7 +129,7 @@ update-fx-rate:
 #
 # UPDATE ASSET
 #
-update-asset-all: update-fx-rate
+update-asset-all:
 	ant account-update-asset-all
 
 
