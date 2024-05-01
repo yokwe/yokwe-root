@@ -191,12 +191,12 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 					var code      = stringArray[1];
 					var name      = stringArray[2];
 					var units     = new BigDecimal(stringArray[4].replace(",", ""));
-					var unitCost  = new BigDecimal(stringArray[6].replace(",", ""));
+					var unitCost  = stringArray[6].equals("-") ? BigDecimal.ZERO : new BigDecimal(stringArray[6].replace(",", ""));
 					var unitPrice = new BigDecimal(stringArray[8].replace(",", ""));
 					var currency  = Currency.valueOf(stringArray[9].replace("円/USD", "USD").replace("円", "JPY").replace("％", "USD"));
 
 					var valueJPY  = new BigDecimal(stringArray[14].replace(",", "")); // 時価評価額[円]
-					var profitJPY = new BigDecimal(stringArray[16].replace(",", "")); // 評価損益[円]
+					var profitJPY = stringArray[16].equals("-") ? BigDecimal.ZERO : new BigDecimal(stringArray[16].replace(",", "")); // 評価損益[円]
 					var costJPY   = valueJPY.subtract(profitJPY);                     // コスト = 時価評価額[円] - 評価損益[円]
 
 					{
