@@ -67,6 +67,10 @@ public class Asset implements Comparable<Asset> {
 		this(dateTime.toLocalDate(), company, product, currency, value, units, cost, code, name);
 	}
 	
+	public Asset(LocalDate date, Asset that) {
+		this(date, that.company, that.product, that.currency, that.value, that.units, that.cost, that.code, that.name);
+	}
+	
 	// name
 	public static Asset deposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
 		return new Asset(dateTime, company, Product.DEPOSIT, currency, value, 0, value, "", name);
