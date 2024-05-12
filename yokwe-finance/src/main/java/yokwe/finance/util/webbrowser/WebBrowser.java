@@ -147,6 +147,14 @@ public class WebBrowser implements Closeable{
 	
 	
 	//
+	// title
+	//
+	public String getTitle() {
+		return driver.getTitle();
+	}
+	
+	
+	//
 	// findElement
 	//
 	public List<WebElement> findElements(By locator) {
