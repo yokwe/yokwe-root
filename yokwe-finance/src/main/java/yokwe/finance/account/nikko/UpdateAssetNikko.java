@@ -43,8 +43,11 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	
 	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
 	
+	private static final String URL_LOGIN = "https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/";
 	
-	private static final Target LOGIN_A = new Target.Get("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/", "ログイン");
+	private static final Target LOGIN_PAGE = new Target.Get(URL_LOGIN);
+	
+	private static final Target LOGIN_A = new Target.Get(URL_LOGIN, "ログイン");
 	private static final Target LOGIN_B = new Target.Click(By.name("logIn"), "トップ");
 
 	private static final Target LOGOUT  = new Target.Click(By.name("btn_logout"), "ログアウト");
@@ -63,6 +66,11 @@ public final class UpdateAssetNikko implements UpdateAsset {
 //	private static final Target TRADE_HISTORY_1_YEAR    = new Target.Click(By.xpath("//input[@id='term03']"));
 //	private static final Target TRADE_HISTORY_3_YEAR    = new Target.Click(By.xpath("//input[@id='term04']"));
 	private static final Target TRADE_HISTORY_DOWNLOAD  = new Target.Click(By.xpath("//input[@id='dlBtn']"));
+	
+	public static boolean isSystemMaintenance(WebBrowser webBrowser) {
+		LOGIN_PAGE.action(webBrowser);
+		return webBrowser.getTitle().contains("システムメンテナンス");
+	}
 	
 	public static void login(WebBrowser webBrowser) {
 		var secret = Secret.read().nikko;
@@ -116,7 +124,14 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	public void download() {
 		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
 		
+process:
 		try(var browser = new WebBrowser(DIR_DOWNLOAD)) {
+			// check system maintenance
+			if (isSystemMaintenance(browser)) {
+				logger.info("skip system maintenance");
+				break process;
+			}
+			
 			logger.info("login");
 			login(browser);
 			browser.savePage(FILE_TOP);
