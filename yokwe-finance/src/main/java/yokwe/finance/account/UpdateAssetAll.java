@@ -107,21 +107,33 @@ public final class UpdateAssetAll {
 		if (list.isEmpty()) {
 			throw new UnexpectedException("Unexpected");
 		}
-		var first = list.get(0);
-		var last  = list.get(list.size() - 1);
-		if (!first.date.equals(last.date)) {
-			logger.error("Unexpected date");
-			logger.error("first  {}", first);
-			logger.error("last   {}", last);
-			throw new UnexpectedException("Unexpected date");
-		}
+		var last = list.get(list.size() - 1);
+		
 		if (last.date.getYear() != THIS_YEAR) {
 			logger.error("Unexpected year");
 			logger.error("THIS_YEAR  {}", THIS_YEAR);
 			logger.error("last       {}", last);
 			throw new UnexpectedException("Unexpected year");
 		}
-
+		
+		// fix list if list contains old data
+		{
+			var lastDate = last.date;
+			
+			var newList = new ArrayList<Asset>();
+			for(var e: list) {
+				if (e.date.equals(lastDate)) {
+					newList.add(e);
+				} else {
+					// Treat old data as new
+					logger.warn("Treat old data as {}  {}", lastDate, e);
+					newList.add(new Asset(lastDate, e));
+				}
+			}
+			Collections.sort(newList);
+			list = newList;
+		}
+		
 		return list;
 	}
 	
