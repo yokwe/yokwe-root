@@ -48,7 +48,7 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	private static final Target LOGIN_PAGE = new Target.Get(URL_LOGIN);
 	
 	private static final Target LOGIN_A = new Target.Get(URL_LOGIN, "ログイン");
-	private static final Target LOGIN_B = new Target.Click(By.name("logIn"), "トップ");
+	private static final Target LOGIN_B = new Target.Click(By.xpath("//button[@class='hyoji-submit__button__type']"), "トップ");
 
 	private static final Target LOGOUT  = new Target.Click(By.name("btn_logout"), "ログアウト");
 	
