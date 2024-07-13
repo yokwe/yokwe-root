@@ -209,7 +209,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 							}
 							
 							code = StockInfoJPType.toStockCode5(code);
-							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, valueJPY, units.intValue(), costJPY, code, name));
+							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, units.intValue(), unitPrice, valueJPY, costJPY, code, name));
 						}
 					}
 					{
@@ -223,7 +223,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 							var fund  = getFundInfo(stringArray[2]);
 							name  = fund.name;
 							code  = fund.isinCode;
-							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, valueJPY, costJPY, code, name));
+							list.add(Asset.fund(dateTime, Company.RAKUTEN, currency, units.intValue(), unitPrice, valueJPY, costJPY, code, name));
 						}
 					}
 					{
@@ -247,7 +247,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 							}
 							var value     = units.multiply(unitPrice).setScale(2, RoundingMode.HALF_EVEN);
 							var cost      = units.multiply(unitCost).setScale(2, RoundingMode.HALF_EVEN);
-							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, value, units.intValue(), cost, code, name));
+							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, units.intValue(), unitPrice, value, cost, code, name));
 						}
 					}
 					{

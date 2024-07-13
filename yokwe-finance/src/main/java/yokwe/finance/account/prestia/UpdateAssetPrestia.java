@@ -223,11 +223,13 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 						}
 						
 						var currency  = fundInfo.currency;
+						var units     = e.units;
+						var unitPrice = e.unitPrice;
 						var value     = e.value;
 						var cost      = e.buyTotal.subtract(e.soldTotal).stripTrailingZeros();
 						var fundCode  = fundInfo.isinCode;
 						var fundName  = e.fundName;
-						list.add(Asset.fund(dateTime, Company.PRESTIA, currency, value, cost, fundCode, fundName));
+						list.add(Asset.fund(dateTime, Company.PRESTIA, currency, units.intValue(), unitPrice, value, cost, fundCode, fundName));
 					}
 				}
 			}

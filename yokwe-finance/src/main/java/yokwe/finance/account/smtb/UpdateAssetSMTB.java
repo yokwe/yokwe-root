@@ -11,8 +11,8 @@ import org.openqa.selenium.By;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
-import yokwe.finance.account.Secret;
 import yokwe.finance.account.Asset.Company;
+import yokwe.finance.account.Secret;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.account.smtb.BalancePage.DepositJPY;
 import yokwe.finance.account.smtb.BalancePage.Fund;
@@ -151,11 +151,13 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 					}
 					
 					var code      = fundInfo.isinCode;
+					var units     = fund.units;
+					var unitPrice = fund.unitPrice;
 					var value     = fund.value;
 					var cost      = fund.cost;
 					var name      = fundInfo.name;
-//					logger.info("fund  {}  {}  {}", isinCode, risk, fundInfo.name);
-					list.add(Asset.fund(dateTime, Company.SMTB, Currency.JPY, value, cost, code, name));
+//					logger.info("fund  {}  {}  {}  {}  {}", code, units, unitPrice, value, cost);
+					list.add(Asset.fund(dateTime, Company.SMTB, Currency.JPY, units.intValue(), unitPrice, value, cost, code, name));
 				}
 			}
 		}

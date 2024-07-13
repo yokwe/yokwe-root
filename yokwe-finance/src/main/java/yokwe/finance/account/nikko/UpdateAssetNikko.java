@@ -226,7 +226,7 @@ process:
 					}
 				}
 				var name = e.fundName;
-				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, value, cost, isinCode, name));
+				list.add(Asset.fund(dateTime, Company.NIKKO, Currency.JPY, units.intValue(), unitPrice, value, cost, isinCode, name));
 			}
 			
 			var foreignStockInfoList = BalancePage.ForeignStockInfo.getInstance(page);
@@ -237,14 +237,14 @@ process:
 				var fxRate    = new BigDecimal(e.fxRate);
 				var costJPY   = new BigDecimal(e.costJPY);
 				var units     = new BigDecimal(e.units);
-				var price     = new BigDecimal(e.price);
+				var unitPrice = new BigDecimal(e.price);
 				
-				var value     = price.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
+				var value     = unitPrice.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
 				var cost      = costJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
 				var code      = e.stockCode;
 				var name      = e.stockName;
 				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, units.intValue(), cost, code, name));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, units.intValue(), unitPrice, value, cost, code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);

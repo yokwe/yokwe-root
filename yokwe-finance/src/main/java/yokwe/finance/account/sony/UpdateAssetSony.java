@@ -257,11 +257,13 @@ process:
 				for(var e: fundJPYList) {
 //					logger.info("fundJPYList {}", e);
 					var fund      = getFundInfo(e.fundCode, e.name);
+					var units     = e.units;
+					var unitPrice = e.unitPrice;
 					var value     = e.value;
 					var cost      = e.value.subtract(e.profit);
 					var code      = fund.isinCode;
 					var name      = fund.name;
-					list.add(Asset.fund(dateTime, Company.SONY, Currency.JPY, value, cost, code, name));
+					list.add(Asset.fund(dateTime, Company.SONY, Currency.JPY, units.intValue(), unitPrice, value, cost, code, name));
 				}
 			}
 		}
