@@ -41,21 +41,23 @@ public class Asset implements Comparable<Asset> {
 	public final Company    company;
 	public final Product    product;
 	public final Currency   currency;
-	public final BigDecimal value;    // value in currency
-	public final int        units;    // units for stock
-	public final BigDecimal cost;     // value - cost = profit
-	public final String     code;     // stockCode for stock, isinCode for fund, and proprietary code for bond
-	public final String     name;     // name of asset
+	public final int        units;     // units of stock or fund
+	public final BigDecimal unitPrice; // price of stock or fund
+	public final BigDecimal value;     // value in currency
+	public final BigDecimal cost;      // value - cost = profit
+	public final String     code;      // stockCode for stock, isinCode for fund, and proprietary code for bond
+	public final String     name;      // name of asset
 	
 	public Asset(
 		LocalDate date, Company company, Product product, Currency currency,
-		BigDecimal value, int units, BigDecimal cost, String code, String name) {
+		int units, BigDecimal unitPrice, BigDecimal value, BigDecimal cost, String code, String name) {
 		this.date         = date;
 		this.company      = company;
 		this.product      = product;
 		this.currency     = currency;
-		this.value        = value;
 		this.units        = units;
+		this.unitPrice    = unitPrice;
+		this.value        = value;
 		this.cost         = cost;
 		this.code         = code;
 		this.name         = name;
@@ -63,30 +65,33 @@ public class Asset implements Comparable<Asset> {
 	
 	public Asset(
 		LocalDateTime dateTime, Company company, Product product, Currency currency,
-		BigDecimal value, int units, BigDecimal cost, String code, String name) {
-		this(dateTime.toLocalDate(), company, product, currency, value, units, cost, code, name);
+		int units, BigDecimal unitPrice, BigDecimal value, BigDecimal cost, String code, String name) {
+		this(dateTime.toLocalDate(), company, product, currency, units, unitPrice, value, cost, code, name);
 	}
 	
-	public Asset(LocalDate date, Asset that) {
-		this(date, that.company, that.product, that.currency, that.value, that.units, that.cost, that.code, that.name);
+	public Asset(Asset that, LocalDate date) {
+		this(date, that.company, that.product, that.currency, that.units, that.unitPrice, that.value, that.cost, that.code, that.name);
+	}
+	public Asset(Asset that, BigDecimal unitPrice, BigDecimal value) {
+		this(that.date, that.company, that.product, that.currency, that.units, unitPrice, value, that.cost, that.code, that.name);
 	}
 	
 	// name
 	public static Asset deposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Product.DEPOSIT, currency, value, 0, value, "", name);
+		return new Asset(dateTime, company, Product.DEPOSIT, currency, 0, BigDecimal.ZERO, value, value, "", name);
 	}
 	public static Asset termDeposit(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, String name) {
-		return new Asset(dateTime, company, Product.TERM_DEPOSIT, currency, value, 0, value, "", name);
+		return new Asset(dateTime, company, Product.TERM_DEPOSIT, currency, 0, BigDecimal.ZERO, value, value, "", name);
 	}
 	// code name
-	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, BigDecimal cost, String code, String name) {
-		return new Asset(dateTime, company, Product.FUND, currency, value, 0, cost, code, name);
+	public static Asset fund(LocalDateTime dateTime, Company company, Currency currency, int units, BigDecimal unitPrice, BigDecimal value, BigDecimal cost, String code, String name) {
+		return new Asset(dateTime, company, Product.FUND, currency, units, unitPrice, value, cost, code, name);
 	}
-	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, int units, BigDecimal cost, String code, String name) {
-		return new Asset(dateTime, company, Product.STOCK, currency, value, units, cost, code, name);
+	public static Asset stock(LocalDateTime dateTime, Company company, Currency currency, int units, BigDecimal unitPrice, BigDecimal value, BigDecimal cost, String code, String name) {
+		return new Asset(dateTime, company, Product.STOCK, currency, units, unitPrice, value, cost, code, name);
 	}
 	public static Asset bond(LocalDateTime dateTime, Company company, Currency currency, BigDecimal value, BigDecimal cost, String code, String name) {
-		return new Asset(dateTime, company, Product.BOND, currency, value, 0, cost, code, name);
+		return new Asset(dateTime, company, Product.BOND, currency, 0, BigDecimal.ZERO, value, cost, code, name);
 	}
 		
 	@Override
