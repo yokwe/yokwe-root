@@ -39,7 +39,7 @@ public final class UpdateAssetSony implements UpdateAsset {
 	private static final File FILE_BALANCE_FUND            = storage.getFile("balance-fund.html");
 	
 	
-	private static final Target LOGIN_A = new Target.Get("https://o2o.moneykit.net/NBG100001G01.html", "ログイン");
+	private static final Target LOGIN_A = new Target.Get("https://o2o.moneykit.net/NBG100001G01.html");
 	private static final Target LOGIN_B = new Target.Click(By.linkText("ログイン"), "MONEYKit - ソニー銀行");
 	
 	private static final Target LOGOUT_A = new Target.Click(By.id("logout"));
@@ -52,6 +52,11 @@ public final class UpdateAssetSony implements UpdateAsset {
 	private static final Target BALANCE_DEPOSIT         = new Target.Javascript("balancecommon(1)");
 	private static final Target BALANCE_DEPOSIT_FOREIGN = new Target.Javascript("balancecommon(2)");
 	private static final Target BALANCE_FUND            = new Target.Javascript("balancecommon(3)");
+	
+	public static boolean isSystemMaintenance(WebBrowser webBrowser) {
+		LOGIN_A.action(webBrowser);
+		return webBrowser.getTitle().contains("システムメンテナンス");
+	}
 
 	public static void login(WebBrowser browser) {
 		var secret = Secret.read().sony;
@@ -131,7 +136,14 @@ public final class UpdateAssetSony implements UpdateAsset {
 	
 	@Override
 	public void download() {
+process:
 		try(var browser = new WebBrowser()) {
+			// check system maintenance
+			if (isSystemMaintenance(browser)) {
+				logger.info("skip system maintenance");
+				break process;
+			}
+
 			logger.info("login");
 			login(browser);
 			browser.savePage(FILE_TOP);
