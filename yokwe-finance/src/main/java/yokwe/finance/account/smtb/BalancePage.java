@@ -83,14 +83,33 @@ public class BalancePage {
 		//<td class="data-table1-td2 mc-btx-tsyutokukingaku">
 		//  840,002円
 		// </td>
+		//</tr>
+		//<tr align="right" valign="top" class="dark-pink2">
+		//<td class="data-table1-td2">&nbsp;</td>
+		//<td class="data-table1-td2">&nbsp;</td>
+		//<td class="data-table1-td2 mc-btx-tkijyun">
+		//  16,059円</td>
+		//<td class="data-table1-td2 mc-btx-tsyutokutanka">
+		//  15,597円
+		//</td>
+		//<td class="data-table1-td3">&nbsp;</td>
+		//</tr>
+
 		public static final Pattern PAT = Pattern.compile(
 			"<td colspan=\"5\" align=\"left\" class=\"data-table1-td2 mc-btx-tfund\">\\s+" +
 			"<a href=\"https://www.smtb.jp/personal/saving/investment/fund/(?<fundCode>.+?)\".+?</tr>\\s+" +
 			"<tr align=\"right\" valign=\"top.+?>\\s+" +
 			"<td class=\"data-table1-td2 mc-btx-tzandaka\">\\s+(?<units>[0-9,\\.]+)口</td>\\s+" +
-			"<td class=\"data-table1-td2 mc-btx-tkobetsu\">\\s+(?<unitPrice>[0-9,\\.]+)円</td>\\s+" +
+			"<td class=\"data-table1-td2 mc-btx-tkobetsu\">.+?</td>\\s+" +
 			"<td class=\"data-table1-td2 mc-btx-tjika\">\\s+(?<value>[0-9,]+)円</td>\\s+" +
-			"<td class=\"data-table1-td2 mc-btx-tsyutokukingaku\">\\s+(?<cost>[0-9,]+)円" +
+			"<td class=\"data-table1-td2 mc-btx-tsyutokukingaku\">\\s+(?<cost>[0-9,]+)円\\s+</td>\\s+" +
+			"<td .+?>.+?</td>\\s+" +
+			"</tr>\\s+" +
+			"<tr .+?>\\s+" +
+			"<td class=\"data-table1-td2\">.+?</td>\\s+" +
+			"<td class=\"data-table1-td2\">.+?</td>\\s+" +
+			"<td class=\"data-table1-td2 mc-btx-tkijyun\">\\s+(?<unitPrice>[0-9,]+)円</td>\\s+" +
+			"<td class=\"data-table1-td2 mc-btx-tsyutokutanka\">\\s+(?<costPrice>[0-9,]+)円\\s+</td>\\s+" +
 			"",
 			Pattern.DOTALL
 		);
@@ -100,22 +119,25 @@ public class BalancePage {
 		
 		public final String     fundCode;
 		public final BigDecimal units;
-		public final BigDecimal unitPrice;
 		public final BigDecimal value;
 		public final BigDecimal cost;
+		public final BigDecimal unitPrice;
+		public final BigDecimal costPrice;
 		
 		public Fund(
 			String     fundCode,
 			BigDecimal units,
-			BigDecimal unitPrice,
 			BigDecimal value,
-			BigDecimal cost
+			BigDecimal cost,
+			BigDecimal unitPrice,
+			BigDecimal costPrice
 			) {
 			this.fundCode  = fundCode;
 			this.units     = units;
-			this.unitPrice = unitPrice;
 			this.value     = value;
 			this.cost      = cost;
+			this.unitPrice = unitPrice;
+			this.costPrice = costPrice;
 		}
 		
 		@Override
