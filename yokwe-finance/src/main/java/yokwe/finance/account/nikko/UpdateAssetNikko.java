@@ -235,16 +235,16 @@ process:
 				var currency = Currency.valueOf(e.currency);
 				
 				var fxRate    = new BigDecimal(e.fxRate);
-				var valueJPY  = new BigDecimal(e.valueJPY);
 				var costJPY   = new BigDecimal(e.costJPY);
+				var units     = new BigDecimal(e.units);
+				var price     = new BigDecimal(e.price);
 				
-				var value     = valueJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
-				var units     = Integer.valueOf(e.units);
+				var value     = price.multiply(units).setScale(2, RoundingMode.HALF_EVEN);
 				var cost      = costJPY.divide(fxRate, 2, RoundingMode.HALF_EVEN);
 				var code      = e.stockCode;
 				var name      = e.stockName;
 				
-				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, units, cost, code, name));
+				list.add(Asset.stock(dateTime, Company.NIKKO, currency, value, units.intValue(), cost, code, name));
 			}
 			
 			var foreignMMFList = BalancePage.ForeignMMFInfo.getInstance(page);
