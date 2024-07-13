@@ -1,6 +1,8 @@
 package yokwe.finance.account;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -8,6 +10,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.TreeMap;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.nikko.UpdateAssetNikko;
@@ -15,6 +19,9 @@ import yokwe.finance.account.prestia.UpdateAssetPrestia;
 import yokwe.finance.account.rakuten.UpdateAssetRakuten;
 import yokwe.finance.account.smtb.UpdateAssetSMTB;
 import yokwe.finance.account.sony.UpdateAssetSony;
+import yokwe.finance.fund.StorageFund;
+import yokwe.finance.stock.StorageStock;
+import yokwe.finance.type.OHLCV;
 import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
@@ -127,7 +134,102 @@ public final class UpdateAssetAll {
 				} else {
 					// Treat old data as new
 					logger.warn("Treat old data as {}  {}", lastDate, e);
-					newList.add(new Asset(lastDate, e));
+					newList.add(new Asset(e, lastDate));
+				}
+			}
+			Collections.sort(newList);
+			list = newList;
+		}
+		
+		// check with official price of stock and fund
+		{
+			var stockPriceMap = new TreeMap<String, BigDecimal>();
+			var fundPriceMap  = new TreeMap<String, BigDecimal>();
+			
+			{
+				for(var e: list) {
+					switch(e.product) {
+					case STOCK:
+						if (!stockPriceMap.containsKey(e.code)) {
+							Optional<OHLCV> lastPrice;
+							switch(e.currency) {
+							case JPY:
+								lastPrice = StorageStock.StockPriceJP.getList(e.code).stream().reduce((first, second) -> second);
+								break;
+							case USD:
+								lastPrice = StorageStock.StockPriceUS.getList(e.code).stream().reduce((first, second) -> second);
+								break;
+							default:
+								logger.error("Unknown currency");
+								logger.error("  {}", e);
+								throw new UnexpectedException("Unknonw currency");
+							}
+							if (lastPrice.isPresent()) {
+								var entry = lastPrice.get();
+								stockPriceMap.put(e.code, entry.close);
+								logger.info("stock  {}  {}  {}  {}  {}", e.product, e.currency, entry.date, e.code, entry.close);
+							} else {
+								logger.warn("STOCK JP  price no present  {}", e);
+							}
+						}
+						break;
+					case FUND:
+						if (!fundPriceMap.containsKey(e.code)) {
+							var lastPrice = StorageFund.FundPrice.getList(e.code).stream().reduce((first, second) -> second);
+							if (lastPrice.isPresent()) {
+								var entry = lastPrice.get();
+								fundPriceMap.put(e.code, entry.price);
+								logger.info("fund   {}  {}  {}  {}  {}", e.product, e.currency, entry.date, e.code, entry.price);
+							} else {
+								logger.warn("FUND      price no present  {}", e);
+							}
+						}
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			
+			
+			var newList = new ArrayList<Asset>();
+			for(var e: list) {
+				switch(e.product) {
+				case STOCK:
+					if (stockPriceMap.containsKey(e.code)) {
+						var lastPrice = stockPriceMap.get(e.code);
+						var unitPrice = e.unitPrice;
+						if (unitPrice.compareTo(lastPrice) == 0) {
+							newList.add(e);
+						} else {
+							//
+							logger.info("XXX    {}  {}  {}", lastPrice, unitPrice, e);
+							var value = lastPrice.multiply(BigDecimal.valueOf(e.units));
+							newList.add(new Asset(e, lastPrice, value));
+						}
+					} else {
+						newList.add(e);
+					}
+					break;
+				case FUND:
+					if (fundPriceMap.containsKey(e.code)) {
+						var lastPrice = fundPriceMap.get(e.code);
+						if (e.unitPrice.compareTo(lastPrice) == 0) {
+							newList.add(e);
+						} else {
+							//
+							var factor = e.unitPrice.multiply(BigDecimal.valueOf(e.units)).divide(e.value, RoundingMode.HALF_EVEN);
+							logger.info("YYY    {}  {}  {}", lastPrice, e.unitPrice, e);
+							var value = lastPrice.multiply(BigDecimal.valueOf(e.units)).divide(factor, 0, RoundingMode.HALF_EVEN);
+							newList.add(new Asset(e, lastPrice, value));
+						}
+					} else {
+						newList.add(e);
+					}
+					break;
+				default:
+					newList.add(e);
+					break;
 				}
 			}
 			Collections.sort(newList);
