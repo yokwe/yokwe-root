@@ -102,6 +102,7 @@ public class Asset implements Comparable<Asset> {
 			return String.format("{%s  %s  %s  %s  %s  %d %s  %s}", date, company, product, currency, value.toPlainString(), units, cost.toPlainString(), name);
 		case FUND:
 		case STOCK:
+			return String.format("{%s  %s  %s  %s  %d  %s  %s  %s  %s  %s}", date, company, product, currency, units, unitPrice.toPlainString(), value.toPlainString(), cost.toPlainString(), code, name);
 		case BOND:
 			return String.format("{%s  %s  %s  %s  %s  %d %s  %s  %s}", date, company, product, currency, value.toPlainString(), units, cost.toPlainString(), code, name);
 		default:
