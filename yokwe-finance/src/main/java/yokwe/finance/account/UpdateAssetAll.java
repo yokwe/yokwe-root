@@ -143,14 +143,14 @@ public final class UpdateAssetAll {
 		
 		// check with official price of stock and fund
 		{
-			var stockPriceMap = new TreeMap<String, BigDecimal>();
-			var fundPriceMap  = new TreeMap<String, BigDecimal>();
+			var priceMap  = new TreeMap<String, BigDecimal>();
 			
+			// build priceMap
 			{
 				for(var e: list) {
 					switch(e.product) {
 					case STOCK:
-						if (!stockPriceMap.containsKey(e.code)) {
+						if (!priceMap.containsKey(e.code)) {
 							Optional<OHLCV> lastPrice;
 							switch(e.currency) {
 							case JPY:
@@ -166,22 +166,20 @@ public final class UpdateAssetAll {
 							}
 							if (lastPrice.isPresent()) {
 								var entry = lastPrice.get();
-								stockPriceMap.put(e.code, entry.close);
-								logger.info("stock  {}  {}  {}  {}  {}", e.product, e.currency, entry.date, e.code, entry.close);
+								priceMap.put(e.code, entry.close);
 							} else {
-								logger.warn("STOCK JP  price no present  {}", e);
+								logger.warn("STOCK  last price not found  {}", e);
 							}
 						}
 						break;
 					case FUND:
-						if (!fundPriceMap.containsKey(e.code)) {
+						if (!priceMap.containsKey(e.code)) {
 							var lastPrice = StorageFund.FundPrice.getList(e.code).stream().reduce((first, second) -> second);
 							if (lastPrice.isPresent()) {
 								var entry = lastPrice.get();
-								fundPriceMap.put(e.code, entry.price);
-								logger.info("fund   {}  {}  {}  {}  {}", e.product, e.currency, entry.date, e.code, entry.price);
+								priceMap.put(e.code, entry.price);
 							} else {
-								logger.warn("FUND      price no present  {}", e);
+								logger.warn("FUND   last price not found  {}", e);
 							}
 						}
 						break;
@@ -194,43 +192,39 @@ public final class UpdateAssetAll {
 			
 			var newList = new ArrayList<Asset>();
 			for(var e: list) {
+				Asset newEntry = e;
+				
 				switch(e.product) {
 				case STOCK:
-					if (stockPriceMap.containsKey(e.code)) {
-						var lastPrice = stockPriceMap.get(e.code);
+					if (priceMap.containsKey(e.code)) {
+						var lastPrice = priceMap.get(e.code);
 						var unitPrice = e.unitPrice;
-						if (unitPrice.compareTo(lastPrice) == 0) {
-							newList.add(e);
-						} else {
-							//
-							logger.info("XXX    {}  {}  {}", lastPrice, unitPrice, e);
+						if (unitPrice.compareTo(lastPrice) != 0) {
+							// update unitPrice with lastPrice and value
+							logger.warn("lastPrice and unitPrice are diffrent    {}  {}  --  {}", lastPrice, unitPrice, e);
 							var value = lastPrice.multiply(BigDecimal.valueOf(e.units));
-							newList.add(new Asset(e, lastPrice, value));
+							newEntry = new Asset(e, lastPrice, value);
 						}
-					} else {
-						newList.add(e);
 					}
 					break;
 				case FUND:
-					if (fundPriceMap.containsKey(e.code)) {
-						var lastPrice = fundPriceMap.get(e.code);
-						if (e.unitPrice.compareTo(lastPrice) == 0) {
-							newList.add(e);
-						} else {
-							//
+					if (priceMap.containsKey(e.code)) {
+						var lastPrice = priceMap.get(e.code);
+						var unitPrice = e.unitPrice;
+						if (unitPrice.compareTo(lastPrice) != 0) {
+							// update unitPrice with lastPrice and value
+							logger.warn("lastPrice and unitPrice are diffrent    {}  {}  --  {}", lastPrice, unitPrice, e);
 							var factor = e.unitPrice.multiply(BigDecimal.valueOf(e.units)).divide(e.value, RoundingMode.HALF_EVEN);
-							logger.info("YYY    {}  {}  {}", lastPrice, e.unitPrice, e);
 							var value = lastPrice.multiply(BigDecimal.valueOf(e.units)).divide(factor, 0, RoundingMode.HALF_EVEN);
-							newList.add(new Asset(e, lastPrice, value));
+							newEntry = new Asset(e, lastPrice, value);
 						}
-					} else {
-						newList.add(e);
 					}
 					break;
 				default:
-					newList.add(e);
 					break;
 				}
+				
+				newList.add(newEntry);
 			}
 			Collections.sort(newList);
 			list = newList;
