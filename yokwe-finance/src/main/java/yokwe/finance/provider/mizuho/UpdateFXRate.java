@@ -61,11 +61,15 @@ public class UpdateFXRate {
 		public String PLN;
 		public String TRY;
 		public String XXX;
-		public String IDR2;
-		public String CNY2;
-		public String MYR2;
-		public String KRW2;
 		public String TWD;
+		public String CNY2;
+		public String KRW2;
+		public String IDR2;
+		public String MYR2;
+		public String XPF;
+		public String BRL;
+		public String VND;
+		public String EGP;
 		public String RUB;
 	}
 	
@@ -92,7 +96,7 @@ public class UpdateFXRate {
 					throw new UnexpectedException("Unexpected");
 				}
 				// 参考相場
-				if (!quote.IDR2.equals("参考相場")) {
+				if (!quote.TWD.equals("参考相場")) {
 					logger.error("Unexpected");
 					throw new UnexpectedException("Unexpected");
 				}
