@@ -168,11 +168,11 @@ public class UpdateStockStatsUSMonthly {
 			
 			docLoad.close();
 			logger.info("close     docLoad");
-			docSave.close();
-			logger.info("close     docSave");
+//			docSave.close();
+//			logger.info("close     docSave");
 		} finally {
 			// stop LibreOffice process
-			LibreOffice.terminate();
+//			LibreOffice.terminate();
 		}
 	}
 	
@@ -188,5 +188,6 @@ public class UpdateStockStatsUSMonthly {
 		update();
 				
 		logger.info("STOP");
+		System.exit(0);
 	}
 }
