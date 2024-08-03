@@ -64,9 +64,9 @@ public class LibreOffice implements Closeable {
 	public static void initialize() {}
 	
 	// terminate to stop LibreOffice (soffice) process started by static initializer
-	// NOTE terminate() generate exception with LibreOffice 6.x 24.x
+	// NOTE terminate() generate exception with LibreOffice 6.x 7.x 24.x
+	// NOTE Last version that does not generate exception is LibreOffice 7.5.9.2
 	// NOTE use System.exit(0) instead
-	@Deprecated()
 	public static void terminate() {
 		if (desktop != null) {
 			// sleep before terminate
