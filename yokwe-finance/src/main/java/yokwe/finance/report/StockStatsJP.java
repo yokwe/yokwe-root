@@ -14,7 +14,8 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 	@Sheet.ColumnName("industry") public String industry;
 	@Sheet.ColumnName("name")     public String name;
 	@Sheet.ColumnName("date")     public String date;
-
+	
+	@Sheet.ColumnName("marketCap") public long   marketCap;
 	
 	// current price and volume
 	@Sheet.ColumnName("pricec") public int    pricec;

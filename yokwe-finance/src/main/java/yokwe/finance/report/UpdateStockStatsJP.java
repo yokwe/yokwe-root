@@ -85,6 +85,7 @@ public class UpdateStockStatsJP {
 				}
 				
 				stats.name      = stockInfo.name;
+				stats.marketCap = stockInfo.marketCap;
 				
 				{
 					StockStats stockStats = StockStats.getInstance(stockCode, dateStop, priceList, divList);
