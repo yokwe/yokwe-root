@@ -70,6 +70,29 @@ public class StockPage {
 			return String.format("%d", value);
 		}
 	}
+	
+	// 時価総額
+	public static class MarketCap {
+		public static final Pattern PAT = Pattern.compile(
+			"<td .+?><font .+?>時価総額</font></td>\\s*" +
+			"<td .+?><font .+?>\\s*(?<value>.*?)\\s*<br></font></td>\\s*"
+		);
+		public static MarketCap getInstance(String page) {
+			return ScrapeUtil.get(MarketCap.class, PAT, page);
+		}
+
+		public final long value;
+		
+		public MarketCap(long value) {
+			this.value = value;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("%d", value);
+		}
+	}
+	
 
 	// 売買単位
 	public static class TradeUnit {
