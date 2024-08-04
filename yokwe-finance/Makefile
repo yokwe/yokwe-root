@@ -183,6 +183,7 @@ update-stock-info-jp: check-data-path
 	ant provider-jpx-update-infra-fund
 	ant provider-jpx-update-reit
 	ant provider-jpx-update-stock-split
+	mv $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/provider/jpx/stock-info-jpx.csv-SAVE
 	ant provider-jpx-update-stock-info-jpx
 	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/stock-info-jp.csv
 	
