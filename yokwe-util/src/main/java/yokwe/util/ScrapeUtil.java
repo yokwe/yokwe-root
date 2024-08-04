@@ -59,7 +59,8 @@ public class ScrapeUtil {
 		String value = string.replace(",", "").replace(NBSP, "");
 		if (value.isEmpty()) return null;
 		try {
-			return Long.valueOf(value);
+			var bigDecimalValue = new BigDecimal(value);
+			return bigDecimalValue.longValue();
 		} catch (NumberFormatException e) {
 			logger.error("Unexpected number format");
 			logger.error("  string {}!", string);
@@ -73,7 +74,8 @@ public class ScrapeUtil {
 		String value = string.replace(",", "").replace(NBSP, "");
 		if (value.isEmpty()) return null;
 		try {
-			return Integer.valueOf(value);
+			var bigDecimalValue = new BigDecimal(value);
+			return bigDecimalValue.intValue();
 		} catch (NumberFormatException e) {
 			logger.error("Unexpected number format");
 			logger.error("  string {}!", string);
@@ -85,27 +87,30 @@ public class ScrapeUtil {
 	private static double toPrimitiveDouble(String string) {
 		Double value = toClassDouble(string);
 		if (value == null) {
-			logger.error("Unexpected value");
-			logger.error("  string {}!", string);
-			throw new UnexpectedException("Unexpected value");
+			logger.warn("Unexpected value");
+			logger.warn("  string {}!", string);
+			return 0;
+//			throw new UnexpectedException("Unexpected value");
 		}
 		return value.doubleValue();
 	}
 	private static long toPrimitiveLong(String string) {
 		Long value = toClassLong(string);
 		if (value == null) {
-			logger.error("Unexpected value");
-			logger.error("  string {}!", string);
-			throw new UnexpectedException("Unexpected value");
+			logger.warn("Unexpected value");
+			logger.warn("  string {}!", string);
+			return 0;
+//			throw new UnexpectedException("Unexpected value");
 		}
 		return value.longValue();
 	}
 	private static int toPrimitiveInt(String string) {
 		Integer value = toIntegerValue(string);
 		if (value == null) {
-			logger.error("Unexpected value");
-			logger.error("  string {}!", string);
-			throw new UnexpectedException("Unexpected value");
+			logger.warn("Unexpected value");
+			logger.warn("  string {}!", string);
+			return 0;
+//			throw new UnexpectedException("Unexpected value");
 		}
 		return value.intValue();
 	}
