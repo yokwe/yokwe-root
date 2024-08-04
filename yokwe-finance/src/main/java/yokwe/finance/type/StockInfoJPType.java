@@ -186,6 +186,7 @@ public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 	
 	public int    tradeUnit = 0;
 	public long   issued    = 0;
+	public long   marketCap = 0;
 
 	public Type   type;
 	public Topix  topix;
