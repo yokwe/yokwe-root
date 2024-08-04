@@ -1,6 +1,7 @@
 package yokwe.finance.provider.jpx;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -93,6 +94,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
+				stockInfoJP.marketCap = 0;
 				stockInfoJP.type      = type;
 				stockInfoJP.sector33  = listing.sector33;
 				stockInfoJP.sector17  = listing.sector17;
@@ -117,6 +119,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
+				stockInfoJP.marketCap = 0;
 				stockInfoJP.type      = Type.ETF;
 				stockInfoJP.sector33  = "NEW";
 				stockInfoJP.sector17  = "NEW";
@@ -139,6 +142,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
+				stockInfoJP.marketCap = 0;
 				stockInfoJP.type      = Type.ETN;
 				stockInfoJP.sector33  = "NEW";
 				stockInfoJP.sector17  = "NEW";
@@ -161,6 +165,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
+				stockInfoJP.marketCap = 0;
 				stockInfoJP.type      = Type.INFRA_FUND;
 				stockInfoJP.sector33  = "NEW";
 				stockInfoJP.sector17  = "NEW";
@@ -183,6 +188,7 @@ public class UpdateStockInfoJPX {
 				stockInfoJP.isinCode  = "";
 				stockInfoJP.tradeUnit = 0;
 				stockInfoJP.issued    = 0;
+				stockInfoJP.marketCap = 0;
 				stockInfoJP.type      = Type.REIT;
 				stockInfoJP.sector33  = "NEW";
 				stockInfoJP.sector17  = "NEW";
@@ -207,16 +213,23 @@ public class UpdateStockInfoJPX {
 				if (oldStockInfo == null) {
 					unknownList.add(stockInfo);
 				} else {
-					stockInfo.isinCode  = oldStockInfo.isinCode;
-					stockInfo.tradeUnit = oldStockInfo.tradeUnit;
-					stockInfo.issued    = oldStockInfo.issued;
+					if (oldStockInfo.isinCode.isEmpty()) {
+						unknownList.add(stockInfo);
+					} else {
+						stockInfo.isinCode  = oldStockInfo.isinCode;
+						stockInfo.tradeUnit = oldStockInfo.tradeUnit;
+						stockInfo.issued    = oldStockInfo.issued;
+						stockInfo.marketCap = oldStockInfo.marketCap;
+					}
 				}
 			}
 			logger.info("unknown    {}", unknownList.size());
+			Collections.shuffle(unknownList);
 			
 			String userAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
 			String referer   = "https://www.jpx.co.jp/";
 
+			int countModify = 0;
 			for(var stockInfo: unknownList) {
 				var stockCode = stockInfo.stockCode;
 				String page;
@@ -237,16 +250,23 @@ public class UpdateStockInfoJPX {
 					map.remove(stockCode);
 					continue;
 				}
+//				logger.info("update     {}  {}", stockInfo.stockCode, stockInfo.name);
 				
 				var companyInfo = StockPage.CompanyInfo.getInstance(page);
 				var tradeUnit   = StockPage.TradeUnit.getInstance(page);
 				var issued      = StockPage.Issued.getInstance(page);
+				var marketCap   = StockPage.MarketCap.getInstance(page);
 				
-				if (companyInfo != null && tradeUnit != null && issued != null) {
-					logger.info("update     {}  {}", stockInfo.stockCode, stockInfo.name);
+				if (companyInfo != null && tradeUnit != null && issued != null && marketCap != null) {
 					stockInfo.isinCode  = companyInfo.isin;
 					stockInfo.tradeUnit = tradeUnit.value;
 					stockInfo.issued    = issued.value;
+					stockInfo.marketCap = marketCap.value;
+					
+					if ((countModify++ % 100) == 0) {
+						logger.info("save  {} / {}  {}", countModify, unknownList.size(), StorageJPX.StockInfoJPX.getPath());
+						StorageJPX.StockInfoJPX.save(map.values());
+					}
 				} else {
 					logger.error("Unexpected page");
 					logger.error("  stockCode {}", stockCode);
