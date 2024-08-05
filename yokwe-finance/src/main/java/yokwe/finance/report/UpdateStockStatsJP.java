@@ -101,7 +101,7 @@ public class UpdateStockStatsJP {
 					
 					stats.sd        = stockStats.sd;
 					stats.hv        = stockStats.hv;
-					stats.rsi       = stockStats.rsi;
+					stats.rsi       = stockStats.rsi14;
 					
 					stats.min       = stockStats.min;
 					stats.max       = stockStats.max;
