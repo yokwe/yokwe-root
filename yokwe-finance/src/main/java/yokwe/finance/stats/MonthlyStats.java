@@ -36,9 +36,9 @@ public final class MonthlyStats {
 		var divMap = divList.stream().collect(Collectors.toMap(o -> o.date, o -> o.value));
 		for(var price: priceList) {
 			var date  = price.date;
-			var value = divMap.get(date);
+			var value = divMap.getOrDefault(date, BigDecimal.ZERO);
 			
-			list.add(new DailyValue(date, value == null ? BigDecimal.ZERO : value));
+			list.add(new DailyValue(date, value));
 		}
 		
 		return list;
@@ -353,7 +353,8 @@ public final class MonthlyStats {
 		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 		
 		double endPrice = priceArray[stopIndexPlusOne - 1];
-		return (dividend(nMonth, nOffset) / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
+		double dividend = dividend(nMonth, nOffset);
+		return (dividend / endPrice) * MONTH_IN_YEAR / (double)nMonth; // calculate annual yield
 	}
 	
 	public double riskDaily(int nMonth, int nOffset) {
@@ -422,20 +423,17 @@ public final class MonthlyStats {
 		return value;
 	}
 	
-	public double rsi(int nMonth, int nOffset) {
+	public double rsi(int nMonth, int nOffset, int duration) {
 		// sanity check
 		checkMonthOffsetValue(nMonth, nOffset);
 		final int startIndex       = getStartIndex(nMonth, nOffset);
 		final int stopIndexPlusOne = getStopIndexPlusOne(nMonth, nOffset);
 		
-		RSI rsi = new RSI();
-		for(int i = startIndex; i < stopIndexPlusOne; i++) {
-			rsi.accept(priceArray[i]);
-		}
-		
-		return rsi.getAsDouble();
+		return new RSI(duration).applyAsDouble(priceArray, startIndex, stopIndexPlusOne);
 	}
-	
+	public double rsi(int nMonth, int nOffset) {
+		return rsi(nMonth, nOffset, 14);
+	}
 	
 	private <T> T[] copyOfRange(int nMonth, int nOffset, T[] array) {
 		// sanity check
