@@ -164,7 +164,7 @@ public class UpdateFundStats {
 				fundStats.div1Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.dividend(nMonth, nOffset));
 				fundStats.yield1Y = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.yield(nMonth, nOffset));
 				fundStats.ror1Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rateOfReturn(nMonth, nOffset));
-				fundStats.rsi     = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rsi(nMonth, nOffset));
+				fundStats.rsi     = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rsi14(nMonth, nOffset));
 			}
 			// 3 year
 			{

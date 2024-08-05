@@ -95,7 +95,7 @@ public class UpdateStockStatsUSMonthly {
 					stats.div1Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.dividend(nMonth, nOffset));
 					stats.yield1Y = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.yield(nMonth, nOffset));
 					stats.ror1Y   = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rateOfReturn(nMonth, nOffset));
-					stats.rsi     = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rsi(nMonth, nOffset));
+					stats.rsi     = (monthlyStats == null || !monthlyStats.contains(nMonth, nOffset)) ? null : DoubleUtil.toBigDecimal(monthlyStats.rsi14(nMonth, nOffset));
 				}
 				// 3 year
 				{

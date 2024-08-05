@@ -431,7 +431,7 @@ public final class MonthlyStats {
 		
 		return new RSI(duration).applyAsDouble(priceArray, startIndex, stopIndexPlusOne);
 	}
-	public double rsi(int nMonth, int nOffset) {
+	public double rsi14(int nMonth, int nOffset) {
 		return rsi(nMonth, nOffset, 14);
 	}
 	
