@@ -40,7 +40,8 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 	@Sheet.ColumnName("sd")  public double sd;
 	@Sheet.ColumnName("hv")  public double hv;
 	// 15 <= pricec
-	@Sheet.ColumnName("rsi") public double rsi;
+	@Sheet.ColumnName("rsi14") public double rsi14;
+	@Sheet.ColumnName("rsi7")  public double rsi7;
 	
 	// min max
 	@Sheet.ColumnName("min")   public double min;
@@ -77,7 +78,8 @@ public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP
 		sd        = -1;
 		hv        = -1;
 		
-		rsi       = -1;
+		rsi14     = -1;
+		rsi7      = -1;
 		
 		min       = -1;
 		max       = -1;
