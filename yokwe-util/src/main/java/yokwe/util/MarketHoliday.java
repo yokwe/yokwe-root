@@ -370,7 +370,7 @@ public abstract class MarketHoliday {
 				LocalDate     date = now.toLocalDate();
 				LocalTime     time = now.toLocalTime();
 				
-				if (time.isBefore(MARKET_CLOSE_TIME)) date = date.minusDays(1); // Move to yesterday if it is before market close
+				if (time.isBefore(MARKET_OPEN_TIME)) date = date.minusDays(1); // Move to yesterday if it is before market open
 
 				if (marketHoliday.isClosed(date)) {
 					date = getPreviousTradingDate(date);
@@ -477,7 +477,7 @@ public abstract class MarketHoliday {
 				LocalDate     date = now.toLocalDate();
 				LocalTime     time = now.toLocalTime();
 				
-				if (time.isBefore(MARKET_CLOSE_TIME)) date = date.minusDays(1); // Move to yesterday if it is before market close
+				if (time.isBefore(MARKET_OPEN_TIME)) date = date.minusDays(1); // Move to yesterday if it is before market open
 				
 				if (marketHoliday.isClosed(date)) {
 					date = getPreviousTradingDate(date);
