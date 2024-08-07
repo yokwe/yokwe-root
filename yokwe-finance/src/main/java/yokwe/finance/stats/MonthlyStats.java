@@ -2,10 +2,8 @@ package yokwe.finance.stats;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -140,15 +138,17 @@ public final class MonthlyStats {
 		final double[]     priceArray  = priceList.stream().mapToDouble(o -> o.value.doubleValue()).toArray();
 		final double[]     divArray    = divList.stream().mapToDouble(o -> o.value.doubleValue()).toArray();
 		
-		LocalDate firstDate = dateArray[0].plusMonths(1).with(TemporalAdjusters.firstDayOfMonth());                    // inclusive
-		LocalDate lastDate  = dateArray[dateArray.length - 1].minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()); // inclusive
-		Period    period    = Period.between(firstDate, lastDate.plusDays(1));
-		int       duration  = (int)period.toTotalMonths();
+//		final int[] startIndexArray = getStartIndexArray(dateArray, ChronoField.MONTH_OF_YEAR);
+		final int[] startIndexArray = getStartIndexArray(dateArray);
+		
+		LocalDate firstDate = dateArray[startIndexArray[0]];
+		LocalDate lastDate  = dateArray[startIndexArray[startIndexArray.length - 1]];
+		int       duration  = startIndexArray.length - 1;
 		if (duration < 1) {
 			// return null if duration is less than 1
-			LocalDate startDate = dateArray[0];
-			LocalDate stopDate  = dateArray[dateArray.length - 1];
-			logger.warn("Data period is too short  {}  {}  {}  {}", code, startDate, stopDate, stopDate.toEpochDay() - startDate.toEpochDay());
+			var dateA = dateArray[0];
+			var dateB = dateArray[dateArray.length - 1];
+			logger.warn("Data period is too short  {}  {}  {}  {}  {}", code, startIndexArray.length, dateA, dateB, dateB.toEpochDay() - dateA.toEpochDay());
 			return null;
 		}
 		
@@ -160,16 +160,6 @@ public final class MonthlyStats {
 				double endValue   = priceArray[i];
 				returnArray[i] = (endValue / startValue) - 1;
 			}
-		}
-		
-		final int[] startIndexArray = getStartIndexArray(dateArray, ChronoField.MONTH_OF_YEAR);
-		if (startIndexArray.length - 1 != duration) {
-			// return null if dateArray has hole
-			logger.warn("startIndexArray.length != duration");
-			logger.warn("  code             {}", code);
-			logger.warn("  startIndexArray  {}", startIndexArray.length);
-			logger.warn("  duration         {}", duration);
-			return null;
 		}
 		
 		final RateOfReturns rateOfReturns = getRateOfReturns(startIndexArray, priceArray, divArray);
@@ -259,6 +249,28 @@ public final class MonthlyStats {
 		}
 		
 		// list to array
+		int[] array = list.stream().mapToInt(o -> o).toArray();
+		return array;
+	}
+	
+	private static int[] getStartIndexArray(LocalDate[] dateArray) {
+		List<Integer> list = new ArrayList<>(dateArray.length);
+		
+		var targetDate  = dateArray[dateArray.length - 1];
+		var targetIndex = dateArray.length - 1;
+		
+		for(int i = dateArray.length - 1; 0 <= i; i--) {
+			if (dateArray[i].isBefore(targetDate)) {
+				list.add(targetIndex);
+				// update targetDate for next iteration
+				targetDate = targetDate.minusMonths(1);
+			} else {
+				targetIndex = i;
+			}
+		}
+		
+		// list to array
+		Collections.reverse(list);
 		int[] array = list.stream().mapToInt(o -> o).toArray();
 		return array;
 	}
