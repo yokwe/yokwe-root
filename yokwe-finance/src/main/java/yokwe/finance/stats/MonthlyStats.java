@@ -138,11 +138,11 @@ public final class MonthlyStats {
 		final double[]     priceArray  = priceList.stream().mapToDouble(o -> o.value.doubleValue()).toArray();
 		final double[]     divArray    = divList.stream().mapToDouble(o -> o.value.doubleValue()).toArray();
 		
-		// FIXME
-//		final int[] startIndexArray = getStartIndexArray(dateArray, 1);
-		final int[] startIndexArray = getStartIndexArray(dateArray, dateArray[dateArray.length - 1].getDayOfMonth());
+//		final int startDayOfMonth = 1;                                                           // new period start at day 1 of month
+		final int startDayOfMonth = dateArray[dateArray.length - 1].plusDays(1).getDayOfMonth(); // new period after at next day of last price date
+		final int[] startIndexArray = getStartIndexArray(dateArray, startDayOfMonth);
 		
-		if (startIndexArray.length <= 1) {
+		if (startIndexArray.length == 0) {
 			// return null if duration is less than 1
 			var dateA = dateArray[0];
 			var dateB = dateArray[dateArray.length - 1];
@@ -264,7 +264,7 @@ public final class MonthlyStats {
 		{
 			var date = dateArray[0];
 			targetMonth = date.getMonthValue();
-			if (startDayOfMonth <= date.getDayOfMonth()) {
+			if (startDayOfMonth < date.getDayOfMonth()) {
 				date = date.plusMonths(1);
 			}
 			targetMonth = date.getMonthValue();
@@ -275,7 +275,7 @@ public final class MonthlyStats {
 			var date = dateArray[i];
 			if (date.getMonthValue() == targetMonth) {
 				if (startDayOfMonth <= date.getDayOfMonth()) {
-					list.add(i);
+					if (i != 0) list.add(i); // avoid 0 as first element of list to prevent access priceArray[-1]
 					// skip to next month
 					targetMonth = date.plusMonths(1).getMonthValue();
 				}
