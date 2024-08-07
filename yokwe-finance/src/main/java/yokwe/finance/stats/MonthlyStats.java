@@ -139,9 +139,9 @@ public final class MonthlyStats {
 		final double[]     divArray    = divList.stream().mapToDouble(o -> o.value.doubleValue()).toArray();
 		
 		// FIXME
-//		final int[] startIndexArray = getStartIndexArray(dateArray, ChronoField.MONTH_OF_YEAR);
-//		final int[] startIndexArray = getStartIndexArrayAlignMonth(dateArray);
-		final int[] startIndexArray = getStartIndexArray(dateArray);
+//		final int[] startIndexArray = getStartIndexArray(dateArray, 1);
+		final int[] startIndexArray = getStartIndexArray(dateArray, dateArray[dateArray.length - 1].getDayOfMonth());
+		
 		if (startIndexArray.length <= 1) {
 			// return null if duration is less than 1
 			var dateA = dateArray[0];
@@ -149,7 +149,7 @@ public final class MonthlyStats {
 			logger.warn("Data period is too short  {}  {}  {}  {}  {}", code, startIndexArray.length, dateA, dateB, dateB.toEpochDay() - dateA.toEpochDay());
 			return null;
 		}
-//		logger.debug("XX  {}  {}  {} - {} => {} - {}", code, startIndexArray.length, dateArray[0], dateArray[dateArray.length - 1], dateArray[startIndexArray[0]], dateArray[startIndexArray[startIndexArray.length - 1]]);
+		logger.debug("XX  {}  {}  {} - {} => {} - {}", code, startIndexArray.length, dateArray[0], dateArray[dateArray.length - 1], dateArray[startIndexArray[0]], dateArray[startIndexArray[startIndexArray.length - 1]]);
 
 		LocalDate firstDate = dateArray[startIndexArray[0]];
 		LocalDate lastDate  = dateArray[startIndexArray[startIndexArray.length - 1]];
@@ -256,45 +256,34 @@ public final class MonthlyStats {
 		return array;
 	}
 	
-	private static int[] getStartIndexArray(LocalDate[] dateArray, LocalDate stopDatePlusOne) {
+	private static int[] getStartIndexArray(LocalDate[] dateArray, int startDayOfMonth) {
 		// check special case  -  dateArray is empty
 		if (dateArray.length == 0) return new int[0];
-		
-		var targetDate = stopDatePlusOne;		
-
-		// find startIndex
-		int startIndex = -1;
-		for(int i = dateArray.length - 1; 0 <= i; i--) {
-			if (dateArray[i].isBefore(targetDate)) break;
-			startIndex = i;
+				
+		int targetMonth;
+		{
+			var date = dateArray[0];
+			targetMonth = date.getMonthValue();
+			if (startDayOfMonth <= date.getDayOfMonth()) {
+				date = date.plusMonths(1);
+			}
+			targetMonth = date.getMonthValue();
 		}
-		if (startIndex == -1) return new int[0];
 		
 		List<Integer> list = new ArrayList<>(dateArray.length);
-		var targetIndex = startIndex;
-		for(int i = startIndex; 0 <= i; i--) {
-			if (dateArray[i].isBefore(targetDate)) {
-				list.add(targetIndex);
-				// update targetDate for next iteration
-				targetDate = targetDate.minusMonths(1);
-			} else {
-				targetIndex = i;
+		for(int i = 0; i < dateArray.length; i++) {
+			var date = dateArray[i];
+			if (date.getMonthValue() == targetMonth) {
+				if (startDayOfMonth <= date.getDayOfMonth()) {
+					list.add(i);
+					// skip to next month
+					targetMonth = date.plusMonths(1).getMonthValue();
+				}
 			}
 		}
-		
 		// list to array
-		Collections.reverse(list);
 		int[] array = list.stream().mapToInt(o -> o).toArray();
 		return array;
-	}
-	private static int[] getStartIndexArray(LocalDate[] dateArray) {
-		// FIXME Should plus one day to stopDatePlusOne
-		var stopDatePlusOne = dateArray[dateArray.length - 1];
-		return getStartIndexArray(dateArray, stopDatePlusOne);
-	}
-	private static int[] getStartIndexArrayAlignMonth(LocalDate[] dateArray) {
-		var stopDatePlusOne = dateArray[dateArray.length - 1].withDayOfMonth(1);
-		return getStartIndexArray(dateArray, stopDatePlusOne);
 	}
 	
 	public boolean contains(int nMonth, int nOffset) {
