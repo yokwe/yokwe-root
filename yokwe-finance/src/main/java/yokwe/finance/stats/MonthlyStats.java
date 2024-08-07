@@ -149,7 +149,7 @@ public final class MonthlyStats {
 			logger.warn("Data period is too short  {}  {}  {}  {}  {}", code, startIndexArray.length, dateA, dateB, dateB.toEpochDay() - dateA.toEpochDay());
 			return null;
 		}
-		logger.debug("XX  {}  {}  {} - {} => {} - {}", code, startIndexArray.length, dateArray[0], dateArray[dateArray.length - 1], dateArray[startIndexArray[0]], dateArray[startIndexArray[startIndexArray.length - 1]]);
+//		logger.debug("XX  {}  {}  {} - {} => {} - {}", code, startIndexArray.length, dateArray[0], dateArray[dateArray.length - 1], dateArray[startIndexArray[0]], dateArray[startIndexArray[startIndexArray.length - 1]]);
 
 		LocalDate firstDate = dateArray[startIndexArray[0]];
 		LocalDate lastDate  = dateArray[startIndexArray[startIndexArray.length - 1]];
