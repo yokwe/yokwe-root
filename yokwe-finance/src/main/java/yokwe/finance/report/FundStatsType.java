@@ -32,7 +32,9 @@ public class FundStatsType extends Sheet implements Comparable<FundStatsType> {
 	@Sheet.ColumnName("資産総額")    public BigDecimal nav;
 	@Sheet.ColumnName("配当回数")    public int        divc;
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_NUMBER0)
-	@Sheet.ColumnName("RSI")    public BigDecimal rsi;
+	@Sheet.ColumnName("RSI14")       public BigDecimal rsi14;
+	@Sheet.NumberFormat(SpreadSheet.FORMAT_NUMBER0)
+	@Sheet.ColumnName("RSI7")        public BigDecimal rsi7;
 	
 	@Sheet.NumberFormat(SpreadSheet.FORMAT_PERCENT2)
 	@Sheet.ColumnName("sd1年")  public BigDecimal sd1Y;
