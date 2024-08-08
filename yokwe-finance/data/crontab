@@ -29,14 +29,14 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 # UPDATE JP STOCK PRICE and REPORT
 #55   9     *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK PRICE and REPORT
-#15   12    *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
+15   12    *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
 # SAVE FILE
-20   12    *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="save file"  log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
+30   12    *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="save file"  log-start save-all log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE US STOCK INFO, DIV, PRICE and REPORT
 35   12    *   *   6     cd $YOKWE_FINANCE; ( make LOG_TITLE="update us stock"  log-start update-trading-stock log-stop ) 1>>tmp/cron.log 2>&1
 45   12    *   *   2-6   cd $YOKWE_FINANCE; ( make LOG_TITLE="update us stock"  log-start update-stock-info-us update-stock-div-us update-stock-price-us report-stock-stats-us log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK PRICE and REPORT
-#45   15    *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
+45   15    *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE ASSET
 05   16    *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="update asset" log-start update-asset-all log-stop  ) 1>>tmp/cron.log 2>&1
 10   16    *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="update asset" log-start update-asset-all report-asset-stats log-stop  ) 1>>tmp/cron.log 2>&1
@@ -46,7 +46,7 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 59   23    *   *   6     cd $YOKWE_FINANCE; ( make LOG_TITLE="maintain log file"  log-start clear-log-file log-stop ) 1>>tmp/cron.log 2>&1
 
 # UPDATE FX RATE
-10  9,10,13  *  *  1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update fx rate"  log-start update-fx-rate log-stop ) 1>>tmp/cron.log 2>&1
+10  9,10,15  *  *  1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update fx rate"  log-start update-fx-rate log-stop ) 1>>tmp/cron.log 2>&1
 
 
 # update-stock-us-div takes 48 minutes first time. second time is 9 minutes
