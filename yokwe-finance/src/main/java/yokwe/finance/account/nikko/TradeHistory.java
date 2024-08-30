@@ -23,6 +23,7 @@ public class TradeHistory {
 		DEPOSIT      ("入金"),
 		REINVESTMENT ("再投資"),
 		WITHDRAW     ("出金"),
+		TRANSFER     ("振替"),
 		DIVIDEND     ("分配金*"),
 		DIVIDNED_BOND("利金*"),
 		SELL         ("売却"),
