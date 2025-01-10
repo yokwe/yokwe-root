@@ -75,12 +75,9 @@ check-temp-file: check-data-path
 	find . $(DATA_PATH) -regex '.*/\.DS.*'           -print
 	find . $(DATA_PATH) -regex '.*/\.[^a-zA-Z0-9].*' -print
 
-rsync-from-truenas: check-data-path
-	rsync -ah --delete --stats --dry-run /Volumes/finance/ $(DATA_PATH)
-
-rsync-to-truenas:  check-data-path
+rsync-to-Backup2T: check-data-path
 	@date +'%F %T RSYNC START'
-	rsync -ah --delete $(DATA_PATH)/ /Volumes/finance
+	rsync -ah --delete /Volumes/SanDisk2T/* /Volumes/Backup2T/
 	@date +'%F %T RSYNC STOP'
 
 kill-soffice:
@@ -101,7 +98,7 @@ clear-log-file: check-data-path
 	echo -n >tmp/yokwe-finance.log
 	echo -n >tmp/cron.log
 
-save-all: check-data-path save-stock save-provider save-report rsync-to-truenas
+save-all: check-data-path save-stock save-provider save-report rsync-to-Backup2T
 
 save-stock: check-data-path
 	@date +'%F %T TAR START'
