@@ -25,6 +25,7 @@ public final class UpdateAssetAll {
 	private static final Storage storage = Storage.account.base;
 	
 	private static int THIS_YEAR = LocalDate.now().getYear();
+	private static int LAST_YEAR = THIS_YEAR - 1;
 	
 	private static File getFile(int year) {
 		var name = String.format("asset-%d.csv", year);
@@ -37,7 +38,7 @@ public final class UpdateAssetAll {
 		var list = ListUtil.getList(Asset.class, getFile(year));
 		// sanity check
 		for(var e: list) {
-			if (e.date.getYear() != THIS_YEAR) {
+			if (e.date.getYear() != THIS_YEAR && e.date.getYear() != LAST_YEAR) {
 				logger.error("Unexpected");
 				logger.error("THIS_YEAR  {}", THIS_YEAR);
 				logger.error("asset      {}", e);
