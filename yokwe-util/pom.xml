@@ -10,6 +10,7 @@
     <artifactId>yokwe-util</artifactId>
     <properties>
         <automatic-module-name>yokwe.util</automatic-module-name>
+        <libreoffice.version>24.8</libreoffice.version>
     </properties>
     <dependencies>
         <!-- https://mvnrepository.cosm/artifact/commons-logging/commons-logging -->
@@ -30,7 +31,6 @@
 		    <artifactId>commons-net</artifactId>
 		    <version>3.10.0</version>
 		</dependency>
-		
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
        	<dependency>
             <groupId>org.apache.httpcomponents.core5</groupId>
@@ -49,7 +49,6 @@
 		    <artifactId>httpclient5</artifactId>
 		    <version>5.3.1</version>
 		</dependency>
-        
         <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -115,18 +114,17 @@
             <version>3.0.0</version>
         </dependency>
         <!-- Use libreoffice installed on Operating System -->
-        <!-- Do not upgrade to 7.6.x until fix of generatiing exception of Desktop.terminate() -->
         <dependency>
             <groupId>org.libreoffice</groupId>
             <artifactId>libreoffice</artifactId>
-            <version>7.5.9.2</version>
+            <version>${libreoffice.version}</version>
             <scope>system</scope>
             <systemPath>${libreoffice.jar.dir}/libreoffice.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.libreoffice</groupId>
             <artifactId>unoloader</artifactId>
-            <version>7.5.9.2</version>
+            <version>${libreoffice.version}</version>
             <scope>system</scope>
             <systemPath>${libreoffice.jar.dir}/unoloader.jar</systemPath>
         </dependency>
