@@ -225,6 +225,8 @@ public class UpdateStockSplit {
 
 				for(var csvData: csvDataList) {
 //					logger.info("csvData  {}", csvData);
+					if (csvData.stockCode.isEmpty()) continue;
+					
 					var m = ratioPat.matcher(csvData.ratio);
 					if (m.matches()) {
 						var stockCode = StockInfoJPType.toStockCode5(csvData.stockCode);
