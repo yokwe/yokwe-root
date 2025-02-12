@@ -448,8 +448,9 @@ public class CSVUtil {
 			getArgMap.put(java.lang.Long.TYPE.getTypeName(),           (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Long.parseLong(s);});
 			getArgMap.put(java.lang.Double.class.getTypeName(),        (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Double.parseDouble(s);});
 			getArgMap.put(java.lang.Double.TYPE.getTypeName(),         (String s) -> {s = s.replace(",", ""); return s.isEmpty() ? 0 : Double.parseDouble(s);});
-			getArgMap.put(java.lang.Boolean.class.getTypeName(),       (String s) -> {return s.isEmpty() ? 0 : Boolean.parseBoolean(s);});
-			getArgMap.put(java.lang.Boolean.TYPE.getTypeName(),        (String s) -> {return s.isEmpty() ? 0 : Boolean.parseBoolean(s);});
+			// special for boolean  1 for true other for false
+			getArgMap.put(java.lang.Boolean.class.getTypeName(),       (String s) -> {return Boolean.valueOf(s.equals("1"));});
+			getArgMap.put(java.lang.Boolean.TYPE.getTypeName(),        (String s) -> {return s.equals("1");});
 			getArgMap.put(java.lang.String.class.getTypeName(),        (String s) -> {return s;});
 			getArgMap.put(java.time.LocalDateTime.class.getTypeName(), (String s) -> {
 				if (s.isEmpty() || s.equals("0")) return NULL_LOCAL_DATE_TIME;
@@ -710,6 +711,14 @@ public class CSVUtil {
 						// To avoid scientific expression of value, need to use toPlainString().
 						BigDecimal bigDecimalValue = (BigDecimal)fieldInfo.field.get(value);
 						writeField(bw, bigDecimalValue.toPlainString());
+					}
+						break;
+					case "java.lang.Boolean":
+					case "boolean":
+					{
+						// special for boolean  1 for true 0 for false
+						boolean fieldValue = (boolean)fieldInfo.field.get(value);
+						writeField(bw, fieldValue ? "1" : "0");
 					}
 						break;
 					default:
