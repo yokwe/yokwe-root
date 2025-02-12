@@ -6,6 +6,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.finance.type.FundPriceJP;
+import yokwe.finance.type.NISAInfoType;
 
 public class StorageFund {
 	private static final Storage storage = Storage.fund;
@@ -31,4 +32,8 @@ public class StorageFund {
 	// fund-price
 	public static final Storage.LoadSave2<FundPriceJP, ChronoLocalDate> FundPrice =
 		new Storage.LoadSave2.Impl<>(FundPriceJP.class, o -> o.date, storage, "fund-price", o -> o + ".csv");
+	
+	// nisa-info
+	public static final Storage.LoadSave<NISAInfoType, String> NISAInfo =
+		new Storage.LoadSave.Impl<>(NISAInfoType.class,  o -> o.isinCode, storage, "nisa-info.csv");
 }

@@ -1,10 +1,12 @@
 package yokwe.finance.report;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.provider.jreit.StorageJREIT;
 import yokwe.finance.provider.manebu.StorageManebu;
 import yokwe.finance.provider.rakuten.StorageRakuten;
@@ -32,7 +34,7 @@ public class UpdateStockStatsJP {
 			var companyInfoMap = StorageYahoo.CompanyInfoJPYahoo.getMap();
 			var etfMap         = StorageManebu.ETFInfo.getMap();
 			var jreitMap       = StorageJREIT.JREITInfo.getMap();
-			var nisaMap        = StorageRakuten.NisaETFJPRakuten.getMap();
+			var nisaMap        = StorageFund.NISAInfo.getMap();
 
 			for(var stockInfo: StorageStock.StockInfoJP.getList()) {
 				var stockCode = stockInfo.stockCode;
@@ -123,9 +125,10 @@ public class UpdateStockStatsJP {
 				}
 				
 				if (stockInfo.type.isETF()) {
-					stats.nisa = nisaMap.containsKey(stockCode) ? "1" : "";
+					var nisaInfo = nisaMap.get(stockInfo.isinCode);
+					stats.nisa = nisaInfo.tsumitate ? "1" : "0";
 				} else {
-					stats.nisa = "1";
+					stats.nisa = "0";
 				}
 				
 				list.add(stats);

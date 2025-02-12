@@ -96,11 +96,9 @@ public class UpdateFundStats {
 		logger.info("prestiaMap {}", prestiaMap.size());
 		logger.info("smtbMap    {}", smtbMap.size());
 		
-		var nisaFundMap = StorageRakuten.NisaFundRakuten.getMap();
-		logger.info("nisaFund   {}", nisaFundMap.size());
-		var nisaETFMap = StorageRakuten.NisaETFJPRakuten.getMap();
-		logger.info("nisaETF    {}", nisaETFMap.size());
-
+		var nisaInfoMap = StorageFund.NISAInfo.getMap();
+		logger.info("nisaInfo   {}", nisaInfoMap.size());
+		
 		int countNoPrice  = 0;
 		int countNoNikkei = 0;
 		
@@ -211,6 +209,13 @@ public class UpdateFundStats {
 			
 			fundStats.name     = fund.name;
 			
+			if (nisaInfoMap.containsKey(isinCode)) {
+				var nisaInfo = nisaInfoMap.get(isinCode);
+				fundStats.nisa = nisaInfo.tsumitate ? BigDecimal.ONE : BigDecimal.ZERO;
+			} else {
+				fundStats.nisa = null;
+			}
+
 			if (fundStats.stockCode.isEmpty()) {
 				// FUND
 				fundStats.nikko   = !nikkoMap.containsKey(fund.isinCode)   ? null: nikkoMap.get(fund.isinCode).salesFee;
@@ -218,25 +223,13 @@ public class UpdateFundStats {
 				fundStats.sony    = !sonyMap.containsKey(fund.isinCode)    ? null: sonyMap.get(fund.isinCode).salesFee;
 				fundStats.prestia = !prestiaMap.containsKey(fund.isinCode) ? null: prestiaMap.get(fund.isinCode).salesFee;
 				fundStats.smtb    = !smtbMap.containsKey(fund.isinCode)    ? null: smtbMap.get(fund.isinCode).salesFee;
-				
-				if (nisaFundMap.containsKey(isinCode)) {
-					fundStats.nisa = BigDecimal.valueOf(nisaFundMap.get(isinCode).accumulable.value);
-				} else {
-					fundStats.nisa = null;
-				}
 			} else {
 				// ETF
 				fundStats.nikko   = BigDecimal.ZERO;;
 				fundStats.rakuten = BigDecimal.ZERO;;
 				fundStats.sony    = null;
 				fundStats.prestia = null;
-				
-				var stockCode = fundStats.stockCode;
-				if (nisaETFMap.containsKey(stockCode)) {
-					fundStats.nisa = BigDecimal.ZERO;
-				} else {
-					fundStats.nisa = null;
-				}
+				fundStats.smtb    = null;
 			}
 			
 			// special case

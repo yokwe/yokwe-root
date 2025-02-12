@@ -166,6 +166,10 @@ update-fund: check-data-path
 	rsync -ah --delete $(DATA_PATH)/provider/jita/fund-div-jita/   $(DATA_PATH)/fund/fund-div
 	@date +'%F %T RSYNC STOP'
 
+# after update fund-info and stock-info
+update-nisa: check-data-path
+	ant provider-jita-update-nisa-info-jita
+	cp -p $(DATA_PATH)/provider/jita/nisa-info-jita.csv $(DATA_PATH)/fund/nisa-info.csv
 
 #
 # STOCK JP

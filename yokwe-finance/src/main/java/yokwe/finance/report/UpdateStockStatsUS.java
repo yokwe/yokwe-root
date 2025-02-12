@@ -38,7 +38,6 @@ public class UpdateStockStatsUS {
 			var nikkoMap       = StorageNikko.TradingStockNikko.getMap();
 			var rakutenMap     = StorageRakuten.TradingStockRakuten.getMap();
 			var companyInfoMap = StorageYahoo.CompanyInfoUSYahoo.getMap();
-			var nisaMap        = StorageRakuten.NisaETFUSRakuten.getMap();
 			
 			for(var stockInfo: StorageStock.StockInfoUSTrading.getList()) {
 				var stockCode = stockInfo.stockCode;
@@ -71,6 +70,7 @@ public class UpdateStockStatsUS {
 				}
 				
 				stats.name      = stockInfo.name;
+				stats.nisa      = "";
 				
 				stats.nikko     = tradingString(nikkoMap, stockCode);
 				stats.rakuten   = tradingString(rakutenMap, stockCode);
@@ -107,13 +107,7 @@ public class UpdateStockStatsUS {
 					stats.vol5      = stockStats.vol5;
 					stats.vol21     = stockStats.vol21;
 				}
-				
-				if (stockInfo.type.isETF()) {
-					stats.nisa = nisaMap.containsKey(stockCode) ? "1" : "";
-				} else {
-					stats.nisa = rakutenMap.containsKey(stockCode) ? "1" : "";
-				}
-				
+								
 				list.add(stats);
 			}
 		}
