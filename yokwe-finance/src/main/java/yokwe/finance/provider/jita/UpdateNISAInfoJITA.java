@@ -2,9 +2,6 @@ package yokwe.finance.provider.jita;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -111,7 +108,7 @@ public class UpdateNISAInfoJITA {
 		}
 	}
 	
-	public static boolean downloadListed() {
+	public static void downloadListed() {
 		final var url      = "https://www.toushin.or.jp/files/static/486/listed_fund_for_investor.xlsx";
 		final var fileXLSX = StorageJITA.storage.getFile("listed_fund_for_investor.xlsx");
 		final var fileCSV  = new File(StorageJITA.ListedFundForInvestor.getPath());
@@ -168,9 +165,8 @@ public class UpdateNISAInfoJITA {
 			logger.error("  result  {}", result);
 			throw new UnexpectedException("Unexpected result");
 		}
-		return needsUpdateCSV;
 	}
-	public static boolean downloadUnlisted() {
+	public static void downloadUnlisted() {
 		final var url      = "https://www.toushin.or.jp/files/static/486/unlisted_fund_for_investor.xlsx";
 		final var fileXLSX = StorageJITA.storage.getFile("unlisted_fund_for_investor.xlsx");
 		final var fileCSV  = new File(StorageJITA.UnlistedFundForInvestor.getPath());
@@ -229,13 +225,10 @@ public class UpdateNISAInfoJITA {
 			logger.error("  result  {}", result);
 			throw new UnexpectedException("Unexpected result");
 		}
-		return needsUpdateCSV;
 	}
-	public static boolean download() {
-		var needsUpdateListed   = downloadListed();
-		var needsUpdateUnlisted = downloadUnlisted();
-		
-		return needsUpdateListed || needsUpdateUnlisted;
+	public static void download() {
+		downloadListed();
+		downloadUnlisted();
 	}
 	
 	public static void update() {
@@ -254,9 +247,7 @@ public class UpdateNISAInfoJITA {
 					var nisaInfo  = new NISAInfoType(isinCode, tsumitate);
 					list.add(nisaInfo);
 				} else {
-					logger.warn("Unexpected stockCode");
-//					logger.warn("  {}", data.toString());
-					logger.warn("  {}  {}  {}", data.inceptionDate, data.stockCode, data.fundName);
+					logger.warn("Unexpected stockCode  {}  {}  {}", data.inceptionDate, data.stockCode, data.fundName);
 				}
 			}
 		}
@@ -273,9 +264,7 @@ public class UpdateNISAInfoJITA {
 					var nisaInfo  = new NISAInfoType(isinCode, tsumitate);
 					list.add(nisaInfo);
 				} else {
-					logger.warn("Unexpected fundCode");
-//					logger.warn("  {}", data.toString());
-					logger.warn("  {}  {}  {}", data.inceptionDate, data.fundCode, data.fundName);
+					logger.warn("Unexpected fundCode  {}  {}  {}", data.inceptionDate, data.fundCode, data.fundName);
 				}
 			}
 		}
@@ -290,8 +279,8 @@ public class UpdateNISAInfoJITA {
 
 			LibreOffice.initialize();
 			
-			var needsUpdate = download();
-			if (needsUpdate) update();
+			download();
+			update();
 
 			logger.info("STOP");
 		} catch (Throwable e) {
