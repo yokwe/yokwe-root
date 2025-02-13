@@ -458,7 +458,55 @@ public final class FundDataSearch {
 
         // Add new field
         public String            dcFundFlg;
-
+        
+        // 2025-02-13 add new fields
+        @Ignore
+        public String rankRiskRa6m;
+        @Ignore
+        public String rankRiskRa1y;
+        @Ignore
+        public String rankRiskRa3y;
+        @Ignore
+        public String rankRiskRa5y;
+        @Ignore
+        public String rankRiskRa10y;
+        @Ignore
+        public String rankRiskRa20y;
+        //
+        @Ignore
+        public String rankSharpRa6m;
+        @Ignore
+        public String rankSharpRa1y;
+        @Ignore
+        public String rankSharpRa3y;
+        @Ignore
+        public String rankSharpRa5y;
+        @Ignore
+        public String rankSharpRa10y;
+        @Ignore
+        public String rankSharpRa20y;
+        //
+        @Ignore
+        public String rankStandardPriceRa6m;
+        @Ignore
+        public String rankStandardPriceRa1y;
+        @Ignore
+        public String rankStandardPriceRa3y;
+        @Ignore
+        public String rankStandardPriceRa5y;
+        @Ignore
+        public String rankStandardPriceRa10y;
+        @Ignore
+        public String rankStandardPriceRa20y;
+        //
+        @Ignore
+        public String evalDiscrepancyStandardMonth;
+        @Ignore
+        public String evalDiscrepancyTextDisplayFlag;
+        @Ignore
+        public String evalDiscrepancyFlag;
+        
+        
         @Override
         public String toString() {
             return StringUtil.toString(this);
