@@ -125,8 +125,12 @@ public class UpdateStockStatsJP {
 				}
 				
 				if (stockInfo.type.isETF()) {
-					var nisaInfo = nisaMap.get(stockInfo.isinCode);
-					stats.nisa = nisaInfo.tsumitate ? "1" : "0";
+					if (nisaMap.containsKey(stockInfo.isinCode)) {
+						var nisaInfo = nisaMap.get(stockInfo.isinCode);
+						stats.nisa = nisaInfo.tsumitate ? "1" : "0";
+					} else {
+						stats.nisa = "";
+					}
 				} else {
 					stats.nisa = "0";
 				}
