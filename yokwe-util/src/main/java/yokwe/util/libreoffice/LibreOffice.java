@@ -22,7 +22,7 @@ import com.sun.star.util.XCloseable;
 
 import yokwe.util.UnexpectedException;
 
-public class LibreOffice implements Closeable {
+public abstract class LibreOffice implements Closeable {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	private static final String[] bootstrapOptions = {
