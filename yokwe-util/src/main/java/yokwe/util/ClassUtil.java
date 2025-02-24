@@ -277,12 +277,12 @@ public final class ClassUtil {
 			}
 		}
 
-		final Class<?>       clazz;
-		final String         name;
-		final Field[]        fields;
-		final Constructor<?> constructor;
-		final Class<?>[]     parameterTypes;
-		final Constructor<?> constructor0;
+		public final Class<?>       clazz;
+		public final String         name;
+		public final Field[]        fields;
+		public final Constructor<?> constructor;
+		public final Class<?>[]     parameterTypes;
+		public final Constructor<?> constructor0;
 		
 		ClassInfo(Class<?> clazz_) {
 			clazz  = clazz_;
