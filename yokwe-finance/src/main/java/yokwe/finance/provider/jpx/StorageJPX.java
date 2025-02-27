@@ -47,4 +47,8 @@ public class StorageJPX {
 	// stock split
 	public static final Storage.LoadSave<StockSplitType, String> StockSplit =
 		new Storage.LoadSave.Impl<>(StockSplitType.class, StockSplitType::getKey, storage, "stock-split.csv");
+	
+	// stock split
+	public static final Storage.LoadSave<StockListType, String> StockList =
+		new Storage.LoadSave.Impl<>(StockListType.class, StockListType::getKey, storage, "stock-list.csv");
 }
