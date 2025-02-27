@@ -1,6 +1,5 @@
 package yokwe.finance.provider.jpx;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,7 +16,7 @@ import yokwe.util.json.JSON.Ignore;
 public class UpdateStockList {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE = true;
+	private static final boolean DEBUG_USE_FILE = false;
 	
 	private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
 	
