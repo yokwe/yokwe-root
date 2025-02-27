@@ -60,7 +60,6 @@ public class UpdateStockList {
         public String FLLNE;     // 名前英語 "KYOKUYO CO., LTD."
         @Ignore
         public String JSEC;      // sectr33Code "50"
-        @Ignore
         public String LISS;      // "ﾌﾟﾗｲﾑ"
         @Ignore
         public String LISSE;     // "Prime"
@@ -118,23 +117,28 @@ public class UpdateStockList {
 				logger.error("Unexpected  result  {}", result);
 				throw new UnexpectedException("Unexpected");
 			}
-			logger.info("save  {}  {}", result.result.length(), file.getPath());
+//			logger.info("save  {}  {}", result.result.length(), file.getPath());
 			FileUtil.write().file(file, result.result);
 		}
 		String string = FileUtil.read().file(file);
 		var result = JSON.unmarshal(Result.class, string);
 		for(var e: result.section1.data) {
-			if (e.DPP.equals("-")) {
-				logger.info("skip  {}  {}", e.BICD, e.FLLN);
-				countSkip++;
+			if (e.LISS.equals("TPM")) {
+				// Tokyo Pro Market
+//				logger.warn("skip  {}  {}", e.BICD, e.FLLN);
+				continue;
+			}
+			if (e.ZXD.equals("")) {
+				// skip stock before trade
+				logger.warn("skip  {}  {}", e.BICD, e.FLLN);
 				continue;
 			}
 			
 			String     stockCode = StockInfoJPType.toStockCode5(e.BICD);
 			LocalDate  date      = LocalDate.parse(e.ZXD.replace("/", "-"));
-			LocalTime  time      = LocalTime.parse(e.DPPT);
-			BigDecimal price     = new BigDecimal(e.DPP.replace(",", ""));
-			long       volume    = new BigDecimal(e.DV.replace(",", "")).scaleByPowerOfTen(3).longValue();
+			LocalTime  time      = e.DPPT.equals("-") ? LocalTime.of(0, 0) : LocalTime.parse(e.DPPT);
+			BigDecimal price     = e.DPP.equals("-") ? BigDecimal.ZERO : new BigDecimal(e.DPP.replace(",", ""));
+			long       volume    = e.DV.equals("-") ? 0 : new BigDecimal(e.DV.replace(",", "")).scaleByPowerOfTen(3).longValue();
 			String     name      = e.FLLN;
 
 			var stockList = new StockListType(stockCode, date, time, price, volume, name);
