@@ -47,7 +47,7 @@ public class UpdateStockList {
 	public static class Data {
         public String BICD;      // "1301"
         public String DPP;       // 現在値 "4,110"
-        public String DPPT;      // 現在値（時刻） "15:30"
+        public String DPPT;      // 売買時刻 "15:30"
         public String DV;        // 出来高 1000株 "31.8"
         @Ignore
         public String DYRP;      // 前日比パーセント "+0.12"
@@ -59,7 +59,7 @@ public class UpdateStockList {
         @Ignore
         public String FLLNE;     // 名前英語 "KYOKUYO CO., LTD."
         @Ignore
-        public String JSEC;      // sectr33Code "50"
+        public String JSEC;      // sector33Code "50"
         public String LISS;      // "ﾌﾟﾗｲﾑ"
         @Ignore
         public String LISSE;     // "Prime"
@@ -69,7 +69,7 @@ public class UpdateStockList {
         public String TTCODE;    // "1301/T"
         @Ignore
         public String TTCODE2;   // "1301"
-        public String ZXD;       // 日付 "2025/02/26"
+        public String ZXD;       // 売買日付 "2025/02/26"
         @Ignore
         public int    line_no;   // レコード番号 1
         @Ignore
@@ -98,7 +98,8 @@ public class UpdateStockList {
         public String PBR;       // "0.83"
 	}
 	
-	private static int countSkip = 0;
+	private static int countTPM    = 0;
+	private static int countNoDate = 0;
 	
 	public static void download(List<StockListType> list) {
 		download(list, 1);
@@ -125,12 +126,14 @@ public class UpdateStockList {
 		for(var e: result.section1.data) {
 			if (e.LISS.equals("TPM")) {
 				// Tokyo Pro Market
-//				logger.warn("skip  {}  {}", e.BICD, e.FLLN);
+//				logger.info("skip  tpm      {}  {}", e.BICD, e.FLLN);
+				countTPM++;
 				continue;
 			}
 			if (e.ZXD.equals("")) {
 				// skip stock before trade
-				logger.warn("skip  {}  {}", e.BICD, e.FLLN);
+				logger.info("skip  no date  {}  {}", e.BICD, e.FLLN);
+				countNoDate++;
 				continue;
 			}
 			
@@ -152,7 +155,8 @@ public class UpdateStockList {
 	private static void update() {
 		var list = new ArrayList<StockListType>();
 		download(list);
-		logger.info("countSkip  {}", countSkip);
+		logger.info("countTPM     {}", countTPM);
+		logger.info("countNoDate  {}", countNoDate);
 		logger.info("save  {}  {}", list.size(), StorageJPX.StockList.getPath());
 		StorageJPX.StockList.save(list);
 	}
