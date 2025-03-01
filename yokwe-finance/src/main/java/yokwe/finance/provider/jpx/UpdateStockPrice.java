@@ -4,23 +4,11 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
-import yokwe.finance.provider.jpx.StockPage.CurrentPriceTime;
-import yokwe.finance.provider.jpx.StockPage.HighPrice;
-import yokwe.finance.provider.jpx.StockPage.LowPrice;
-import yokwe.finance.provider.jpx.StockPage.OpenPrice;
-import yokwe.finance.provider.jpx.StockPage.PriceVolume;
-import yokwe.finance.provider.jpx.StockPage.TradeVolume;
-import yokwe.finance.provider.jpx.UpdateStockPriceJPX3.Data;
-import yokwe.finance.provider.jpx.UpdateStockPriceJPX3.Index;
-import yokwe.finance.provider.jpx.UpdateStockPriceJPX3.Section1;
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.CSVUtil;
@@ -30,7 +18,6 @@ import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
-import yokwe.util.http.HttpUtil;
 import yokwe.util.http.RequesterBuilder;
 import yokwe.util.http.StringTask;
 import yokwe.util.http.Task;
@@ -169,6 +156,19 @@ public class UpdateStockPrice {
 		public String toString() {
 			return StringUtil.toString(this);
 		}
+	}
+	
+	public static class Index {
+        public String YEAR;     // "2024/09"
+        public String FY;       // "中間"
+        public String FYE;      // "Company / Interim"
+        public String EPS;      // "-"
+        public String CPTLPSTK; // "-"
+        public String ROE;      // "-"
+        public String PER;      // "-"
+        public String PBR;      // "-"
+        public String DIVD;     // "0.00"
+        public String KABU;     // "-"
 	}
 
 
@@ -359,7 +359,7 @@ public class UpdateStockPrice {
 		
 		int count = 0;
 		for(var stock: stockList) {
-			if ((++count % 200) == 1) logger.info("{}  /  {}", count, stockListSize);
+			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
 
 			var file = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, stock.stockCode));
 			var string = FileUtil.read().file(file);
@@ -372,15 +372,11 @@ public class UpdateStockPrice {
 		
 		int count = 0;
 		for(var string: context.stringList) {
-			if ((++count % 200) == 1) logger.info("{}  /  {}", count, stockListSize);
+			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
 			updatePrice(string);
 		}
 	}
-
-	public static void update(Data data) {
-		
-	}
-
+	
 	private static void update() {
 		Context context = new Context();
 		
