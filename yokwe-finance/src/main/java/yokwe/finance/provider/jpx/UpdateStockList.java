@@ -16,12 +16,10 @@ import yokwe.util.json.JSON.Ignore;
 public class UpdateStockList {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final boolean DEBUG_USE_FILE = false;
-	
 	private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
 	
 	private static final String URL_FORMAT  = "https://quote.jpx.co.jp/jpxhp/jcgi/wrap/qjsonp.aspx?F=ctl/stock_list&page=%d&refindex=%%2BTTCODE&maxdisp=100";
-	private static final String REF_FORMAT  = "https://quote.jpx.co.jp/jpxhp/main/index.aspx?f=stock_list&key7=";
+	private static final String REF         = "https://quote.jpx.co.jp/jpxhp/main/index.aspx?f=stock_list&key7=";
 	private static final String PATH_PRIFIX = "stockList";
 	private static final String NAME_FORMAT = "%02d.json";
 	
@@ -98,6 +96,8 @@ public class UpdateStockList {
         public String PBR;       // "0.83"
 	}
 	
+	
+	private static int count       = 0;
 	private static int countTPM    = 0;
 	private static int countNoDate = 0;
 	
@@ -105,25 +105,27 @@ public class UpdateStockList {
 		download(list, 1);
 	}
 	public static void download(List<StockListType> list, int page) {
-		logger.info("download  {}", page);
+//		logger.info("download  {}", page);
 		var url  = String.format(URL_FORMAT, page);
-		var ref  = String.format(REF_FORMAT, page);
-		var file = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, page));
 		
-		if (DEBUG_USE_FILE && file.exists()) {
-			// use old file
-		} else {
-			HttpUtil.Result result = HttpUtil.getInstance().withUserAgent(USER_AGENT).withReferer(ref).download(url);
+		String string;
+		{
+			HttpUtil.Result result = HttpUtil.getInstance().withUserAgent(USER_AGENT).withReferer(REF).download(url);
 			if (result == null || result.result == null) {
 				logger.error("Unexpected  result  {}", result);
 				throw new UnexpectedException("Unexpected");
 			}
-//			logger.info("save  {}  {}", result.result.length(), file.getPath());
-			FileUtil.write().file(file, result.result);
+			string = result.result;
+			
+			var file = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, page));
+//			logger.info("save  {}  {}", string.length(), file.getPath());
+			FileUtil.write().file(file, string);
 		}
-		String string = FileUtil.read().file(file);
 		var result = JSON.unmarshal(Result.class, string);
+		
 		for(var e: result.section1.data) {
+			if ((++count % 200) == 1) logger.info("{}  /  {}", count, result.section1.hitcount);
+
 			if (e.LISS.equals("TPM")) {
 				// Tokyo Pro Market
 //				logger.info("skip  tpm      {}  {}", e.BICD, e.FLLN);
@@ -155,12 +157,12 @@ public class UpdateStockList {
 	private static void update() {
 		var list = new ArrayList<StockListType>();
 		download(list);
+		logger.info("count        {}", count);
 		logger.info("countTPM     {}", countTPM);
 		logger.info("countNoDate  {}", countNoDate);
 		logger.info("save  {}  {}", list.size(), StorageJPX.StockList.getPath());
 		StorageJPX.StockList.save(list);
 	}
-	
 	
 	public static void main(String[] args) {
 		logger.info("START");
