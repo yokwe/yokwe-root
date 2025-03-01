@@ -23,6 +23,7 @@ import yokwe.finance.provider.jpx.UpdateStockPriceJPX3.Index;
 import yokwe.finance.provider.jpx.UpdateStockPriceJPX3.Section1;
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
+import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
@@ -45,7 +46,10 @@ public class UpdateStockPrice {
 	
 	private static final String PATH_PRIFIX = "stockDetail";
 	private static final String NAME_FORMAT = "%s.json";
-
+	
+	private static final List<StockListType> stockList = StorageJPX.StockList.getList();
+	private static final int stockListSize = stockList.size();
+	
 	
 	public static class Result {
 		public String   cputime;
@@ -174,17 +178,8 @@ public class UpdateStockPrice {
 	}
 
 	private static class Context {
-		// See below link for parameter of synchronized statement
-		//   https://rules.sonarsource.com/java/RSPEC-1860/
 		private final List<String>        stringList = new ArrayList<>();
 		private final AtomicInteger       count      = new AtomicInteger();
-		public  final List<StockListType> stockList;
-		public  final int                 stockListSize;
-		
-		public Context() {
-			stockList     = StorageJPX.StockList.getList();
-			stockListSize = stockList.size();
-		}
 		
 		public void add(String string) {
 			synchronized(stringList) {
@@ -268,7 +263,7 @@ public class UpdateStockPrice {
 		}
 		logger.info("today  {}", today);
 		
-		for(var stock: context.stockList) {
+		for(var stock: stockList) {
 			String stockCode = stock.stockCode;			
 			String uriString = getURL(stockCode);
 			String name      = stock.name;
@@ -284,16 +279,16 @@ public class UpdateStockPrice {
 		try {
 			for(int i = 0; i < 10; i++) {
 				int buildCount = context.getBuildCount();
-				if (buildCount == context.stockListSize) break;
-				logger.info("buildCount {} / {}", buildCount, context.stockListSize);
+				if (buildCount == stockListSize) break;
+				logger.info("buildCount {} / {}", buildCount, stockListSize);
 				Thread.sleep(1000);
 			}
 			{
 				int buildCount = context.getBuildCount();
-				if (buildCount != context.stockListSize) {
+				if (buildCount != stockListSize) {
 					logger.error("Unexpected");
 					logger.error("  buildCount    {}", buildCount);
-					logger.error("  stockListSize {}", context.stockListSize);
+					logger.error("  stockListSize {}", stockListSize);
 					throw new UnexpectedException("Unexpected");
 				}
 			}
@@ -305,54 +300,95 @@ public class UpdateStockPrice {
 		}
 	}
 	
+	private static void updatePrice(String string) {
+		var result = JSON.unmarshal(Result.class, string);
+		
+		for(var data: result.section1.data.values()) {
+			List<OHLCV> priceList = new ArrayList<>();
+			
+			var stockCode = StockInfoJPType.toStockCode5(data.TTCODE2);
+//			logger.info("stock  {}  {}", stockCode, data.FLLN);
+
+			String[] ohlcvArray = data.A_HISTDAYL.split("\\n");
+			BigDecimal o = null;
+			BigDecimal h = null;
+			BigDecimal l = null;
+			BigDecimal c = null;
+			
+			for(var ohlcvString: ohlcvArray) {
+				String[] valueString = ohlcvString.split(",");
+				if (valueString.length < 6) {
+					logger.error("Unexpected ohlcvString");
+					logger.error("  stockCode    {}", stockCode);
+					logger.error("  valueString  {}", valueString.length);
+					logger.error("  ohlcvString  {}", ohlcvString);
+					throw new UnexpectedException("Unexpected ohlcvString");
+				}
+				var dateString = valueString[0];
+				var oString    = valueString[1];
+				var hString    = valueString[2];
+				var lString    = valueString[3];
+				var cString    = valueString[4];
+				var vString    = valueString[5];
+				
+				var date = LocalDate.parse(dateString.replace('/', '-'));
+				var v = Long.parseLong(vString);
+				if (v == 0) {
+					if (o == null) continue;
+					// use last value
+				} else {
+					o = new BigDecimal(oString);
+					h = new BigDecimal(hString);
+					l = new BigDecimal(lString);
+					c = new BigDecimal(cString);
+				}
+				
+				OHLCV ohlcv = new OHLCV(date, o, h, l, c, v);
+				priceList.add(ohlcv);
+			}
+			
+			var priceFile = StorageJPX.storage.getFile("stockPrice", String.format("%s.csv", stockCode));
+//			logger.info("save  {}  {}", priceList.size(), priceFile.getPath());
+			CSVUtil.write(OHLCV.class).file(priceFile, priceList);
+		}
+	}
+	
+	private static void updatePrice() {
+		// update price using list (StockPrice)
+		logger.info("updatePrice");
+		
+		int count = 0;
+		for(var stock: stockList) {
+			if ((++count % 200) == 1) logger.info("{}  /  {}", count, stockListSize);
+
+			var file = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, stock.stockCode));
+			var string = FileUtil.read().file(file);
+			updatePrice(string);
+		}
+	}
 	private static void updatePrice(Context context) {
 		// update price using list (StockPrice)
 		logger.info("updatePrice");
-		int count      = 0;
-		int countMod   = 0;
-		int countTotal = context.stringList.size();
+		
+		int count = 0;
 		for(var string: context.stringList) {
-			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, countTotal);
-			var result = JSON.unmarshal(Result.class, string);
-//			logger.info("string  {}", string.length());
-//			StorageJPX.StockPriceJPX.save(stockCode, list);
+			if ((++count % 200) == 1) logger.info("{}  /  {}", count, stockListSize);
+			updatePrice(string);
 		}
-		
-		logger.info("count    {}", count);
-		logger.info("countMod {}", countMod);
 	}
-	private static void updatePrice2(Context context) {
-		// update price using list (StockPrice)
-		logger.info("updatePrice");
-		int count      = 0;
-		int countMod   = 0;
-		int countTotal = context.stockList.size();
-		for(var stock: context.stockList) {
-			String string;
-			{
-				var file = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, stock.stockCode));
-				string = FileUtil.read().file(file);
-			}
-			
-			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, countTotal);
-			var result = JSON.unmarshal(Result.class, string);
-			for(var data: result.section1.data.values()) {
-				logger.info("XX  {}  {}", data.TTCODE2, data.FLLN);
-			}
-			
-//			logger.info("string  {}", string.length());
-//			StorageJPX.StockPriceJPX.save(stockCode, list);
-		}
+
+	public static void update(Data data) {
 		
-		logger.info("count    {}", count);
-		logger.info("countMod {}", countMod);
 	}
 
 	private static void update() {
 		Context context = new Context();
 		
-//		buildContext(context);
-		updatePrice2(context);
+		buildContext(context);
+		updatePrice(context);
+		
+		// use file in stockPrice
+//		updatePrice();
 	}
 	
 	public static void main(String[] args) throws IOException {
