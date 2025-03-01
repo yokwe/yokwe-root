@@ -171,6 +171,14 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="provider-jpx-update-stock-price">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockPrice" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 	
 
 	<!-- Provider JREIT -->
