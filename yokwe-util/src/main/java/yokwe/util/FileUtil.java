@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -347,5 +348,23 @@ public class FileUtil {
 			logger.error("{} {}", exceptionName, e);
 			throw new UnexpectedException(exceptionName, e);
 		}
+	}
+	public static Duration getDuration(File file, Instant origin) {
+		return Duration.between(getLastModified(file), origin);
+	}
+	public static long getDurationInHours(File file, Instant origin) {
+		return getDuration(file, origin).toHours();
+	}
+	public static long getDurationInDays(File file, Instant origin) {
+		return getDuration(file, origin).toDays();
+	}
+	public static Duration getDuration(File file) {
+		return getDuration(file, Instant.now());
+	}
+	public static long getDurationInHours(File file) {
+		return getDuration(file).toHours();
+	}
+	public static long getDurationInDays(File file) {
+		return getDuration(file).toDays();
 	}
 }
