@@ -263,15 +263,15 @@ public class UpdateStockPrice {
 		// progress interval
 		download.setProgressInterval(progressInterval);
 		
-		var list = new ArrayList<StockListType>(stockList);
-		Collections.shuffle(list);
-		for(var stock: list) {
+		Collections.shuffle(stockList);
+		for(var stock: stockList) {
 			String stockCode = stock.stockCode;			
 			String uriString = getURL(stockCode);
 			String name      = stock.name;
 			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode, name));
 			download.addTask(task);
 		}
+		Collections.sort(stockList);
 
 		logger.info("BEFORE RUN");
 		download.startAndWait();
@@ -342,6 +342,37 @@ public class UpdateStockPrice {
 				}
 				
 				priceList.add(new OHLCV(date, o, h, l, c, v));
+			}
+			
+			// add latest price
+			{
+				if (data.A_HISTDAYL.contains(data.ZXD)) {
+					// already processed latest price
+				} else {
+					// no latest price
+					var dateString = data.ZXD;
+					var oString    = data.DOP;
+					var hString    = data.DHP;
+					var lString    = data.DLP;
+					var cString    = data.DPP;
+					var vString    = data.DV;
+					
+					var date = LocalDate.parse(dateString.replace('/', '-'));
+					long v;
+					if (vString.equals("-")) {
+						// there is no trading
+						v = 0;
+					} else {
+						// there is trading
+						v = Long.parseLong(vString);
+						o = new BigDecimal(oString);
+						h = new BigDecimal(hString);
+						l = new BigDecimal(lString);
+						c = new BigDecimal(cString);
+					}
+					
+					priceList.add(new OHLCV(date, o, h, l, c, v));
+				}						
 			}
 		}
 		return priceList;
