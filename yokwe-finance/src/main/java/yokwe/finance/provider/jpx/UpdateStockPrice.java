@@ -1,13 +1,17 @@
 package yokwe.finance.provider.jpx;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
@@ -36,6 +40,8 @@ public class UpdateStockPrice {
 	
 	private static final List<StockListType> stockList = StorageJPX.StockList.getList();
 	private static final int stockListSize = stockList.size();
+	
+	private static final LocalDate lastTradingDate = MarketHoliday.JP.getLastTradingDate();
 	
 	
 	public static class Result {
@@ -178,12 +184,12 @@ public class UpdateStockPrice {
 	}
 
 	private static class Context {
-		private final List<String>        stringList = new ArrayList<>();
-		private final AtomicInteger       count      = new AtomicInteger();
+		private final Map<String, String> stringMap = new TreeMap<>();
+		private final AtomicInteger       count     = new AtomicInteger();
 		
-		public void add(String string) {
-			synchronized(stringList) {
-				stringList.add(string);
+		public void put(String stockCode, String string) {
+			synchronized(stringMap) {
+				stringMap.put(stockCode, string);
 			}
 		}
 
@@ -196,7 +202,7 @@ public class UpdateStockPrice {
 	}
 	
 	private static void buildContextFromPage(Context context, String stockCode, String name, String page) {
-		context.add(page);
+		context.put(stockCode, page);
 	}
 
 	private static class MyConsumer implements Consumer<String> {
@@ -220,7 +226,7 @@ public class UpdateStockPrice {
 		}
 	}
 
-	private static void buildContext(Context context) {
+	public static void buildContext(Context context) {
 		int threadCount       = 20;
 		int maxPerRoute       = 50;
 		int maxTotal          = 100;
@@ -257,13 +263,9 @@ public class UpdateStockPrice {
 		// progress interval
 		download.setProgressInterval(progressInterval);
 		
-		LocalDate today = LocalDate.now();
-		if (MarketHoliday.JP.isClosed(today)) {
-			today = MarketHoliday.JP.getPreviousTradingDate(today);
-		}
-		logger.info("today  {}", today);
-		
-		for(var stock: stockList) {
+		var list = new ArrayList<StockListType>(stockList);
+		Collections.shuffle(list);
+		for(var stock: list) {
 			String stockCode = stock.stockCode;			
 			String uriString = getURL(stockCode);
 			String name      = stock.name;
@@ -300,22 +302,18 @@ public class UpdateStockPrice {
 		}
 	}
 	
-	private static void updatePrice(String string) {
-		var result = JSON.unmarshal(Result.class, string);
-		
-		for(var data: result.section1.data.values()) {
-			List<OHLCV> priceList = new ArrayList<>();
-			
+	private static List<OHLCV> getPriceList(Data data) {
+		List<OHLCV> priceList = new ArrayList<>();
+		{
 			var stockCode = StockInfoJPType.toStockCode5(data.TTCODE2);
 //			logger.info("stock  {}  {}", stockCode, data.FLLN);
 
-			String[] ohlcvArray = data.A_HISTDAYL.split("\\n");
 			BigDecimal o = null;
 			BigDecimal h = null;
 			BigDecimal l = null;
 			BigDecimal c = null;
 			
-			for(var ohlcvString: ohlcvArray) {
+			for(var ohlcvString: data.A_HISTDAYL.split("\\n")) {
 				String[] valueString = ohlcvString.split(",");
 				if (valueString.length < 6) {
 					logger.error("Unexpected ohlcvString");
@@ -343,17 +341,85 @@ public class UpdateStockPrice {
 					c = new BigDecimal(cString);
 				}
 				
-				OHLCV ohlcv = new OHLCV(date, o, h, l, c, v);
-				priceList.add(ohlcv);
+				priceList.add(new OHLCV(date, o, h, l, c, v));
+			}
+		}
+		return priceList;
+	}
+	
+	private static File getPriceFile(String stockCode) {
+		return StorageJPX.storage.getFile("stockPrice", String.format("%s.csv", stockCode));
+	}
+	
+	private static void updatePrice(String string) {
+		var result = JSON.unmarshal(Result.class, string);
+		
+		for(var data: result.section1.data.values()) {
+			var stockCode = StockInfoJPType.toStockCode5(data.TTCODE2);
+			var file = getPriceFile(stockCode);
+			var oldList   = CSVUtil.read(OHLCV.class).file(file);
+			var oldMap    = oldList.stream().collect(Collectors.toMap(o -> o.date, o -> o));
+
+			var newList   = getPriceList(data);
+			Collections.sort(newList);
+			var newMap    = newList.stream().collect(Collectors.toMap(o -> o.date, o -> o));
+			
+			boolean needsMergeList = true;
+			{
+				var date = MarketHoliday.JP.getPreviousTradingDate(lastTradingDate);
+				
+				if (oldMap.containsKey(date) && newMap.containsKey(date)) {
+					var oldPrice = oldMap.get(date);
+					var newPrice = newMap.get(date);
+					
+					if (oldPrice.equals(newPrice)) {
+						// expected
+					} else {
+						// not expected
+						logger.info("price changed  {}  {}  {}", stockCode, oldPrice, newPrice);
+						needsMergeList = false;
+						break;
+					}
+				}
 			}
 			
-			var priceFile = StorageJPX.storage.getFile("stockPrice", String.format("%s.csv", stockCode));
+			if (needsMergeList) {
+				for(var oldPrice: oldList) {
+					if (newMap.containsKey(oldPrice.date)) {
+						// exist in newList
+						var newPrice = newMap.get(oldPrice.date);
+						if (newPrice.equals(oldPrice)) {
+							// expected
+						} else {
+							// not expected
+							logger.error("Unexpected price");
+							logger.error("  sockCode  {}", stockCode);
+							logger.error("  oldPrice  {}", oldPrice);
+							logger.error("  newPrice  {}", newPrice);
+							throw new UnexpectedException("Unexpected price");
+						}
+					} else {
+						// not exist in newList
+						newList.add(oldPrice);
+					}
+				}
+			}
 //			logger.info("save  {}  {}", priceList.size(), priceFile.getPath());
-			CSVUtil.write(OHLCV.class).file(priceFile, priceList);
+			CSVUtil.write(OHLCV.class).file(file, newList);
 		}
 	}
 	
-	private static void updatePrice() {
+	public static void updatePrice(Context context) {
+		// update price using list (StockPrice)
+		logger.info("updatePrice");
+		
+		int count = 0;
+		for(var string: context.stringMap.values()) {
+			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
+			updatePrice(string);
+		}
+	}
+	public static void updatePrice() {
 		// update price using list (StockPrice)
 		logger.info("updatePrice");
 		
@@ -361,25 +427,14 @@ public class UpdateStockPrice {
 		for(var stock: stockList) {
 			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
 
-			var file = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, stock.stockCode));
+			var file   = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, stock.stockCode));
 			var string = FileUtil.read().file(file);
-			updatePrice(string);
-		}
-	}
-	private static void updatePrice(Context context) {
-		// update price using list (StockPrice)
-		logger.info("updatePrice");
-		
-		int count = 0;
-		for(var string: context.stringList) {
-			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
 			updatePrice(string);
 		}
 	}
 	
 	private static void update() {
 		Context context = new Context();
-		
 		buildContext(context);
 		updatePrice(context);
 		
