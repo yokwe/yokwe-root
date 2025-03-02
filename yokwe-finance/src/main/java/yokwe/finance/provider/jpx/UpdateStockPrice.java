@@ -361,6 +361,7 @@ public class UpdateStockPrice {
 					long v;
 					if (vString.equals("-")) {
 						// there is no trading
+						// use last value of  o h l c
 						v = 0;
 					} else {
 						// there is trading
@@ -371,7 +372,9 @@ public class UpdateStockPrice {
 						c = new BigDecimal(cString);
 					}
 					
-					priceList.add(new OHLCV(date, o, h, l, c, v));
+					if (o != null) {
+						priceList.add(new OHLCV(date, o, h, l, c, v));
+					}
 				}						
 			}
 		}
