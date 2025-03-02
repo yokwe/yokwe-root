@@ -178,6 +178,7 @@ update-jpx-listing:
 	ant provider-jpx-update-listing	
 
 update-stock-info-jp: check-data-path
+	ant provider-jpx-update-stock-list
 	ant provider-jpx-update-etf
 	ant provider-jpx-update-etn
 	ant provider-jpx-update-foreign-stock
@@ -191,6 +192,7 @@ update-stock-info-jp: check-data-path
 update-stock-price-jp: check-data-path
 #	ant provider-jpx-update-stock-price-jpx2
 	ant provider-jpx-update-stock-price-jpx
+	ant provider-jpx-update-stock-price
 	@date +'%F %T RSYNC START'
 	rsync -ah --delete $(DATA_PATH)/provider/jpx/stock-price-jpx/ $(DATA_PATH)/stock/stock-price-jp
 	@date +'%F %T RSYNC STOP'
