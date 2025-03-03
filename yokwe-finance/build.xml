@@ -123,30 +123,6 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provider-jpx-update-stock-info-jpx">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockInfoJPX" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="provider-jpx-update-stock-price-jpx">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockPriceJPX" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
-	<target name="provider-jpx-update-stock-price-jpx2">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockPriceJPX2" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
 	<target name="provider-jpx-update-stock-div-jpx">
 		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockDivJPX" fork="true">
 			<modulepath refid="build.classpath" />
@@ -171,8 +147,24 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
-	<target name="provider-jpx-update-stock-price">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockPrice" fork="true">
+	<target name="provider-jpx-update-stock-detail">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockDetail" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provider-jpx-update-stock-info-jpx">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockInfoJPX" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
+	<target name="provider-jpx-update-stock-price-jpx">
+		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateStockPriceJPX" fork="true">
 			<modulepath refid="build.classpath" />
 			<modulepath refid="target.jar" />
 			<classpath  refid="libreoffice.lib" />
@@ -180,7 +172,7 @@
 		</java>
 	</target>
 	
-
+	
 	<!-- Provider JREIT -->
 	<target name="provider-jreit-update-jreit-info">
 		<java module="yokwe.finance/yokwe.finance.provider.jreit.UpdateJREITInfo" fork="true">
