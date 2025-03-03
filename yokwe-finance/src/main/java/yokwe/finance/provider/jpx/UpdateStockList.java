@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import yokwe.finance.type.StockInfoJPType;
-import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -20,8 +19,6 @@ public class UpdateStockList {
 	
 	private static final String URL_FORMAT  = "https://quote.jpx.co.jp/jpxhp/jcgi/wrap/qjsonp.aspx?F=ctl/stock_list&page=%d&refindex=%%2BTTCODE&maxdisp=100";
 	private static final String REF         = "https://quote.jpx.co.jp/jpxhp/main/index.aspx?f=stock_list&key7=";
-	private static final String PATH_PRIFIX = "stockList";
-	private static final String NAME_FORMAT = "%02d.json";
 	
 	public static class Result {
 		public String   cputime;
@@ -101,6 +98,10 @@ public class UpdateStockList {
 	private static int countTPM    = 0;
 	private static int countNoDate = 0;
 	
+	public static String getName(int page) {
+		return String.format("%02d", page);
+	}
+	
 	public static void download(List<StockListType> list) {
 		download(list, 1);
 	}
@@ -116,15 +117,12 @@ public class UpdateStockList {
 				throw new UnexpectedException("Unexpected");
 			}
 			string = result.result;
-			
-			var file = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, page));
-//			logger.info("save  {}  {}", string.length(), file.getPath());
-			FileUtil.write().file(file, string);
+			StorageJPX.StockListJSON.save(getName(page), string);
 		}
 		var result = JSON.unmarshal(Result.class, string);
 		
 		for(var e: result.section1.data) {
-			if ((++count % 200) == 1) logger.info("{}  /  {}", count, result.section1.hitcount);
+			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, result.section1.hitcount);
 
 			if (e.LISS.equals("TPM")) {
 				// Tokyo Pro Market
