@@ -1,6 +1,5 @@
 package yokwe.finance.report;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -9,11 +8,10 @@ import java.util.List;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.provider.jreit.StorageJREIT;
 import yokwe.finance.provider.manebu.StorageManebu;
-import yokwe.finance.provider.rakuten.StorageRakuten;
 import yokwe.finance.provider.yahoo.StorageYahoo;
 import yokwe.finance.stats.StockStats;
 import yokwe.finance.stock.StorageStock;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 import yokwe.util.libreoffice.LibreOffice;
@@ -72,7 +70,7 @@ public class UpdateStockStatsJP {
 					} else {
 						stats.industry = stats.sector;
 					}
-				} else if (StockInfoJPType.isPreferredStock(stockCode)) {
+				} else if (StockCodeJP.isPreferredStock(stockCode)) {
 					stats.sector    = "PREF";
 					stats.industry  = "PREF";
 				} else {

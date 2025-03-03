@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.OHLCV;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.finance.type.StockInfoUSType;
 import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
@@ -232,7 +232,7 @@ public class Download {
 	}
 	public static final class JP {
 		public static String toYahooStockCode(String stockCode) {
-			return StockInfoJPType.toYahooSymbol(stockCode);
+			return StockCodeJP.toYahooSymbol(stockCode);
 		}
 		
 		public static List<OHLCV> getPrice(String stockCode, LocalDate period1, LocalDate period2) {

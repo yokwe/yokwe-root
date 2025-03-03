@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -123,7 +123,7 @@ public class UpdateETN {
 		
 		List<StockNameType> list = new ArrayList<>();
 		for(var e: ETFInfo.getInstance(page)) {
-			String stockCode    = StockInfoJPType.toStockCode5(e.stockCode);
+			String stockCode    = StockCodeJP.toStockCode5(e.stockCode);
 			String name         = e.name.replace("&amp;", "&").replace("(注2)", "").replace("(注5)", "").replace("(注6)", "");
 			// sanity check
 			if (name.contains("注")) {

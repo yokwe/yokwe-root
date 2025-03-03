@@ -8,10 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
+import yokwe.finance.Storage;
 import yokwe.util.StringUtil;
 import yokwe.util.json.JSON;
-
-import yokwe.finance.Storage;
 
 public class Screener {
 	private static final Storage storage = StoragePrestia.storage;

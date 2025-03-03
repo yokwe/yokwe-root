@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import yokwe.finance.provider.jpx.ListingType.Type;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.FileUtil;
 import yokwe.util.HashCode;
 import yokwe.util.StringUtil;
@@ -96,7 +96,7 @@ public class UpdateListing {
 				ListingType value = new ListingType();
 				
 				value.date         = String.format("%s-%s-%s", date.substring(0, 4), date.substring(4, 6), date.substring(6, 8));;
-				value.stockCode    = StockInfoJPType.toStockCode5(rawData.stockCode.trim());
+				value.stockCode    = StockCodeJP.toStockCode5(rawData.stockCode.trim());
 				value.name         = rawData.name.trim();
 				value.type         = rawData.type;
 				value.sector33Code = rawData.sector33Code.trim();

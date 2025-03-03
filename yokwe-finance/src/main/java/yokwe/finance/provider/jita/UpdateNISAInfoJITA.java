@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.NISAInfoType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.HashCode;
@@ -240,7 +241,7 @@ public class UpdateNISAInfoJITA {
 			var stockCodeMap = StorageStock.StockInfoJP.getList().stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
 
 			for (var data : StorageJITA.ListedFundForInvestor.load()) {
-				var stockCode = StockInfoJPType.toStockCode5(data.stockCode);
+				var stockCode = StockCodeJP.toStockCode5(data.stockCode);
 				if (stockCodeMap.containsKey(stockCode)) {
 					var isinCode  = stockCodeMap.get(stockCode);
 					var tsumitate = data.isTsumitate();

@@ -16,14 +16,14 @@ import org.openqa.selenium.By;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
-import yokwe.finance.account.Secret;
 import yokwe.finance.account.Asset.Company;
+import yokwe.finance.account.Secret;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.finance.util.webbrowser.Target;
 import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.CSVUtil;
@@ -208,7 +208,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 								throw new UnexpectedException("Unexpected currency");
 							}
 							
-							code = StockInfoJPType.toStockCode5(code);
+							code = StockCodeJP.toStockCode5(code);
 							list.add(Asset.stock(dateTime, Company.RAKUTEN, currency, units.intValue(), unitPrice, valueJPY, costJPY, code, name));
 						}
 					}

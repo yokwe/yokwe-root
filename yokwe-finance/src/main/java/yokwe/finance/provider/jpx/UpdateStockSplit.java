@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
@@ -229,7 +229,7 @@ public class UpdateStockSplit {
 					
 					var m = ratioPat.matcher(csvData.ratio);
 					if (m.matches()) {
-						var stockCode = StockInfoJPType.toStockCode5(csvData.stockCode);
+						var stockCode = StockCodeJP.toStockCode5(csvData.stockCode);
 						var before = Integer.valueOf(m.group("before"));
 						var after  = Integer.valueOf(m.group("after"));
 						var split = new StockSplitType(date, stockCode, before, after, csvData.name);

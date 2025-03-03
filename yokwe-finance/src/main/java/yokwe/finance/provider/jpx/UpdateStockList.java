@@ -6,7 +6,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -137,7 +137,7 @@ public class UpdateStockList {
 				continue;
 			}
 			
-			String     stockCode = StockInfoJPType.toStockCode5(e.BICD);
+			String     stockCode = StockCodeJP.toStockCode5(e.BICD);
 			LocalDate  date      = LocalDate.parse(e.ZXD.replace("/", "-"));
 			LocalTime  time      = e.DPPT.equals("-") ? LocalTime.of(0, 0) : LocalTime.parse(e.DPPT);
 			BigDecimal price     = e.DPP.equals("-") ? BigDecimal.ZERO : new BigDecimal(e.DPP.replace(",", ""));

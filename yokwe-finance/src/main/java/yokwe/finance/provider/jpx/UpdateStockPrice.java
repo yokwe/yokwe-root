@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import yokwe.finance.type.OHLCV;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
@@ -172,7 +172,7 @@ public class UpdateStockPrice {
 	}
 
 	public static String getURL(String stockCode) {
-		var stockCode4 = StockInfoJPType.toStockCode4(stockCode);
+		var stockCode4 = StockCodeJP.toStockCode4(stockCode);
 		return String.format(URL_FORMAT, stockCode4);
 	}
 
@@ -297,7 +297,7 @@ public class UpdateStockPrice {
 	private static List<OHLCV> getPriceList(Data data) {
 		List<OHLCV> priceList = new ArrayList<>();
 		{
-			var stockCode = StockInfoJPType.toStockCode5(data.TTCODE2);
+			var stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
 //			logger.info("stock  {}  {}", stockCode, data.FLLN);
 
 			BigDecimal o = null;
@@ -381,7 +381,7 @@ public class UpdateStockPrice {
 		}
 		
 		for(var data: result.section1.data.values()) {
-			var stockCode = StockInfoJPType.toStockCode5(data.TTCODE2);
+			var stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
 			var oldList   = StorageJPX.StockPrice.getList(stockCode);
 			var oldMap    = oldList.stream().collect(Collectors.toMap(o -> o.date, o -> o));
 

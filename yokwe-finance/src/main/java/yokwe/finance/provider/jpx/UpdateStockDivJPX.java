@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 
 import yokwe.finance.type.DailyValue;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
@@ -28,7 +29,7 @@ public class UpdateStockDivJPX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static String getPageURL(String stockCode) {
-		String stockCode4 = StockInfoJPType.toStockCode4(stockCode);
+		String stockCode4 = StockCodeJP.toStockCode4(stockCode);
 		return String.format("https://quote.jpx.co.jp/jpx/template/tmp/Jkessan.asp?QCODE=%s", stockCode4);
 	}
 	

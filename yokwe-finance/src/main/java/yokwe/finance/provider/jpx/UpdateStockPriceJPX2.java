@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import yokwe.finance.provider.jpx.StockPage.PriceVolume;
 import yokwe.finance.type.OHLCV;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.MarketHoliday;
@@ -93,7 +94,7 @@ public class UpdateStockPriceJPX2 {
 	
 	
 	public static String getURL(String stockCode) {
-		String stockCode4 = StockInfoJPType.toStockCode4(stockCode);
+		String stockCode4 = StockCodeJP.toStockCode4(stockCode);
 		return String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode4);
 	}
 	

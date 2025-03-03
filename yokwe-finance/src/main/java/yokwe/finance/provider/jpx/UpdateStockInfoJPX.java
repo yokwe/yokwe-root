@@ -8,8 +8,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import yokwe.finance.type.StockInfoJPType;
-import yokwe.finance.type.StockInfoJPType.Type;
 import yokwe.finance.type.StockInfoJPType.Topix;
+import yokwe.finance.type.StockInfoJPType.Type;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 

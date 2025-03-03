@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.stock.StorageStock;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -202,7 +202,7 @@ public class UpdateJREITInfo {
 			throw new UnexpectedException("list is empty");
 		}
 		
-		return list.stream().collect(Collectors.toMap(o -> StockInfoJPType.toStockCode5(o.stockCode), o -> o.category));
+		return list.stream().collect(Collectors.toMap(o -> StockCodeJP.toStockCode5(o.stockCode), o -> o.category));
 	}
 	
 	
@@ -242,7 +242,7 @@ public class UpdateJREITInfo {
 				if ((++count % 10) == 1) logger.info("reit   {}  /  {}  {}", count, reitList.size(), stockCode);
 				var name = nameMap.get(stockCode);
 				
-				String url      = String.format("https://www.japan-reit.com/meigara/%s/info/", StockInfoJPType.toStockCode4(stockCode));			
+				String url      = String.format("https://www.japan-reit.com/meigara/%s/info/", StockCodeJP.toStockCode4(stockCode));			
 				String category = categoryMap.get(stockCode);
 				if (category == null) {
 					logger.warn("unknown  {}  {}", stockCode, name);
@@ -263,7 +263,7 @@ public class UpdateJREITInfo {
 				if ((++count % 10) == 1) logger.info("infra  {}  /  {}  {}", count, reitList.size(), stockCode);
 				var name = nameMap.get(stockCode);
 
-				String url      = String.format("https://www.japan-reit.com/infra/%s/info/", StockInfoJPType.toStockCode4(stockCode));			
+				String url      = String.format("https://www.japan-reit.com/infra/%s/info/", StockCodeJP.toStockCode4(stockCode));			
 				String category = JREITInfoType.CATEGORY_INFRA_FUND;
 
 				final JREITInfoType reitInfo = getREIT(stockCode, url, category);

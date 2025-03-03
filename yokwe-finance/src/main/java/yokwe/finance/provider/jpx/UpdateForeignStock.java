@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;
@@ -93,7 +93,7 @@ public class UpdateForeignStock {
 		List<StockNameType> list = new ArrayList<>();
 		for(var e: ForeignInfo.getInstance(page)) {
 			String name      = e.name;
-			String stockCode = StockInfoJPType.toStockCode5(e.stockCode);
+			String stockCode = StockCodeJP.toStockCode5(e.stockCode);
 
 			list.add(new StockNameType(stockCode, name));
 		}

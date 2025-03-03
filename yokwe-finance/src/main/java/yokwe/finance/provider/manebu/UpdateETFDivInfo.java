@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.DailyValue;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
@@ -233,7 +233,7 @@ public class UpdateETFDivInfo {
 		for(var stockCode: stockCodeList) {
 			if ((++count % 20) == 1) logger.info("{}  /  {}", count, stockCodeList.size());
 			
-			String stockCode4 = StockInfoJPType.toStockCode4(stockCode);
+			String stockCode4 = StockCodeJP.toStockCode4(stockCode);
 			
 			final String page;
 			{

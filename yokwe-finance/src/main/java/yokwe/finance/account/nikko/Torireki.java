@@ -3,7 +3,6 @@ package yokwe.finance.account.nikko;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-
 import yokwe.finance.account.nikko.TradeHistory.AccountType;
 import yokwe.finance.account.nikko.TradeHistory.Product;
 import yokwe.finance.account.nikko.TradeHistory.Trade;

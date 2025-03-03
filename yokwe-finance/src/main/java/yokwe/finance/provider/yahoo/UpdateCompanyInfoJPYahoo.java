@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import yokwe.finance.Storage;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.CompanyInfoType;
-import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockCodeJP;
 
 
 public class UpdateCompanyInfoJPYahoo {
@@ -49,7 +49,7 @@ public class UpdateCompanyInfoJPYahoo {
 			
 			var stockCode = stockInfo.stockCode;
 			
-			var companyInfo = CompanyInfoYahoo.getInstance(StockInfoJPType.toYahooSymbol(stockCode));
+			var companyInfo = CompanyInfoYahoo.getInstance(StockCodeJP.toYahooSymbol(stockCode));
 			if (companyInfo == null) continue;
 			
 			var sector   = companyInfo.sector.replace(",", "").replace("—", "-");
