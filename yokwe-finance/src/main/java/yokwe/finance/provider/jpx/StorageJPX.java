@@ -28,9 +28,6 @@ public class StorageJPX {
 	// reit
 	public static final Storage.LoadSave<StockNameType, String> REIT =
 		new Storage.LoadSave.Impl<>(StockNameType.class,  StockNameType::getKey, storage, "reit.csv");
-	// stock detail
-	public static final Storage.LoadSave<StockDetailType, String> StockDetail =
-		new Storage.LoadSave.Impl<>(StockDetailType.class,  o -> o.stockCode, storage, "stock-detail.csv");
 		
 	// stock div jpx
 	public static final Storage.LoadSave2<DailyValue, ChronoLocalDate> StockDivJPX =
@@ -56,6 +53,9 @@ public class StorageJPX {
 	// stock price
 	public static final Storage.LoadSave2<OHLCV, ChronoLocalDate> StockPrice =
 		new Storage.LoadSave2.Impl<>(OHLCV.class, OHLCV::getKey, storage, "stockPrice", o -> o + ".csv");
+	// stock detail
+	public static final Storage.LoadSave<StockDetailType, String> StockDetail =
+		new Storage.LoadSave.Impl<>(StockDetailType.class, StockDetailType::getKey, storage, "stockDetail.csv");
 	public static final Storage.LoadSaveText2 StockPriceJSON =
 		new Storage.LoadSaveText2.Impl(storage, "stockDetail",  o -> o + ".json");
 	

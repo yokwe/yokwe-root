@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -34,6 +35,11 @@ public class UpdateStockPrice {
 	
 	private static final List<StockListType> stockList = StorageJPX.StockList.getList();
 	private static final int stockListSize = stockList.size();
+	
+	private static final Set<String> etfSet   = StorageJPX.ETF.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+	private static final Set<String> etnSet   = StorageJPX.ETN.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+	private static final Set<String> infraSet = StorageJPX.InfraFund.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+	private static final Set<String> reitSet  = StorageJPX.REIT.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
 	
 	private static final LocalDate lastTradingDate = MarketHoliday.JP.getLastTradingDate();
 	
@@ -177,15 +183,8 @@ public class UpdateStockPrice {
 	}
 
 	private static class Context {
-		private final Map<String, String> stringMap = new TreeMap<>();
-		private final AtomicInteger       count     = new AtomicInteger();
+		private final AtomicInteger count = new AtomicInteger();
 		
-		public void put(String stockCode, String string) {
-			synchronized(stringMap) {
-				stringMap.put(stockCode, string);
-			}
-		}
-
 		public void incrementBuildCount() {
 			count.addAndGet(1);
 		}
@@ -194,23 +193,16 @@ public class UpdateStockPrice {
 		}
 	}
 	
-	private static void buildContextFromPage(Context context, String stockCode, String name, String page) {
-		context.put(stockCode, page);
-	}
-	
 	private static class MyConsumer implements Consumer<String> {
 		private final Context   context;
 		private final String    stockCode;
-		private final String    name;
 		
-		MyConsumer(Context context, String stockCode, String name) {
+		MyConsumer(Context context, String stockCode) {
 			this.context   = context;
 			this.stockCode = stockCode;
-			this.name      = name;
 		}
 		@Override
 		public void accept(String page) {
-			buildContextFromPage(context, stockCode, name, page);
 			// save for later use
 			StorageJPX.StockPriceJSON.save(stockCode, page);
 			//
@@ -218,7 +210,7 @@ public class UpdateStockPrice {
 		}
 	}
 
-	public static void buildContext(Context context) {
+	public static void downloadFile() {
 		int threadCount       = 20;
 		int maxPerRoute       = 50;
 		int maxTotal          = 100;
@@ -255,12 +247,13 @@ public class UpdateStockPrice {
 		// progress interval
 		download.setProgressInterval(progressInterval);
 		
+		Context context = new Context();
+		
 		Collections.shuffle(stockList);
 		for(var stock: stockList) {
 			String stockCode = stock.stockCode;			
 			String uriString = getURL(stockCode);
-			String name      = stock.name;
-			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode, name));
+			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode));
 			download.addTask(task);
 		}
 		Collections.sort(stockList);
@@ -373,8 +366,7 @@ public class UpdateStockPrice {
 		return priceList;
 	}
 	
-	private static void updatePrice(String string) {
-		var result = JSON.unmarshal(Result.class, string);
+	private static void updatePrice(Result result) {
 		if (result.section1.data == null) {
 			logger.error("data is null");
 			throw new UnexpectedException("data is null");
@@ -439,38 +431,62 @@ public class UpdateStockPrice {
 		}
 	}
 	
-	public static void updatePrice(Context context) {
-		// update price using list (StockPrice)
-		logger.info("updatePrice");
+	private static void updateDetail(Result result, List<StockDetailType> detailList) {
+		if (result.section1.data == null) {
+			logger.error("data is null");
+			throw new UnexpectedException("data is null");
+		}
 		
-		int count = 0;
-		for(var string: context.stringMap.values()) {
-			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
-			updatePrice(string);
+		for(var data: result.section1.data.values()) {
+			String     stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
+			String     isinCode  = data.ISIN;
+			int        tradeUnit = Integer.parseInt(data.LOSH.replace(",", ""));
+			String     type      = data.LISS_CNV;
+			String     sector33  = data.JSEC_CNV;
+			BigDecimal issued    = new BigDecimal(data.SHRK.replace(",", ""));
+			String     name      = data.FLLN;
+			
+			if (type.isEmpty()) {
+				if (etfSet.contains(stockCode))        type = "ETF";
+				else if (etnSet.contains(stockCode))   type = "ETN";
+				else if (infraSet.contains(stockCode)) type = "INFRA";
+				else if (reitSet.contains(stockCode))  type = "REIT";
+				else if (stockCode.equals("83010"))    type = "CERT"; // 日本銀行
+				else if (stockCode.equals("84210"))    type = "CERT"; // 信金中央金庫
+				else {
+					type = "UNKNOWN";
+					logger.warn("Unknown type  {}  {}  {}", stockCode, isinCode, name);
+				}
+			}
+			
+			var stockDetail = new StockDetailType(stockCode, isinCode, tradeUnit, type, sector33, issued, name);
+			detailList.add(stockDetail);
 		}
 	}
-	public static void updatePrice() {
+	
+	public static void updateFile() {
 		// update price using list (StockPrice)
-		logger.info("updatePrice");
+		logger.info("updateFile");
+		
+		var detailList = new ArrayList<StockDetailType>(stockList.size());
 		
 		int count = 0;
 		for(var stock: stockList) {
 			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
 
 			var string = StorageJPX.StockPriceJSON.load(stock.stockCode);
-			updatePrice(string);
+			var result = JSON.unmarshal(Result.class, string);
+			updatePrice(result);
+			updateDetail(result, detailList);
 		}
+		
+		StorageJPX.StockDetail.save(detailList);
 	}
 	
 	private static void update() {
-		{
-			Context context = new Context();
-			buildContext(context);
-			updatePrice(context);
-		}
+		downloadFile();
 		
-		// use file in stockPrice
-		updatePrice();
+		updateFile();
 	}
 	
 	public static void main(String[] args) throws IOException {

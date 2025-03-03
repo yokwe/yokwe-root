@@ -1,42 +1,47 @@
 package yokwe.finance.provider.jpx;
 
+import java.math.BigDecimal;
+
 import yokwe.util.StringUtil;
 
 public class StockDetailType implements Comparable<StockDetailType> {
-	public final String stockCode;
-	public final String isinCode;
-	public final int    tradeUnit;
-	public final long   issued;
+	public String     stockCode;
+	public String     isinCode;
+	public int        tradeUnit;
+	public String     type;
+	public String     sector33;
 	
-	public StockDetailType(String stockCode, String isinCode, int tradeUnit, long issued) {
+	public BigDecimal issued;
+	
+	public String     name;
+	
+	public StockDetailType(
+		String     stockCode,
+		String     isinCode,
+		int        tradeUnit,
+		String     type,
+		String     sector33,
+		BigDecimal issued,
+		String     name
+		) {
 		this.stockCode = stockCode;
 		this.isinCode  = isinCode;
 		this.tradeUnit = tradeUnit;
+		this.type      = type;
+		this.sector33  = sector33;
 		this.issued    = issued;
+		this.name      = name;
 	}
 	
-	
-	@Override
-	public String toString() {
-		return StringUtil.toString(this);
+	public String getKey() {
+		return stockCode;
 	}
-	
 	@Override
 	public int compareTo(StockDetailType that) {
 		return this.stockCode.compareTo(that.stockCode);
 	}
 	@Override
-	public boolean equals(Object o) {
-		if (o == null) return false;
-		if (o instanceof StockDetailType) {
-			StockDetailType that = (StockDetailType)o;
-			return 
-				this.stockCode.equals(that.stockCode) &&
-				this.isinCode.equals(that.isinCode) &&
-				this.tradeUnit == that.tradeUnit &&
-				this.issued == that.issued;
-		} else {
-			return false;
-		}
+	public String toString() {
+		return StringUtil.toString(this);
 	}
 }
