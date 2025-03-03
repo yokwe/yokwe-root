@@ -30,6 +30,10 @@ public class OHLCV implements Comparable<OHLCV> {
 			volume == 0;
 	}
 	
+	public LocalDate getKey() {
+		return date;
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("{%s %s %s %s %s %d}",
