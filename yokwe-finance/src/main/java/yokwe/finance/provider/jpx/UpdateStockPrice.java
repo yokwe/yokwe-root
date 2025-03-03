@@ -5,14 +5,14 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import yokwe.finance.provider.jpx.StockDetailType.Type;
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockCodeJP;
 import yokwe.util.MarketHoliday;
@@ -36,10 +36,22 @@ public class UpdateStockPrice {
 	private static final List<StockListType> stockList = StorageJPX.StockList.getList();
 	private static final int stockListSize = stockList.size();
 	
-	private static final Set<String> etfSet   = StorageJPX.ETF.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
-	private static final Set<String> etnSet   = StorageJPX.ETN.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
-	private static final Set<String> infraSet = StorageJPX.InfraFund.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
-	private static final Set<String> reitSet  = StorageJPX.REIT.getList().stream().map(o -> o.stockCode).collect(Collectors.toSet());
+	private static final Map<String, Type> typeMap = new HashMap<>(stockListSize);
+	static {
+		StorageJPX.ETF.getList().stream().forEach(o -> typeMap.put(o.stockCode, StockDetailType.Type.ETF));
+		StorageJPX.ETN.getList().stream().forEach(o -> typeMap.put(o.stockCode, StockDetailType.Type.ETN));
+		StorageJPX.InfraFund.getList().stream().forEach(o -> typeMap.put(o.stockCode, StockDetailType.Type.INFRA_FUND));
+		StorageJPX.REIT.getList().stream().forEach(o -> typeMap.put(o.stockCode, StockDetailType.Type.REIT));
+		typeMap.put("83010", Type.CERTIFICATE); // 日本銀行
+		typeMap.put("84210", Type.CERTIFICATE); // 信金中央金庫
+		
+		typeMap.put("グロース",           Type.DOMESTIC_GROWTH);
+		typeMap.put("プライム",           Type.DOMESTIC_PRIME);
+		typeMap.put("スタンダード",       Type.DOMESTIC_STANDARD);
+		typeMap.put("外国株グロース",     Type.FOREIGN_GROWTH);
+		typeMap.put("外国株プライム",     Type.FOREIGN_PRIME);
+		typeMap.put("外国株スタンダード", Type.FOREIGN_STANDARD);
+	}
 	
 	private static final LocalDate lastTradingDate = MarketHoliday.JP.getLastTradingDate();
 	
@@ -441,24 +453,20 @@ public class UpdateStockPrice {
 			String     stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
 			String     isinCode  = data.ISIN;
 			int        tradeUnit = Integer.parseInt(data.LOSH.replace(",", ""));
-			String     type      = data.LISS_CNV;
 			String     sector33  = data.JSEC_CNV;
 			BigDecimal issued    = new BigDecimal(data.SHRK.replace(",", ""));
 			String     name      = data.FLLN;
 			
-			if (type.isEmpty()) {
-				if (etfSet.contains(stockCode))        type = "ETF";
-				else if (etnSet.contains(stockCode))   type = "ETN";
-				else if (infraSet.contains(stockCode)) type = "INFRA";
-				else if (reitSet.contains(stockCode))  type = "REIT";
-				else if (stockCode.equals("83010"))    type = "CERT"; // 日本銀行
-				else if (stockCode.equals("84210"))    type = "CERT"; // 信金中央金庫
-				else {
-					type = "UNKNOWN";
-					logger.warn("Unknown type  {}  {}  {}", stockCode, isinCode, name);
-				}
+			var typeString = data.LISS_CNV;
+			Type type = typeMap.get(stockCode);
+			if (type == null) type = typeMap.get(typeString);
+			if (type == null) {
+				logger.error("Unexpected type");
+				logger.error("  stockCode   {}", stockCode);
+				logger.error("  typeString  {}", typeString);
+				throw new UnexpectedException("Unexpected type");
 			}
-			
+				
 			var stockDetail = new StockDetailType(stockCode, isinCode, tradeUnit, type, sector33, issued, name);
 			detailList.add(stockDetail);
 		}
@@ -485,7 +493,6 @@ public class UpdateStockPrice {
 	
 	private static void update() {
 		downloadFile();
-		
 		updateFile();
 	}
 	
