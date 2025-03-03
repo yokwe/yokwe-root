@@ -12,6 +12,10 @@ public class DailyValue implements Comparable<DailyValue> {
 		this.value = value;
 	}
 	
+	public LocalDate getKey() {
+		return date;
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("{%s %s}", date.toString(), value.toPlainString());

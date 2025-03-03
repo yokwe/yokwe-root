@@ -9,6 +9,10 @@ public class StockNameType implements Comparable<StockNameType> {
 		this.name      = name;
 	}
 	
+	public String getKey() {
+		return stockCode;
+	}
+	
 	@Override
 	public String toString() {
 		return String.format("{%s  %s}", stockCode, name);
