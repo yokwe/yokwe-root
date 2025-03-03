@@ -171,7 +171,6 @@ public class UpdateStockPrice {
         public String KABU;     // "-"
 	}
 
-
 	public static String getURL(String stockCode) {
 		var stockCode4 = StockInfoJPType.toStockCode4(stockCode);
 		return String.format(URL_FORMAT, stockCode4);
