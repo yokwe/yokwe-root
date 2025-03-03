@@ -12,43 +12,51 @@ public class StorageJPX {
 	
 	// etf
 	public static final Storage.LoadSave<StockNameType, String> ETF =
-		new Storage.LoadSave.Impl<>(StockNameType.class,  o -> o.stockCode, storage, "etf.csv");
+		new Storage.LoadSave.Impl<>(StockNameType.class,  StockNameType::getKey, storage, "etf.csv");
 	// etn
 	public static final Storage.LoadSave<StockNameType, String> ETN =
-			new Storage.LoadSave.Impl<>(StockNameType.class,  o -> o.stockCode, storage, "etn.csv");
+			new Storage.LoadSave.Impl<>(StockNameType.class,  StockNameType::getKey, storage, "etn.csv");
 	// foreign stock
 	public static final Storage.LoadSave<StockNameType, String> ForeignStock =
-		new Storage.LoadSave.Impl<>(StockNameType.class,  o -> o.stockCode, storage, "foreign-stock.csv");
+		new Storage.LoadSave.Impl<>(StockNameType.class,  StockNameType::getKey, storage, "foreign-stock.csv");
 	// infra fund
 	public static final Storage.LoadSave<StockNameType, String> InfraFund =
-		new Storage.LoadSave.Impl<>(StockNameType.class,  o -> o.stockCode, storage, "infra-fund.csv");
+		new Storage.LoadSave.Impl<>(StockNameType.class,  StockNameType::getKey, storage, "infra-fund.csv");
 	// listing
 	public static final Storage.LoadSave<ListingType, String> Listing =
 		new Storage.LoadSave.Impl<>(ListingType.class,  o -> o.stockCode, storage, "listing.csv");
 	// reit
 	public static final Storage.LoadSave<StockNameType, String> REIT =
-		new Storage.LoadSave.Impl<>(StockNameType.class,  o -> o.stockCode, storage, "reit.csv");
+		new Storage.LoadSave.Impl<>(StockNameType.class,  StockNameType::getKey, storage, "reit.csv");
 	// stock detail
 	public static final Storage.LoadSave<StockDetailType, String> StockDetail =
 		new Storage.LoadSave.Impl<>(StockDetailType.class,  o -> o.stockCode, storage, "stock-detail.csv");
 		
 	// stock div jpx
 	public static final Storage.LoadSave2<DailyValue, ChronoLocalDate> StockDivJPX =
-		new Storage.LoadSave2.Impl<>(DailyValue.class, o -> o.date, storage, "stock-div-jpx", o -> o + ".csv");
+		new Storage.LoadSave2.Impl<>(DailyValue.class, DailyValue::getKey, storage, "stock-div-jpx", o -> o + ".csv");
 	
 	// stock info jpx
 	public static final Storage.LoadSave<StockInfoJPType, String> StockInfoJPX =
-		new Storage.LoadSave.Impl<>(StockInfoJPType.class,  o -> o.stockCode, storage, "stock-info-jpx.csv");
+		new Storage.LoadSave.Impl<>(StockInfoJPType.class,  StockInfoJPType::getKey, storage, "stock-info-jpx.csv");
 
 	// stock price jpxs
 	public static final Storage.LoadSave2<OHLCV, ChronoLocalDate> StockPriceJPX =
-		new Storage.LoadSave2.Impl<>(OHLCV.class, o -> o.date, storage, "stock-price-jpx", o -> o + ".csv");
+		new Storage.LoadSave2.Impl<>(OHLCV.class, OHLCV::getKey, storage, "stock-price-jpx", o -> o + ".csv");
 	
 	// stock split
 	public static final Storage.LoadSave<StockSplitType, String> StockSplit =
 		new Storage.LoadSave.Impl<>(StockSplitType.class, StockSplitType::getKey, storage, "stock-split.csv");
 	
-	// stock split
+	// stock list
 	public static final Storage.LoadSave<StockListType, String> StockList =
-		new Storage.LoadSave.Impl<>(StockListType.class, StockListType::getKey, storage, "stock-list.csv");
+		new Storage.LoadSave.Impl<>(StockListType.class, StockListType::getKey, storage, "stockList.csv");
+	public static final Storage.LoadSaveText2 StockListJSON =
+		new Storage.LoadSaveText2.Impl(storage, "stockList", o -> o + ".json");
+	// stock price
+	public static final Storage.LoadSave2<OHLCV, ChronoLocalDate> StockPrice =
+		new Storage.LoadSave2.Impl<>(OHLCV.class, OHLCV::getKey, storage, "stockPrice", o -> o + ".csv");
+	public static final Storage.LoadSaveText2 StockPriceJSON =
+		new Storage.LoadSaveText2.Impl(storage, "stockDetail",  o -> o + ".json");
+	
 }
