@@ -24,6 +24,9 @@ public interface Storage {
 		public K         getKey(E that);
 		public String    getPath();
 		
+		default File getFile() {
+			return new File(getPath());
+		}
 		default void save(List<E> list) {
 			Collections.sort(list);
 			CSVUtil.write(getClazz()).file(getPath(), list);
@@ -102,7 +105,10 @@ public interface Storage {
 		public String    getPath(String name);
 		public String    getPath();
 		public String    getPathDelist();
-
+		
+		default File    getFile(String name) {
+			return new File(getPath(name));
+		}
 		default void    save(String name, List<E> list) {
 			Collections.sort(list);
 			CSVUtil.write(getClazz()).file(getPath(name), list);
@@ -191,6 +197,9 @@ public interface Storage {
 		public Class<E>  getClazz();
 		public String    getPath();
 		
+		default File getFile() {
+			return new File(getPath());
+		}
 		default void save(List<E> list) {
 			Collections.sort(list);
 			CSVUtil.write(getClazz()).file(getPath(), list);
@@ -232,7 +241,37 @@ public interface Storage {
 			}
 		}
 	}
-
+	public interface LoadSaveText2 {
+		public String  getPath(String name);
+		
+		default File   getFile(String name) {
+			return new File(getPath(name));
+		}
+		default void   save(String name, String text) {
+			FileUtil.write().file(getFile(name), text);
+		}
+		default String load(String name) {
+			return FileUtil.read().file(getFile(name));
+		}
+		
+		public class Impl implements LoadSaveText2 {
+			private final Storage                  storage;
+			private final String                   prefix;
+			private final Function<String, String> getName;
+			
+			public Impl(Storage storage, String prefix, Function<String, String> getName) {
+				this.storage = storage;
+				this.prefix  = prefix;
+				this.getName = getName;
+			}
+			
+			@Override
+			public String getPath(String name) {
+				return storage.getPath(prefix, getName.apply(name));
+			}
+		}
+	}
+	
 	
 	public static final String DATA_PATH_FILE = "data/DataPathLocation";
 	private static String getDataPath() {		
