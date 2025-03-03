@@ -75,6 +75,7 @@ public class CompanyInfoYahoo {
 		@JSON.Name("timeTakenForNav")                @JSON.Ignore public int      timeTakenForNav;
 		@JSON.Name("timeTakenForResearchReports")    @JSON.Ignore public int      timeTakenForResearchReports;
 		@JSON.Name("timeTakenForScreenerField")      @JSON.Ignore public int      timeTakenForScreenerField;
+		@JSON.Name("timeTakenForSearchLists")        @JSON.Ignore public int      timeTakenForSearchLists;
 		@JSON.Name("timeTakenForCulturalAssets")     @JSON.Ignore public int      timeTakenForCulturalAssets;
 		
 		@Override
