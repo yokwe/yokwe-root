@@ -1,6 +1,5 @@
 package yokwe.finance.provider.jpx;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,8 +14,6 @@ import java.util.stream.Collectors;
 
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
-import yokwe.util.CSVUtil;
-import yokwe.util.FileUtil;
 import yokwe.util.MarketHoliday;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
@@ -34,9 +31,6 @@ public class UpdateStockPrice {
 	private static final String URL_FORMAT = "https://quote.jpx.co.jp/jpxhp/jcgi/wrap/qjsonp.aspx?F=ctl/stock_detail&qcode=%s";
 	private static final String REFERENCE  = "https://quote.jpx.co.jp/jpxhp/main/index.aspx?f=stock_detail&disptype=information&qcode=%s";
 	private static final String USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit";
-	
-	private static final String PATH_PRIFIX = "stockDetail";
-	private static final String NAME_FORMAT = "%s.json";
 	
 	private static final List<StockListType> stockList = StorageJPX.StockList.getList();
 	private static final int stockListSize = stockList.size();
@@ -204,7 +198,7 @@ public class UpdateStockPrice {
 	private static void buildContextFromPage(Context context, String stockCode, String name, String page) {
 		context.put(stockCode, page);
 	}
-
+	
 	private static class MyConsumer implements Consumer<String> {
 		private final Context   context;
 		private final String    stockCode;
@@ -219,8 +213,7 @@ public class UpdateStockPrice {
 		public void accept(String page) {
 			buildContextFromPage(context, stockCode, name, page);
 			// save for later use
-			var file = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, stockCode));
-			FileUtil.write().file(file, page);
+			StorageJPX.StockPriceJSON.save(stockCode, page);
 			//
 			context.incrementBuildCount();
 		}
@@ -365,11 +358,11 @@ public class UpdateStockPrice {
 						v = 0;
 					} else {
 						// there is trading
-						v = Long.parseLong(vString);
-						o = new BigDecimal(oString);
-						h = new BigDecimal(hString);
-						l = new BigDecimal(lString);
-						c = new BigDecimal(cString);
+						o = new BigDecimal(oString.replace(",", ""));
+						h = new BigDecimal(hString.replace(",", ""));
+						l = new BigDecimal(lString.replace(",", ""));
+						c = new BigDecimal(cString.replace(",", ""));
+						v = Long.parseLong(vString.replace(",", ""));
 					}
 					
 					if (o != null) {
@@ -381,17 +374,16 @@ public class UpdateStockPrice {
 		return priceList;
 	}
 	
-	private static File getPriceFile(String stockCode) {
-		return StorageJPX.storage.getFile("stockPrice", String.format("%s.csv", stockCode));
-	}
-	
 	private static void updatePrice(String string) {
 		var result = JSON.unmarshal(Result.class, string);
+		if (result.section1.data == null) {
+			logger.error("data is null");
+			throw new UnexpectedException("data is null");
+		}
 		
 		for(var data: result.section1.data.values()) {
 			var stockCode = StockInfoJPType.toStockCode5(data.TTCODE2);
-			var file = getPriceFile(stockCode);
-			var oldList   = CSVUtil.read(OHLCV.class).file(file);
+			var oldList   = StorageJPX.StockPrice.getList(stockCode);
 			var oldMap    = oldList.stream().collect(Collectors.toMap(o -> o.date, o -> o));
 
 			var newList   = getPriceList(data);
@@ -419,18 +411,23 @@ public class UpdateStockPrice {
 			
 			if (needsMergeList) {
 				for(var oldPrice: oldList) {
-					if (newMap.containsKey(oldPrice.date)) {
-						// exist in newList
-						var newPrice = newMap.get(oldPrice.date);
-						if (newPrice.equals(oldPrice)) {
-							// expected
+					var date = oldPrice.date;
+					if (newMap.containsKey(date)) {
+						if (date.equals(lastTradingDate)) {
+							// keep price in newList for lastTradingDate
 						} else {
-							// not expected
-							logger.error("Unexpected price");
-							logger.error("  sockCode  {}", stockCode);
-							logger.error("  oldPrice  {}", oldPrice);
-							logger.error("  newPrice  {}", newPrice);
-							throw new UnexpectedException("Unexpected price");
+							// exist in newList
+							var newPrice = newMap.get(date);
+							if (newPrice.equals(oldPrice)) {
+								// expected
+							} else {
+								// not expected
+								logger.error("Unexpected price");
+								logger.error("  sockCode  {}", stockCode);
+								logger.error("  oldPrice  {}", oldPrice);
+								logger.error("  newPrice  {}", newPrice);
+								throw new UnexpectedException("Unexpected price");
+							}
 						}
 					} else {
 						// not exist in newList
@@ -438,8 +435,8 @@ public class UpdateStockPrice {
 					}
 				}
 			}
-//			logger.info("save  {}  {}", priceList.size(), priceFile.getPath());
-			CSVUtil.write(OHLCV.class).file(file, newList);
+//			logger.info("save  {}  {}", newList.size(), StorageJPX.StockPrice.getPath(stockCode));
+			StorageJPX.StockPrice.save(stockCode, newList);
 		}
 	}
 	
@@ -461,19 +458,20 @@ public class UpdateStockPrice {
 		for(var stock: stockList) {
 			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
 
-			var file   = StorageJPX.storage.getFile(PATH_PRIFIX, String.format(NAME_FORMAT, stock.stockCode));
-			var string = FileUtil.read().file(file);
+			var string = StorageJPX.StockPriceJSON.load(stock.stockCode);
 			updatePrice(string);
 		}
 	}
 	
 	private static void update() {
-		Context context = new Context();
-		buildContext(context);
-		updatePrice(context);
+		{
+			Context context = new Context();
+			buildContext(context);
+			updatePrice(context);
+		}
 		
 		// use file in stockPrice
-//		updatePrice();
+		updatePrice();
 	}
 	
 	public static void main(String[] args) throws IOException {
