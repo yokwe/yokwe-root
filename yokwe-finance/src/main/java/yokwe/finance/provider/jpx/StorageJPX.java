@@ -50,13 +50,8 @@ public class StorageJPX {
 		new Storage.LoadSave.Impl<>(StockListType.class, StockListType::getKey, storage, "stockList.csv");
 	public static final Storage.LoadSaveText2 StockListJSON =
 		new Storage.LoadSaveText2.Impl(storage, "stockList", o -> o + ".json");
-	// stock price
-	public static final Storage.LoadSave2<OHLCV, ChronoLocalDate> StockPrice =
-		new Storage.LoadSave2.Impl<>(OHLCV.class, OHLCV::getKey, storage, "stockPrice", o -> o + ".csv");
 	// stock detail
-	public static final Storage.LoadSave<StockDetailType, String> StockDetail =
-		new Storage.LoadSave.Impl<>(StockDetailType.class, StockDetailType::getKey, storage, "stockDetail.csv");
-	public static final Storage.LoadSaveText2 StockPriceJSON =
+	public static final Storage.LoadSaveText2 StockDetailJSON =
 		new Storage.LoadSaveText2.Impl(storage, "stockDetail",  o -> o + ".json");
 	
 }

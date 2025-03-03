@@ -1,7 +1,6 @@
 package yokwe.finance.stock;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -12,7 +11,6 @@ import yokwe.finance.provider.jpx.StorageJPX;
 import yokwe.finance.provider.jreit.StorageJREIT;
 import yokwe.finance.provider.manebu.StorageManebu;
 import yokwe.finance.type.DailyValue;
-import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
@@ -47,14 +45,8 @@ public class UpdateStockDivJP {
 					// NOTE FundDiv and FundPrice is not always per 1 unit. It can be 1, 10, 100 or 1000 units.
 					var etfInfo = etfInfoMap.get(stockCode);
 					if (etfInfo == null) {
-						if (stock.topix == StockInfoJPType.Topix.NEW) {
-							// very new and not issued
-							logger.warn("skip   {}  {}  {}  {}", stockCode, stock.type, stock.topix, stock.name);
-							countSkip++;
-							continue;
-						}
 						logger.error("no etfInfo");
-						logger.error("  {}  {}  {}  {}", stockCode, stock.type, stock.topix, stock.name);
+						logger.error("  {}  {}  {}", stockCode, stock.type, stock.name);
 						throw new UnexpectedException("no etfInfo");
 					} else {
 						// adjust div using etfInfo.fundUnit to get per 1 unit.
@@ -97,7 +89,7 @@ public class UpdateStockDivJP {
 		FileUtil.moveUnknownFile(validNameSet, StorageStock.StockDivJP.getPath(), StorageStock.StockDivJP.getPathDelist());
 	}
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		logger.info("START");
 		
 		moveUnknownFile();

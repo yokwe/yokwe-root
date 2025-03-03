@@ -1,341 +1,326 @@
 package yokwe.finance.provider.jpx;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.hc.core5.http2.HttpVersionPolicy;
-
-import yokwe.finance.provider.jpx.StockPage.CurrentPriceTime;
-import yokwe.finance.provider.jpx.StockPage.HighPrice;
-import yokwe.finance.provider.jpx.StockPage.LowPrice;
-import yokwe.finance.provider.jpx.StockPage.OpenPrice;
-import yokwe.finance.provider.jpx.StockPage.PriceVolume;
-import yokwe.finance.provider.jpx.StockPage.TradeVolume;
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockCodeJP;
-import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.MarketHoliday;
+import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.http.Download;
-import yokwe.util.http.DownloadSync;
-import yokwe.util.http.RequesterBuilder;
-import yokwe.util.http.StringTask;
-import yokwe.util.http.Task;
+import yokwe.util.json.JSON;
+import yokwe.util.json.JSON.Ignore;
 
 public class UpdateStockPriceJPX {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static String getPageURL(String stockCode) {
-		String stockCode4 = StockCodeJP.toStockCode4(stockCode);
-		return String.format("https://quote.jpx.co.jp/jpx/template/quote.cgi?F=tmp/stock_detail&MKTN=T&QCODE=%s", stockCode4);
-	}
-
-	private static class Context {
-		// See below link for parameter of synchronized statement
-		//   https://rules.sonarsource.com/java/RSPEC-1860/
-		private Map<String, List<PriceVolume>> priceVolumeMap;
-		//          stockCode
-		private Map<String, OHLCV>             ohlcvMap;
-		private int                            buildCount;
-		private LocalDate                      today;
-		
-		private Object priceMapLock        = new Object();
-		private Object buildCountLock      = new Object();
-
-		
-		public void put(String key, List<PriceVolume> value) {
-			synchronized(priceMapLock) {
-				priceVolumeMap.put(key, value);
-			}
-		}
-		public void put(String key, OHLCV value) {
-			synchronized(priceMapLock) {
-				ohlcvMap.put(key, value);
-			}
-		}
-
-		public void incrementBuildCount() {
-			synchronized(buildCountLock) {
-				buildCount = buildCount + 1;
-			}
-		}
-		public int getBuildCount() {
-			int ret;
-			synchronized(buildCountLock) {
-				ret = buildCount;
-			}
-			return ret;
-		}
-
-		public Context() {
-			this.priceVolumeMap = new TreeMap<>();
-			this.ohlcvMap       = new TreeMap<>();
-			this.buildCount     = 0;
-		}
-	}
+	private static final List<StockListType> stockList = StorageJPX.StockList.getList();
+	private static final int stockListSize = stockList.size();
 	
-	private static void buildContextFromPage(Context context, String stockCode, String name, String page) {
-		if (page.contains("指定された銘柄が見つかりません")) {
-			//
-		} else {
-			CurrentPriceTime  currentPrice = CurrentPriceTime.getInstance(page);
-			OpenPrice         openPrice    = OpenPrice.getInstance(page);
-			HighPrice         highPrice    = HighPrice.getInstance(page);
-			LowPrice          lowPrice     = LowPrice.getInstance(page);
-			TradeVolume       tradeVolume  = TradeVolume.getInstance(page);
-			List<PriceVolume> priceList    = PriceVolume.getInstance(page);
-			
-			// sanity check
-			if (currentPrice == null || openPrice == null || highPrice == null || lowPrice == null || tradeVolume == null || priceList.size() == 0) {
-				logger.warn("Unexpected page");
-				logger.warn("  stockCode {}  {}", stockCode, name);
-
-				if (currentPrice == null)  logger.warn("  currentPrice is null");
-				if (openPrice == null)     logger.warn("  openPrice is null");
-				if (highPrice == null)     logger.warn("  highPrice is null");
-				if (lowPrice == null)      logger.warn("  lowPrice is null");
-				if (tradeVolume == null)   logger.warn("  tradeVolume is null");
-				if (priceList.size() == 0) logger.warn("  priceVolumeList is null");
-			} else {
-				if (tradeVolume.value.isPresent()) {
-					var open   = new BigDecimal(openPrice.value.get().replace(",", ""));
-					var high   = new BigDecimal(highPrice.value.get().replace(",", ""));
-					var low    = new BigDecimal(lowPrice.value.get().replace(",", ""));
-					var close  = new BigDecimal(currentPrice.price.get().replace(",", ""));
-					var volume = Long.parseLong(tradeVolume.value.get().replace(",", ""));
-					context.put(stockCode, new OHLCV(context.today, open, high, low, close, volume));
-				}
-			}
-			
-			// save for later use
-			if (priceList.size() != 0) context.put(stockCode, priceList);
-		}
-	}
-
-	private static class MyConsumer implements Consumer<String> {
-		private final Context   context;
-		private final String    stockCode;
-		private final String    name;
+	private static final LocalDate lastTradingDate = MarketHoliday.JP.getLastTradingDate();
+	
+	
+	public static class Result {
+		public String   cputime;
+		public Section1 section1;
+		public int      status;
+		public String   ver;
+		@Ignore
+		public Object   urlparam;
 		
-		MyConsumer(Context context, String stockCode, String name) {
-			this.context   = context;
-			this.stockCode = stockCode;
-			this.name      = name;
-		}
 		@Override
-		public void accept(String page) {
-			context.incrementBuildCount();
-			buildContextFromPage(context, stockCode, name, page);			
-		}
-	}
-
-	private static void buildContext(Context context) {
-		int threadCount       = 10;
-		int maxPerRoute       = 50;
-		int maxTotal          = 100;
-		int soTimeout         = 30;
-		int connectionTimeout = 30;
-		int progressInterval  = 1000;
-		logger.info("threadCount       {}", threadCount);
-		logger.info("maxPerRoute       {}", maxPerRoute);
-		logger.info("maxTotal          {}", maxTotal);
-		logger.info("soTimeout         {}", soTimeout);
-		logger.info("connectionTimeout {}", connectionTimeout);
-		logger.info("progressInterval  {}", progressInterval);
-		
-		RequesterBuilder requesterBuilder = RequesterBuilder.custom()
-				.setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-				.setSoTimeout(soTimeout)
-				.setMaxTotal(maxTotal)
-				.setDefaultMaxPerRoute(maxPerRoute);
-
-//		Download download = new DownloadAsync();
-		Download download = new DownloadSync();
-		
-		download.setRequesterBuilder(requesterBuilder);
-		
-		// Configure custom header
-		download.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit");
-		download.setReferer("https://www.jpx.co.jp/");
-		
-		// Configure thread count
-		download.setThreadCount(threadCount);
-		
-		// connection timeout in second
-		download.setConnectionTimeout(connectionTimeout);
-		
-		// progress interval
-		download.setProgressInterval(progressInterval);
-		
-		// NOTE Use StockInfo
-		List<StockInfoJPType> stockInfoList = StorageJPX.StockInfoJPX.getList();
-		Collections.shuffle(stockInfoList);
-		final int stockListSize = stockInfoList.size();
-		
-		LocalDate today = LocalDate.now();
-		if (MarketHoliday.JP.isClosed(today)) {
-			today = MarketHoliday.JP.getPreviousTradingDate(today);
-		}
-		logger.info("today  {}", today);
-		context.today = today;
-		
-		for(var stockInfo: stockInfoList) {
-			String stockCode = stockInfo.stockCode;			
-			String uriString = getPageURL(stockCode);
-			String name      = stockInfo.name;
-			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode, name));
-			download.addTask(task);
-		}
-
-		logger.info("BEFORE RUN");
-		download.startAndWait();
-		logger.info("AFTER  RUN");
-//		download.showRunCount();
-
-		try {
-			for(int i = 0; i < 10; i++) {
-				int buildCount = context.getBuildCount();
-				if (buildCount == stockListSize) break;
-				logger.info("buildCount {} / {}", buildCount, stockListSize);
-				Thread.sleep(1000);
-			}
-			{
-				int buildCount = context.getBuildCount();
-				if (buildCount != stockListSize) {
-					logger.error("Unexpected");
-					logger.error("  buildCount    {}", buildCount);
-					logger.error("  stockListSize {}", stockListSize);
-					throw new UnexpectedException("Unexpected");
-				}
-			}
-			logger.info("AFTER  WAIT");
-		} catch (InterruptedException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
+		public String toString() {
+			return StringUtil.toString(this);
 		}
 	}
 	
-	private static void updatePrice(Context context) {
-		// update price using list (StockPrice)
-		logger.info("updatePrice");
-		int count      = 0;
-		int countMod   = 0;
-		int countTotal = context.priceVolumeMap.size();
-		for(var entry: context.priceVolumeMap.entrySet()) {
-			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, countTotal);
+	public static class Section1 {
+		public Map<String, Data> data;
+		public int               hitcount;
+		public int               status;
+		public String            type;
+		
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+	}
+	
+	public static class Data {
+		@Ignore
+		public String A_CALC027; // "-"
+		@Ignore
+        public String A_CALC028; // "-"
+		@Ignore
+        public String A_CALC029; // "-"
+        public String A_HISTDAYL; // "2023/09/06,3865.0,3920.0,3865.0,3915.0,20900,\n"
+        public String DHP;  // 高値 "4,120"
+        public String DHPT; // 高値 時刻 "09:00"
+		@Ignore
+        public String DJ;   // 売買代金 "39,077,500"
+        public String DLP;  // 低値 "4,100"
+        public String DLPT; // 低値 時刻 "09:01"
+        public String DOP;  // 始値 "4,120"
+        public String DOPT; // 始値 時刻 "09:00"
+        public String DPP;  // 現在値 "4,105"
+        public String DPPT; // 現在値 時刻 "10:41"
+        public String DV;   // 売買高 "9,500"
+		@Ignore
+        public String DYRP; // 前日比 パーセント "-0.72"
+		@Ignore
+        public String DYWP; // 前日比 "-30"
+		@Ignore
+        public String EXCC; // "T"
+		@Ignore
+        public String EXDV; // "0000"
+        public String FLLN; // 名前 "極洋"
+		@Ignore
+        public String FLLNE; // "KYOKUYO CO., LTD."
+		@Ignore
+        public String FTRTS; // ""
+        public String ISIN; // "JP3257200000"
+		@Ignore
+        public String JDMKCP; // "-"
+		@Ignore
+        public String JDSHRK; // "-"
+		@Ignore
+        public String JSEC; // sector33Code"0050"
+        public String LISS; // "ﾌﾟﾗｲﾑ"
+		@Ignore
+        public String LISSE; // ""
+        public String LOSH; // 売買単位 "100"
+        public String MKCP; // 時価総額 "49,943,700,205.0"
+		@Ignore
+        public String NAME; // "極　洋"
+		@Ignore
+        public String NAMEE; // "KYOKUYO"
+		@Ignore
+        public String PRP; // 前日終値 "4,135"
+		@Ignore
+        public String PRSS; // "C"
+		@Ignore
+        public String PSTS; // ""
+        public String QAP;  // 売気配 "4,115"
+        public String QAPT; // 売気配 時刻"10:43"
+        public String QBP;  // 買気配 "4,105"
+        public String QBPT; // 買気配 時刻 "10:43"
+        public String SHRK; // 発行済株式数 "12,078,283"
+		@Ignore
+        public String TTCODE;  // "1301/T"
+        public String TTCODE2; // "1301"
+        public String YHPD; // 年初来高値 日付 "2024/09/24"
+        public String YHPR; // 年初来高値 "4,600"
+        public String YLPD; // 年初来安値 日付 "2024/08/05"
+        public String YLPR; // 年初来安値 "3,400"
+        public String ZXD;  // 売買日付 "2025/02/28"
+		@Ignore
+        public int    DYWP_FLG; // -1
+		@Ignore
+        public int    DYRP_FLG; // -1
+		@Ignore
+        public int    A_CALC029_FLG; // 0
+		@Ignore
+        public String EXDV_CNV; // ""
+		@Ignore
+        public String EXDVE_CNV; // ""
+		@Ignore
+        public Index[] INDEX_INFOMATION; // 0
+        public String JSEC_CNV;  // sector33 日本顔 "水産・農林業"
+		@Ignore
+        public String JSECE_CNV; // sector33 英語 "Fishery, Agriculture & Forestry"
+		@Ignore
+        public String PSTSE; // ""
+        public String LISS_CNV; // "プライム"
+		@Ignore
+        public String LISSE_CNV; // "Prime"
+        
+		@Override
+		public String toString() {
+			return StringUtil.toString(this);
+		}
+	}
+	
+	public static class Index {
+        public String YEAR;     // "2024/09"
+        public String FY;       // "中間"
+        public String FYE;      // "Company / Interim"
+        public String EPS;      // "-"
+        public String CPTLPSTK; // "-"
+        public String ROE;      // "-"
+        public String PER;      // "-"
+        public String PBR;      // "-"
+        public String DIVD;     // "0.00"
+        public String KABU;     // "-"
+	}
+
+	private static List<OHLCV> getPriceList(Data data) {
+		List<OHLCV> priceList = new ArrayList<>();
+		{
+			var stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
+//			logger.info("stock  {}  {}", stockCode, data.FLLN);
+
+			BigDecimal o = null;
+			BigDecimal h = null;
+			BigDecimal l = null;
+			BigDecimal c = null;
 			
-			var stockCode       = entry.getKey();
-			var priceVolumeList = entry.getValue();
-			
-			int countChange = 0;
-			
-			// build list
-			List<OHLCV> list;
-			{
-				// read existing data in map
-				var map = StorageJPX.StockPriceJPX.getMap(stockCode);
+			for(var ohlcvString: data.A_HISTDAYL.split("\\n")) {
+				String[] valueString = ohlcvString.split(",");
+				if (valueString.length < 6) {
+					logger.error("Unexpected ohlcvString");
+					logger.error("  stockCode    {}", stockCode);
+					logger.error("  valueString  {}", valueString.length);
+					logger.error("  ohlcvString  {}", ohlcvString);
+					throw new UnexpectedException("Unexpected ohlcvString");
+				}
+				var dateString = valueString[0];
+				var oString    = valueString[1];
+				var hString    = valueString[2];
+				var lString    = valueString[3];
+				var cString    = valueString[4];
+				var vString    = valueString[5];
 				
-				// replace map with priceVolumeList
-				for(PriceVolume priceVolume: priceVolumeList) {
-					LocalDate  priceDate = priceVolume.getDate();
-					BigDecimal open      = priceVolume.getOpen();
-					BigDecimal high      = priceVolume.getHigh();
-					BigDecimal low       = priceVolume.getLow();
-					BigDecimal close     = priceVolume.getClose();
-					long       volume    = priceVolume.volume;
+				var date = LocalDate.parse(dateString.replace('/', '-'));
+				var v = Long.parseLong(vString);
+				if (v == 0) {
+					if (o == null) continue;
+					// use last value
+				} else {
+					o = new BigDecimal(oString);
+					h = new BigDecimal(hString);
+					l = new BigDecimal(lString);
+					c = new BigDecimal(cString);
+				}
+				
+				priceList.add(new OHLCV(date, o, h, l, c, v));
+			}
+			
+			// add latest price
+			{
+				if (data.A_HISTDAYL.contains(data.ZXD)) {
+					// already processed latest price
+				} else {
+					// no latest price
+					var dateString = data.ZXD;
+					var oString    = data.DOP;
+					var hString    = data.DHP;
+					var lString    = data.DLP;
+					var cString    = data.DPP;
+					var vString    = data.DV;
 					
-					OHLCV price = new OHLCV();
-					price.date   = priceDate;
-					
-					if (volume == 0 || open == null || high == null || low == null || close == null) {
-						price.open = price.high = price.low = price.close  = BigDecimal.ZERO;
-						price.volume = 0;
+					var date = LocalDate.parse(dateString.replace('/', '-'));
+					long v;
+					if (vString.equals("-")) {
+						// there is no trading
+						// use last value of  o h l c
+						v = 0;
 					} else {
-						price.open   = open;
-						price.high   = high;
-						price.low    = low;
-						price.close  = close;
-						price.volume = volume;
+						// there is trading
+						o = new BigDecimal(oString.replace(",", ""));
+						h = new BigDecimal(hString.replace(",", ""));
+						l = new BigDecimal(lString.replace(",", ""));
+						c = new BigDecimal(cString.replace(",", ""));
+						v = Long.parseLong(vString.replace(",", ""));
 					}
 					
-					{
-						var oldPrice = map.get(price.date);
-						if (oldPrice != null && oldPrice.equals(price)) {
-							// same price
-						} else {
-							map.put(price.date, price);
-							countChange++;
-						}
+					if (o != null) {
+						priceList.add(new OHLCV(date, o, h, l, c, v));
 					}
-				}
-				
-				// add today price
-				OHLCV today = context.ohlcvMap.get(stockCode);
-				if (today != null) {
-					// if today data is not in map, add today data.
-					if (!map.containsKey(today.date)) {
-						map.put(today.date, today);
-						countChange++;
-					}
-				}
-				
-				list = map.values().stream().collect(Collectors.toList());
-				// sort list
-				Collections.sort(list);
+				}						
 			}
-			
-			if (countChange != 0) countMod++;
-			
-			// fix list when volume is zero
-			{
-				BigDecimal lastClose = null;
-				for(var price: list) {
-					if (price.volume == 0) {
-						if (lastClose == null) continue;
-						price.open = price.high = price.low = price.close = lastClose;
-					}
-					lastClose = price.close;
-				}
-				
-				// remove empty element at very first of list
-				if (!list.isEmpty()) {
-					while(list.get(0).isEmpty()) {
-						list.remove(0);
-						if (list.isEmpty()) break;
-					}
-				}
-				// sanity check
-				{
-					var countEmpty = list.stream().filter(o -> o.isEmpty()).count();
-					if (countEmpty != 0) {
-						logger.warn("contains empty elements  {}  {}", stockCode, countEmpty);
-					}
-				}
-			}
-			
-			StorageJPX.StockPriceJPX.save(stockCode, list);
 		}
-		
-		logger.info("count    {}", count);
-		logger.info("countMod {}", countMod);
-	}
-
-	private static void update() {
-		Context context = new Context();
-		
-		buildContext(context);
-		updatePrice(context);
+		return priceList;
 	}
 	
-	public static void main(String[] args) throws IOException {
+	private static void updatePrice(Result result) {
+		if (result.section1.data == null) {
+			logger.error("data is null");
+			throw new UnexpectedException("data is null");
+		}
+		
+		for(var data: result.section1.data.values()) {
+			var stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
+			var oldList   = StorageJPX.StockPriceJPX.getList(stockCode);
+			var oldMap    = oldList.stream().collect(Collectors.toMap(o -> o.date, o -> o));
+
+			var newList   = getPriceList(data);
+			Collections.sort(newList);
+			var newMap    = newList.stream().collect(Collectors.toMap(o -> o.date, o -> o));
+			
+			boolean needsMergeList = true;
+			{
+				var date = MarketHoliday.JP.getPreviousTradingDate(lastTradingDate);
+				
+				if (oldMap.containsKey(date) && newMap.containsKey(date)) {
+					var oldPrice = oldMap.get(date);
+					var newPrice = newMap.get(date);
+					
+					if (oldPrice.equals(newPrice)) {
+						// expected
+					} else {
+						// not expected
+						logger.info("price changed  {}  {}  {}", stockCode, oldPrice, newPrice);
+						needsMergeList = false;
+						break;
+					}
+				}
+			}
+			
+			if (needsMergeList) {
+				for(var oldPrice: oldList) {
+					var date = oldPrice.date;
+					if (newMap.containsKey(date)) {
+						if (date.equals(lastTradingDate)) {
+							// keep price in newList for lastTradingDate
+						} else {
+							// exist in newList
+							var newPrice = newMap.get(date);
+							if (newPrice.equals(oldPrice)) {
+								// expected
+							} else {
+								// not expected
+								logger.error("Unexpected price");
+								logger.error("  sockCode  {}", stockCode);
+								logger.error("  oldPrice  {}", oldPrice);
+								logger.error("  newPrice  {}", newPrice);
+								throw new UnexpectedException("Unexpected price");
+							}
+						}
+					} else {
+						// not exist in newList
+						newList.add(oldPrice);
+					}
+				}
+			}
+//			logger.info("save  {}  {}", newList.size(), StorageJPX.StockPrice.getPath(stockCode));
+			StorageJPX.StockPriceJPX.save(stockCode, newList);
+		}
+	}
+		
+	public static void updateFile() {
+		// update price using list (StockPrice)
+		logger.info("updateFile");
+		
+		int count = 0;
+		for(var stock: stockList) {
+			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
+
+			var string = StorageJPX.StockDetailJSON.load(stock.stockCode);
+			var result = JSON.unmarshal(Result.class, string);
+			updatePrice(result);
+		}
+	}
+	
+	private static void update() {
+		updateFile();
+	}
+	
+	public static void main(String[] args) {
 		logger.info("START");
 		
 		update();
