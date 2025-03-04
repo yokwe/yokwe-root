@@ -8,7 +8,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
@@ -102,6 +104,7 @@ public interface Storage {
 	public interface LoadSave2 <E extends Comparable<E>, K extends Comparable<K>> {
 		public Class<E>  getClazz();
 		public K         getKey(E that);
+		public String	 getFileName(String name);
 		public String    getPath(String name);
 		public String    getPath();
 		public String    getPathDelist();
@@ -154,6 +157,13 @@ public interface Storage {
 		default Map<K, E> getMap(Reader reader) {
 			return checkDuplicate(getList(reader));
 		}
+		default void delistUnknownFile(Set<String> validNameSet) {
+			delistUnknownFile(validNameSet, false);
+		}
+		default void delistUnknownFile(Set<String> validNameSet, boolean dryRun) {
+			Set<String> validFileNameSet = validNameSet.stream().map(o -> getFileName(o)).collect(Collectors.toSet());
+			FileUtil.moveUnknownFile(validFileNameSet, getPath(), getPathDelist(), dryRun);
+		}
 		
 		
 		public class Impl <E extends Comparable<E>, K extends Comparable<K>> implements LoadSave2<E, K> {
@@ -180,8 +190,12 @@ public interface Storage {
 				return this.getKey.apply(that);
 			}
 			@Override
+			public String getFileName(String name) {
+				return getName.apply(name);
+			}
+			@Override
 			public String getPath(String name) {
-				return storage.getPath(prefix, getName.apply(name));
+				return storage.getPath(prefix, getFileName(name));
 			}
 			@Override
 			public String getPath() {
@@ -242,7 +256,10 @@ public interface Storage {
 		}
 	}
 	public interface LoadSaveText2 {
+		public String  getFileName(String name);
 		public String  getPath(String name);
+		public String  getPath();
+		public String  getPathDelist();
 		
 		default File   getFile(String name) {
 			return new File(getPath(name));
@@ -252,6 +269,13 @@ public interface Storage {
 		}
 		default String load(String name) {
 			return FileUtil.read().file(getFile(name));
+		}
+		default void delistUnknownFile(Set<String> validNameSet) {
+			delistUnknownFile(validNameSet, false);
+		}
+		default void delistUnknownFile(Set<String> validNameSet, boolean dryRun) {
+			Set<String> validFileNameSet = validNameSet.stream().map(o -> getFileName(o)).collect(Collectors.toSet());
+			FileUtil.moveUnknownFile(validFileNameSet, getPath(), getPathDelist(), dryRun);
 		}
 		
 		public class Impl implements LoadSaveText2 {
@@ -266,8 +290,20 @@ public interface Storage {
 			}
 			
 			@Override
+			public String getFileName(String name) {
+				return getName.apply(name);
+			}
+			@Override
 			public String getPath(String name) {
-				return storage.getPath(prefix, getName.apply(name));
+				return storage.getPath(prefix, getFileName(name));
+			}
+			@Override
+			public String getPath() {
+				return storage.getPath(prefix);
+			}
+			@Override
+			public String getPathDelist() {
+				return storage.getPath(prefix + "-delist");
 			}
 		}
 	}
