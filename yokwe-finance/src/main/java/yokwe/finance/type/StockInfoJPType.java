@@ -28,7 +28,7 @@ public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 		ETN(SimpleType.ETN),
 		// REIT
 		REIT(SimpleType.REIT),
-		INFRA_FUND(SimpleType.INFRA),
+		INFRA(SimpleType.INFRA),
 		// OTHER
 		CERTIFICATE(SimpleType.OTHER);
 		
@@ -50,7 +50,7 @@ public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 		public boolean isREIT() {
 			return this.simpleType == SimpleType.REIT;
 		}
-		public boolean isInfraFund() {
+		public boolean isInfra() {
 			return this.simpleType == SimpleType.INFRA;
 		}
 	}

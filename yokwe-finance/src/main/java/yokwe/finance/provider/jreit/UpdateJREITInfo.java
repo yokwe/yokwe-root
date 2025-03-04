@@ -227,7 +227,7 @@ public class UpdateJREITInfo {
 		{
 			var list = StorageStock.StockInfoJP.getList();
 			reitList  = list.stream().filter(o -> o.type.isREIT()).map(o -> o.stockCode).collect(Collectors.toList());
-			infraList = list.stream().filter(o -> o.type.isInfraFund()).map(o -> o.stockCode).collect(Collectors.toList());
+			infraList = list.stream().filter(o -> o.type.isInfra()).map(o -> o.stockCode).collect(Collectors.toList());
 			nameMap   = list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
 		}
 		logger.info("reit  {}", reitList.size());

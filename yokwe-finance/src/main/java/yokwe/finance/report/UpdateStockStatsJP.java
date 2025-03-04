@@ -60,7 +60,7 @@ public class UpdateStockStatsJP {
 					} else {
 						stats.industry = stats.sector;
 					}
-				} else if (stockInfo.type.isREIT() || stockInfo.type.isInfraFund()) {
+				} else if (stockInfo.type.isREIT() || stockInfo.type.isInfra()) {
 					stats.sector = stockInfo.type.simpleType.toString();
 					
 					var jreit = jreitMap.get(stockCode);
