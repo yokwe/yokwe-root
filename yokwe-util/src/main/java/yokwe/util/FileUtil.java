@@ -286,9 +286,15 @@ public class FileUtil {
 	// move unknown file
 	//
 	public static void moveUnknownFile(Set<String> validNameSet, String dirString, String delistDirString) {
-		moveUnknownFile(validNameSet, new File(dirString), new File(delistDirString));
+		moveUnknownFile(validNameSet, dirString, delistDirString, false);
+	}
+	public static void moveUnknownFile(Set<String> validNameSet, String dirString, String delistDirString, boolean dryRun) {
+		moveUnknownFile(validNameSet, new File(dirString), new File(delistDirString), dryRun);
 	}
 	public static void moveUnknownFile(Set<String> validNameSet, File dir, File delistDir) {
+		moveUnknownFile(validNameSet, dir, delistDir, false);
+	}
+	public static void moveUnknownFile(Set<String> validNameSet, File dir, File delistDir, boolean dryRun) {
 		delistDir.mkdir();
 		Path delistDirPath = delistDir.toPath();
 
@@ -300,7 +306,7 @@ public class FileUtil {
 
 			try {
 				logger.info("move unknonw file {} to {}", file.getPath(), delistDir.getPath());
-				Files.move(file.toPath(), delistDirPath.resolve(name), StandardCopyOption.REPLACE_EXISTING);
+				if (!dryRun) Files.move(file.toPath(), delistDirPath.resolve(name), StandardCopyOption.REPLACE_EXISTING);
 			} catch (IOException e) {
 				String exceptionName = e.getClass().getSimpleName();
 				logger.error("{} {}", exceptionName, e);
