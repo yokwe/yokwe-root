@@ -190,6 +190,7 @@ update-stock-info-jp: check-data-path
 	ant provider-jpx-update-stock-price-jpx
 	ant provider-jpx-update-stock-info-jpx
 	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/stock-info-jp.csv
+	ant provider-yahoo-update-company-info-jp-yahoo
 	
 update-stock-price-jp: check-data-path
 	ant provider-jpx-update-stock-list
