@@ -27,7 +27,7 @@ YOKWE_FINANCE=/Users/hasegawa/git/yokwe-root/yokwe-finance
 15   7     *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="update asset" log-start update-asset-all log-stop  ) 1>>tmp/cron.log 2>&1
 20   7     *   *   *     cd $YOKWE_FINANCE; ( make LOG_TITLE="update asset" log-start update-asset-all report-asset-stats log-stop  ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK PRICE and REPORT
-#55   9     *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
+55   9     *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
 # UPDATE JP STOCK PRICE and REPORT
 15   12    *   *   1-5   cd $YOKWE_FINANCE; ( make LOG_TITLE="update jp stock price"  log-start update-stock-price-jp report-stock-stats-jp log-stop ) 1>>tmp/cron.log 2>&1
 # SAVE FILE
