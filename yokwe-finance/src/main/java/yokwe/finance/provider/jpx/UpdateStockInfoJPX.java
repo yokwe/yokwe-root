@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import yokwe.finance.provider.jpx.UpdateStockPriceJPX.Result;
 import yokwe.finance.type.StockCodeJP;
@@ -23,7 +24,7 @@ public class UpdateStockInfoJPX {
 	static {
 		StorageJPX.ETF.getList().stream().forEach(      o -> typeMap.put(o.stockCode, StockInfoJPType.Type.ETF));
 		StorageJPX.ETN.getList().stream().forEach(      o -> typeMap.put(o.stockCode, StockInfoJPType.Type.ETN));
-		StorageJPX.InfraFund.getList().stream().forEach(o -> typeMap.put(o.stockCode, StockInfoJPType.Type.INFRA_FUND));
+		StorageJPX.InfraFund.getList().stream().forEach(o -> typeMap.put(o.stockCode, StockInfoJPType.Type.INFRA));
 		StorageJPX.REIT.getList().stream().forEach(     o -> typeMap.put(o.stockCode, StockInfoJPType.Type.REIT));
 		typeMap.put("83010", Type.CERTIFICATE); // 日本銀行
 		typeMap.put("84210", Type.CERTIFICATE); // 信金中央金庫
@@ -81,6 +82,16 @@ public class UpdateStockInfoJPX {
 		}
 		
 		StorageJPX.StockInfoJPX.save(list);
+		
+		// fix name in StockList
+		{
+			var nameMap = list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
+			var newList = new ArrayList<StockListType>(stockList);
+			for(var e: newList) {
+				if (nameMap.containsKey(e.stockCode)) e.name = nameMap.get(e.stockCode);
+			}
+			StorageJPX.StockList.save(newList);
+		}
 	}
 	private static void update() {
 		updateFile();
