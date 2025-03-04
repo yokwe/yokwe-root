@@ -316,7 +316,14 @@ public class UpdateStockPriceJPX {
 		}
 	}
 	
+	private static void delistUnknownFile() {
+		var validNameSet = stockList.stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		StorageJPX.StockPriceJPX.delistUnknownFile(validNameSet);
+	}
+	
 	private static void update() {
+		delistUnknownFile();
+		
 		updateFile();
 	}
 	

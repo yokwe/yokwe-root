@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import yokwe.finance.type.StockCodeJP;
 import yokwe.util.UnexpectedException;
@@ -133,7 +134,14 @@ public class UpdateStockDetail {
 		}
 	}
 	
+	private static void delistUnknownFile() {
+		var validNameSet = stockList.stream().map(o -> o.stockCode).collect(Collectors.toSet());
+		StorageJPX.StockDetailJSON.delistUnknownFile(validNameSet);
+	}
+	
 	private static void update() {
+		delistUnknownFile();
+		
 		downloadFile();
 	}
 	
