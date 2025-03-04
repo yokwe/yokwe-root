@@ -184,10 +184,10 @@ update-stock-info-jp: check-data-path
 	ant provider-jpx-update-infra-fund
 	ant provider-jpx-update-reit
 	ant provider-jpx-update-stock-split
-	mv $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/provider/jpx/stock-info-jpx.csv-SAVE
 	ant provider-jpx-update-stock-list
 	ant provider-jpx-update-stock-detail
 	ant provider-jpx-update-stock-price-jpx
+	mv $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/provider/jpx/stock-info-jpx.csv-SAVE
 	ant provider-jpx-update-stock-info-jpx
 	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/stock-info-jp.csv
 	ant provider-yahoo-update-company-info-jp-yahoo
@@ -196,7 +196,9 @@ update-stock-price-jp: check-data-path
 	ant provider-jpx-update-stock-list
 	ant provider-jpx-update-stock-detail
 	ant provider-jpx-update-stock-price-jpx
+	mv $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/provider/jpx/stock-info-jpx.csv-SAVE
 	ant provider-jpx-update-stock-info-jpx
+	cp -p $(DATA_PATH)/provider/jpx/stock-info-jpx.csv $(DATA_PATH)/stock/stock-info-jp.csv
 	@date +'%F %T RSYNC START'
 	rsync -ah --delete $(DATA_PATH)/provider/jpx/stock-price-jpx/ $(DATA_PATH)/stock/stock-price-jp
 	@date +'%F %T RSYNC STOP'
