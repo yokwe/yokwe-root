@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import yokwe.finance.provider.jpx.UpdateStockPriceJPX.Result;
+import yokwe.finance.provider.jpx.UpdateStockDetail.Result;
 import yokwe.finance.type.StockCodeJP;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.finance.type.StockInfoJPType.Type;
@@ -86,11 +86,10 @@ public class UpdateStockInfoJPX {
 		// fix name in StockList
 		{
 			var nameMap = list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
-			var newList = new ArrayList<StockListType>(stockList);
-			for(var e: newList) {
+			for(var e: stockList) {
 				if (nameMap.containsKey(e.stockCode)) e.name = nameMap.get(e.stockCode);
 			}
-			StorageJPX.StockList.save(newList);
+			StorageJPX.StockList.save(stockList);
 		}
 	}
 	private static void update() {
