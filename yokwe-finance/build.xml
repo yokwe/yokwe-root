@@ -75,14 +75,6 @@
 	
 	
 	<!-- Provider JPX -->
-	<target name="provider-jpx-update-listing">
-		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateListing" fork="true">
-			<modulepath refid="build.classpath" />
-			<modulepath refid="target.jar" />
-			<classpath  refid="libreoffice.lib" />
-			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
-		</java>
-	</target>
 	<target name="provider-jpx-update-etf">
 		<java module="yokwe.finance/yokwe.finance.provider.jpx.UpdateETF" fork="true">
 			<modulepath refid="build.classpath" />
