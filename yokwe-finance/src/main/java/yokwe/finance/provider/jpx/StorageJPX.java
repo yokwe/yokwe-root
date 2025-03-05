@@ -22,9 +22,6 @@ public class StorageJPX {
 	// infra fund
 	public static final Storage.LoadSave<StockNameType, String> InfraFund =
 		new Storage.LoadSave.Impl<>(StockNameType.class,  StockNameType::getKey, storage, "infra-fund.csv");
-	// listing
-	public static final Storage.LoadSave<ListingType, String> Listing =
-		new Storage.LoadSave.Impl<>(ListingType.class,  o -> o.stockCode, storage, "listing.csv");
 	// reit
 	public static final Storage.LoadSave<StockNameType, String> REIT =
 		new Storage.LoadSave.Impl<>(StockNameType.class,  StockNameType::getKey, storage, "reit.csv");
