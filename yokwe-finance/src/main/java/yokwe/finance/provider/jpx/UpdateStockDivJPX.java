@@ -188,12 +188,11 @@ public class UpdateStockDivJPX {
 		// progress interval
 		download.setProgressInterval(progressInterval);
 		
-		// NOTE Use StockInfo
-		List<StockInfoJPType> stockInfoList = StorageJPX.StockInfoJPX.getList();
-		Collections.shuffle(stockInfoList);
-		final int stockListSize = stockInfoList.size();
+		var stockList = StorageJPX.StockList.getList();
+		Collections.shuffle(stockList);
+		final int stockListSize = stockList.size();
 		
-		for(var stockInfo: stockInfoList) {
+		for(var stockInfo: stockList) {
 			String stockCode = stockInfo.stockCode;			
 			String uriString = getPageURL(stockCode);
 			Task   task      = StringTask.get(uriString, new MyConsumer(context, stockCode), StandardCharsets.UTF_8);
