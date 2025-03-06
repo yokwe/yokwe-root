@@ -83,12 +83,11 @@ public class UpdateStockInfoJPX {
 		
 		StorageJPX.StockInfoJPX.save(list);
 		
-		// fix name in StockList
+		// fix name in stockList
+		// use same name for stock-info-jpx.csv and stockList.csv
 		{
 			var nameMap = list.stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
-			for(var e: stockList) {
-				if (nameMap.containsKey(e.stockCode)) e.name = nameMap.get(e.stockCode);
-			}
+			stockList.stream().filter(o -> nameMap.containsKey(o.stockCode)).forEach(o -> o.name = nameMap.get(o.stockCode));
 			StorageJPX.StockList.save(stockList);
 		}
 	}
