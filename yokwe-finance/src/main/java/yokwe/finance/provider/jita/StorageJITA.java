@@ -28,9 +28,9 @@ public class StorageJITA {
 		new Storage.LoadSave.Impl<>(NISAInfoType.class,  o -> o.isinCode, storage, "nisa-info-jita.csv");
 	
 	// listed_fund_for_investor
-	public static final Storage.LoadSave<UpdateNISAInfoJITA.ListedFundForInvestor, String> ListedFundForInvestor =
-		new Storage.LoadSave.Impl<>(UpdateNISAInfoJITA.ListedFundForInvestor.class,  o -> o.stockCode, storage, "listed_fund_for_investor.csv");
+	public static final Storage.LoadSave<ListedFundForInvestor, String> ListedFundForInvestor =
+		new Storage.LoadSave.Impl<>(ListedFundForInvestor.class,  o -> o.stockCode, storage, "listed_fund_for_investor.csv");
 	// unlisted_fund_for_investor
-	public static final Storage.LoadSave<UpdateNISAInfoJITA.UnlistedFundForInvestor, String> UnlistedFundForInvestor =
-		new Storage.LoadSave.Impl<>(UpdateNISAInfoJITA.UnlistedFundForInvestor.class,  o -> o.fundCode, storage, "unlisted_fund_for_investor.csv");
+	public static final Storage.LoadSave<UnlistedFundForInvestor, String> UnlistedFundForInvestor =
+		new Storage.LoadSave.Impl<>(UnlistedFundForInvestor.class,  o -> o.fundCode, storage, "unlisted_fund_for_investor.csv");
 }

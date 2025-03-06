@@ -10,10 +10,8 @@ import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.NISAInfoType;
 import yokwe.finance.type.StockCodeJP;
-import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.FileUtil;
 import yokwe.util.HashCode;
-import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.libreoffice.LibreOffice;
@@ -22,92 +20,6 @@ import yokwe.util.libreoffice.SpreadSheet;
 
 public class UpdateNISAInfoJITA {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	@Sheet.SheetName("対象商品一覧")
-	@Sheet.HeaderRow(1)
-	@Sheet.DataRow(2)
-	public static class ListedFundForInvestor extends Sheet implements Comparable<ListedFundForInvestor> {
-		@Sheet.ColumnName("リスト更新日")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String updateDate; // date as YYYYMMDD
-		@Sheet.ColumnName("追加・変更の別")
-		public String changeType; // 追加 or 変更
-		@Sheet.ColumnName("上場投信・上場投資法人の別")
-		public String fundType; // 上場投信 or 上場投資法人
-		@Sheet.ColumnName("銘柄コード")
-		public String stockCode; // 4 digits stockCode
-		@Sheet.ColumnName("ファンド名称")
-		public String fundName;
-		@Sheet.ColumnName("運用会社名")
-		public String assetManagementCompanyName;
-		@Sheet.ColumnName("設定日・設立日")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String inceptionDate; // date as YYYYMMDD
-		@Sheet.ColumnName("成長投資枠取扱可能日")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String growthStartDate; // date as YYYYMMDD
-		@Sheet.ColumnName("決算回数")
-		public String numberOfSettlements; // 年１回 or 年2回 or 四半期 or 隔月
-		@Sheet.ColumnName("つみたて投資枠の対象・非対象")
-		public String tsumitate; // 対象 or 非対象
-
-		@Override
-		public int compareTo(ListedFundForInvestor that) {
-			return this.stockCode.compareTo(that.stockCode);
-		}
-
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-		
-		public boolean isTsumitate() {
-			return tsumitate.equals("対象");
-		}
-	}
-
-	@Sheet.SheetName("対象商品一覧")
-	@Sheet.HeaderRow(1)
-	@Sheet.DataRow(2)
-	public static class UnlistedFundForInvestor extends Sheet implements Comparable<UnlistedFundForInvestor> {
-		@Sheet.ColumnName("リスト更新日")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String updateDate; // date as YYYYMMDD
-		@Sheet.ColumnName("追加・変更の別")
-		public String changeType; // 追加 or 変更
-		@Sheet.ColumnName("投信協会ファンドコード")
-		public String fundCode; // 4 digits stockCode
-		@Sheet.ColumnName("ファンド名称")
-		public String fundName;
-		@Sheet.ColumnName("運用会社名")
-		public String assetManagementCompanyName;
-		@Sheet.ColumnName("設定日")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String inceptionDate; // date as YYYYMMDD
-		@Sheet.ColumnName("償還日")
-		public String redemptionDate; // date as YYYYMMDD
-		@Sheet.ColumnName("成長投資枠取扱可能日")
-		@Sheet.NumberFormat(SpreadSheet.FORMAT_INTEGER)
-		public String growthStartDate; // date as YYYYMMDD
-		@Sheet.ColumnName("決算回数")
-		public String numberOfSettlements; // 年１回 or 年2回 or 四半期 or 隔月
-		@Sheet.ColumnName("つみたて投資枠の対象・非対象")
-		public String tsumitate; // 対象 or 非対象
-
-		@Override
-		public int compareTo(UnlistedFundForInvestor that) {
-			return this.fundCode.compareTo(that.fundCode);
-		}
-
-		@Override
-		public String toString() {
-			return StringUtil.toString(this);
-		}
-		
-		public boolean isTsumitate() {
-			return tsumitate.equals("対象");
-		}
-	}
 	
 	public static void downloadListed() {
 		final var url      = "https://www.toushin.or.jp/files/static/486/listed_fund_for_investor.xlsx";
@@ -290,7 +202,5 @@ public class UpdateNISAInfoJITA {
 		} finally {
 			LibreOffice.terminate();
 		}
-
 	}
-
 }
