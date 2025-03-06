@@ -6,7 +6,7 @@ import java.util.function.IntFunction;
 import yokwe.util.UnexpectedException;
 
 public final class Util {
-	static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
 	///////////////////////////////////////////////////////////////////////////
 	// check index consistency with array
