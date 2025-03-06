@@ -1,4 +1,4 @@
-package yokwe.finance.provider.jpx;
+package yokwe.finance.type;
 
 public class StockNameType implements Comparable<StockNameType> {
 	public String stockCode;

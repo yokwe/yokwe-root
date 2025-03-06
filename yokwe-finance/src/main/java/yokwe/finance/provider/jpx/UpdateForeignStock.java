@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.finance.type.StockCodeJP;
+import yokwe.finance.type.StockNameType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.StringUtil;

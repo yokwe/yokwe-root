@@ -6,6 +6,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.OHLCV;
 import yokwe.finance.type.StockInfoJPType;
+import yokwe.finance.type.StockNameType;
 
 public class StorageJPX {
 	public static final Storage storage = Storage.provider.jpx;
