@@ -17,7 +17,8 @@ import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
 public interface Storage {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	// interface requires logger must be public static final
+	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static void initialize() {}
 	

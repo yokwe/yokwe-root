@@ -5,6 +5,9 @@ import org.openqa.selenium.By;
 import yokwe.util.UnexpectedException;
 
 public interface Target {
+	// interface requires logger must be public static final
+	public static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+	
 	public String getString();
 	public By     getLocator();
 	
