@@ -103,10 +103,11 @@ public class UpdateStockPriceJPX {
 		return priceList;
 	}
 	
-	private static void updatePrice(Result result) {
+	private static void updatePrice(StockListType stock, Result result) {
 		if (result.section1.data == null) {
-			logger.error("data is null");
-			throw new UnexpectedException("data is null");
+			logger.warn("data is null  {}  {}", stock.stockCode, stock.name);
+			logger.warn("  result  {}", result.toString());
+			return;
 		}
 		
 		for(var data: result.section1.data.values()) {
@@ -175,10 +176,10 @@ public class UpdateStockPriceJPX {
 		int count = 0;
 		for(var stock: stockList) {
 			if ((++count % 1000) == 1) logger.info("{}  /  {}", count, stockListSize);
-
+			
 			var string = StorageJPX.StockDetailJSON.load(stock.stockCode);
 			var result = JSON.unmarshal(Result.class, string);
-			updatePrice(result);
+			updatePrice(stock, result);
 		}
 	}
 	
@@ -188,7 +189,7 @@ public class UpdateStockPriceJPX {
 	}
 	
 	private static void update() {
-		delistUnknownFile();
+//		delistUnknownFile();
 		
 		updateFile();
 	}
