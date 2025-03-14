@@ -121,19 +121,27 @@ public class UpdateStockPriceJPX {
 			
 			boolean needsMergeList = true;
 			{
-				var date = MarketHoliday.JP.getPreviousTradingDate(lastTradingDate);
-				
-				if (oldMap.containsKey(date) && newMap.containsKey(date)) {
-					var oldPrice = oldMap.get(date);
-					var newPrice = newMap.get(date);
-					
-					if (oldPrice.equals(newPrice)) {
-						// expected
+				if (oldList.isEmpty()) {
+					// no need to merge
+					needsMergeList = false;
+				} else {
+					var date = oldList.get(oldList.size() - 1).date;
+					if (oldMap.containsKey(date) && newMap.containsKey(date)) {
+						var oldPrice = oldMap.get(date);
+						var newPrice = newMap.get(date);
+						
+						if (oldPrice.equals(newPrice)) {
+							// expected
+						} else {
+							// stock split
+							logger.info("stock split  {}  {}  {}", stockCode, oldPrice, newPrice);
+							needsMergeList = false;
+						}
 					} else {
-						// not expected
-						logger.info("price changed  {}  {}  {}", stockCode, oldPrice, newPrice);
-						needsMergeList = false;
-						break;
+						logger.error("Unexpected date");
+						logger.error("  sockCode  {}", stockCode);
+						logger.error("  date      {}", date);
+						throw new UnexpectedException("Unexpected date");
 					}
 				}
 			}
