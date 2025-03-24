@@ -10,7 +10,9 @@ import java.util.regex.Pattern;
 public class JapaneseDate implements Comparable<JapaneseDate> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final JapaneseDate UNDEFIEND = new JapaneseDate("", 0, 0, 0);
+	public static final JapaneseDate UNDEFINED = new JapaneseDate("UNDEFINED", 0, 0, 0);
+	
+	private static Pattern pat_DATE  = Pattern.compile("(..)(元|[0-9]{1,2})年([1,2]?[0-9])月([1-3]?[0-9])日");
 
 	public static String findDateString(String string) {
 		Matcher m = pat_DATE.matcher(string);
@@ -22,9 +24,9 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 	}
 	
 	public static JapaneseDate getInstance(String string) {
-		if (string == null) return UNDEFIEND;
+		if (string == null) return UNDEFINED;
 		String dateString = findDateString(string);
-		return dateString == null ? null : new JapaneseDate(dateString);
+		return dateString == null ? UNDEFINED : new JapaneseDate(dateString);
 	}
 	
 	static class EraData {
@@ -47,8 +49,6 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 	public final int    month;
 	public final int    day;
 	
-	private static Pattern pat_DATE  = Pattern.compile("(..)(元|[0-9]{1,2})年([1,2]?[0-9])月([1-3]?[0-9])日");
-
 	private JapaneseDate(String string, int year, int month, int day) {
 		this.string = string;
 		this.year   = year;
@@ -82,7 +82,7 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 	}
 	
 	public boolean isDefined() {
-		return !equals(UNDEFIEND);
+		return !equals(UNDEFINED);
 	}
 
 	@Override
@@ -101,9 +101,9 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 
 	@Override
 	public int compareTo(JapaneseDate that) {
-		int ret = this.year - that.year;
-		if (ret == 0) ret = this.month - that.month;
-		if (ret == 0) ret = this.day - that.day;
+		int ret = Integer.compare(this.year, that.year);
+		if (ret == 0) ret = Integer.compare(this.month, that.month);
+		if (ret == 0) ret = Integer.compare(this.day, that.day);
 		return ret;
 	}
 
