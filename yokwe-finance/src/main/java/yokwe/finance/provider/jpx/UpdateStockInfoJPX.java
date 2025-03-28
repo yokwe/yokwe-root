@@ -11,6 +11,7 @@ import yokwe.finance.provider.jpx.UpdateStockDetail.Result;
 import yokwe.finance.type.StockCodeJP;
 import yokwe.finance.type.StockInfoJPType;
 import yokwe.finance.type.StockInfoJPType.Type;
+import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.json.JSON;
 
@@ -38,18 +39,13 @@ public class UpdateStockInfoJPX {
 	}
 	
 	private static void updateDetail(Result result, List<StockInfoJPType> list) {
-		if (result.section1.data == null) {
-			logger.error("data is null");
-			throw new UnexpectedException("data is null");
-		}
-		
 		for(var data: result.section1.data.values()) {
 			String     stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
 			String     isinCode  = data.ISIN;
 			int        tradeUnit = Integer.parseInt(data.LOSH.replace(",", ""));
 			String     sector33  = data.JSEC_CNV;
 			BigDecimal issued    = new BigDecimal(data.SHRK.replace(",", ""));
-			String     name      = data.FLLN;
+			String     name      = StringUtil.toFullWidth(data.FLLN);
 			
 			var typeString = data.LISS_CNV;
 			Type type = typeMap.get(stockCode);
@@ -60,7 +56,7 @@ public class UpdateStockInfoJPX {
 				logger.error("  typeString  {}", typeString);
 				throw new UnexpectedException("Unexpected type");
 			}
-				
+			
 			var stockInfoJP = new StockInfoJPType(stockCode, isinCode, tradeUnit, type, sector33, issued, name);
 			list.add(stockInfoJP);
 		}
@@ -78,7 +74,12 @@ public class UpdateStockInfoJPX {
 
 			var string = StorageJPX.StockDetailJSON.load(stock.stockCode);
 			var result = JSON.unmarshal(Result.class, string);
-			updateDetail(result, list);
+			
+			if (result.section1.data == null) {
+				logger.warn("data is null  {}  {}", stock.stockCode, stock.name);
+			} else {
+				updateDetail(result, list);
+			}
 		}
 		
 		StorageJPX.StockInfoJPX.save(list);
