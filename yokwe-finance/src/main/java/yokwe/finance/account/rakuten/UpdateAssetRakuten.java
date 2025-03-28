@@ -28,6 +28,7 @@ import yokwe.finance.util.webbrowser.Target;
 import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
+import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public final class UpdateAssetRakuten implements UpdateAsset {
@@ -134,7 +135,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 	
 	private static final List<FundInfoJP> fundInfoList = StorageFund.FundInfo.getList();
 	private static FundInfoJP getFundInfo(String name) {
-		var alternateNameA = name.replace("(", "（").replace(")", "）");
+		var alternateNameA = StringUtil.toFullWidth(name);
 		var alternateNameB = name.contains("(") ? name.substring(0, name.indexOf("(")) : name;
 		
 		for(var e: fundInfoList) {
@@ -145,9 +146,10 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 		
 		logger.error("Unexpected name");
 		logger.error("  name  {}!", name);
+		logger.error("  altA  {}!", alternateNameA);
+		logger.error("  altB  {}!", alternateNameB);
 		throw new UnexpectedException("Unexpected name");
 	}
-	
 	
 	@Override
 	public void update() {
