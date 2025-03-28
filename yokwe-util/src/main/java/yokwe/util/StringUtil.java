@@ -532,4 +532,83 @@ public class StringUtil {
 		// Sat, 29 Jul 2023 20:21:21 GMT
 		return DateTimeFormatter.RFC_1123_DATE_TIME.format(zonedDateTime);
 	}
+	
+	//
+	// replaceCharacter
+	//
+	public static String replaceCharacter(String fromString, String toString, String string) {
+		// sanity check
+		{
+			if (fromString.length() != toString.length()) {
+				logger.error("length not equal");
+				logger.error("  from {}  !{}!", fromString.length(), fromString);
+				logger.error("  to   {}  !{}!", toString.length(), toString);
+				throw new UnexpectedException("length not equal");
+			}				
+		}
+		
+		StringBuilder result = new StringBuilder(string.length());
+		
+		for(var c: string.toCharArray()) {
+			var index = fromString.indexOf(c);
+			if (index == -1) {
+				result.append(c);
+			} else {
+				result.append(toString.charAt(index));
+			}
+		}
+		
+		return result.toString();
+	}
+	private static final String HALFWIDTH_STRING = "" +
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+			"abcdefghijklmnopqrstuvwxyz" +
+			"`1234567890-=" +
+			"~!@#$%^&*()_+" +
+			"[]\\{}|" +
+			";':\"" +
+			",./<>?" +
+			"ｱｲｳｴｵ" +
+			"ｶｷｸｹｵ" +
+			"ｻｼｽｾﾄ" + 
+			"ﾀﾁﾂﾃﾄ" +
+			"ﾅﾆﾇﾈﾉ" +
+			"ﾊﾋﾌﾍﾎ" +
+			"ﾏﾐﾑﾒﾓ" +
+			"ﾔﾕﾖ" +
+			"ﾗﾘﾙﾚﾛ" +
+			"ﾜｦﾝ" +
+			" ";
+	private static final String FULLWIDTH_STRING = "" +
+			"ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ" +
+			"ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ" +
+			"｀０１２３４５６７８９ー＝" +
+			"〜！＠＃＄％＾＆＊（）＿＋" +
+			"「」￥『』｜" +
+			"；’：”" +
+			"、。・＜＞？" +
+			"アイウエオ" +
+			"カキクケコ" +
+			"サシスセソ" +
+			"タチツテト" +
+			"ナニヌネノ" +
+			"ハヒフヘホ" +
+			"マミムメモ" +
+			"ヤユヨ" +
+			"ラリルレロ" +
+			"ワヲン" +
+			"　";
+	
+	//
+	// toFullWidth
+	//
+	public static String toFullWidth(String string) {
+		return replaceCharacter(HALFWIDTH_STRING, FULLWIDTH_STRING, string);
+	}
+	//
+	// toHalfWidth
+	//
+	public static String toHalfWidth(String string) {
+		return replaceCharacter(HALFWIDTH_STRING, FULLWIDTH_STRING, string);
+	}
 }
