@@ -121,11 +121,22 @@ public class UpdateStockPriceJPX {
 			
 			boolean needsMergeList = true;
 			{
-				if (oldList.isEmpty()) {
+				if (oldList.size() < 3) {
 					// no need to merge
 					needsMergeList = false;
 				} else {
-					var date = oldList.get(oldList.size() - 1).date;
+					LocalDate date;
+					{
+						var oldListLastDate = oldList.get(oldList.size() - 1).date;
+						var newListLastDate = newList.get(newList.size() - 1).date;
+						
+						if (oldListLastDate.equals(newListLastDate)) {
+							date = oldList.get(oldList.size() - 2).date;
+						} else {
+							date = oldListLastDate;
+						}
+					}
+					
 					if (oldMap.containsKey(date) && newMap.containsKey(date)) {
 						var oldPrice = oldMap.get(date);
 						var newPrice = newMap.get(date);
