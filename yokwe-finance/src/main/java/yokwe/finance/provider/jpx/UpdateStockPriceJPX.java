@@ -130,7 +130,7 @@ public class UpdateStockPriceJPX {
 						var oldPrice = oldMap.get(date);
 						var newPrice = newMap.get(date);
 						
-						if (oldPrice.compareTo(newPrice) == 0) {
+						if (oldPrice.equals(newPrice)) {
 							// expected
 						} else {
 							// stock split
@@ -197,7 +197,7 @@ public class UpdateStockPriceJPX {
 	}
 	
 	private static void update() {
-//		delistUnknownFile();
+		delistUnknownFile();
 		
 		updateFile();
 	}
