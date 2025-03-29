@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriverException;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -116,6 +117,9 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 			
 			logger.info("logout");
 			logout(browser);
+		} catch (WebDriverException e){
+			String exceptionName = e.getClass().getSimpleName();
+			logger.warn("{} {}", exceptionName, e);
 		}
 	}
 	

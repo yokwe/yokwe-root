@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriverException;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -92,6 +93,9 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 			
 			logger.info("logout");
 			logout(browser);
+		} catch (WebDriverException e){
+			String exceptionName = e.getClass().getSimpleName();
+			logger.warn("{} {}", exceptionName, e);
 		}
 	}
 	
@@ -176,7 +180,7 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 	public static void main(String[] args) {
 		logger.info("START");
 				
-//		instance.download();
+		instance.download();
 		instance.update();
 		
 		logger.info("STOP");
