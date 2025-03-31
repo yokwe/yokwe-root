@@ -1,6 +1,7 @@
 package yokwe.util;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -83,6 +84,12 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 	
 	public boolean isDefined() {
 		return !equals(UNDEFINED);
+	}
+	
+	// Japanese Era before 明治 use Japanese Lunar Calendar.
+	// So value can be not correct but good to estimate year in Gregorian Calendar.
+	public LocalDate toLocalDate() {
+		return LocalDate.of(year, month, day);
 	}
 
 	@Override
