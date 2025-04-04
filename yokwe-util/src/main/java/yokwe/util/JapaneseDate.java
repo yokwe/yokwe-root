@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class JapaneseDate implements Comparable<JapaneseDate> {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 
-	public static final JapaneseDate UNDEFINED = new JapaneseDate("UNDEFINED", 0, 0, 0);
+	public static final JapaneseDate UNDEFINED = new JapaneseDate("UNDEFINED", "不明", "不明", 0, 0, 0);
 	
 	private static Pattern pat_DATE  = Pattern.compile("(..)(元|[0-9]{1,2})年([1,2]?[0-9])月([1-3]?[0-9])日");
 
@@ -46,33 +46,39 @@ public class JapaneseDate implements Comparable<JapaneseDate> {
 	}
 		
 	public final String string;
+	public final String eraString;
+	public final String yearString;
 	public final int    year;
 	public final int    month;
 	public final int    day;
 	
-	private JapaneseDate(String string, int year, int month, int day) {
-		this.string = string;
-		this.year   = year;
-		this.month  = month;
-		this.day    = day;
+	private JapaneseDate(String string, String eraString, String yearString, int year, int month, int day) {
+		this.string     = string;
+		this.eraString  = eraString;
+		this.yearString = yearString;
+		this.year       = year;
+		this.month      = month;
+		this.day        = day;
 	}
 	private JapaneseDate(String newValue) {
-		string = newValue;
+		this.string = newValue;
 		Matcher m = pat_DATE.matcher(string);
 		if (m.matches()) {
-			String era         = m.group(1);
+			String eraString   = m.group(1);
 			String yearString  = m.group(2);
 			String monthString = m.group(3);
 			String dayString   = m.group(4);
 			
-			if (eraMap.containsKey(era)) {
-				year  = eraMap.get(era) + (yearString.equals("元") ? 1 : Integer.valueOf(yearString)) - 1;
-				month = Integer.valueOf(monthString);
-				day   = Integer.valueOf(dayString);
+			if (eraMap.containsKey(eraString)) {
+				this.eraString   = eraString;
+				this.yearString  = yearString;
+				this.year  = eraMap.get(eraString) + (yearString.equals("元") ? 1 : Integer.valueOf(yearString)) - 1;
+				this.month = Integer.valueOf(monthString);
+				this.day   = Integer.valueOf(dayString);
 			} else {
 				logger.error("Unpexpeced  era");
 				logger.error("string {}!", string);
-				logger.error("era {}!", era);
+				logger.error("era {}!", eraString);
 				throw new UnexpectedException("Unpexpeced  era");
 			}
 		} else {
