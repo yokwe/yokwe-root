@@ -406,7 +406,19 @@ public class StringUtil {
 								// Quote special character in string \ => \\  " => \"
 								String stringValue = toString(element).replace("\\", "\\\\").replace("\"", "\\\"");
 								arrayElement.add(String.format("\"%s\"", stringValue));
-							} else {
+							} else if (element.getClass().isArray()) {
+								var innerList = new ArrayList<String>();
+								for(int j = 0; j < Array.getLength(element); j++) {
+									var innerElement = Array.get(element, j);
+									if (innerElement instanceof String) {
+										String stringValue = toString(innerElement).replace("\\", "\\\\").replace("\"", "\\\"");
+										innerList.add(String.format("\"%s\"", stringValue));
+									} else {
+										innerList.add(String.format("%s", toString(innerElement)));
+									}
+								}
+								arrayElement.add("[" + String.join(", ", innerList) + "]");
+							}else {
 								arrayElement.add(String.format("%s", toString(element)));
 							}
 						}						
