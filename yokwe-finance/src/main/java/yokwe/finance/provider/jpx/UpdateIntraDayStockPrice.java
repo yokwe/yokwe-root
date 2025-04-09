@@ -210,11 +210,8 @@ public class UpdateIntraDayStockPrice {
 			var string = StorageJPX.IntraDayStockPriceJSON.load(stock.stockCode);
 			var result = JSON.unmarshal(Result.class, string);
 			{
-				for(var entrySet: result.section1.data.entrySet()) {
-					var key  = entrySet.getKey();
-					var data = entrySet.getValue();
-					
-					var stockCode = StockCodeJP.toStockCode5(key.substring(0, key.indexOf('/')));
+				for(var data: result.section1.data.values()) {
+					var stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
 					
 					Map<ChronoLocalDateTime<?>, OHLCVDateTime> map;
 					{
