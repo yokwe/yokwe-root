@@ -2,23 +2,13 @@ package yokwe.util;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -241,225 +232,65 @@ public class StringUtil {
 	//
 	// toString(Object)
 	//
-	public enum TimeZone {
-		UTC,
-		LOCAL,
-		NEW_YORK,
-	}
-	
-	public static final ZoneId UTC      = ZoneOffset.UTC;
-	public static final ZoneId LOCAL    = ZoneId.systemDefault();
-	public static final ZoneId NEW_YORK = ZoneId.of("America/New_York");
-	
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface UseTimeZone {
-		TimeZone value();
-	}
-
-	private static class ClassInfo {
-		private static class FieldInfo {
-			final Field field;
-			final String name;
-			final String type;
-			final boolean isArray;
-			final boolean isEnum;
-			final TimeZone useTimeZone;
-
-			FieldInfo(Field field) {
-				Class<?> type = field.getType();
-				
-				this.field   = field;
-				this.name    = field.getName();
-				this.type    = type.getName();
-				this.isArray = type.isArray();
-				this.isEnum  = type.isEnum();
-				
-				UseTimeZone useTimeZone = field.getDeclaredAnnotation(UseTimeZone.class);
-				if (useTimeZone != null) {
-					this.useTimeZone = useTimeZone.value();
-				} else {
-					this.useTimeZone = null;
-				}
-			}
-		}
-
-		private static Map<String, ClassInfo> map = new TreeMap<>();
+	private static final Map<String, Function<Object, String>> functionMap = new TreeMap<>();
+	static {
+		functionMap.put(Boolean.class.getTypeName(), o -> (boolean)o ? "true" : "false");
+		functionMap.put(Double.class.getTypeName(),  o -> String.valueOf((double)o));
+		functionMap.put(Float.class.getTypeName(),   o -> String.valueOf((float)o));
+		functionMap.put(Integer.class.getTypeName(), o -> String.valueOf((int)o));
+		functionMap.put(Long.class.getTypeName(),    o -> String.valueOf((long)o));
+		functionMap.put(Short.class.getTypeName(),   o -> String.valueOf((short)o));
+		functionMap.put(Byte.class.getTypeName(),    o -> String.valueOf((byte)o));
 		
-		final FieldInfo[] fieldInfos;
-		
-		static ClassInfo get(Object o) {
-			Class<?> clazz = o.getClass();
-			String clazzName = clazz.getName();
-			if (map.containsKey(clazzName)) {
-				return map.get(clazzName);
-			} else {
-				ClassInfo classInfo = new ClassInfo(clazz);
-				map.put(clazzName, classInfo);
-				return classInfo;
-			}
-		}
-		
-		ClassInfo(Class<?> clazz) {
-			{
-				List<FieldInfo> list = new ArrayList<>();
-				
-				for(Field field: clazz.getDeclaredFields()) {
-					int modifiers = field.getModifiers();
-					// Ignore static
-					if (Modifier.isStatic(modifiers)) continue;
-					field.setAccessible(true); // to access protected and private file, call setAccessble(true) of the field
-					list.add(new FieldInfo(field));
-				}
-				fieldInfos = list.toArray(new FieldInfo[0]);
-			}
-		}
+		functionMap.put(Character.class.getTypeName(),  o -> "'" + String.valueOf((char)o).replace("\\",	"\\\\").replace("'", "\\\'") + "'");
+		functionMap.put(String.class.getTypeName(),     o -> "\"" + (String)o.toString().replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
+		functionMap.put(BigDecimal.class.getTypeName(), o -> ((BigDecimal)o).toPlainString());
 	}
 	
 	public static String toString(Object o) {
-		// handle special case
-		if (o == null) {
-			return "null";
-		}
-		if (o.getClass().equals(String.class)) {
-			return o.toString();
+		if (o == null) return "null";
+		
+		var clazz    = o.getClass();
+		var function = functionMap.get(clazz.getTypeName());
+		
+		if (function != null) return function.apply(o);
+		if (clazz.isArray())  return toStringArray(clazz, o);
+		
+		var typeName = clazz.getTypeName();
+		if (typeName.startsWith("java")) return o.toString();
+		
+		return toStringObject(clazz, o);
+	}
+	
+	private static String toStringArray(Class<?> clazz, Object o) {
+		List<String> result = new ArrayList<>();
+		
+		var length = Array.getLength(o);
+		for(int i = 0; i < length; i++) {
+			var element = Array.get(o, i);
+			result.add(toString(element));
 		}
 		
+		return "[" + String.join(", ", result) + "]";
+	}
+	
+	private static String toStringObject(Class<?> clazz, Object o) {
 		try {
-			ClassInfo classInfo = ClassInfo.get(o);
-
-			List<String>  result = new ArrayList<>();
-			StringBuilder line   = new StringBuilder();
+			List<String> result = new ArrayList<>();
 			
-			for(ClassInfo.FieldInfo fieldInfo: classInfo.fieldInfos) {
-				line.setLength(0);
-				line.append(fieldInfo.name).append(": ");
-				
-				switch(fieldInfo.type) {
-				case "double":
-					line.append(Double.toString(fieldInfo.field.getDouble(o)));
-					break;
-				case "float":
-					line.append(fieldInfo.field.getFloat(o));
-					break;
-				case "long":
-					line.append(fieldInfo.field.getLong(o));
-					break;
-				case "int":
-					line.append(fieldInfo.field.getInt(o));
-					break;
-				case "short":
-					line.append(fieldInfo.field.getShort(o));
-					break;
-				case "byte":
-					line.append(fieldInfo.field.getByte(o));
-					break;
-				case "char":
-					line.append(String.format("'%c'", fieldInfo.field.getChar(o)));
-					break;
-				case "boolean":
-					line.append(fieldInfo.field.getBoolean(o) ? "true" : "false");
-					break;
-				default:
-				{
-					Object value = fieldInfo.field.get(o);
-					if (value == null) {
-						line.append("null");
-					} else if (value instanceof String) {
-						// Quote special character in string \ => \\  " => \"
-						String stringValue = value.toString().replace("\\", "\\\\").replace("\"", "\\\"");
-						line.append("\"").append(stringValue).append("\"");
-					} else if (value instanceof BigDecimal) {
-						BigDecimal bigDecimal = (BigDecimal)value;
-						line.append(bigDecimal.toPlainString());
-					} else if (value instanceof LocalDateTime) {
-						LocalDateTime  localDateTime  = (LocalDateTime)value;
-						OffsetDateTime offsetDateTime = localDateTime.atOffset(ZoneOffset.UTC);
-						
-						String stringValue;
-						if (fieldInfo.useTimeZone != null) {
-							switch(fieldInfo.useTimeZone) {
-							case UTC:
-								stringValue = offsetDateTime.atZoneSameInstant(UTC).toLocalDateTime().toString();
-								break;
-							case LOCAL:
-								stringValue = offsetDateTime.atZoneSameInstant(LOCAL).toLocalDateTime().toString();
-								break;
-							case NEW_YORK:
-								stringValue = offsetDateTime.atZoneSameInstant(NEW_YORK).toLocalDateTime().toString();
-								break;
-							default:
-								logger.error("Unexptected useTimeZone value {}", fieldInfo.useTimeZone);
-								throw new UnexpectedException("Unexptected useTimeZone value");
-							}
-						} else {
-							// Treat as LOCAL
-							stringValue = offsetDateTime.atZoneSameInstant(LOCAL).toLocalDateTime().toString();
-						}
-						line.append(stringValue);
-					} else if (fieldInfo.isArray) {
-						List<String> arrayElement = new ArrayList<>();
-						int length = Array.getLength(value);
-						for(int i = 0; i < length; i++) {
-							Object element = Array.get(value, i);
-							if (element instanceof String) {
-								// Quote special character in string \ => \\  " => \"
-								String stringValue = toString(element).replace("\\", "\\\\").replace("\"", "\\\"");
-								arrayElement.add(String.format("\"%s\"", stringValue));
-							} else if (element.getClass().isArray()) {
-								var innerList = new ArrayList<String>();
-								for(int j = 0; j < Array.getLength(element); j++) {
-									var innerElement = Array.get(element, j);
-									if (innerElement instanceof String) {
-										String stringValue = toString(innerElement).replace("\\", "\\\\").replace("\"", "\\\"");
-										innerList.add(String.format("\"%s\"", stringValue));
-									} else {
-										innerList.add(String.format("%s", toString(innerElement)));
-									}
-								}
-								arrayElement.add("[" + String.join(", ", innerList) + "]");
-							}else {
-								arrayElement.add(String.format("%s", toString(element)));
-							}
-						}						
-						line.append("[").append(String.join(", ", arrayElement)).append("]");
-					} else if (fieldInfo.isEnum) {
-						line.append(value.toString());
-					} else {
-						if (fieldInfo.type.startsWith("java")) {
-							// Dont' dig into system class
-							line.append(value.toString());
-						} else {
-							Class<?> clazz = value.getClass();
-							
-							Method method = null;
-							for(var e: clazz.getDeclaredMethods()) {
-								if (e.getName().equals("toString") && e.getParameterCount() == 0) {
-									method = e;
-									break;
-								}
-							}
-							if (method != null) {
-								String string = (String)method.invoke(value);
-								line.append(string);
-							} else {
-								line.append(toString(value));
-							}
-						}
-					}
-				}
-					break;
-				}
-				result.add(line.toString());
+			for(var field: clazz.getDeclaredFields()) {
+				if (Modifier.isStatic(field.getModifiers())) continue;
+				field.setAccessible(true);
+				result.add(field.getName() + ": " + toString(field.get(o)));
 			}
-			
-			return String.format("{%s}", String.join(", ", result));
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			return "{" + String.join(", ", result) + "}";
+		} catch (IllegalArgumentException | IllegalAccessException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
+	
 
 	public static String toURLString(File file) {
 		try {
@@ -473,7 +304,8 @@ public class StringUtil {
 	public static String toURLString(String filePath) {
 		return toURLString(new File(filePath));
 	}
-
+	
+	
 	//
 	// Add padding by character width
 	//
