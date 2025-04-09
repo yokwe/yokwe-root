@@ -4,9 +4,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import yokwe.finance.type.StockCodeJP;
 import yokwe.util.StringUtil;
@@ -166,6 +169,39 @@ public class UpdateIntraDayStockPrice {
 		logger.info("AFTER  RUN");
 //		download.showRunCount();
 	}
+	
+	private static void update(Map<ChronoLocalDateTime<?>, OHLCVDateTime> map, String stockCode, String histmdate, String[][] histmin) {
+		if (histmdate.isEmpty()) return;
+		
+		var date = LocalDate.parse(histmdate.replace('/', '-'));
+		
+		for(var e: histmin) {
+			var time   = LocalTime.parse(e[0]);
+			var open   = new BigDecimal(e[1]);
+			var close  = new BigDecimal(e[2]);
+			var high   = new BigDecimal(e[3]);
+			var low    = new BigDecimal(e[4]);
+			var volume = Long.valueOf(e[6]);
+			
+			var ohlcv = new OHLCVDateTime(LocalDateTime.of(date, time), open, high, low, close, volume);
+			
+			var old = map.put(ohlcv.dateTime, ohlcv);
+			if (old == null) {
+				// new entry
+			} else {
+				// existing entry
+				if (old.equals(ohlcv)) {
+					// expected
+				} else {
+					logger.error("Unexpected data");
+					logger.error("  stock  {}", stockCode);
+					logger.error("  new    {}", ohlcv);
+					logger.error("  old    {}", old);
+					throw new UnexpectedException("Unexpected data");
+				}
+			}
+		}
+	}
 	private static void update(List<StockListType> stockList) {
 		int count = 0;
 		for(var stock: stockList) {
@@ -179,37 +215,24 @@ public class UpdateIntraDayStockPrice {
 					var data = entrySet.getValue();
 					
 					var stockCode = StockCodeJP.toStockCode5(key.substring(0, key.indexOf('/')));
-					var map = StorageJPX.IntraDayStockPrice.getMap(stockCode);
+					
+					Map<ChronoLocalDateTime<?>, OHLCVDateTime> map;
 					{
-						var date = LocalDate.parse(data.HISTMDATE1.replace('/', '-'));
-						
-						for(var e: data.HISTMIN1) {
-							var time   = LocalTime.parse(e[0]);
-							var open   = new BigDecimal(e[1]);
-							var close  = new BigDecimal(e[2]);
-							var high   = new BigDecimal(e[3]);
-							var low    = new BigDecimal(e[4]);
-							var volume = Long.valueOf(e[6]);
-							
-							var ohlcv = new OHLCVDateTime(LocalDateTime.of(date, time), open, high, low, close, volume);
-							
-							if (map.containsKey(ohlcv.dateTime)) {
-								var old = map.get(ohlcv.dateTime);
-								if (old.equals(ohlcv)) {
-									//
-								} else {
-									logger.error("Unexpected data");
-									logger.error("  {}", stockCode);
-									logger.error("  new  {}", ohlcv);
-									logger.error("  old  {}", old);
-									throw new UnexpectedException("Unexpected data");
-								}
-							} else {
-								map.put(ohlcv.dateTime, ohlcv);
-							}
+						var list = StorageJPX.IntraDayStockPrice.getList(stockCode);
+						// remove last element of list. value of last element can be changed at next invocation
+						if (!list.isEmpty()) {
+							list.remove(list.size() - 1);
 						}
+						map = list.stream().collect(Collectors.toMap(o -> o.getKey(), Function.identity()));
 					}
-//					logger.info("save  {}  {}", map.size(), StorageJPX.IntraDayStockPrice.getPath(stockCode));
+					
+					update(map, stockCode, data.HISTMDATE1, data.HISTMIN1);
+//					update(map, stockCode, data.HISTMDATE2, data.HISTMIN2);
+//					update(map, stockCode, data.HISTMDATE3, data.HISTMIN3);
+//					update(map, stockCode, data.HISTMDATE4, data.HISTMIN4);
+//					update(map, stockCode, data.HISTMDATE5, data.HISTMIN5);
+//					update(map, stockCode, data.HISTMDATE6, data.HISTMIN6);
+					
 					StorageJPX.IntraDayStockPrice.save(stockCode, map.values());
 				}
 			}
