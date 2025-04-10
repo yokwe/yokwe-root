@@ -148,11 +148,4 @@ public final class XMLStream {
 		ByteArrayInputStream bais = new ByteArrayInputStream(data);
 		return buildStream(bais);
 	}
-
-	// string can contains encoding information of self.
-	// XML file can have Shift_JIS encoding attribute in xml tag
-	@Deprecated
-	public static Stream<Element> buildStream(String string) {
-		return buildStream(StandardCharsets.UTF_8.encode(string).array());
-	}
 }

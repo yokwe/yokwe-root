@@ -221,14 +221,6 @@ public class StringUtil {
 	    return new String(hexChars);
 	}
 	
-	/**
-	 * @deprecate "Use ToString.withFieldName instead"
-	 */
-	@Deprecated
-	public static String toString(Object o) {
-		return ToString.withFieldName(o);
-	}
-	
 	
 	public static String toURLString(File file) {
 		try {
