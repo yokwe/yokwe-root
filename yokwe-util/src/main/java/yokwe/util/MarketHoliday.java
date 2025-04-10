@@ -531,7 +531,7 @@ public abstract class MarketHoliday {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 		
 		@Override

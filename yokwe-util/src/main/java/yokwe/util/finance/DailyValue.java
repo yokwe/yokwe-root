@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.function.Function;
 
 import yokwe.util.GenericArray;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
 public final class DailyValue implements Comparable<DailyValue> {
@@ -172,7 +172,7 @@ public final class DailyValue implements Comparable<DailyValue> {
 
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	@Override
 	public int compareTo(DailyValue that) {

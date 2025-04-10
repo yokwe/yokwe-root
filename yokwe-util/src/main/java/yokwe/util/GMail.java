@@ -56,7 +56,7 @@ public class GMail {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	public static void sendMessage(GMail gmail, String subject, String text) {

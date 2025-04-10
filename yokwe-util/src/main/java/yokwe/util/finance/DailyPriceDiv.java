@@ -11,7 +11,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ToDoubleFunction;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.finance.online.Mean;
 import yokwe.util.finance.online.NoReinvestedValue;
@@ -160,7 +160,7 @@ public final class DailyPriceDiv implements Comparable<DailyPriceDiv> {
 
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	@Override
 	public int compareTo(DailyPriceDiv that) {
