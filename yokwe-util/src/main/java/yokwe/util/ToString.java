@@ -6,6 +6,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TreeMap;
@@ -79,10 +80,21 @@ public class ToString {
 	
 	public static class Options {
 		public static class Builder {
-			private boolean withFieldName = true;
+			private boolean      withFieldName;
+			private List<String> excludePackageList = new ArrayList<>();
+			
+			private Builder() {
+				withFieldName = true;
+				excludePackageList.add("java");
+				excludePackageList.add("jdk");
+			}
 			
 			public Builder withFieldName(boolean value) {
-				this.withFieldName = value;
+				withFieldName = value;
+				return this;
+			}
+			public Builder excludePackage(String string) {
+				excludePackageList.add(string);
 				return this;
 			}
 			
@@ -95,10 +107,12 @@ public class ToString {
 			return new Builder();
 		}
 		
-		public final boolean withFieldName;
+		public final boolean      withFieldName;
+		public final List<String> excludePackageList;
 		
 		private Options(Builder builder) {
-			this.withFieldName = builder.withFieldName;
+			this.withFieldName      = builder.withFieldName;
+			this.excludePackageList = builder.excludePackageList;
 		}
 	}
 	public static final Options WITH_FIELD_NAME    = Options.builder().withFieldName(true).build();
@@ -119,7 +133,10 @@ public class ToString {
 		
 		if (function != null)            return function.apply(o);
 		if (clazz.isArray())             return toStringArray(o, options);
-		if (typeName.startsWith("java")) return o.toString();
+		
+		for(var pakcagePrifx: options.excludePackageList) {
+			if (typeName.startsWith(pakcagePrifx)) return o.toString();
+		}
 		
 		return toStringObject(o, options);
 	}
