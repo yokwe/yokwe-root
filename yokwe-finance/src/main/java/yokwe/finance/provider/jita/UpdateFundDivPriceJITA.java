@@ -13,7 +13,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.FundPriceJP;
 import yokwe.util.CSVUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -85,7 +85,7 @@ public class UpdateFundDivPriceJITA {
 		}
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	private static class DivPriceConsumer implements Consumer<String> {

@@ -17,8 +17,8 @@ import org.openqa.selenium.WebDriverException;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
-import yokwe.finance.account.Secret;
 import yokwe.finance.account.Asset.Company;
+import yokwe.finance.account.Secret;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;

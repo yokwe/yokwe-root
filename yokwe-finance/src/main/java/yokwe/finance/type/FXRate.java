@@ -3,7 +3,7 @@ package yokwe.finance.type;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
 public final class FXRate implements Comparable<FXRate> {
@@ -47,6 +47,6 @@ public final class FXRate implements Comparable<FXRate> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

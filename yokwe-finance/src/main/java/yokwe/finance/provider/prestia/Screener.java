@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
 import yokwe.finance.Storage;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.json.JSON;
 
 public class Screener {
@@ -52,7 +52,7 @@ public class Screener {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -63,6 +63,6 @@ public class Screener {
 
     @Override
     public String toString() {
-        return StringUtil.toString(this);
+        return ToString.withFieldName(this);
     }
 }

@@ -1,7 +1,7 @@
 package yokwe.finance.provider.bats;
 
 import yokwe.util.CSVUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class ListedSecurityReportType implements Comparable<ListedSecurityReportType> {
 	// Daily Listed Securities Report
@@ -156,7 +156,7 @@ public class ListedSecurityReportType implements Comparable<ListedSecurityReport
 		
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

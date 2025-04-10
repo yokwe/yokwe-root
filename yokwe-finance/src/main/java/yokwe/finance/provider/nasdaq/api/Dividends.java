@@ -1,6 +1,6 @@
 package yokwe.finance.provider.nasdaq.api;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class Dividends {
 	// https://api.nasdaq.com/api/quote/YYY/dividends?assetclass=etf
@@ -37,7 +37,7 @@ public class Dividends {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -51,7 +51,7 @@ public class Dividends {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class Dividends {
         
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	public static class Data {
@@ -83,7 +83,7 @@ public class Dividends {
         
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -99,6 +99,6 @@ public class Dividends {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

@@ -2,7 +2,7 @@ package yokwe.finance.type;
 
 import java.math.BigDecimal;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 	public enum SimpleType {
@@ -92,6 +92,6 @@ public final class StockInfoJPType implements Comparable<StockInfoJPType> {
 	}
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

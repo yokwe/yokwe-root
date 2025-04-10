@@ -1,7 +1,7 @@
 package yokwe.finance.provider.nasdaq;
 
 import yokwe.util.CSVUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class OtherListedType implements Comparable<OtherListedType> {
 	// ACT Symbol|Security Name|Exchange|CQS Symbol|ETF|Round Lot Size|Test Issue|NASDAQ Symbol
@@ -100,7 +100,7 @@ public class OtherListedType implements Comparable<OtherListedType> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

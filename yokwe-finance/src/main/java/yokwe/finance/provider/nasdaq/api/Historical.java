@@ -2,7 +2,7 @@ package yokwe.finance.provider.nasdaq.api;
 
 import java.time.LocalDate;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class Historical {
 	// https://api.nasdaq.com/api/quote/LMT/historical?assetclass=stocks&fromdate=2020-11-25&limit=9999&todate=2021-11-25
@@ -32,7 +32,7 @@ public class Historical {
         
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -44,7 +44,7 @@ public class Historical {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		}
 		
@@ -54,7 +54,7 @@ public class Historical {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -64,6 +64,6 @@ public class Historical {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

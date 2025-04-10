@@ -3,7 +3,7 @@ package yokwe.finance.provider.jita;
 import java.math.BigDecimal;
 
 import yokwe.util.EnumUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.json.JSON.Ignore;
 import yokwe.util.json.JSON.Name;
 
@@ -125,7 +125,7 @@ public final class FundDataSearch {
 
             @Override
             public String toString() {
-                return StringUtil.toString(this);
+        		return ToString.withFieldName(this);
             }
         }
 
@@ -143,7 +143,7 @@ public final class FundDataSearch {
 
             @Override
             public String toString() {
-                return StringUtil.toString(this);
+        		return ToString.withFieldName(this);
             }
         }
 
@@ -155,7 +155,7 @@ public final class FundDataSearch {
 
             @Override
             public String toString() {
-                return StringUtil.toString(this);
+        		return ToString.withFieldName(this);
             }
         }
 
@@ -509,7 +509,7 @@ public final class FundDataSearch {
         
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+    		return ToString.withFieldName(this);
         }
     }
 
@@ -535,6 +535,6 @@ public final class FundDataSearch {
 
     @Override
     public String toString() {
-        return StringUtil.toString(this);
+		return ToString.withFieldName(this);
     }
 }

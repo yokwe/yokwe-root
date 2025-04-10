@@ -1,6 +1,6 @@
 package yokwe.finance.type;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public final class StockInfoUSType implements Comparable<StockInfoUSType> {
 	public static String toYahooSymbol(String symbol) {
@@ -70,7 +70,7 @@ public final class StockInfoUSType implements Comparable<StockInfoUSType> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	public String getKey() {

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class FundPriceJP implements Comparable<FundPriceJP> {
 	public final LocalDate  date;   // 年月日
@@ -24,7 +24,7 @@ public class FundPriceJP implements Comparable<FundPriceJP> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package yokwe.finance.account.nikko;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
 public class TradeHistory {
@@ -155,6 +155,6 @@ public class TradeHistory {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

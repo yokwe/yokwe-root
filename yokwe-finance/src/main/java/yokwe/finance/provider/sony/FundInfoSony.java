@@ -1,6 +1,6 @@
 package yokwe.finance.provider.sony;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class FundInfoSony implements Comparable<FundInfoSony> {
 	public final String isinCode;
@@ -23,6 +23,6 @@ public class FundInfoSony implements Comparable<FundInfoSony> {
 	}
     @Override
     public String toString() {
-    	return StringUtil.toString(this);
+    	return ToString.withFieldName(this);
     }
 }

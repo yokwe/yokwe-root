@@ -3,7 +3,7 @@ package yokwe.finance.provider.prestia;
 import java.math.BigDecimal;
 
 import yokwe.finance.type.Currency;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class FundInfoPrestia implements Comparable<FundInfoPrestia> {
     public final String     secId;
@@ -39,6 +39,6 @@ public class FundInfoPrestia implements Comparable<FundInfoPrestia> {
 	}
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

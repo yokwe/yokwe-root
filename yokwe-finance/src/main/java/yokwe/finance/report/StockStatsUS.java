@@ -1,6 +1,6 @@
 package yokwe.finance.report;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 
 @Sheet.SheetName("stock-stats")
@@ -101,6 +101,6 @@ public final class StockStatsUS extends Sheet implements Comparable<StockStatsUS
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class KessanPage {
 	public static final String NO_INFORMATION = "該当するデータはありません";
@@ -42,7 +42,7 @@ public class KessanPage {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -107,7 +107,7 @@ public class KessanPage {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class KessanPage {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 

@@ -2,7 +2,7 @@ package yokwe.finance.provider.jreit;
 
 import java.time.LocalDate;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class JREITInfoType implements Comparable<JREITInfoType> {
 	public static final String CATEGORY_INFRA_FUND = "INFRA FUND";
@@ -27,7 +27,7 @@ public class JREITInfoType implements Comparable<JREITInfoType> {
 	
 	@Override
 	public String toString() {
-	    return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

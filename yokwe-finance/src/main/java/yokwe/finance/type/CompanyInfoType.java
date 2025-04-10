@@ -1,6 +1,6 @@
 package yokwe.finance.type;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class CompanyInfoType implements Comparable<CompanyInfoType> {
 	public String stockCode;
@@ -16,7 +16,7 @@ public class CompanyInfoType implements Comparable<CompanyInfoType> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	@Override
 	public int compareTo(CompanyInfoType that) {

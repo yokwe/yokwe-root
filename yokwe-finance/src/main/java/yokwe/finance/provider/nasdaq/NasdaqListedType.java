@@ -1,7 +1,7 @@
 package yokwe.finance.provider.nasdaq;
 
 import yokwe.util.CSVUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class NasdaqListedType implements Comparable<NasdaqListedType> {
 	// Symbol|Security Name|Market Category|Test Issue|Financial Status|Round Lot Size|ETF|NextShares
@@ -78,7 +78,7 @@ public class NasdaqListedType implements Comparable<NasdaqListedType> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

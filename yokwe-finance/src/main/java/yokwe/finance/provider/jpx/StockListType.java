@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public final class StockListType implements Comparable<StockListType> {
 	public String     stockCode;
@@ -36,7 +36,7 @@ public final class StockListType implements Comparable<StockListType> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	public String getKey() {

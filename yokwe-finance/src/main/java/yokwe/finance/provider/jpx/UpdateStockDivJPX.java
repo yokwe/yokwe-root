@@ -17,7 +17,6 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.StockCodeJP;
-import yokwe.finance.type.StockInfoJPType;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;

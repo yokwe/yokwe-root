@@ -11,7 +11,7 @@ import yokwe.finance.type.StockCodeJP;
 import yokwe.finance.type.StockNameType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
@@ -125,7 +125,7 @@ public class UpdateETF {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

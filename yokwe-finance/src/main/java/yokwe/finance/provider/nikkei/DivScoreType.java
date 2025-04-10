@@ -2,7 +2,7 @@ package yokwe.finance.provider.nikkei;
 
 import java.math.BigDecimal;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class DivScoreType implements Comparable<DivScoreType> {
 	public static BigDecimal NO_VALUE = BigDecimal.ONE.negate();
@@ -32,6 +32,6 @@ public class DivScoreType implements Comparable<DivScoreType> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

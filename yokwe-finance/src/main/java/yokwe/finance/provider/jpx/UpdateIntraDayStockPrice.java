@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import yokwe.finance.type.StockCodeJP;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;
 import yokwe.util.http.DownloadSync;
@@ -36,7 +36,7 @@ public class UpdateIntraDayStockPrice {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -48,7 +48,7 @@ public class UpdateIntraDayStockPrice {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -94,7 +94,7 @@ public class UpdateIntraDayStockPrice {
         
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

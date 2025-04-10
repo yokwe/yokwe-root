@@ -1,6 +1,6 @@
 package yokwe.finance.provider.nasdaq.api;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.json.JSON;
 
 public final class Summary {
@@ -64,7 +64,7 @@ public final class Summary {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		    
 		}
@@ -75,7 +75,7 @@ public final class Summary {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	public static final class ETF {
@@ -113,7 +113,7 @@ public final class Summary {
 
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		}
 		
@@ -125,7 +125,7 @@ public final class Summary {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		    
 		}
@@ -136,7 +136,7 @@ public final class Summary {
 
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	
 	}

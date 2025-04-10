@@ -3,7 +3,7 @@ package yokwe.finance.account;
 import java.util.Map;
 
 import yokwe.finance.Storage;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
 public class AssetInfo implements Comparable<AssetInfo> {
@@ -34,7 +34,7 @@ public class AssetInfo implements Comparable<AssetInfo> {
 	}
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}	
 	
 	

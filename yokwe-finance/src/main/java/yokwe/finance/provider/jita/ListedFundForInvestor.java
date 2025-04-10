@@ -1,6 +1,6 @@
 package yokwe.finance.provider.jita;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -39,7 +39,7 @@ public class ListedFundForInvestor extends Sheet implements Comparable<ListedFun
 
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	public boolean isTsumitate() {

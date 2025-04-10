@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class BalancePage {
 	//
@@ -120,7 +120,7 @@ public class BalancePage {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 //			return String.format("{%s  %s}", name, value.toPlainString());
 		}
 	}

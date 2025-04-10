@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class WebPage {
 	public static class FundInfo {
@@ -47,7 +47,7 @@ public class WebPage {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	public static class PageInfo {
@@ -86,7 +86,7 @@ public class WebPage {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 }

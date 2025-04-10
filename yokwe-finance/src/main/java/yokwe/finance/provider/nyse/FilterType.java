@@ -1,6 +1,6 @@
 package yokwe.finance.provider.nyse;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 //import java.util.Collection;
 //import java.util.List;
@@ -25,6 +25,6 @@ public final class FilterType implements Comparable<FilterType> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

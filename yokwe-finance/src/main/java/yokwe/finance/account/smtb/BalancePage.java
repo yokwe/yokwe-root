@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class BalancePage {
 	public static class DepositJPY {
@@ -143,7 +143,7 @@ public class BalancePage {
 		@Override
 		public String toString() {
 //			return String.format("{%s  %s  %s  %s  %s}", fundCode, units.toPlainString(), unitPrice.toPlainString(), value.toPlainString(), cost.toPlainString());
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 

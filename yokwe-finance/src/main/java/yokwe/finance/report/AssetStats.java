@@ -1,6 +1,6 @@
 package yokwe.finance.report;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 
 public class AssetStats {
@@ -88,7 +88,7 @@ public class AssetStats {
 		}
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	@Sheet.HeaderRow(0)
@@ -195,7 +195,7 @@ public class AssetStats {
 		}
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	@Sheet.HeaderRow(0)
@@ -252,7 +252,7 @@ public class AssetStats {
 		}
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -301,7 +301,7 @@ public class AssetStats {
 		public DailyProductProfitReport() {}
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 }

@@ -9,7 +9,7 @@ import yokwe.finance.provider.nikko.UpdateTradingStockNikko.StockInfo;
 import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class UpdateForeignBond {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -125,7 +125,7 @@ public class UpdateForeignBond {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

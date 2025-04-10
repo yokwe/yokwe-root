@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class BalancePage {
 	// MRF・お預り金予定残高
@@ -78,7 +78,7 @@ public class BalancePage {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -139,7 +139,7 @@ public class BalancePage {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -189,7 +189,7 @@ public class BalancePage {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 	}
 	
@@ -251,7 +251,7 @@ public class BalancePage {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 	}
 

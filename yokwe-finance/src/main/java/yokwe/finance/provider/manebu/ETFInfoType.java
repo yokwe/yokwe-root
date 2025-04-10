@@ -3,7 +3,7 @@ package yokwe.finance.provider.manebu;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class ETFInfoType implements Comparable<ETFInfoType> {
 	public String     stockCode;
@@ -43,7 +43,7 @@ public class ETFInfoType implements Comparable<ETFInfoType> {
 	
 	@Override
 	public String toString() {
-	    return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

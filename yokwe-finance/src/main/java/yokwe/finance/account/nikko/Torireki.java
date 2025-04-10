@@ -7,7 +7,7 @@ import yokwe.finance.account.nikko.TradeHistory.AccountType;
 import yokwe.finance.account.nikko.TradeHistory.Product;
 import yokwe.finance.account.nikko.TradeHistory.Trade;
 import yokwe.util.CSVUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
 public class Torireki {
@@ -51,7 +51,7 @@ public class Torireki {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	@Override
 	public boolean equals(Object o) {

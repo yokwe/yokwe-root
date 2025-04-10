@@ -12,7 +12,7 @@ import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.TradingFundType;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
@@ -60,7 +60,7 @@ public class UpdateTradingFundNikko {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

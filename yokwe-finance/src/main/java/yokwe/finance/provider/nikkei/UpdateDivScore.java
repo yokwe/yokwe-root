@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import yokwe.finance.fund.StorageFund;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.http.HttpUtil;
 
 public class UpdateDivScore {
@@ -143,7 +143,7 @@ public class UpdateDivScore {
 		}
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

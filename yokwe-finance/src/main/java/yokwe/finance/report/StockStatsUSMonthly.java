@@ -2,7 +2,7 @@ package yokwe.finance.report;
 
 import java.math.BigDecimal;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -67,7 +67,7 @@ public class StockStatsUSMonthly extends Sheet implements Comparable<StockStatsU
 	
     @Override
     public String toString() {
-        return StringUtil.toString(this);
+        return ToString.withFieldName(this);
     }
     @Override
     public int compareTo(StockStatsUSMonthly that) {

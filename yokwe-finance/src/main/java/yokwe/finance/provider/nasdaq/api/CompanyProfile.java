@@ -1,6 +1,6 @@
 package yokwe.finance.provider.nasdaq.api;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.json.JSON;
 
 public class CompanyProfile {
@@ -42,6 +42,6 @@ public class CompanyProfile {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

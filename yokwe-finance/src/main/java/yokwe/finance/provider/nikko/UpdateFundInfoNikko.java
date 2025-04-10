@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import yokwe.finance.Storage;
 import yokwe.finance.fund.StorageFund;
 import yokwe.util.FileUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -133,7 +133,7 @@ public class UpdateFundInfoNikko {
 			@Name("line_no")                      public int        line_no;
 			
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		}
 		
