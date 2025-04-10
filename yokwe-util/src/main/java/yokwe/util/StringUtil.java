@@ -1,6 +1,8 @@
 package yokwe.util;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -225,6 +227,20 @@ public class StringUtil {
 	@Deprecated
 	public static String toString(Object o) {
 		return ToString.withFieldName(o);
+	}
+	
+	
+	public static String toURLString(File file) {
+		try {
+			return file.toURI().toURL().toString();
+		} catch (MalformedURLException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		}
+	}
+	public static String toURLString(String filePath) {
+		return toURLString(new File(filePath));
 	}
 	
 	
