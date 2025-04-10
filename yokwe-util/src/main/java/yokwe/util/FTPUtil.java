@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.apache.commons.net.ftp.FTP;
@@ -165,11 +167,11 @@ public class FTPUtil {
 		}
 	}
 	
-	public static byte[] download(String urlString) {
+	public static byte[] download(String uriString) {
 		try {
-			URL url = new URL(urlString);
-			return download(url);
-		} catch (MalformedURLException e) {
+			var uri = new URI(uriString);
+			return download(uri.toURL());
+		} catch (URISyntaxException | MalformedURLException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.error("{} {}", exceptionName, e);
 			throw new UnexpectedException(exceptionName, e);
