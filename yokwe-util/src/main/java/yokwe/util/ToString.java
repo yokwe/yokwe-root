@@ -85,8 +85,11 @@ public class ToString {
 			
 			private Builder() {
 				withFieldName = true;
-				excludePackageList.add("java");
-				excludePackageList.add("jdk");
+				excludePackageList.add("java.");
+				excludePackageList.add("javax.");
+				excludePackageList.add("jdk.");
+				excludePackageList.add("sun.");
+				excludePackageList.add("com.sun.");
 			}
 			
 			public Builder withFieldName(boolean value) {
