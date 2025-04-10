@@ -12,6 +12,7 @@ import yokwe.stock.trade.Storage;
 import yokwe.util.CSVUtil;
 import yokwe.util.DateMap;
 import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
@@ -87,7 +88,7 @@ public final class Deposit {
 
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 		@Override
 		public int compareTo(Activity that) {
@@ -151,7 +152,7 @@ public final class Deposit {
 			List<Activity> list = new ArrayList<>();
 			// build list
 			for(var e: transactionList) {
-//				logger.info("transaction {}", StringUtil.toString(e));
+//				logger.info("transaction {}", ToString.withFieldName(e));
 				String date = e.date;
 				var fxTax = fxTaxMap.get(date);
 				
@@ -181,7 +182,7 @@ public final class Deposit {
 					break;
 				default:
 					logger.error("Unexepected");
-					logger.error("  data {}", StringUtil.toString(e));
+					logger.error("  data {}", ToString.withFieldName(e));
 					throw new UnexpectedException("Unexepected");
 				}
 			}
@@ -214,7 +215,7 @@ public final class Deposit {
 					break;
 				default:
 					logger.error("Unexepected");
-					logger.error("  activity {}", StringUtil.toString(e));
+					logger.error("  activity {}", ToString.withFieldName(e));
 					throw new UnexpectedException("Unexepected");	
 				}
 			}
