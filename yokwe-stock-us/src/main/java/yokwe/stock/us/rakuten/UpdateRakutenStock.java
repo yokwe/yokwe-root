@@ -11,7 +11,7 @@ import java.util.TreeSet;
 import yokwe.stock.us.Stock;
 import yokwe.util.CSVUtil;
 import yokwe.util.CSVUtil.ColumnName;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
@@ -173,7 +173,7 @@ public class UpdateRakutenStock {
 					continue;
 				default:
 					logger.error("Unpexpected exchangeJP");
-					logger.error("  data {}", StringUtil.toString(e));
+					logger.error("  data {}", ToString.withFieldName(e));
 					throw new UnexpectedException("Unexpected");
 				}
 

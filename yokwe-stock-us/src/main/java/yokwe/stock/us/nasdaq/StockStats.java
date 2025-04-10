@@ -4,7 +4,7 @@ import java.util.List;
 
 import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 
 @Sheet.SheetName("stock-stats")
@@ -100,6 +100,6 @@ public final class StockStats extends Sheet implements Comparable<StockStats> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

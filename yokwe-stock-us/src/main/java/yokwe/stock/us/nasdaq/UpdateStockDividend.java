@@ -11,7 +11,7 @@ import yokwe.stock.us.TradingStock;
 import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Dividends;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.stats.DoubleStreamUtil;
 
 public class UpdateStockDividend {
@@ -28,7 +28,7 @@ public class UpdateStockDividend {
 
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 

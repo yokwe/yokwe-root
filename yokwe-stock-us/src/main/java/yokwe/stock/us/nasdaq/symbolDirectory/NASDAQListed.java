@@ -5,7 +5,7 @@ import java.util.List;
 
 import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class NASDAQListed implements Comparable<NASDAQListed> {
 	// Symbol|Security Name|Market Category|Test Issue|Financial Status|Round Lot Size|ETF|NextShares
@@ -141,7 +141,7 @@ public class NASDAQListed implements Comparable<NASDAQListed> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

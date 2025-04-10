@@ -5,7 +5,7 @@ import java.util.List;
 
 import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class ListedSecurityReport implements Comparable<ListedSecurityReport> {
 	// Daily Listed Securities Report
@@ -211,7 +211,7 @@ public class ListedSecurityReport implements Comparable<ListedSecurityReport> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	public String getKey() {

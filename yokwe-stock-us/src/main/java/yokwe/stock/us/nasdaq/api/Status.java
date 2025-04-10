@@ -1,6 +1,6 @@
 package yokwe.stock.us.nasdaq.api;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class Status {
 	public static class CodeMessage {
@@ -14,7 +14,7 @@ public class Status {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -24,6 +24,6 @@ public class Status {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import yokwe.stock.us.Storage;
 import yokwe.util.CSVUtil;
 import yokwe.util.DoubleUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
 public class Dividend implements Comparable<Dividend> {
@@ -81,7 +81,7 @@ public class Dividend implements Comparable<Dividend> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

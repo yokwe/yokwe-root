@@ -3,8 +3,8 @@ package yokwe.stock.us.sbi;
 import java.util.Collection;
 import java.util.List;
 
-import yokwe.stock.us.Storage;
 import yokwe.stock.us.Stock;
+import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
 
 public class SBIStock {

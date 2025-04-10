@@ -1,6 +1,6 @@
 package yokwe.stock.us.nasdaq.api;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public final class LabelValue {
 	public String label;
@@ -13,6 +13,6 @@ public final class LabelValue {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

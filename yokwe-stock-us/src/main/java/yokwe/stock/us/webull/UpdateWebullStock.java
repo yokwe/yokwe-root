@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import yokwe.stock.us.Stock;
 import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -32,7 +32,7 @@ public class UpdateWebullStock {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 
 		@Override
@@ -48,7 +48,7 @@ public class UpdateWebullStock {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

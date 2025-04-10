@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public final class Stock implements Comparable<Stock> {
 	public static final String FILE_NAME = "stock.csv";
@@ -90,7 +90,7 @@ public final class Stock implements Comparable<Stock> {
 
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

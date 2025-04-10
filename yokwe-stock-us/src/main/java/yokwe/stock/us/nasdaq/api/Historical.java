@@ -3,7 +3,7 @@ package yokwe.stock.us.nasdaq.api;
 import java.time.LocalDate;
 
 import yokwe.stock.us.Storage;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class Historical {
 	public static final String PATH_DIR = Storage.NASDAQ.getPath("api/historical");
@@ -46,7 +46,7 @@ public class Historical {
         
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -63,7 +63,7 @@ public class Historical {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		}
 		
@@ -79,7 +79,7 @@ public class Historical {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -95,6 +95,6 @@ public class Historical {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

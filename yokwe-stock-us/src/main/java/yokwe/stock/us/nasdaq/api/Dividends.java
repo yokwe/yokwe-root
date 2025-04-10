@@ -1,7 +1,7 @@
 package yokwe.stock.us.nasdaq.api;
 
 import yokwe.stock.us.Storage;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class Dividends {
 	public static final String PATH_DIR = Storage.NASDAQ.getPath("api/dividends");
@@ -55,7 +55,7 @@ public class Dividends {
         
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -78,7 +78,7 @@ public class Dividends {
         
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class Dividends {
         
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	public static class Data {
@@ -125,7 +125,7 @@ public class Dividends {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -141,6 +141,6 @@ public class Dividends {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

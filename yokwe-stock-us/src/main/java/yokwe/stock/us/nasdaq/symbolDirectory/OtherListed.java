@@ -5,7 +5,7 @@ import java.util.List;
 
 import yokwe.stock.us.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class OtherListed implements Comparable<OtherListed> {
 	// ACT Symbol|Security Name|Exchange|CQS Symbol|ETF|Round Lot Size|Test Issue|NASDAQ Symbol
@@ -164,7 +164,7 @@ public class OtherListed implements Comparable<OtherListed> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

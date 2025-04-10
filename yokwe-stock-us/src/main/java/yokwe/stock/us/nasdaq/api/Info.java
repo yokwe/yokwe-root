@@ -1,7 +1,7 @@
 package yokwe.stock.us.nasdaq.api;
 
 import yokwe.stock.us.Storage;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public final class Info {
 	// https://api.nasdaq.com/api/quote/LMT/info?assetclass=stocks
@@ -49,7 +49,7 @@ public final class Info {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	public static class SecondaryData {
@@ -58,7 +58,7 @@ public final class Info {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -75,7 +75,7 @@ public final class Info {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -112,7 +112,7 @@ public final class Info {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -128,6 +128,6 @@ public final class Info {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import yokwe.stock.us.Stock.Type;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class TradingStock implements Comparable<TradingStock> {
 	private static final String PATH_FILE = Storage.getPath("trading-stock.csv");
@@ -60,7 +60,7 @@ public class TradingStock implements Comparable<TradingStock> {
 	}
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	@Override
 	public int compareTo(TradingStock that) {

@@ -12,7 +12,7 @@ import yokwe.stock.us.nasdaq.api.API;
 import yokwe.stock.us.nasdaq.api.AssetClass;
 import yokwe.stock.us.nasdaq.api.Historical;
 import yokwe.util.MarketHoliday;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class UpdateStockPrice {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -32,7 +32,7 @@ public class UpdateStockPrice {
 
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
