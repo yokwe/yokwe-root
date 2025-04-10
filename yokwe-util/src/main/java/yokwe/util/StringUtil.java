@@ -1,22 +1,12 @@
 package yokwe.util;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -229,80 +219,12 @@ public class StringUtil {
 	    return new String(hexChars);
 	}
 	
-	//
-	// toString(Object)
-	//
-	private static final Map<String, Function<Object, String>> functionMap = new TreeMap<>();
-	static {
-		functionMap.put(Boolean.class.getTypeName(), o -> (boolean)o ? "true" : "false");
-		functionMap.put(Double.class.getTypeName(),  o -> String.valueOf((double)o));
-		functionMap.put(Float.class.getTypeName(),   o -> String.valueOf((float)o));
-		functionMap.put(Integer.class.getTypeName(), o -> String.valueOf((int)o));
-		functionMap.put(Long.class.getTypeName(),    o -> String.valueOf((long)o));
-		functionMap.put(Short.class.getTypeName(),   o -> String.valueOf((short)o));
-		functionMap.put(Byte.class.getTypeName(),    o -> String.valueOf((byte)o));
-		
-		functionMap.put(Character.class.getTypeName(),  o -> "'" + String.valueOf((char)o).replace("\\",	"\\\\").replace("'", "\\\'") + "'");
-		functionMap.put(String.class.getTypeName(),     o -> "\"" + (String)o.toString().replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
-		functionMap.put(BigDecimal.class.getTypeName(), o -> ((BigDecimal)o).toPlainString());
-	}
-	
+	/**
+	 * @deprecate "Use ToString.withFieldName instead"
+	 */
+	@Deprecated
 	public static String toString(Object o) {
-		if (o == null) return "null";
-		
-		var clazz    = o.getClass();
-		var function = functionMap.get(clazz.getTypeName());
-		
-		if (function != null) return function.apply(o);
-		if (clazz.isArray())  return toStringArray(clazz, o);
-		
-		var typeName = clazz.getTypeName();
-		if (typeName.startsWith("java")) return o.toString();
-		
-		return toStringObject(clazz, o);
-	}
-	
-	private static String toStringArray(Class<?> clazz, Object o) {
-		List<String> result = new ArrayList<>();
-		
-		var length = Array.getLength(o);
-		for(int i = 0; i < length; i++) {
-			var element = Array.get(o, i);
-			result.add(toString(element));
-		}
-		
-		return "[" + String.join(", ", result) + "]";
-	}
-	
-	private static String toStringObject(Class<?> clazz, Object o) {
-		try {
-			List<String> result = new ArrayList<>();
-			
-			for(var field: clazz.getDeclaredFields()) {
-				if (Modifier.isStatic(field.getModifiers())) continue;
-				field.setAccessible(true);
-				result.add(field.getName() + ": " + toString(field.get(o)));
-			}
-			return "{" + String.join(", ", result) + "}";
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
-	}
-	
-
-	public static String toURLString(File file) {
-		try {
-			return file.toURI().toURL().toString();
-		} catch (MalformedURLException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
-	}
-	public static String toURLString(String filePath) {
-		return toURLString(new File(filePath));
+		return ToString.withFieldName(o);
 	}
 	
 	
