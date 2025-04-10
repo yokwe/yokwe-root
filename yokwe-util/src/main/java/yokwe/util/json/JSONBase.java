@@ -30,7 +30,7 @@ import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
 import jakarta.json.stream.JsonGenerator;
 import yokwe.util.GenericInfo;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
@@ -67,7 +67,7 @@ public class JSONBase {
 
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	protected JSONBase() {
