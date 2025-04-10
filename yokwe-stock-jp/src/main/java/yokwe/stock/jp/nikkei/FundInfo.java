@@ -3,7 +3,7 @@ package yokwe.stock.jp.nikkei;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 /*
 //<!-- ▼ QP-FDINFO：ファンド概要 ▼ -->
@@ -209,6 +209,6 @@ public class FundInfo {
 	}
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

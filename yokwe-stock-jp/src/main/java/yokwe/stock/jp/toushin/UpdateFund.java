@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,7 +17,6 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 
 import yokwe.stock.jp.jpx.StockInfo;
 import yokwe.util.CSVUtil;
-import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.Download;

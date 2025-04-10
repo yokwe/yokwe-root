@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import yokwe.stock.jp.Storage;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
@@ -65,7 +65,7 @@ public class UpdateJPXPreferred {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

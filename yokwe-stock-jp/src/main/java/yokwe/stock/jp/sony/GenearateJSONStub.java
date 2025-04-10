@@ -586,7 +586,7 @@ public class GenearateJSONStub {
 		out.println();
 		out.println("@Override");
 		out.println("public String toString() {");
-		out.println("return StringUtil.toString(this);");
+		out.println("return ToString.withFieldName(this);");
 		out.println("}");
 		
 		out.println("}");

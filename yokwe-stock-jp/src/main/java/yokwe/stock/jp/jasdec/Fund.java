@@ -6,7 +6,7 @@ import java.util.List;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class Fund implements Comparable<Fund> {
 	public static final String INDEFINITE = "9999-12-31";
@@ -55,7 +55,7 @@ public class Fund implements Comparable<Fund> {
 
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class JPXREIT implements Comparable<JPXREIT> {
 	private static final String PATH_FILE = Storage.JPX.getPath("jpx-reit.csv");
@@ -35,7 +35,7 @@ public class JPXREIT implements Comparable<JPXREIT> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

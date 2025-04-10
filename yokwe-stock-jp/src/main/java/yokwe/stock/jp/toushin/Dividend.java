@@ -7,7 +7,7 @@ import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class Dividend implements Comparable<Dividend>{
 	public static final String PREFIX = "div";
@@ -52,7 +52,7 @@ public class Dividend implements Comparable<Dividend>{
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

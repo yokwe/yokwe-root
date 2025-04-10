@@ -3,7 +3,7 @@ package yokwe.stock.jp.sony;
 import java.io.ByteArrayInputStream;
 
 import jakarta.xml.bind.JAXB;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.http.HttpUtil;
 
 public class Basic {
@@ -20,7 +20,7 @@ public class Basic {
 		logger.info("byetArray {}!", byetArray.length);
 		
 		yokwe.stock.jp.sony.xml.Basic basic = JAXB.unmarshal(new ByteArrayInputStream(byetArray), yokwe.stock.jp.sony.xml.Basic.class);
-		logger.info("basic {}", StringUtil.toString(basic));
+		logger.info("basic {}", ToString.withFieldName(basic));
 		
 		logger.info("STOP");
 	}

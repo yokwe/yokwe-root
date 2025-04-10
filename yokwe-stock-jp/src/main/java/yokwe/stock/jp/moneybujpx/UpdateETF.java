@@ -15,7 +15,7 @@ import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.jpx.Stock;
 import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
@@ -34,7 +34,7 @@ public class UpdateETF {
 	            
 	            @Override
 	            public String toString() {
-	                return StringUtil.toString(this);
+	                return ToString.withFieldName(this);
 	            }
 	        }
 	        
@@ -52,7 +52,7 @@ public class UpdateETF {
 
 	            @Override
 	            public String toString() {
-	                return StringUtil.toString(this);
+	                return ToString.withFieldName(this);
 	            }
 	        }
 	        
@@ -63,7 +63,7 @@ public class UpdateETF {
 
 	            @Override
 	            public String toString() {
-	                return StringUtil.toString(this);
+	                return ToString.withFieldName(this);
 	            }
 	        }
 
@@ -75,7 +75,7 @@ public class UpdateETF {
 
 	            @Override
 	            public String toString() {
-	                return StringUtil.toString(this);
+	                return ToString.withFieldName(this);
 	            }
 	        }
 
@@ -156,7 +156,7 @@ public class UpdateETF {
 	        
 	        @Override
 	        public String toString() {
-	            return StringUtil.toString(this);
+	            return ToString.withFieldName(this);
 	        }
 	    }
 
@@ -165,7 +165,7 @@ public class UpdateETF {
 
 	    @Override
 	    public String toString() {
-	        return StringUtil.toString(this);
+	        return ToString.withFieldName(this);
 	    }
 	}
 

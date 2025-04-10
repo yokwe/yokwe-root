@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class RakutenFund implements Comparable<RakutenFund> {
 	private static final String PATH_FILE = Storage.Rakuten.getPath("rakuten-fund.csv");
@@ -58,7 +58,7 @@ public class RakutenFund implements Comparable<RakutenFund> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

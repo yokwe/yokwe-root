@@ -7,7 +7,7 @@ import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public final class Fund implements Comparable<Fund> {
 	private static final String PATH = Storage.Toushin.getPath("fund.csv");
@@ -109,7 +109,7 @@ public final class Fund implements Comparable<Fund> {
 	
     @Override
     public String toString() {
-        return StringUtil.toString(this);
+        return ToString.withFieldName(this);
     }
     
     @Override

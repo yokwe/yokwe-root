@@ -25,7 +25,7 @@ import jakarta.xml.bind.annotation.XmlElementWrapper;
 import yokwe.stock.jp.xbrl.XBRL;
 import yokwe.util.FileUtil;
 import yokwe.util.StreamUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
 public class UpdateManifest {
@@ -54,7 +54,7 @@ public class UpdateManifest {
 				
 				@Override
 				public String toString() {
-					return StringUtil.toString(this);
+					return ToString.withFieldName(this);
 				}
 				
 				// Called from JAXB.unmarshal
@@ -74,7 +74,7 @@ public class UpdateManifest {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 			
 			// Called from JAXB.unmarshal

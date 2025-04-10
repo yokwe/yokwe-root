@@ -2,8 +2,7 @@ package yokwe.stock.jp.sony.xml;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
-
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class Basic {
 	public static class Fund {
@@ -25,7 +24,7 @@ public class Basic {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		}
 		
@@ -45,7 +44,7 @@ public class Basic {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		}
 
@@ -74,7 +73,7 @@ public class Basic {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -82,6 +81,6 @@ public class Basic {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

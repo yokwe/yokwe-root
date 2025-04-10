@@ -6,7 +6,7 @@ import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class JPXPreferred implements Comparable<JPXPreferred> {
 	// Current
@@ -37,7 +37,7 @@ public class JPXPreferred implements Comparable<JPXPreferred> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

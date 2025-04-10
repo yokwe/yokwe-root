@@ -1,7 +1,7 @@
 package yokwe.stock.jp.sony.json;
 
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.json.JSON.Name;
 
 public final class FundData {
@@ -51,7 +51,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -101,7 +101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -151,7 +151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -201,7 +201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -251,7 +251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -301,7 +301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -351,7 +351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -401,7 +401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -451,7 +451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -501,7 +501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -551,7 +551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -601,7 +601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -651,7 +651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -701,7 +701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -751,7 +751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -801,7 +801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -851,7 +851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -901,7 +901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -951,7 +951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1001,7 +1001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1051,7 +1051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1101,7 +1101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1151,7 +1151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1201,7 +1201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1251,7 +1251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1301,7 +1301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1351,7 +1351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1401,7 +1401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1451,7 +1451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1501,7 +1501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1551,7 +1551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1601,7 +1601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1651,7 +1651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1701,7 +1701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1751,7 +1751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1801,7 +1801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1851,7 +1851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1901,7 +1901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -1951,7 +1951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2001,7 +2001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2051,7 +2051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2101,7 +2101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2151,7 +2151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2201,7 +2201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2251,7 +2251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2301,7 +2301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2351,7 +2351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2401,7 +2401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2451,7 +2451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2501,7 +2501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2551,7 +2551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2601,7 +2601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2651,7 +2651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2701,7 +2701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2751,7 +2751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2801,7 +2801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2851,7 +2851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2901,7 +2901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -2951,7 +2951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3001,7 +3001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3051,7 +3051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3101,7 +3101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3151,7 +3151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3201,7 +3201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3251,7 +3251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3301,7 +3301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3351,7 +3351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3401,7 +3401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3451,7 +3451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3501,7 +3501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3551,7 +3551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3601,7 +3601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3651,7 +3651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3701,7 +3701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3751,7 +3751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3801,7 +3801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3851,7 +3851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3901,7 +3901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -3951,7 +3951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4001,7 +4001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4051,7 +4051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4101,7 +4101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4151,7 +4151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4201,7 +4201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4251,7 +4251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4301,7 +4301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4351,7 +4351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4401,7 +4401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4451,7 +4451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4501,7 +4501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4551,7 +4551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4601,7 +4601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4651,7 +4651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4701,7 +4701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4751,7 +4751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4801,7 +4801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4851,7 +4851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4901,7 +4901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -4951,7 +4951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5001,7 +5001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5051,7 +5051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5101,7 +5101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5151,7 +5151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5201,7 +5201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5251,7 +5251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5301,7 +5301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5351,7 +5351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5401,7 +5401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5451,7 +5451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5501,7 +5501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5551,7 +5551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5601,7 +5601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5651,7 +5651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5701,7 +5701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5751,7 +5751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5801,7 +5801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5851,7 +5851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5901,7 +5901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -5951,7 +5951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6001,7 +6001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6051,7 +6051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6101,7 +6101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6151,7 +6151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6201,7 +6201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6251,7 +6251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6301,7 +6301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6351,7 +6351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6401,7 +6401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6451,7 +6451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6501,7 +6501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6551,7 +6551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6601,7 +6601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6651,7 +6651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6701,7 +6701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6751,7 +6751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6801,7 +6801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6851,7 +6851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6901,7 +6901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -6951,7 +6951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7001,7 +7001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7051,7 +7051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7101,7 +7101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7151,7 +7151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7201,7 +7201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7251,7 +7251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7301,7 +7301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7351,7 +7351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7401,7 +7401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7451,7 +7451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7501,7 +7501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7551,7 +7551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7601,7 +7601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7651,7 +7651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7701,7 +7701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7751,7 +7751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7801,7 +7801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7851,7 +7851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7901,7 +7901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -7951,7 +7951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8001,7 +8001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8051,7 +8051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8101,7 +8101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8151,7 +8151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8201,7 +8201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8251,7 +8251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8301,7 +8301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8351,7 +8351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8401,7 +8401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8451,7 +8451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8501,7 +8501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8551,7 +8551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8601,7 +8601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8651,7 +8651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8701,7 +8701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8751,7 +8751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8801,7 +8801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8851,7 +8851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8901,7 +8901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -8951,7 +8951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9001,7 +9001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9051,7 +9051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9101,7 +9101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9151,7 +9151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9201,7 +9201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9251,7 +9251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9301,7 +9301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9351,7 +9351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9401,7 +9401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9451,7 +9451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9501,7 +9501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9551,7 +9551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9601,7 +9601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9651,7 +9651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9701,7 +9701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9751,7 +9751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9801,7 +9801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9851,7 +9851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9901,7 +9901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -9951,7 +9951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10001,7 +10001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10051,7 +10051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10101,7 +10101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10151,7 +10151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10201,7 +10201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10251,7 +10251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10301,7 +10301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10351,7 +10351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10401,7 +10401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10451,7 +10451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10501,7 +10501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10551,7 +10551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10601,7 +10601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10651,7 +10651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10701,7 +10701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10751,7 +10751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10801,7 +10801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10851,7 +10851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10901,7 +10901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -10951,7 +10951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11001,7 +11001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11051,7 +11051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11101,7 +11101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11151,7 +11151,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11201,7 +11201,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11251,7 +11251,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11301,7 +11301,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11351,7 +11351,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11401,7 +11401,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11451,7 +11451,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11501,7 +11501,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11551,7 +11551,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11601,7 +11601,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11651,7 +11651,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11701,7 +11701,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11751,7 +11751,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11801,7 +11801,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11851,7 +11851,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11901,7 +11901,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -11951,7 +11951,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -12001,7 +12001,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -12051,7 +12051,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -12101,7 +12101,7 @@ public final class FundData {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -12350,7 +12350,7 @@ public final class FundData {
 
     @Override
     public String toString() {
-        return StringUtil.toString(this);
+        return ToString.withFieldName(this);
     }
 }
 

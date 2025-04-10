@@ -17,7 +17,7 @@ import yokwe.stock.jp.toushin.Fund;
 import yokwe.stock.jp.toushin.UpdateStats;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;
 
@@ -46,7 +46,7 @@ public final class UpdateNikkoFund {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

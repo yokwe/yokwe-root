@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class SBIFund implements Comparable<SBIFund> {
 	private static final String PATH_FILE = Storage.SBI.getPath("sbi-fund.csv");
@@ -58,7 +58,7 @@ public class SBIFund implements Comparable<SBIFund> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

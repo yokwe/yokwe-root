@@ -6,7 +6,7 @@ import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class JPXForeign implements Comparable<JPXForeign> {
 	private static final String PATH_FILE = Storage.JPX.getPath("jpx-foreign.csv");
@@ -35,7 +35,7 @@ public class JPXForeign implements Comparable<JPXForeign> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

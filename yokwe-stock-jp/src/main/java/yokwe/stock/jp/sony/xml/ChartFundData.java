@@ -4,8 +4,7 @@ import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
-
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class ChartFundData {
 	public static class Fund {
@@ -40,7 +39,7 @@ public class ChartFundData {
 
 					@Override
 					public String toString() {
-						return StringUtil.toString(this);
+						return ToString.withFieldName(this);
 					}
 				}
 
@@ -53,7 +52,7 @@ public class ChartFundData {
 				
 				@Override
 				public String toString() {
-					return StringUtil.toString(this);
+					return ToString.withFieldName(this);
 				}
 			}
 
@@ -66,7 +65,7 @@ public class ChartFundData {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		}
 
@@ -85,7 +84,7 @@ public class ChartFundData {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -93,6 +92,6 @@ public class ChartFundData {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

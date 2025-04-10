@@ -3,7 +3,7 @@ package yokwe.stock.jp.nikkei;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 /*
 //<!-- ▼ QP-BUNPAI：分配金実績 ▼ -->
@@ -240,6 +240,6 @@ public class DivHistory {
 		}
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 }

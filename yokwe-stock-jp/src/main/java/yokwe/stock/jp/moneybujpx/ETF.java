@@ -6,7 +6,7 @@ import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class ETF implements Comparable<ETF> {
 	private static final String PATH = Storage.MoneyBuJPX.getPath("etf.csv");
@@ -78,7 +78,7 @@ public class ETF implements Comparable<ETF> {
 	
 	@Override
 	public String toString() {
-	    return StringUtil.toString(this);
+	    return ToString.withFieldName(this);
 	}
 
 	@Override

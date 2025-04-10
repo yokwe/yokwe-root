@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class NikkeiFund implements Comparable<NikkeiFund> {
 	private static final String PATH_FILE = Storage.Nikkei.getPath("nikkei-fund.csv");
@@ -56,7 +56,7 @@ public class NikkeiFund implements Comparable<NikkeiFund> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	@Override
 	public int compareTo(NikkeiFund that) {

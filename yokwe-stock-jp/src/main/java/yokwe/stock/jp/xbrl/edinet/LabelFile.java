@@ -14,7 +14,7 @@ import yokwe.stock.jp.xbrl.XML;
 import yokwe.util.EnumUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.JAXBUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class LabelFile {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -94,7 +94,7 @@ public class LabelFile {
 
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -113,7 +113,7 @@ public class LabelFile {
 
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -132,7 +132,7 @@ public class LabelFile {
 
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	
@@ -151,7 +151,7 @@ public class LabelFile {
 
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class ETFDiv implements Comparable<ETFDiv> {
 	private static final String PREFIX = "etf-div";
@@ -112,7 +112,7 @@ public class ETFDiv implements Comparable<ETFDiv> {
     
     @Override
     public String toString() {
-        return StringUtil.toString(this);
+        return ToString.withFieldName(this);
     }
 
 	@Override

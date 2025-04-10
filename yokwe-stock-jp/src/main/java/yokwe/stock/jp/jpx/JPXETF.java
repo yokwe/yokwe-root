@@ -7,7 +7,7 @@ import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class JPXETF implements Comparable<JPXETF> {	
 	private static final String PATH_FILE = Storage.JPX.getPath("jpx-etf.csv");
@@ -38,7 +38,7 @@ public class JPXETF implements Comparable<JPXETF> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

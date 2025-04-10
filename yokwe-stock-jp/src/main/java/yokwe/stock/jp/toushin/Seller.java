@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
 public class Seller implements Comparable<Seller> {
@@ -85,7 +85,7 @@ public class Seller implements Comparable<Seller> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

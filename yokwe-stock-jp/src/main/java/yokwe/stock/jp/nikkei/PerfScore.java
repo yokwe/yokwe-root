@@ -3,7 +3,7 @@ package yokwe.stock.jp.nikkei;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 /*
 //<!-- ▼ QP-SCORE：QUICK投信モニタリングスコア ▼ -->
@@ -137,6 +137,6 @@ public class PerfScore {
 	}
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

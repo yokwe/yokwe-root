@@ -7,7 +7,7 @@ import java.util.List;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public final class Price implements Comparable<Price>{
 	public static final String PREFIX = "price";
@@ -50,7 +50,7 @@ public final class Price implements Comparable<Price>{
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 
 	@Override

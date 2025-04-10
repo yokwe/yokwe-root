@@ -10,7 +10,7 @@ import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.toushin.Seller;
 import yokwe.stock.jp.toushin.UpdateStats;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class NomuraFund implements Comparable<NomuraFund> {
 	public static final String SELLER_NAME = "野村證券";
@@ -56,7 +56,7 @@ public class NomuraFund implements Comparable<NomuraFund> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 	@Override

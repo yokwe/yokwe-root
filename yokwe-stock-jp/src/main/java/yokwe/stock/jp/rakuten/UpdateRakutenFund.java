@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.stock.jp.toushin.Fund;
-import yokwe.stock.jp.toushin.UpdateStats;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.http.HttpUtil;

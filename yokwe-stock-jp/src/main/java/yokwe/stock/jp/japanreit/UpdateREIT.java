@@ -15,7 +15,7 @@ import yokwe.util.FileUtil;
 import yokwe.util.ListUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.ScrapeUtil.AsNumber;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.http.HttpUtil;
 import yokwe.util.json.JSON;
 
@@ -45,7 +45,7 @@ public class UpdateREIT {
 			
 			@Override
 			public String toString() {
-				return StringUtil.toString(this);
+				return ToString.withFieldName(this);
 			}
 		}
 	}
@@ -74,7 +74,7 @@ public class UpdateREIT {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -106,7 +106,7 @@ public class UpdateREIT {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -130,7 +130,7 @@ public class UpdateREIT {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 		
 		public List<Integer> getList() {
@@ -187,7 +187,7 @@ public class UpdateREIT {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 
@@ -226,7 +226,7 @@ public class UpdateREIT {
 		
 		@Override
 		public String toString() {
-			return StringUtil.toString(this);
+			return ToString.withFieldName(this);
 		}
 	}
 	

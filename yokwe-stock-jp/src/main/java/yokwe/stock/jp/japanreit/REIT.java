@@ -5,7 +5,7 @@ import java.util.Map;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class REIT implements Comparable<REIT> {
 	private static final String PATH = Storage.JapanREIT.getPath("reit.csv");
@@ -53,7 +53,7 @@ public class REIT implements Comparable<REIT> {
 	
 	@Override
 	public String toString() {
-	    return StringUtil.toString(this);
+	    return ToString.withFieldName(this);
 	}
 
 	@Override

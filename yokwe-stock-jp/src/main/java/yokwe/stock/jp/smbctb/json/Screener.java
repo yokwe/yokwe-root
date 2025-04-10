@@ -2,7 +2,7 @@ package yokwe.stock.jp.smbctb.json;
 
 import java.math.BigDecimal;
 
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 import yokwe.util.json.JSON.Name;
 
 public final class Screener {
@@ -14,7 +14,7 @@ public final class Screener {
 
         @Override
         public String toString() {
-            return StringUtil.toString(this);
+            return ToString.withFieldName(this);
         }
     }
 
@@ -25,6 +25,6 @@ public final class Screener {
 
     @Override
     public String toString() {
-        return StringUtil.toString(this);
+        return ToString.withFieldName(this);
     }
 }

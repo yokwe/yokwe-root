@@ -3,7 +3,7 @@ package yokwe.stock.jp.nikkei;
 import java.util.regex.Pattern;
 
 import yokwe.util.ScrapeUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 /*
 //<!-- ▼ QP-YIELD：分配金利回り ▼ -->
@@ -97,6 +97,6 @@ public class DivLast {
 	}
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 }

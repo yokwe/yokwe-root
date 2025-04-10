@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import yokwe.stock.jp.Storage;
 import yokwe.util.ListUtil;
-import yokwe.util.StringUtil;
+import yokwe.util.ToString;
 
 public class SonyFundInfo implements Comparable<SonyFundInfo> {
 	private static final String PATH_FILE = Storage.Sony.getPath("sony-fund-info.csv");
@@ -103,7 +103,7 @@ public class SonyFundInfo implements Comparable<SonyFundInfo> {
 	
 	@Override
 	public String toString() {
-		return StringUtil.toString(this);
+		return ToString.withFieldName(this);
 	}
 	
 }
