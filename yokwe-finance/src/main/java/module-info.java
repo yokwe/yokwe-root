@@ -26,4 +26,5 @@ open module yokwe.finance {
 	requires org.seleniumhq.selenium.support;
 	
 	requires jul.to.slf4j;
+	requires org.apache.httpcomponents.core5.httpcore5.h2;
 }
