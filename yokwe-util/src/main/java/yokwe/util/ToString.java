@@ -64,82 +64,93 @@ public class ToString {
 	
 	private static final Map<String, Function<Object, String>> functionMap = new TreeMap<>();
 	static {
-		functionMap.put(Boolean.class.getTypeName(), o -> (boolean)o ? "true" : "false");
-		functionMap.put(Double.class.getTypeName(),  o -> String.valueOf((double)o));
-		functionMap.put(Float.class.getTypeName(),   o -> String.valueOf((float)o));
-		functionMap.put(Integer.class.getTypeName(), o -> String.valueOf((int)o));
-		functionMap.put(Long.class.getTypeName(),    o -> String.valueOf((long)o));
-		functionMap.put(Short.class.getTypeName(),   o -> String.valueOf((short)o));
-		functionMap.put(Byte.class.getTypeName(),    o -> String.valueOf((byte)o));
-		
-		functionMap.put(Character.class.getTypeName(),  o -> "'" + String.valueOf((char)o).replace("\\",	"\\\\").replace("'", "\\\'") + "'");
+		// special for java.* class
+		functionMap.put(Boolean.class.getTypeName(),    o -> Boolean.toString((boolean)o));
+		functionMap.put(Double.class.getTypeName(),     o -> Double.toString((double)o));
+		functionMap.put(Float.class.getTypeName(),      o -> Float.toString((float)o));
+		functionMap.put(Integer.class.getTypeName(),    o -> Integer.toString((int)o));
+		functionMap.put(Long.class.getTypeName(),       o -> Long.toString((long)o));
+		functionMap.put(Short.class.getTypeName(),      o -> Short.toString((short)o));
+		functionMap.put(Byte.class.getTypeName(),       o -> Byte.toString((byte)o));
+		functionMap.put(Character.class.getTypeName(),  o -> "'" + String.valueOf((char)o).replace("\\", "\\\\").replace("'", "\\\'") + "'");
 		functionMap.put(String.class.getTypeName(),     o -> "\"" + (String)o.toString().replace("\\", "\\\\").replace("\"", "\\\"") + "\"");
 		functionMap.put(BigDecimal.class.getTypeName(), o -> ((BigDecimal)o).toPlainString());
 	}
 	
 	
-	public static class Options {
-		public static class Builder {
-			private boolean      withFieldName;
-			private List<String> excludePackageList = new ArrayList<>();
-			
-			private Builder() {
-				withFieldName = true;
-				excludePackageList.add("java.");
-				excludePackageList.add("javax.");
-				excludePackageList.add("jdk.");
-				excludePackageList.add("sun.");
-				excludePackageList.add("com.sun.");
+	public static final class Options {
+		private boolean      withFieldName;
+		private List<String> includePackageList;
+		private List<String> excludePackageList;
+		
+		private Options() {
+			this.withFieldName      = true;
+			this.includePackageList = new ArrayList<>();
+			this.excludePackageList = new ArrayList<>();
+		}
+		
+		private Options(Options that) {
+			this.withFieldName      = that.withFieldName;
+			this.includePackageList = that.includePackageList;
+			this.excludePackageList = that.excludePackageList;
+		}
+		public Options withFieldName(boolean value) {
+			withFieldName = value;
+			return this;
+		}
+		public Options includePackage(String... stringArray) {
+			for(var string: stringArray) {
+				includePackageList.add(string);
 			}
-			
-			public Builder withFieldName(boolean value) {
-				withFieldName = value;
-				return this;
-			}
-			public Builder excludePackage(String string) {
+			return this;
+		}
+		public Options excludePackage(String... stringArray) {
+			for(var string: stringArray) {
 				excludePackageList.add(string);
-				return this;
 			}
-			
-			public Options build() {
-				return new Options(this);
-			}
+			return this;
 		}
 		
-		public static Builder builder() {
-			return new Builder();
+		public boolean matchIncludePackage(String typeName) {
+			for(var packagePrefix: includePackageList) {
+				if (typeName.startsWith(packagePrefix)) return true;
+			}
+			return false;
 		}
-		
-		public final boolean      withFieldName;
-		public final List<String> excludePackageList;
-		
-		private Options(Builder builder) {
-			this.withFieldName      = builder.withFieldName;
-			this.excludePackageList = builder.excludePackageList;
+		public boolean matchExcludePackage(String typeName) {
+			for(var packagePrefix: excludePackageList) {
+				if (typeName.startsWith(packagePrefix)) return true;
+			}
+			return false;
 		}
 	}
-	public static final Options WITH_FIELD_NAME    = Options.builder().withFieldName(true).build();
-	public static final Options WITHOUT_FIELD_NAME = Options.builder().withFieldName(false).build();
+	
+	public static final Options DEFAULT_OPTIONS;
+	static {
+		DEFAULT_OPTIONS = new Options();
+		DEFAULT_OPTIONS.withFieldName(true);
+		DEFAULT_OPTIONS.excludePackage("java.", "javax.", "jdk.", "sun.", "com.sun.");
+	}
+	
 	
 	public static String withFieldName(Object o) {
-		return toString(o, WITH_FIELD_NAME);
+		return withOptions(o, new Options(DEFAULT_OPTIONS).withFieldName(true));
 	}
 	public static String withoutFieldName(Object o) {
-		return toString(o, WITHOUT_FIELD_NAME);
+		return withOptions(o, new Options(DEFAULT_OPTIONS).withFieldName(false));
 	}
-	public static String toString(Object o, Options options) {
+	public static String withOptions(Object o, Options options) {
 		if (o == null) return "null";
 		
 		var clazz     = o.getClass();
+		if (clazz.isArray())  return toStringArray(o, options);
+
 		var typeName  = clazz.getTypeName();
 		var function  = functionMap.get(typeName);
+		if (function != null) return function.apply(o);
 		
-		if (function != null)            return function.apply(o);
-		if (clazz.isArray())             return toStringArray(o, options);
-		
-		for(var pakcagePrifx: options.excludePackageList) {
-			if (typeName.startsWith(pakcagePrifx)) return o.toString();
-		}
+		if (options.matchIncludePackage(typeName)) return toStringObject(o, options);
+		if (options.matchExcludePackage(typeName)) return o.toString();
 		
 		return toStringObject(o, options);
 	}
@@ -150,22 +161,20 @@ public class ToString {
 		var length = Array.getLength(o);
 		for(int i = 0; i < length; i++) {
 			var element = Array.get(o, i);
-			stringJoiner.add(toString(element, options));
+			stringJoiner.add(withOptions(element, options));
 		}
 		
 		return stringJoiner.toString();
 	}
 	
 	private static String toStringObject(Object o, Options options) {
-		var classInfo = ClassInfo.getInstance(o.getClass());
-		
 		var stringJoiner = new StringJoiner(", ", "{", "}");
 		
-		for(var fieldInfo: classInfo.fieldInfos) {
+		for(var fieldInfo: ClassInfo.getInstance(o.getClass()).fieldInfos) {
 			if (options.withFieldName) {
-				stringJoiner.add(fieldInfo.name + ": " + toString(fieldInfo.get(o), options));
+				stringJoiner.add(fieldInfo.name + ": " + withOptions(fieldInfo.get(o), options));
 			} else {
-				stringJoiner.add(toString(fieldInfo.get(o), options));
+				stringJoiner.add(withOptions(fieldInfo.get(o), options));
 			}
 		}
 		
