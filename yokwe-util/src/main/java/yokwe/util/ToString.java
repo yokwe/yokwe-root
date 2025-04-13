@@ -143,7 +143,8 @@ public class ToString {
 		if (o == null) return "null";
 		
 		var clazz     = o.getClass();
-		if (clazz.isArray())  return toStringArray(o, options);
+		if (clazz.isArray()) return toStringArray(o, options);
+		if (clazz.isEnum())  return o.toString();
 
 		var typeName  = clazz.getTypeName();
 		var function  = functionMap.get(typeName);
@@ -151,7 +152,7 @@ public class ToString {
 		
 		if (options.matchIncludePackage(typeName)) return toStringObject(o, options);
 		if (options.matchExcludePackage(typeName)) return o.toString();
-		
+				
 		return toStringObject(o, options);
 	}
 	
