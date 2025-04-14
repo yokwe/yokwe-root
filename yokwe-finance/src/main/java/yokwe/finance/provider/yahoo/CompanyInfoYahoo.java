@@ -130,10 +130,12 @@ public class CompanyInfoYahoo {
 		}
 		for(var e: result.quotes) {
 			if (e.symbol.equals(key)) {
-				if (e.longname.isEmpty() && e.shortname.isEmpty()) {
-					logger.warn("no longname and no shortname  {}", e);
-//					logger.warn("  key     {}", key);
-//					logger.warn("  quote   {}", e);
+				if (e.sectorDisp == null) {
+					logger.warn("sectorDisp is null  {}", e);
+					return null;
+				}
+				if (e.industryDisp == null) {
+					logger.warn("industryDisp is null  {}", e);
 					return null;
 				}
 				return new CompanyInfoType(e.symbol, e.sectorDisp, e.industryDisp);
