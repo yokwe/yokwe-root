@@ -159,7 +159,7 @@ public class UpdateETFDivInfo {
 	        @JSON.Ignore public long              rightUnit;  // 受益権口数
 	        @JSON.Ignore public String            sharesDate; // YYYY/MM/DD
 	        
-	                     public String            shintakuRyuhogaku;
+	                     public BigDecimal        shintakuRyuhogaku;
 	        
 	        @JSON.Ignore public BigDecimal        spread;     // スプレッド…最良の売気配値段と買気配値段の価格差（%）
 	        @JSON.Ignore public String            spreadDate; // STRING STRING
@@ -225,7 +225,8 @@ public class UpdateETFDivInfo {
 		
 		logger.info("etf  {}", stockCodeList.size());
 		
-		var stockCodeMap = StorageFund.FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
+		//var stockCodeMap = StorageFund.FundInfo.getList().stream().filter(o -> !o.stockCode.isEmpty()).collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
+		var stockCodeMap = StorageStock.StockInfoJP.getList().stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.isinCode));
 		//  stockCode to isinCode
 		
 		var list = new ArrayList<ETFInfoType>();
@@ -263,24 +264,23 @@ public class UpdateETFDivInfo {
 					String     name              = info.data.stockName;
 					String     category          = categoryMap.get(info.data.categoryName);
 					BigDecimal expenseRatio      = info.data.managementFee.movePointLeft(2); // change to percent value
-					int        divFreq           = info.data.dividendDate.isEmpty() ? 1 : Integer.valueOf(info.data.dividendDate.replace("（年", "").replace("回）", ""));
+					int        divFreq           = info.data.dividendDate == null ? 1 : Integer.valueOf(info.data.dividendDate.replace("（年", "").replace("回）", ""));
 					LocalDate  listingDate       = toLocalDate(info.data.listingDate);
 					String     productType       = info.data.productType;
-					BigDecimal shintakuRyuhogaku = info.data.shintakuRyuhogaku.isEmpty() ? BigDecimal.ZERO : new BigDecimal(info.data.shintakuRyuhogaku).movePointLeft(2);
+					BigDecimal shintakuRyuhogaku = info.data.shintakuRyuhogaku == null ? BigDecimal.ZERO : info.data.shintakuRyuhogaku.movePointLeft(2);
 					BigDecimal fundUnit;
 					
 					{
 						String isinCode = stockCodeMap.get(stockCode);
 						if (isinCode == null) {
-							// can be happen for very new ETF?
 							fundUnit = BigDecimal.ONE;
-							logger.warn("No isinCode  {}  {}", stockCode, name);
+							logger.warn("No isinCode           {}  {}", stockCode, name);
 						} else {
 							var fundPriceMap = StorageFund.FundPrice.getMap(isinCode);
 							if (fundPriceMap.isEmpty()) {
 								// empty fund price map
 								fundUnit = BigDecimal.ONE;
-								logger.warn("Empty fund price map  {}  {}  {}  {}", stockCode, isinCode, name);
+								logger.warn("Empty fund price map  {}  {}  {}", stockCode, name, isinCode);
 							} else {
 								LocalDate  date = toLocalDate(info.data.date);
 								BigDecimal nav  = new BigDecimal(info.data.nav.replace(",", ""));
@@ -320,6 +320,11 @@ public class UpdateETFDivInfo {
 						logger.error("Unexpected categoryName");
 						logger.error("  {}  {}  {}", stockCode, name, info.data.categoryName);
 						throw new UnexpectedException("Unexpected categoryName");
+					}
+					
+					if (productType == null) {
+						productType = "";
+						logger.warn("No productType        {}  {}", stockCode, name);
 					}
 					
 					if (info.data.dividendHist != null) {
