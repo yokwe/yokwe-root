@@ -212,6 +212,7 @@ public class JSON {
 							logger.error("  fieldName  {}", fieldInfo.fieldName);
 							logger.error("  jsonName   {}", fieldInfo.jsonName);
 							logger.error("  type       {}", fieldInfo.typeName);
+							logger.error("  jsonObject {}", jsonObject.toString());
 						}
 					}
 				}
@@ -222,7 +223,7 @@ public class JSON {
 						logger.error("jsonObject jsonName not found in field");
 						logger.error("  clazz      {}", clazz.getTypeName());
 						logger.error("  jsonName   {}", jsonName);
-						logger.error("  jsonObject {}", jsonObjectKeySet);
+						logger.error("  jsonObject {}", jsonObject.toString());
 					}
 				}
 				if (foundError) {
@@ -273,7 +274,7 @@ public class JSON {
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
 				InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
+			logger.error("{} {}", exceptionName, e.toString());
 			throw new UnexpectedException(exceptionName, e);
 		}
 	}
