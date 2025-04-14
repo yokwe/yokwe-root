@@ -8,16 +8,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,22 +23,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
-import jakarta.json.JsonNumber;
+import jakarta.json.JsonException;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
-import jakarta.json.JsonString;
 import jakarta.json.JsonValue;
 import jakarta.json.JsonValue.ValueType;
 import jakarta.json.stream.JsonGenerator;
-import jakarta.json.stream.JsonParsingException;
 import yokwe.util.GenericInfo;
+import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
-public final class JSON {
+public class JSON {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	@Retention(RetentionPolicy.RUNTIME)
@@ -66,653 +63,672 @@ public final class JSON {
 		String value();
 	}
 	
-	public static class FieldInfo {
-		public final Field    field;
-		public final Class<?> clazz;
-		public final String   name;
-		public final String   jsonName;
-		public final String   type;
-		public final boolean  isArray;
-		public final boolean  ignoreField;
-		public final boolean  optionalField;
-		
-		public final Map<String, Enum<?>> enumMap;
-		public final DateTimeFormatter    dateTimeFormatter;
-		
-		FieldInfo(Field field) {
-			this.field = field;
-			
-			this.name  = field.getName();
-			this.clazz = field.getType();
-
-			// Use json name if exists.
-			Name jsonName = field.getDeclaredAnnotation(Name.class);
-			this.jsonName = (jsonName == null) ? field.getName() : jsonName.value();
-			
-			Class<?> type = field.getType();
-			this.type     = type.getName();
-			this.isArray  = type.isArray();
-			
-			this.ignoreField   = field.getDeclaredAnnotation(Ignore.class) != null;
-			this.optionalField = field.getDeclaredAnnotation(Optional.class) != null;
-			
-			DateTimeFormat dateTimeFormat = field.getDeclaredAnnotation(DateTimeFormat.class);
-			this.dateTimeFormatter = (dateTimeFormat == null) ? null : DateTimeFormatter.ofPattern(dateTimeFormat.value());
-			
-			if (clazz.isEnum()) {
-				enumMap = new TreeMap<>();
-				
-				@SuppressWarnings("unchecked")
-				Class<Enum<?>> enumClazz = (Class<Enum<?>>)clazz;
-				for(Enum<?> e: enumClazz.getEnumConstants()) {
-					enumMap.put(e.toString(), e);
-				}
-			} else {
-				enumMap = null;
-			}
-		}
-
-	}
 	
-	public static class ClassInfo {
-		private static Map<String, ClassInfo> map = new TreeMap<>();
-		
-		public static ClassInfo get(Class<?> clazz) {
-			String clazzName = clazz.getName();
-			if (map.containsKey(clazzName)) {
-				return map.get(clazzName);
-			} else {
-				ClassInfo classInfo = new ClassInfo(clazz);
-				map.put(clazzName, classInfo);
-				return classInfo;
-			}
-		}
-		
-		public final Class<?>       clazz;
-		public final String         clazzName;
-		public final Constructor<?> constructor;
-
-		public final FieldInfo[]    fieldInfos;
-		public final Set<String>    fieldNameSet;
-		
-		private ClassInfo(Class<?> clazz) {
-			try {
-				this.clazz      = clazz;
-				this.clazzName  = clazz.getName();
-				
-				{
-					Constructor<?> constructor = null;
-					
-					if (!clazz.isInterface()) {
-						try {
-							constructor = clazz.getDeclaredConstructor();
-							constructor.setAccessible(true); // to access protected and private method, call setAccessble(true)
-						} catch(NoSuchMethodException | SecurityException e) {
-							logger.warn("Failed to get constructor  {}", clazzName);
-						}
-					}
-					
-					this.constructor = constructor;
-				}
-				
-				{
-					List<Field> fieldList = new ArrayList<>();
-					for(Field field: clazz.getDeclaredFields()) {
-						// Skip static field
-						if (Modifier.isStatic(field.getModifiers())) continue;
-						field.setAccessible(true); // to access protected and private file, call setAccessble(true)
-						fieldList.add(field);
-					}
-					this.fieldInfos = new FieldInfo[fieldList.size()];
-					for(int i = 0; i < fieldInfos.length; i++) {
-						fieldInfos[i] = new FieldInfo(fieldList.get(i));
-					}
-				}
-				
-				this.fieldNameSet = Arrays.stream(fieldInfos).map(o -> o.jsonName).collect(Collectors.toSet());
-			} catch (SecurityException e) {
-				String exceptionName = e.getClass().getSimpleName();
-				logger.error("{} {}", exceptionName, e);
-				throw new UnexpectedException(exceptionName, e);
-			}
-		}
-
-	}
-	
-	private static final LocalDate     NULL_LOCAL_DATE      = LocalDate.of(0, 1, 1);
-	private static final LocalTime     NULL_LOCAL_TIME      = LocalTime.of(0, 0, 0);
-	private static final LocalDateTime NULL_LOCAL_DATE_TIME = LocalDateTime.of(NULL_LOCAL_DATE, NULL_LOCAL_TIME);
-
+	//
+	// unmarshal
+	//
 	public static <E> E unmarshal(Class<E> clazz, String jsonString) {
-		try {
-			return unmarshal(clazz, new StringReader(jsonString));
-		} catch (JsonParsingException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			// FIXME
-			logger.warn("Exception {} {}", exceptionName, e.getMessage());
-			logger.warn("  message {}", e.getMessage());
-			logger.warn("  jsonString  {}!", jsonString);
-			return null;
-		}
+		return unmarshal(clazz, new StringReader(jsonString));
 	}
 	public static <E> E unmarshal(Class<E> clazz, Reader reader) {
-		try (JsonReader jsonReader = Json.createReader(reader)) {
-			ClassInfo classInfo = ClassInfo.get(clazz);
-			
-			// call default constructor of the class
-			@SuppressWarnings("unchecked")
-			E ret = (E)classInfo.constructor.newInstance();
-
-			// Assume jsonReader has only one object
-			JsonObject jsonObject = jsonReader.readObject();
-			
-			setValue(ret, jsonObject);
-			
-			return ret;
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
-		}
+		return unmarshal(clazz, getJsonValue(reader));
 	}
-	
-	public static <E> List<E> getList(Class<E> clazz, String jsonString) {
-		ClassInfo classInfo = ClassInfo.get(clazz);
-		try (JsonReader reader = Json.createReader(new StringReader(jsonString))) {
-			// Assume result is array
-			JsonArray jsonArray = reader.readArray();
-			
-			int jsonArraySize = jsonArray.size();
-			List<E> ret = new ArrayList<>(jsonArraySize);
-			
-			for(int i = 0; i < jsonArraySize; i++) {
-				JsonValue jsonValue = jsonArray.get(i);
-				ValueType valueType = jsonValue.getValueType();
-				switch (valueType) {
-				case OBJECT:
-				{
-					@SuppressWarnings("unchecked")
-					E e = (E)classInfo.constructor.newInstance();
-					
-					JsonObject jsonObject = jsonValue.asJsonObject();
+	private static <E> E unmarshal(Class<E> clazz, JsonValue jsonValue) {
+		var typeName = clazz.getTypeName();
+		var valueType = jsonValue.getValueType();
 
-					setValue(e, jsonObject);
-					ret.add(e);
-				}
-					break;
-				case NULL:
-					// Skip NULL
-					break;
-				default:
-					logger.info("Unexpected valueType  {}  {}  {}", i, valueType, jsonValue);
-					throw new UnexpectedException("Unexpected valueType");
-				}
+		// process null value
+		if (valueType == ValueType.NULL) {
+			if (clazz.isPrimitive()) {
+				logger.error("Unexpected clazz is primitive but jsonValue is NULL");
+				logger.error("  clazz      {}", typeName);
+				logger.error("  valueType  {}", valueType);
+				logger.error("  jsonValue  {}", jsonValue);
+				throw new UnexpectedException("Unexpected clazz is primitive but jsonValue is NULL");
 			}
-			
-			return ret;
-		} catch (IllegalAccessException | InstantiationException | IllegalArgumentException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
-			String exceptionName = e.getClass().getSimpleName();
-			logger.error("{} {}", exceptionName, e);
-			throw new UnexpectedException(exceptionName, e);
+			return null;
 		}
-	}
-
 		
-	private static void setValue(Object object, JsonObject jsonObject) throws IllegalAccessException, IllegalArgumentException, InstantiationException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		ClassInfo classInfo = ClassInfo.get(object.getClass());
+		// enum
+		if (clazz.isEnum()) {
+			if (valueType == ValueType.STRING) {
+				return unmarshalEnum(clazz, jsonValue);
+			} else {
+				logger.error("Unexpected valueType");
+				logger.error("  expect STRING");
+				logger.error("  clazz      {}", typeName);
+				logger.error("  valueType  {}", valueType);
+				logger.error("  jsonValue  {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
 		
-		// Sanity check
+		// array
+		if (clazz.isArray()) {
+			if (valueType == ValueType.ARRAY) {
+				var ret = unmarshalArray(clazz, jsonValue.asJsonArray());
+				return (E)ret;
+			} else {
+				logger.error("Unexpected valueType");
+				logger.error("  expect ARRAY");
+				logger.error("  clazz      {}", typeName);
+				logger.error("  valueType  {}", valueType);
+				logger.error("  jsonValue  {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		
+		// process common java class
 		{
-			boolean hasWarning = false;
-			for(FieldInfo fieldInfo: classInfo.fieldInfos) {
-				if (fieldInfo.ignoreField)                      continue;
-				if (fieldInfo.optionalField)                    continue;
-				if (jsonObject.containsKey(fieldInfo.jsonName)) continue;
-				// jsonObject doesn't contains field named fieldInfo.jsonName
-				logger.warn("Missing json field  {}  {}  {}", classInfo.clazzName, fieldInfo.jsonName, jsonObject.keySet());
-				hasWarning = true;
-			}
-			for(String jsonKey: jsonObject.keySet()) {
-				if (classInfo.fieldNameSet.contains(jsonKey)) continue;
-				// this class doesn't contains field named jsonKey
-				logger.warn("Unknown json field  {}  {}  {}", classInfo.clazzName, jsonKey, classInfo.fieldNameSet);
-				hasWarning = true;
-			}
-			if (hasWarning) {
-				logger.warn("  object      {}", classInfo.clazzName);
-				logger.warn("  jsonObject  {}", jsonObject.toString());
-			}
-		}
-		
-		for(FieldInfo fieldInfo: classInfo.fieldInfos) {
-			if (fieldInfo.ignoreField) continue;
-
-			// Skip field if name is not exist in jsonObject
-			if (!jsonObject.containsKey(fieldInfo.jsonName)) continue;
-			
-			ValueType valueType = jsonObject.get(fieldInfo.jsonName).getValueType();
-			
-//			logger.debug("parse {} {} {}", fieldInfo.name, valueType.toString(), fieldInfo.type);
-			
-			switch(valueType) {
-			case NUMBER:
-				setValue(object, fieldInfo, jsonObject.getJsonNumber(fieldInfo.jsonName));
-				break;
-			case STRING:
-				setValue(object, fieldInfo, jsonObject.getJsonString(fieldInfo.jsonName));
-				break;
-			case TRUE:
-				setValue(object, fieldInfo, true);
-				break;
-			case FALSE:
-				setValue(object, fieldInfo, false);
-				break;
-			case NULL:
-				setValue(object, fieldInfo);
-				break;
-			case OBJECT:
-				setValue(object, fieldInfo, jsonObject.getJsonObject(fieldInfo.jsonName));
-				break;
-			case ARRAY:
-				setValue(object, fieldInfo, jsonObject.getJsonArray(fieldInfo.jsonName));
-				break;
-			default:
-				logger.error("Unknown valueType {} {}", valueType.toString(), fieldInfo.toString());
-				throw new UnexpectedException("Unknown valueType");
+			var function = functionMap.get(clazz.getTypeName());
+			if (function != null) {
+				var o = function.apply(jsonValue);
+				@SuppressWarnings("unchecked")
+				E ret = (E)o;
+				return ret;
 			}
 		}
 
-		// Assign default value for LocalDate and LocalDateTime, if field value is null and not appeared in jsonObject
-		for(FieldInfo fieldInfo: classInfo.fieldInfos) {
-			// Skip if name is exist in jsonObject
-			if (jsonObject.containsKey(fieldInfo.jsonName)) continue;
-
-			Object objectField = fieldInfo.field.get(object);
-			// If field is null, assign default value
-			if (objectField == null) {
-				if (!fieldInfo.ignoreField && !fieldInfo.optionalField) {
-					logger.warn("Assign default value  {} {} {}", classInfo.clazzName, fieldInfo.name, fieldInfo.type);
-				}
-				setValue(object, fieldInfo);
-			}
-		}
-	}
-	
-	//
-	// JsonNumber
-	//
-	private static void setValue(Object object, FieldInfo fieldInfo, JsonNumber jsonNumber) throws IllegalAccessException {
-		switch(fieldInfo.type) {
-		case "double":
-			fieldInfo.field.set(object, jsonNumber.doubleValue());
-			break;
-		case "long":
-			fieldInfo.field.set(object, jsonNumber.longValue());
-			break;
-		case "int":
-			fieldInfo.field.set(object, jsonNumber.intValue());
-			break;
-		case "java.math.BigDecimal":
-			fieldInfo.field.set(object, jsonNumber.bigDecimalValue());
-			break;
-		case "java.lang.Integer":
-			fieldInfo.field.set(object, jsonNumber.intValue());
-			break;
-		case "java.lang.Long":
-			fieldInfo.field.set(object, jsonNumber.longValue());
-			break;
-		case "java.lang.Double":
-			fieldInfo.field.set(object, jsonNumber.doubleValue());
-			break;
-		case "java.lang.String":
-			// To handle irregular case in Symbols, add this code. Value of iexId in Symbols can be number or String.
-			fieldInfo.field.set(object, jsonNumber.toString());
-			break;
-		case "java.time.LocalDateTime":
-			fieldInfo.field.set(object, LocalDateTime.ofInstant(Instant.ofEpochMilli(jsonNumber.longValue()), ZoneOffset.UTC));
-			break;
-		case "java.time.LocalDate":
-			fieldInfo.field.set(object, LocalDate.ofInstant(Instant.ofEpochMilli(jsonNumber.longValue()), ZoneOffset.UTC));
-			break;
-		default:
-			logger.error("Unexptected type {}", fieldInfo.field.toString());
-			throw new UnexpectedException("Unexptected type");
-		}
-	}
-
-	//
-	// JsonString
-	//
-	private static void setValue(Object object, FieldInfo fieldInfo, JsonString jsonString) throws IllegalAccessException {
-		switch(fieldInfo.type) {
-		case "java.lang.String":
-			fieldInfo.field.set(object, jsonString.getString());
-			break;
-		case "double":
-			fieldInfo.field.set(object, Double.valueOf((jsonString.getString().length() == 0) ? "0" : jsonString.getString()));
-			break;
-		case "long":
-			fieldInfo.field.set(object, Long.valueOf((jsonString.getString().length() == 0) ? "0" : jsonString.getString()));
-			break;
-		case "int":
-			fieldInfo.field.set(object, Integer.valueOf((jsonString.getString().length() == 0) ? "0" : jsonString.getString()));
-			break;
-		case "java.time.LocalDate":
-			if (fieldInfo.dateTimeFormatter != null) {
-				fieldInfo.field.set(object, LocalDate.parse(jsonString.getString(), fieldInfo.dateTimeFormatter));
-			} else {
-				fieldInfo.field.set(object, LocalDate.parse(jsonString.getString()));
-			}
-			break;
-		case "java.time.LocalDateTime":
-			if (fieldInfo.dateTimeFormatter != null) {
-				fieldInfo.field.set(object, LocalDateTime.parse(jsonString.getString(), fieldInfo.dateTimeFormatter));
-			} else {
-				fieldInfo.field.set(object, LocalDateTime.parse(jsonString.getString()));
-			}
-			break;
-		case "java.math.BigDecimal":
-			fieldInfo.field.set(object, new BigDecimal(jsonString.getString()));
-			break;
-		default:
-			if (fieldInfo.enumMap != null) {
-				String value = jsonString.getString();
-				if (fieldInfo.enumMap.containsKey(value)) {
-					fieldInfo.field.set(object, fieldInfo.enumMap.get(value));
-				} else {
-					logger.error("Unknow enum value  {}  {}", fieldInfo.clazz.getName(), value);
-					throw new UnexpectedException("Unknow enum value");
-				}
-			} else {
-				logger.error("Unexptected type {}", fieldInfo.field.toString());
-				throw new UnexpectedException("Unexptected type");
-			}
-		}
-	}
-	
-	//
-	// boolean
-	//
-	private static void setValue(Object object, FieldInfo fieldInfo, boolean value) throws IllegalAccessException {
-		switch(fieldInfo.type) {
-		case "boolean":
-			fieldInfo.field.set(object, value);
-			break;
-		default:
-			logger.error("Unexptected type {}", fieldInfo.field.toString());
-			throw new UnexpectedException("Unexptected type");
-		}
-	}
-	
-	//
-	// default value
-	//
-	private static void setValue(Object object, FieldInfo fieldInfo) throws IllegalAccessException {
-		switch(fieldInfo.type) {
-		case "double":
-			fieldInfo.field.set(object, 0);
-			break;
-		case "long":
-			fieldInfo.field.set(object, 0);
-			break;
-		case "int":
-			fieldInfo.field.set(object, 0);
-			break;
-		case "java.time.LocalDateTime":
-			fieldInfo.field.set(object, NULL_LOCAL_DATE_TIME);
-			break;
-		case "java.time.LocalDate":
-			fieldInfo.field.set(object, NULL_LOCAL_DATE);
-			break;
-		case "java.lang.String":
-			fieldInfo.field.set(object, "");
-			break;
-		default:
-			if (fieldInfo.field.getType().isPrimitive()) {
-				logger.error("Unexpected field type");
-				logger.error("  field {}", fieldInfo.name);
-				logger.error("  type  {}", fieldInfo.type);
-				throw new UnexpectedException("Unexpected field type");
-			} else {
-				fieldInfo.field.set(object, null);
-			}
-			break;
-		}
-	}
-	
-	//
-	// JsonObject
-	//
-	private static void setValue(Object object, FieldInfo fieldInfo, JsonObject jsonObject) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		ClassInfo classInfo = ClassInfo.get(fieldInfo.clazz);
-		
-		if (classInfo.clazzName.equals("java.util.Map")) {
-			GenericInfo genericInfo = new GenericInfo(fieldInfo.field);
-			if (genericInfo.classArguments.length != 2) {
-				logger.error("Unexptected genericInfo.classArguments.length {}", genericInfo.classArguments.length);
-				throw new UnexpectedException("Unexptected genericInfo.classArguments.length");
-			}
-			Class<?> mapKeyClass   = genericInfo.classArguments[0];
-			Class<?> mapValueClass = genericInfo.classArguments[1];
-
-			String mapKeyClassName   = mapKeyClass.getTypeName();
-			String mapValueClassName = mapValueClass.getTypeName();
-
-			if (!mapKeyClassName.equals("java.lang.String")) {
-				logger.error("Unexptected keyTypeName {}", mapKeyClassName);
-				throw new UnexpectedException("Unexptected keyTypeName");
-			}
-			
-			switch(mapValueClassName) {
-			case "java.lang.Long":
-			{
-				Map<String, Long> map = new TreeMap<>();
-				
-				for(String childKey: jsonObject.keySet()) {
-					JsonValue childValue = jsonObject.get(childKey);
-					ValueType childValueType = childValue.getValueType();
-					
-					switch(childValueType) {
-					case STRING:
-					{
-						JsonString jsonStringtValue = jsonObject.getJsonString(childKey);
-
-						Long value = Long.parseLong(jsonStringtValue.getString());
-						
-						map.put(childKey, value);
-					}
-						break;
-					default:
-						logger.error("Unexptected childValueType {}", childValueType);
-						logger.error(" {}", classInfo.clazz.getTypeName());
-						logger.error(" {}", fieldInfo.field.toString());
-						throw new UnexpectedException("Unexptected childValueType");
-					}
-				}
-				
-				fieldInfo.field.set(object, map);
-			}
-				break;
-			case "java.lang.String":
-			{
-				Map<String, String> map = new TreeMap<>();
-				
-				for(String childKey: jsonObject.keySet()) {
-					JsonValue childValue = jsonObject.get(childKey);
-					ValueType childValueType = childValue.getValueType();
-					
-					switch(childValueType) {
-					case STRING:
-					{
-						JsonString jsonStringtValue = jsonObject.getJsonString(childKey);
-
-						String value = jsonStringtValue.getString();
-						
-						map.put(childKey, value);
-					}
-						break;
-					default:
-						logger.error("Unexptected childValueType {}", childValueType);
-						logger.error(" {}", classInfo.clazz.getTypeName());
-						logger.error(" {}", fieldInfo.field.toString());
-						throw new UnexpectedException("Unexptected childValueType");
-					}
-				}
-				
-				fieldInfo.field.set(object, map);
-			}
-				break;
-			default:
-				if (mapValueClass.isPrimitive()) {
-					//
-					logger.error("Unexptected mapValueClass {}", mapValueClassName);
-					throw new UnexpectedException("Unexptected mapValueClass");
-				} else {
-					Map<String, Object> map = new TreeMap<>();
-					
-					for(String childKey: jsonObject.keySet()) {
-						JsonValue childValue = jsonObject.get(childKey);
-						ValueType childValueType = childValue.getValueType();
-						
-						switch(childValueType) {
-						case OBJECT:
-						{
-							JsonObject jsonObjectValue = jsonObject.getJsonObject(childKey);
-							
-							ClassInfo valueClassInfo = ClassInfo.get(mapValueClass);
-							Object value = valueClassInfo.constructor.newInstance();
-							
-							setValue(value, jsonObjectValue);
-
-							map.put(childKey, value);
-						}
-							break;
-						default:
-							logger.error("Unexptected childValueType {}", childValueType);
-							logger.error(" {}", classInfo.clazz.getTypeName());
-							logger.error(" {}", fieldInfo.field.toString());
-							throw new UnexpectedException("Unexptected childValueType");
-						}
-					}
-					
-					fieldInfo.field.set(object, map);
-				}
-				break;
-			}
-
+		// process object
+		if (valueType == ValueType.OBJECT) {
+			return unmarshalObject(clazz, jsonValue.asJsonObject());
 		} else {
-			Object fieldObject = classInfo.constructor.newInstance();
-			setValue(fieldObject, jsonObject);
-			
-			fieldInfo.field.set(object, fieldObject);
+			logger.error("Unexpected valueType");
+			logger.error("  expect OBJECT");
+			logger.error("  clazz      {}", typeName);
+			logger.error("  valueType  {}", valueType);
+			logger.error("  jsonValue  {}", jsonValue);
+			throw new UnexpectedException("Unexpected valueType");
 		}
 	}
+	
+	
+	//
+	// getList
+	//
+	public static <E> List<E> getList(Class<E> clazz, String jsonString) {
+		return getList(clazz, new StringReader(jsonString));
+	}
+	public static <E> List<E> getList(Class<E> clazz, Reader reader) {
+		var jsonValue = getJsonValue(reader);
+		var valueType = jsonValue.getValueType();
+		if (valueType == ValueType.ARRAY) {
+			return getList(clazz, jsonValue.asJsonArray());
+		} else {
+			logger.error("Unexpected valueType");
+			logger.error("  expect ARRAY");
+			logger.error("  valueType {}", valueType);
+			logger.error("  jsonValue {}", jsonValue);
+			throw new UnexpectedException("Unexpected valueType");
+		}
+	}
+	private static <E> List<E> getList(Class<E> clazz, JsonArray jsonArray) {
+		var jsonArraySize = jsonArray.size();
+		
+		List<E> ret = new ArrayList<>(jsonArraySize);
+		for(var i = 0; i < jsonArraySize; i++) {
+			ret.add(unmarshal(clazz, jsonArray.get(i)));
+		}
+		return ret;
+	}
 
+	
 	//
-	// JsonArray
+	// unmarshalObject
 	//
-	private static void setValue(Object object, FieldInfo fieldInfo, JsonArray jsonArray) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		if (!fieldInfo.isArray) {
-			logger.error("Field is not array  {}", fieldInfo.field.toString());
-			throw new UnexpectedException("Field is not array");
+	private static <E> E unmarshalObject(Class<E> clazz, JsonObject jsonObject) {
+		// sanity check
+		if (clazz.isArray()) {
+			logger.error("Unexpected clazz is array");
+			logger.error("  clazz      {}", clazz.getTypeName());
+			throw new UnexpectedException("Unexpected clazz is array");
+		}
+		if (clazz.isEnum()) {
+			logger.error("Unexpected clazz is enum");
+			logger.error("  clazz      {}", clazz.getTypeName());
+			throw new UnexpectedException("Unexpected clazz is enum");
 		}
 		
-		Class<?> componentType = fieldInfo.field.getType().getComponentType();
-		String componentTypeName = componentType.getName();
-		switch(componentTypeName) {
-		case "java.lang.String":
-		{
-			// array of String
-			int jsonArraySize = jsonArray.size();
-			String[] array = new String[jsonArray.size()];
+		// order of object field is not significant
+		// invoke default constructor of E and set field value from jsonObject
+		
+		try {
+			var fieldInfoArray   = FieldInfo.getFieldInfoArray(clazz);
 			
-			for(int i = 0; i < jsonArraySize; i++) {
-				JsonValue jsonValue = jsonArray.get(i);
+			// sanity check
+			{
+				var foundError = false;
 				
-				switch(jsonValue.getValueType()) {
-				case STRING:
-					array[i] = jsonArray.getString(i);
-					break;
-				default:
-					logger.error("Unexpected json array element type {} {}", jsonValue.getValueType().toString(), fieldInfo.field.toString());
-					throw new UnexpectedException("Unexpected json array element type");
-				}
-			}
-			fieldInfo.field.set(object, array);
-		}
-			break;
-		default:
-		{
-			int jsonArraySize = jsonArray.size();
-			
-			// special case of null array
-			if (jsonArraySize == 1) {
-				JsonValue jsonValue = jsonArray.get(0);
-				if (jsonValue.getValueType() == JsonValue.ValueType.NULL) {
-					fieldInfo.field.set(object, null);
-					return;
-				}
-			}
-			
-			Object[] array = (Object[])Array.newInstance(componentType, jsonArraySize);
-
-			ClassInfo classInfo = ClassInfo.get(componentType);
-
-			for(int i = 0; i < jsonArraySize; i++) {
-				JsonValue jsonValue = jsonArray.get(i);
-				
-				switch(jsonValue.getValueType()) {
-				case OBJECT:
-				{
-					array[i] = classInfo.constructor.newInstance();
-					setValue(array[i], jsonValue.asJsonObject());
-				}
-					break;
-				case ARRAY:
-				{
-					JsonArray jsonValueArray     = jsonValue.asJsonArray();
-					int       jsonValueArraySize = jsonValueArray.size();
+				var jsonObjectKeySet = jsonObject.keySet();				
+				for(var fieldInfo: fieldInfoArray) {
+					if (fieldInfo.ignore) continue;
 					
-					if (componentType.isArray()) {
-						Class<?> arrayComponetType     = componentType.componentType();
-						String   arrayComponetTypeName = arrayComponetType.getName();
-
-						Object[] arrayElement = (Object[])Array.newInstance(arrayComponetType, jsonValueArraySize);
-						array[i] = arrayElement;
-						for(int j = 0; j < jsonValueArraySize; j++) {
-							// ARRAY OF ARRAY OF STRING
-							switch(arrayComponetTypeName) {
-							case "java.lang.String":
-								arrayElement[j] = jsonValueArray.getString(j);
-								break;
-							default:
-								logger.error("Unexpected arrayComponetType");
-								logger.error("  classInfo          {}", classInfo.clazzName);
-								logger.error("  componentType      {}", componentType.getName());
-								logger.error("  arrayComponetType  {}", arrayComponetType.getName());
-								throw new UnexpectedException("Unexpected arrayComponetType");
-							}
+					if (!jsonObjectKeySet.contains(fieldInfo.jsonName)) {
+						if (fieldInfo.optional) {
+							// OK
+						} else {
+							foundError = true;
+							logger.error("field not found in jsonObject");
+							logger.error("  fieldName  {}", fieldInfo.fieldName);
+							logger.error("  jsonName   {}", fieldInfo.jsonName);
+							logger.error("  type       {}", fieldInfo.typeName);
 						}
-					} else {
-						logger.error("Unexpected componentType type");
-						logger.error("  component type is not array");
-						logger.error("  classInfo          {}", classInfo.clazzName);
-						logger.error("  componentType      {}", componentType.getName());
-						throw new UnexpectedException("Unexpected componentType type");
 					}
 				}
-					break;
-				default:
-					logger.error("Unexpected json array element type {} {}", jsonValue.getValueType().toString(), classInfo.clazzName);
-					throw new UnexpectedException("Unexpected json array element type");
+				var fieldNameSet = Arrays.stream(fieldInfoArray).map(o -> o.jsonName).collect(Collectors.toSet());
+				for(var jsonName: jsonObjectKeySet) {
+					if (!fieldNameSet.contains(jsonName)) {
+						foundError = true;
+						logger.error("jsonObject jsonName not found in field");
+						logger.error("  clazz      {}", clazz.getTypeName());
+						logger.error("  jsonName   {}", jsonName);
+						logger.error("  jsonObject {}", jsonObjectKeySet);
+					}
+				}
+				if (foundError) {
+					throw new UnexpectedException("found error");
 				}
 			}
-			fieldInfo.field.set(object, array);
-		}
-			break;
+			
+			// invoke default constructor
+			E ret;
+			{
+				var constructor = clazz.getDeclaredConstructor();
+				if (constructor == null) {
+					logger.error("no default constructor");
+					logger.error("  {}", clazz.getTypeName());
+					throw new UnexpectedException("no default constructor");
+				}
+				constructor.setAccessible(true); // enable invoke private constructor
+				ret = constructor.newInstance();
+			}
+			
+			// set object field using fieldInfoArray
+			for(var fieldInfo: fieldInfoArray) {
+				if (fieldInfo.ignore) continue;
+				
+				var key = fieldInfo.jsonName;
+				if (jsonObject.containsKey(key)) {
+					var jsonValue = jsonObject.get(key);
+					Object fieldValue;
+					
+					// special for LocalDateTime, LocalDate, LocalTime and Map
+					if (fieldInfo.type.equals(LocalDateTime.class)) {
+						fieldValue = unmarshalLocalDateTime(jsonValue, fieldInfo.dateTimeFormatter);
+					} else if (fieldInfo.type.equals(LocalDate.class)) {
+						fieldValue = unmarshalLocalDate(jsonValue, fieldInfo.dateTimeFormatter);
+					} else if (fieldInfo.type.equals(LocalTime.class)) {
+						fieldValue = unmarshalLocalTime(jsonValue, fieldInfo.dateTimeFormatter);
+					} else if (fieldInfo.type.equals(java.util.Map.class)) {
+						fieldValue = unmarshalMap(fieldInfo.field, jsonValue);
+					} else {
+						fieldValue = unmarshal(fieldInfo.type, jsonValue);
+					}
+					
+					fieldInfo.field.set(ret, fieldValue);
+				}
+			}
+			
+			return ret;
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+				InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
 		}
 	}
+	
+	private static LocalDateTime unmarshalLocalDateTime(JsonValue jsonValue, DateTimeFormatter dateTimeFormatter) {
+		var valueType = jsonValue.getValueType();
+		if (valueType == ValueType.STRING) {
+			var string    = jsonValueToString(jsonValue);
+			var formatter = dateTimeFormatter == null ? DateTimeFormatter.ISO_LOCAL_DATE_TIME : dateTimeFormatter;
+			return LocalDateTime.parse(string, formatter);
+		} else {
+			logger.error("Unexpected valueType");
+			logger.error("  expect STRING");
+			logger.error("  valueType {}", valueType);
+			logger.error("  jsonValue {}", jsonValue);
+			throw new UnexpectedException("Unexpected valueType");
+		}
+	}
+	private static LocalDate unmarshalLocalDate(JsonValue jsonValue, DateTimeFormatter dateTimeFormatter) {
+		var valueType = jsonValue.getValueType();
+		if (valueType == ValueType.STRING) {
+			var string    = jsonValueToString(jsonValue);
+			var formatter = dateTimeFormatter == null ? DateTimeFormatter.ISO_LOCAL_DATE : dateTimeFormatter;
+			return LocalDate.parse(string, formatter);
+		} else {
+			logger.error("Unexpected valueType");
+			logger.error("  expect STRING");
+			logger.error("  valueType {}", valueType);
+			logger.error("  jsonValue {}", jsonValue);
+			throw new UnexpectedException("Unexpected valueType");
+		}
+	}
+	private static LocalTime unmarshalLocalTime(JsonValue jsonValue, DateTimeFormatter dateTimeFormatter) {
+		var valueType = jsonValue.getValueType();
+		if (valueType == ValueType.STRING) {
+			var string    = jsonValueToString(jsonValue);
+			var formatter = dateTimeFormatter == null ? DateTimeFormatter.ISO_LOCAL_TIME : dateTimeFormatter;
+			return LocalTime.parse(string, formatter);
+		} else {
+			logger.error("Unexpected valueType");
+			logger.error("  expect STRING");
+			logger.error("  valueType {}", valueType);
+			logger.error("  jsonValue {}", jsonValue);
+			throw new UnexpectedException("Unexpected valueType");
+		}
+	}
+	public static Map<String, ?> unmarshalMap(Field field, JsonValue jsonValue) {
+		GenericInfo genericInfo = new GenericInfo(field);
+		if (genericInfo.classArguments.length != 2) {
+			logger.error("Unexptected genericInfo.classArguments.length {}", genericInfo.classArguments.length);
+			throw new UnexpectedException("Unexptected genericInfo.classArguments.length");
+		}
+		Class<?> mapKeyClass   = genericInfo.classArguments[0];
+		Class<?> mapValueClass = genericInfo.classArguments[1];
+		
+		if (!mapKeyClass.equals(String.class)) {
+			logger.error("Unexpected map key class");
+			logger.error("unexpeced fieldName");
+			logger.error("  field  {}", field);
+			logger.error("  key    {}", mapKeyClass.getTypeName());
+			throw new UnexpectedException("Unexpected map key class");
+		}
+		
+		return unmarshalMap(mapValueClass, jsonValue);
+	}
+	public static <V> Map<String, V> unmarshalMap(Class<V> mapValueClass, JsonValue jsonValue) {
+		if (jsonValue.getValueType() == ValueType.NULL) return null;
+		
+		var jsonObject = jsonValue.asJsonObject();
+		
+		var ret = new TreeMap<String, V>();
+		
+		for(var entry: jsonObject.entrySet()) {
+			var key   = entry.getKey();
+			var value = entry.getValue();
+			
+			ret.put(key, unmarshal(mapValueClass, value));
+		}
 
+		return ret;
+	}
+	
+	
+	private static Map<String, FieldInfo[]> fieldInfoMap = new TreeMap<>();
+	private static class FieldInfo {
+		static FieldInfo[] getFieldInfoArray(Class<?> clazz) {
+			var key = clazz.getTypeName();
+			var ret = fieldInfoMap.get(key);
+			if (ret != null) return ret;
+			
+			var list = new ArrayList<FieldInfo>();
+			for(var field: clazz.getDeclaredFields()) {
+				if (Modifier.isStatic(field.getModifiers())) continue;
+				field.setAccessible(true); // allow access private field
+				list.add(new FieldInfo(field));
+			}
+			var array = list.toArray(FieldInfo[]::new);
+			fieldInfoMap.put(key, array);
+			return array;
+		}
+		
+		Field             field;
+		String            fieldName;
+		Class<?>          type; // type of field
+		String            typeName;
+		String            jsonName;
+		boolean           ignore;
+		boolean           optional;
+		DateTimeFormatter dateTimeFormatter;
+		
+		FieldInfo(Field field) {
+			var jsonName       = field.getDeclaredAnnotation(Name.class);
+			var ignore         = field.getDeclaredAnnotation(Ignore.class);
+			var optional       = field.getDeclaredAnnotation(Optional.class);
+			var dateTimeFormat = field.getDeclaredAnnotation(DateTimeFormat.class);
+
+			this.field             = field;
+			this.fieldName         = field.getName();
+			this.type              = field.getType();
+			this.typeName          = this.type.getTypeName();
+			this.jsonName          = (jsonName == null) ? fieldName : jsonName.value();
+			this.ignore            = ignore != null;
+			this.optional          = optional != null;
+			this.dateTimeFormatter = (dateTimeFormat == null) ? null : DateTimeFormatter.ofPattern(dateTimeFormat.value());
+		}
+		
+		@Override
+		public String toString() {
+			return ToString.withFieldName(this);
+		}
+	}
+	
+	
+	//
+	// unmarshalArray
+	//
+	private static <E> E unmarshalArray(Class<E> clazz, JsonArray jsonArray) {
+		// sanity check
+		if (!clazz.isArray()) {
+			logger.error("Unexpected clazz is not array");
+			logger.error("  clazz      {}", clazz.getTypeName());
+			throw new UnexpectedException("Unexpected clazz is not array");
+		}
+		
+		var componentType = clazz.getComponentType();
+		var size          = jsonArray.size();
+		@SuppressWarnings("unchecked")
+		E ret = (E)Array.newInstance(componentType, size);
+		
+		for(int i = 0; i < size; i++) {
+			Array.set(ret, i, unmarshal(componentType, jsonArray.get(i)));
+		}
+		return ret;
+	}
+	
+	
+		
+	//
+	// Functions convert JsonValue to Object
+	//
+	private static Map<String, Function<JsonValue, Object>> functionMap = new TreeMap<>();
+	static {
+		functionMap.put(Boolean.class.getTypeName(),   new Functions.BooleanClass());
+		functionMap.put(Double.class.getTypeName(),    new Functions.DoubleClass());
+		functionMap.put(Float.class.getTypeName(),     new Functions.FloatClass());
+		functionMap.put(Long.class.getTypeName(),      new Functions.LongClass());
+		functionMap.put(Integer.class.getTypeName(),   new Functions.IntegerClass());
+		functionMap.put(Short.class.getTypeName(),     new Functions.ShortClass());
+		functionMap.put(Byte.class.getTypeName(),      new Functions.ByteClass());
+		functionMap.put(Character.class.getTypeName(), new Functions.CharacterClass());
+		//
+		functionMap.put(Boolean.TYPE.getTypeName(),   new Functions.BooleanClass());
+		functionMap.put(Double.TYPE.getTypeName(),    new Functions.DoubleClass());
+		functionMap.put(Float.TYPE.getTypeName(),     new Functions.FloatClass());
+		functionMap.put(Long.TYPE.getTypeName(),      new Functions.LongClass());
+		functionMap.put(Integer.TYPE.getTypeName(),   new Functions.IntegerClass());
+		functionMap.put(Short.TYPE.getTypeName(),     new Functions.ShortClass());
+		functionMap.put(Byte.TYPE.getTypeName(),      new Functions.ByteClass());
+		functionMap.put(Character.TYPE.getTypeName(), new Functions.CharacterClass());
+		//
+		functionMap.put(String.class.getTypeName(),        new Functions.StringClass());
+		//
+		functionMap.put(LocalDateTime.class.getTypeName(), new Functions.LocalDateTimeClass());
+		functionMap.put(LocalDate.class.getTypeName(),     new Functions.LocalDateClass());
+		functionMap.put(LocalTime.class.getTypeName(),     new Functions.LocalTimeClass());
+		//
+		functionMap.put(BigDecimal.class.getTypeName(),    new Functions.BigDecimalClass());
+	}
+	private static class Functions {
+		private static class BooleanClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				switch(valueType) {
+				case TRUE:  return Boolean.TRUE;
+				case FALSE: return Boolean.FALSE;
+				default:
+					break;
+				}
+				logger.error("Unexpected valueType");
+				logger.error("  expect TRUE or FALSE");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class DoubleClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.NUMBER) return Double.valueOf(jsonValue.toString());
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect NUMBER");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class FloatClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.NUMBER) return Float.valueOf(jsonValue.toString());
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect NUMBER");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class LongClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.NUMBER) return Long.valueOf(jsonValue.toString());
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect NUMBER");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class IntegerClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.NUMBER) return Integer.valueOf(jsonValue.toString());
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect NUMBER");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class ShortClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.NUMBER) return Short.valueOf(jsonValue.toString());
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect NUMBER");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class ByteClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.NUMBER) return Byte.valueOf(jsonValue.toString());
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect NUMBER");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class CharacterClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.STRING)  {
+					var string = jsonValueToString(jsonValue);
+					if (string.length() != 1) {
+						logger.error("Unexpected string");
+						logger.error("  expect length of string is 1");
+						logger.error("  {}!", string);
+						throw new UnexpectedException("Unexpected string");
+					}
+					char c = string.charAt(0);
+					return Character.valueOf(c);
+				}
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect STRING");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		//
+		private static class StringClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.STRING) return jsonValueToString(jsonValue);
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect STRING");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class LocalDateTimeClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.STRING) return LocalDateTime.parse(jsonValueToString(jsonValue));
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect STRING");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class LocalDateClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.STRING) return LocalDate.parse(jsonValueToString(jsonValue));
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect STRING");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		private static class LocalTimeClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.STRING) return LocalTime.parse(jsonValueToString(jsonValue));
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect STRING");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+		//
+		private static class BigDecimalClass implements Function<JsonValue, Object> {
+			@Override
+			public Object apply(JsonValue jsonValue) {
+				var valueType = jsonValue.getValueType();
+				if (valueType == ValueType.NUMBER) return new BigDecimal(jsonValue.toString());
+				
+				logger.error("Unexpected valueType");
+				logger.error("  expect NUMBER");
+				logger.error("  valueType {}", valueType);
+				logger.error("  jsonValue {}", jsonValue);
+				throw new UnexpectedException("Unexpected valueType");
+			}
+		}
+	}
+	
+	
+	
+	//
+	// utility methods
+	//
+	private static JsonValue getJsonValue(Reader reader) {
+		try (JsonReader jsonReader = Json.createReader(reader)) {
+			return jsonReader.readValue();
+		} catch(JsonException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		}
+	}
+	private static String jsonValueToString(JsonValue jsonValue) {
+		var string = jsonValue.toString();
+		if (jsonValue.getValueType() == ValueType.STRING) {			
+			// sanity check
+			var first = string.charAt(0);
+			var last  = string.charAt(string.length() - 1);
+			if (first != '"' || last != '"') {
+				// unexpected
+				logger.error("Unexpected first or last character");
+				logger.error("  string {}!", string);
+				logger.error("  first  {}", first);
+				logger.error("  last   {}", last);
+				throw new UnexpectedException("Unexpected first or last character");
+			}
+			
+			// remove first and last character of string
+			return string.substring(1, string.length() - 1);
+		} else {
+			return string;
+		}
+	}
+	
+	private static Map<String, Map<String, Object>> enumValueMap = new TreeMap<>();
+	private static <E> E unmarshalEnum(Class<?> clazz, JsonValue jsonValue) {
+		// sanity check
+		if (!clazz.isEnum()) {
+			logger.error("Unexpected clazz is not enum");
+			logger.error("  clazz      {}", clazz.getTypeName());
+			throw new UnexpectedException("Unexpected clazz is not enum");
+		}
+		
+		var typeName = clazz.getTypeName();
+		var map = enumValueMap.get(typeName);
+		if (map == null) {
+			map = new TreeMap<String, Object>();
+			for(var e: clazz.getEnumConstants()) {
+				map.put(e.toString(), e);
+			}
+			enumValueMap.put(typeName, map);
+		}
+		
+		var valueType = jsonValue.getValueType();
+		if (valueType == ValueType.STRING) {
+			var string = jsonValueToString(jsonValue);
+			var o = map.get(string);
+			if (o != null) {
+				@SuppressWarnings("unchecked")
+				E ret = (E)o;
+				return ret;
+			}
+			logger.error("Unexpected enum string");
+			logger.error("  clazz     {}", typeName);
+			logger.error("  string    {}!", string);
+			logger.error("  map       {}!", map.keySet());
+			throw new UnexpectedException("Unexpected enum string");
+		} else {
+			logger.error("Unexpected valueType");
+			logger.error("  expect STRING");
+			logger.error("  valueType {}", valueType);
+			logger.error("  jsonValue {}", jsonValue);
+			throw new UnexpectedException("Unexpected valueType");
+		}
+	}
+	
+	
 	
 	//
 	// toJSONString
@@ -742,15 +758,15 @@ public final class JSON {
 		}
 
 		Class<?>  clazz = o.getClass();
-		ClassInfo classInfo = ClassInfo.get(clazz);
+		var fieldInfoArray = FieldInfo.getFieldInfoArray(clazz);
 
-		for(FieldInfo fieldInfo: classInfo.fieldInfos) {
-			if (fieldInfo.ignoreField) continue;
+		for(FieldInfo fieldInfo: fieldInfoArray) {
+			if (fieldInfo.ignore) continue;
 			
-			String fieldName  = fieldInfo.jsonName != null ? fieldInfo.jsonName : fieldInfo.name;
+			String fieldName  = fieldInfo.jsonName != null ? fieldInfo.jsonName : fieldInfo.fieldName;
 			Object fieldValue = fieldInfo.field.get(o);
 			
-			if (fieldInfo.clazz.equals(Map.class)) {
+			if (fieldInfo.type.equals(Map.class)) {
 				GenericInfo genericInfo = new GenericInfo(fieldInfo.field);
 				if (genericInfo.classArguments.length != 2) {
 					logger.error("Unexptected genericInfo.classArguments.length {}", genericInfo.classArguments.length);
@@ -864,14 +880,18 @@ public final class JSON {
 	static {
 		simpleTypeSet.add(Boolean.TYPE.getName());
 		simpleTypeSet.add(Boolean.class.getName());
-		simpleTypeSet.add(Integer.TYPE.getName());
-		simpleTypeSet.add(Integer.class.getName());
-		simpleTypeSet.add(Long.TYPE.getName());
-		simpleTypeSet.add(Long.class.getName());
 		simpleTypeSet.add(Double.TYPE.getName());
 		simpleTypeSet.add(Double.class.getName());
 		simpleTypeSet.add(Float.TYPE.getName());
 		simpleTypeSet.add(Float.class.getName());
+		simpleTypeSet.add(Long.TYPE.getName());
+		simpleTypeSet.add(Long.class.getName());
+		simpleTypeSet.add(Integer.TYPE.getName());
+		simpleTypeSet.add(Integer.class.getName());
+		simpleTypeSet.add(Short.TYPE.getName());
+		simpleTypeSet.add(Short.class.getName());
+		simpleTypeSet.add(Byte.TYPE.getName());
+		simpleTypeSet.add(Byte.class.getName());
 	}
 	private static void toJSONStringSimpleType(JsonGenerator gen, Object o, String name) throws IllegalArgumentException, IllegalAccessException {
 		String clazzName = o.getClass().getName();
@@ -883,22 +903,6 @@ public final class JSON {
 				gen.write((boolean)o);
 			} else {
 				gen.write(name, (boolean)o);
-			}
-			break;
-		case "java.lang.Integer":
-		case "int":
-			if (name == null) {
-				gen.write((int)o);
-			} else {
-				gen.write(name, (int)o);
-			}
-			break;
-		case "java.lang.Long":
-		case "long":
-			if (name == null) {
-				gen.write((long)o);
-			} else {
-				gen.write(name, (long)o);
 			}
 			break;
 		case "java.lang.Double":
@@ -915,6 +919,38 @@ public final class JSON {
 				gen.write((float)o);
 			} else {
 				gen.write(name, (float)o);
+			}
+			break;
+		case "java.lang.Long":
+		case "long":
+			if (name == null) {
+				gen.write((long)o);
+			} else {
+				gen.write(name, (long)o);
+			}
+			break;
+		case "java.lang.Integer":
+		case "int":
+			if (name == null) {
+				gen.write((int)o);
+			} else {
+				gen.write(name, (int)o);
+			}
+			break;
+		case "java.lang.Short":
+		case "short":
+			if (name == null) {
+				gen.write((short)o);
+			} else {
+				gen.write(name, (short)o);
+			}
+			break;
+		case "java.lang.Byte":
+		case "byte":
+			if (name == null) {
+				gen.write((byte)o);
+			} else {
+				gen.write(name, (byte)o);
 			}
 			break;
 		default:
@@ -942,5 +978,4 @@ public final class JSON {
 	
 		return writer.toString();
 	}
-
 }
