@@ -45,6 +45,7 @@ public class Screener {
 	
     public static final class Rows {
         @JSON.Name("SecId")                         public String secId;                       // STRING STRING
+        @JSON.Optional
         @JSON.Name("PriceCurrency")                 public String priceCurrency;               // STRING STRING
         @JSON.Name("isin")           @JSON.Optional public String isinCode;                    // STRING STRING
         @JSON.Name("customInstitutionSecurityId")   public String customInstitutionSecurityId; // STRING STRING

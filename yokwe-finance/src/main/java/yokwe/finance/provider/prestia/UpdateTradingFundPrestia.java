@@ -51,6 +51,11 @@ public class UpdateTradingFundPrestia {
 			for(int i = 0; i < screener.rows.length; i++) {
 				var row = screener.rows[i];
 				logger.info("{}  /  {}  {}", i, screener.rows.length, row.secId);
+				if (row.priceCurrency == null) {
+					logger.info("no priceCurrency");
+					logger.info("  row  {}", row);
+					continue;
+				}
 				
 			    var secId    = row.secId;
 			    var currency = Currency.getInstance(row.priceCurrency);
