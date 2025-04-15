@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 import yokwe.finance.provider.jpx.UpdateStockDetail.Data;
@@ -35,15 +37,18 @@ public class UpdateStockPriceJPX {
 			BigDecimal l = null;
 			BigDecimal c = null;
 			
-			for(var ohlcvString: data.A_HISTDAYL.split("\\n")) {
+			for(var ohlcvString: data.A_HISTDAYL.split(",?\\\\n")) {
 				String[] valueString = ohlcvString.split(",");
-				if (valueString.length < 6) {
+				if (valueString.length != 6 && valueString.length != 7) {
 					logger.error("Unexpected ohlcvString");
 					logger.error("  stockCode    {}", stockCode);
 					logger.error("  valueString  {}", valueString.length);
 					logger.error("  ohlcvString  {}", ohlcvString);
 					throw new UnexpectedException("Unexpected ohlcvString");
 				}
+				
+//				logger.info("YY  {}", ToString.withFieldName(valueString));
+				
 				var dateString = valueString[0];
 				var oString    = valueString[1];
 				var hString    = valueString[2];
@@ -110,14 +115,27 @@ public class UpdateStockPriceJPX {
 			return;
 		}
 		
+		BinaryOperator<OHLCV> mergeOHLCV = new BinaryOperator<OHLCV>() {
+			@Override
+			public OHLCV apply(OHLCV t, OHLCV u) {
+				if (t.equals(u)) return t;
+				if (t.equalsByValue(u)) return t;
+				
+				logger.error("Unexpected value");
+				logger.error("  t  {}", t.toString());
+				logger.error("  u  {}", u.toString());
+				throw new UnexpectedException("Unexpected value");
+			}
+		};
+		
 		for(var data: result.section1.data.values()) {
 			var stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
 			var oldList   = StorageJPX.StockPriceJPX.getList(stockCode);
-			var oldMap    = oldList.stream().collect(Collectors.toMap(o -> o.date, o -> o));
+			var oldMap    = oldList.stream().collect(Collectors.toMap(o -> o.date, o -> o, mergeOHLCV, TreeMap::new));
 
 			var newList   = getPriceList(data);
 			Collections.sort(newList);
-			var newMap    = newList.stream().collect(Collectors.toMap(o -> o.date, o -> o));
+			var newMap    = newList.stream().collect(Collectors.toMap(o -> o.date, o -> o, mergeOHLCV, TreeMap::new));
 			
 			boolean needsMergeList = true;
 			{
@@ -141,7 +159,7 @@ public class UpdateStockPriceJPX {
 						var oldPrice = oldMap.get(date);
 						var newPrice = newMap.get(date);
 						
-						if (oldPrice.equals(newPrice)) {
+						if (oldPrice.equalsByValue(newPrice)) {
 							// expected
 						} else {
 							// stock split
@@ -152,6 +170,9 @@ public class UpdateStockPriceJPX {
 						logger.error("Unexpected date");
 						logger.error("  sockCode  {}", stockCode);
 						logger.error("  date      {}", date);
+						logger.error("  old       {}", oldList);
+						logger.error("  new       {}", newList);
+//						logger.error("  data      {}", data.toString());
 						throw new UnexpectedException("Unexpected date");
 					}
 				}
@@ -160,26 +181,25 @@ public class UpdateStockPriceJPX {
 			if (needsMergeList) {
 				for(var oldPrice: oldList) {
 					var date = oldPrice.date;
-					if (newMap.containsKey(date)) {
-						if (date.equals(lastTradingDate)) {
-							// keep price in newList for lastTradingDate
-						} else {
-							// exist in newList
-							var newPrice = newMap.get(date);
-							if (newPrice.equals(oldPrice)) {
-								// expected
-							} else {
-								// not expected
-								logger.error("Unexpected price");
-								logger.error("  sockCode  {}", stockCode);
-								logger.error("  oldPrice  {}", oldPrice);
-								logger.error("  newPrice  {}", newPrice);
-								throw new UnexpectedException("Unexpected price");
-							}
-						}
-					} else {
-						// not exist in newList
+					// keep price in newList for lastTradingDat
+					if (date.equals(lastTradingDate)) continue;
+					
+					var newPrice = newMap.get(date);
+					if (newPrice == null) {
+						// add not existing data to newList
 						newList.add(oldPrice);
+					} else {
+						// sanity check
+						if (newPrice.equalsByValue(oldPrice)) {
+							// expected
+						} else {
+							// not expected
+							logger.error("Unexpected price");
+							logger.error("  sockCode  {}", stockCode);
+							logger.error("  oldPrice  {}", oldPrice);
+							logger.error("  newPrice  {}", newPrice);
+							throw new UnexpectedException("Unexpected price");
+						}
 					}
 				}
 			}
