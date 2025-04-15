@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -120,7 +121,7 @@ public class JSON {
 		
 		// process common java class
 		{
-			var function = functionMap.get(clazz.getTypeName());
+			var function = marshalFunctionMap.get(clazz.getTypeName());
 			if (function != null) {
 				var o = function.apply(jsonValue);
 				@SuppressWarnings("unchecked")
@@ -401,6 +402,16 @@ public class JSON {
 			this.dateTimeFormatter = (dateTimeFormat == null) ? null : DateTimeFormatter.ofPattern(dateTimeFormat.value());
 		}
 		
+		public Object get(Object object) {
+			try {
+				return field.get(object);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				String exceptionName = e.getClass().getSimpleName();
+				logger.error("{} {}", exceptionName, e.toString());
+				throw new UnexpectedException(exceptionName, e);
+			}
+		}
+		
 		@Override
 		public String toString() {
 			return ToString.withFieldName(this);
@@ -435,35 +446,35 @@ public class JSON {
 	//
 	// Functions convert JsonValue to Object
 	//
-	private static Map<String, Function<JsonValue, Object>> functionMap = new TreeMap<>();
+	private static Map<String, Function<JsonValue, Object>> marshalFunctionMap = new TreeMap<>();
 	static {
-		functionMap.put(Boolean.class.getTypeName(),   new Functions.BooleanClass());
-		functionMap.put(Double.class.getTypeName(),    new Functions.DoubleClass());
-		functionMap.put(Float.class.getTypeName(),     new Functions.FloatClass());
-		functionMap.put(Long.class.getTypeName(),      new Functions.LongClass());
-		functionMap.put(Integer.class.getTypeName(),   new Functions.IntegerClass());
-		functionMap.put(Short.class.getTypeName(),     new Functions.ShortClass());
-		functionMap.put(Byte.class.getTypeName(),      new Functions.ByteClass());
-		functionMap.put(Character.class.getTypeName(), new Functions.CharacterClass());
+		marshalFunctionMap.put(Boolean.class.getTypeName(),   new MarshalFunctions.BooleanClass());
+		marshalFunctionMap.put(Double.class.getTypeName(),    new MarshalFunctions.DoubleClass());
+		marshalFunctionMap.put(Float.class.getTypeName(),     new MarshalFunctions.FloatClass());
+		marshalFunctionMap.put(Long.class.getTypeName(),      new MarshalFunctions.LongClass());
+		marshalFunctionMap.put(Integer.class.getTypeName(),   new MarshalFunctions.IntegerClass());
+		marshalFunctionMap.put(Short.class.getTypeName(),     new MarshalFunctions.ShortClass());
+		marshalFunctionMap.put(Byte.class.getTypeName(),      new MarshalFunctions.ByteClass());
+		marshalFunctionMap.put(Character.class.getTypeName(), new MarshalFunctions.CharacterClass());
 		//
-		functionMap.put(Boolean.TYPE.getTypeName(),   new Functions.BooleanClass());
-		functionMap.put(Double.TYPE.getTypeName(),    new Functions.DoubleClass());
-		functionMap.put(Float.TYPE.getTypeName(),     new Functions.FloatClass());
-		functionMap.put(Long.TYPE.getTypeName(),      new Functions.LongClass());
-		functionMap.put(Integer.TYPE.getTypeName(),   new Functions.IntegerClass());
-		functionMap.put(Short.TYPE.getTypeName(),     new Functions.ShortClass());
-		functionMap.put(Byte.TYPE.getTypeName(),      new Functions.ByteClass());
-		functionMap.put(Character.TYPE.getTypeName(), new Functions.CharacterClass());
+		marshalFunctionMap.put(Boolean.TYPE.getTypeName(),   new MarshalFunctions.BooleanClass());
+		marshalFunctionMap.put(Double.TYPE.getTypeName(),    new MarshalFunctions.DoubleClass());
+		marshalFunctionMap.put(Float.TYPE.getTypeName(),     new MarshalFunctions.FloatClass());
+		marshalFunctionMap.put(Long.TYPE.getTypeName(),      new MarshalFunctions.LongClass());
+		marshalFunctionMap.put(Integer.TYPE.getTypeName(),   new MarshalFunctions.IntegerClass());
+		marshalFunctionMap.put(Short.TYPE.getTypeName(),     new MarshalFunctions.ShortClass());
+		marshalFunctionMap.put(Byte.TYPE.getTypeName(),      new MarshalFunctions.ByteClass());
+		marshalFunctionMap.put(Character.TYPE.getTypeName(), new MarshalFunctions.CharacterClass());
 		//
-		functionMap.put(String.class.getTypeName(),        new Functions.StringClass());
+		marshalFunctionMap.put(String.class.getTypeName(),        new MarshalFunctions.StringClass());
 		//
-		functionMap.put(LocalDateTime.class.getTypeName(), new Functions.LocalDateTimeClass());
-		functionMap.put(LocalDate.class.getTypeName(),     new Functions.LocalDateClass());
-		functionMap.put(LocalTime.class.getTypeName(),     new Functions.LocalTimeClass());
+		marshalFunctionMap.put(LocalDateTime.class.getTypeName(), new MarshalFunctions.LocalDateTimeClass());
+		marshalFunctionMap.put(LocalDate.class.getTypeName(),     new MarshalFunctions.LocalDateClass());
+		marshalFunctionMap.put(LocalTime.class.getTypeName(),     new MarshalFunctions.LocalTimeClass());
 		//
-		functionMap.put(BigDecimal.class.getTypeName(),    new Functions.BigDecimalClass());
+		marshalFunctionMap.put(BigDecimal.class.getTypeName(),    new MarshalFunctions.BigDecimalClass());
 	}
-	private static class Functions {
+	private static class MarshalFunctions {
 		private static class BooleanClass implements Function<JsonValue, Object> {
 			@Override
 			public Object apply(JsonValue jsonValue) {
@@ -978,5 +989,307 @@ public class JSON {
 		}
 	
 		return writer.toString();
+	}
+	
+	
+	//
+	// unmarshal
+	//
+	public static final class Options {
+		private List<String> includePackageList;
+		private List<String> excludePackageList;
+		
+		private Options() {
+			this.includePackageList = new ArrayList<>();
+			this.excludePackageList = new ArrayList<>();
+		}
+		
+		private Options(Options that) {
+			this.includePackageList = that.includePackageList;
+			this.excludePackageList = that.excludePackageList;
+		}
+		public Options includePackage(String... stringArray) {
+			for(var string: stringArray) {
+				includePackageList.add(string);
+			}
+			return this;
+		}
+		public Options excludePackage(String... stringArray) {
+			for(var string: stringArray) {
+				excludePackageList.add(string);
+			}
+			return this;
+		}
+		
+		public boolean matchIncludePackage(String typeName) {
+			for(var packagePrefix: includePackageList) {
+				if (typeName.startsWith(packagePrefix)) return true;
+			}
+			return false;
+		}
+		public boolean matchExcludePackage(String typeName) {
+			for(var packagePrefix: excludePackageList) {
+				if (typeName.startsWith(packagePrefix)) return true;
+			}
+			return false;
+		}
+	}
+	
+	public static final Options DEFAULT_OPTIONS;
+	static {
+		DEFAULT_OPTIONS = new Options();
+		DEFAULT_OPTIONS.excludePackage("java.", "javax.", "jdk.", "sun.", "com.sun.");
+	}
+
+	public static String unmarshal(Object object) {
+		if (object == null) return "null";
+		
+		var clazz = object.getClass();
+		if (clazz.isEnum()) return object.toString();
+		if (clazz.isArray()) return unmarshalArray(object);
+		
+		// process common java class
+		var typeName  = clazz.getTypeName();
+		var function  = unmarshalFunctionMap.get(typeName);
+		if (function != null) return function.apply(object);
+		
+		if (DEFAULT_OPTIONS.matchIncludePackage(typeName)) return unmarshalObject(object);
+		if (DEFAULT_OPTIONS.matchExcludePackage(typeName)) return "\"" + escapeString(object.toString()) + "\""; 
+		
+		return unmarshalObject(object);
+	}
+	
+	private static String unmarshalArray(Object object) {
+		var stringJoiner = new StringJoiner(", ", "[", "]");
+		
+		int arrayLength = Array.getLength(object);
+		for(var i = 0; i < arrayLength; i++) {
+			var element = Array.get(object, i);
+			stringJoiner.add(unmarshal(element));
+		}
+		
+		return stringJoiner.toString();
+	}
+	private static String unmarshalObject(Object object) {
+		var stringJoiner = new StringJoiner(", ", "{", "}");
+		
+		var clazz = object.getClass();
+		var fieldInfoArray   = FieldInfo.getFieldInfoArray(clazz);
+
+		for(var fieldInfo: fieldInfoArray) {
+			var name  = fieldInfo.jsonName;
+			var value = unmarshal(fieldInfo.get(object));
+			stringJoiner.add(name + ": " + value);
+		}
+		return stringJoiner.toString();
+	}
+	
+	
+	private static Map<Character, String>escapeMap = new TreeMap<>();
+	static {
+		escapeMap.put('"', "\"");
+		escapeMap.put('\\', "\\");
+		escapeMap.put('/', "\\/");
+		escapeMap.put('\b', "\\b");
+		escapeMap.put('\f', "\\f");
+		escapeMap.put('\n', "\\n");
+		escapeMap.put('\r', "\\r");
+		escapeMap.put('\t', "\\t");
+	}
+	private static String escapeString(String string) {
+		var sb = new StringBuilder();
+		for(int i = 0; i < string.length(); i++) {
+			var c = string.charAt(i);
+			var s = escapeMap.get(c);
+			if (s != null) {
+				sb.append(s);
+			} else {
+				if (c < 0x020) {
+					sb.append(String.format("\\u%04x", c));
+				} else {
+					sb.append(c);
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	
+	private static Map<String, Function<Object, String>> unmarshalFunctionMap = new TreeMap<>();
+	static {
+		unmarshalFunctionMap.put(Boolean.class.getTypeName(),   new UnmarshalFunctions.BooleanClass());
+		unmarshalFunctionMap.put(Double.class.getTypeName(),    new UnmarshalFunctions.DoubleClass());
+		unmarshalFunctionMap.put(Float.class.getTypeName(),     new UnmarshalFunctions.FloatClass());
+		unmarshalFunctionMap.put(Long.class.getTypeName(),      new UnmarshalFunctions.LongClass());
+		unmarshalFunctionMap.put(Integer.class.getTypeName(),   new UnmarshalFunctions.IntegerClass());
+		unmarshalFunctionMap.put(Short.class.getTypeName(),     new UnmarshalFunctions.ShortClass());
+		unmarshalFunctionMap.put(Byte.class.getTypeName(),      new UnmarshalFunctions.ByteClass());
+		unmarshalFunctionMap.put(Character.class.getTypeName(), new UnmarshalFunctions.CharacterClass());
+		//
+		unmarshalFunctionMap.put(Boolean.TYPE.getTypeName(),   new UnmarshalFunctions.BooleanClass());
+		unmarshalFunctionMap.put(Double.TYPE.getTypeName(),    new UnmarshalFunctions.DoubleClass());
+		unmarshalFunctionMap.put(Float.TYPE.getTypeName(),     new UnmarshalFunctions.FloatClass());
+		unmarshalFunctionMap.put(Long.TYPE.getTypeName(),      new UnmarshalFunctions.LongClass());
+		unmarshalFunctionMap.put(Integer.TYPE.getTypeName(),   new UnmarshalFunctions.IntegerClass());
+		unmarshalFunctionMap.put(Short.TYPE.getTypeName(),     new UnmarshalFunctions.ShortClass());
+		unmarshalFunctionMap.put(Byte.TYPE.getTypeName(),      new UnmarshalFunctions.ByteClass());
+		unmarshalFunctionMap.put(Character.TYPE.getTypeName(), new UnmarshalFunctions.CharacterClass());
+		//
+		unmarshalFunctionMap.put(String.class.getTypeName(),        new UnmarshalFunctions.StringClass());
+		//
+		unmarshalFunctionMap.put(BigDecimal.class.getTypeName(),    new UnmarshalFunctions.BigDecimalClass());
+	}
+	private static class UnmarshalFunctions {
+		private static class BooleanClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(Boolean.class)) {
+					var value = (Boolean)object;
+					return Boolean.toString(value);
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect Boolean");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class DoubleClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(Double.class)) {
+					var value = (Double)object;
+					return Double.toString(value);
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect Double");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class FloatClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(Float.class)) {
+					var value = (Float)object;
+					return Float.toString(value);
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect Float");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class LongClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(Long.class)) {
+					var value = (Long)object;
+					return Long.toString(value);
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect Long");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class IntegerClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(Integer.class)) {
+					var value = (Integer)object;
+					return Integer.toString(value);
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect Integer");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class ShortClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(Short.class)) {
+					var value = (Short)object;
+					return Short.toString(value);
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect Short");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class ByteClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(Byte.class)) {
+					var value = (Byte)object;
+					return Byte.toString(value);
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect Byte");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class CharacterClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(Character.class)) {
+					var value = (Character)object;
+					var string = String.valueOf(value);
+					return "\"" + escapeString(string) + "\""; 
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect Character");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class StringClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(String.class)) {
+					var value = (String)object;
+					return "\"" + escapeString(value) + "\"";
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect String");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
+		private static class BigDecimalClass implements Function<Object, String> {
+			@Override
+			public String apply(Object object) {
+				var clazz = object.getClass();
+				if (clazz.equals(BigDecimal.class)) {
+					var value = (BigDecimal)object;
+					return value.toPlainString();
+				}
+				logger.error("Unexpected object class");
+				logger.error("  expect BigDecimal");
+				logger.error("  clazz  {}", clazz.getTypeName());
+				logger.error("  object {}", object.toString());
+				throw new UnexpectedException("Unexpected object class");
+			}
+		}
 	}
 }
