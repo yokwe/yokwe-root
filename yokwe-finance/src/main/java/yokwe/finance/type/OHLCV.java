@@ -58,4 +58,14 @@ public class OHLCV implements Comparable<OHLCV> {
 			return false;
 		}
 	}
+	public boolean equalsByValue(OHLCV that) {
+		return
+			this.date.equals(that.date) &&
+			this.open.compareTo(that.open) == 0 &&
+			this.high.compareTo(that.high) == 0 &&
+			this.low.compareTo(that.low) == 0 &&
+			this.close.compareTo(that.close) == 0 &&
+			this.volume == that.volume;
+	}
+	
 }
