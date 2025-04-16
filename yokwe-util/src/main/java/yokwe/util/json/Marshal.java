@@ -14,26 +14,6 @@ import yokwe.util.UnexpectedException;
 public class Marshal {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	static class ABC {
-		int a = 1;
-		Integer b = 2;
-	}
-	static class DEF {
-		String d = "D";
-		ABC abc = new ABC();
-	}
-	public static void main(String[] args) {
-		logger.info("START");
-		
-		{
-			var a = new DEF[] {new DEF()};
-			logger.info("{}", toString(a));
-		}
-		
-		
-		logger.info("STOP");
-	}
-	
 	public static String toString(Object object) {
 		StringWriter writer = new StringWriter();
 		
