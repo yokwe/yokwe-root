@@ -43,7 +43,8 @@ public class WebBrowser implements Closeable{
 	private static final String DRIVER_PATH  = "tmp/chrome-for-testing/chromedriver-mac-arm64/chromedriver";
 	
 	// headless
-	private static final boolean USE_HEADLESS = true;
+	// FIXME temporary not headless for nikko
+	private static final boolean USE_HEADLESS = false;
 	
 	public static WebDriver getWebDriverChrome(ChromeOptions options) {
 		// set path of browser and driver of chrome for testing
