@@ -21,10 +21,10 @@ open module yokwe.finance {
 	requires transitive org.seleniumhq.selenium.os;
 	requires transitive org.seleniumhq.selenium.remote_driver;
 	//
-	requires dev.failsafe.core;
 	requires org.seleniumhq.selenium.chrome_driver;
 	requires org.seleniumhq.selenium.support;
-	
+	requires com.google.common;
+
 	requires jul.to.slf4j;
 	requires org.apache.httpcomponents.core5.httpcore5.h2;
 }

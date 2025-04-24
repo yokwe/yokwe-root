@@ -39,7 +39,13 @@
 		<dependency>
 		    <groupId>org.seleniumhq.selenium</groupId>
 		    <artifactId>selenium-java</artifactId>
-		    <version>4.21.0</version>
+		    <version>4.31.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+		<dependency>
+		    <groupId>com.google.guava</groupId>
+		    <artifactId>guava</artifactId>
+		    <version>33.4.8-jre</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/org.slf4j/jul-to-slf4j -->
