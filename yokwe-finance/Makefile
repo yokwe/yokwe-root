@@ -46,6 +46,10 @@ setup-chrome-for-testing:
 	unzip -q -d $(CHROME_FOR_TESTING_DIR) $(CHROME_FOR_TESTING_DIR)/$${chrome_version}/chromedriver-mac-arm64.zip; \
 	ls -lha $(CHROME_FOR_TESTING_DIR)
 
+open-chrome-for-testing:
+	open -n 'tmp/chrome-for-testing/chrome-mac-arm64/Google Chrome for Testing.app' --args --user-data-dir=/Users/hasegawa/git/yokwe-root/yokwe-finance/tmp/chrome-for-testing/user-data-dir
+
+
 build:
 	( cd ..; mvn ant:ant install )
 
