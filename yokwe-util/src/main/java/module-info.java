@@ -1,6 +1,7 @@
 open module yokwe.util {
 	exports yokwe.util;
 	exports yokwe.util.libreoffice;
+	exports yokwe.util.selenium;
 	exports yokwe.util.stats;
 	exports yokwe.util.xml;
 	exports yokwe.util.http;
@@ -27,10 +28,24 @@ open module yokwe.util {
 	// mail from jakarta ee
 	requires jakarta.mail;
 	
+	// selenium
+	requires transitive org.seleniumhq.selenium.api;
+	requires transitive org.seleniumhq.selenium.json;
+	requires transitive org.seleniumhq.selenium.http;
+	requires transitive org.seleniumhq.selenium.os;
+	requires transitive org.seleniumhq.selenium.remote_driver;
+	requires transitive org.seleniumhq.selenium.chrome_driver;
+	//
+	requires org.seleniumhq.selenium.support;
+	requires com.google.common;
+	
+	// logging
 	requires transitive ch.qos.logback.classic;
 	requires ch.qos.logback.core;
 	requires transitive org.slf4j;
-	
+	requires jul.to.slf4j;
+
+	// libreoffice
 	requires transitive org.libreoffice.uno;
 	
 }
