@@ -61,12 +61,18 @@ public class ChromeWebDriver implements Closeable, WebDriver {
 	public final ChromeDriver        driver;
 	public final ChromeDriverService service;
 	public final ChromeOptions       options;
+	public final File                browserFile;
+	public final File                driverFile;
+	public final File                userDataDir;
 	public final File                downloadDir;
 	
 	private ChromeWebDriver(Builder buider) {
 		this.driver      = buider.driver;
 		this.service     = buider.service;
 		this.options     = buider.options;
+		this.browserFile = buider.browserFile;
+		this.driverFile  = buider.driverFile;
+		this.userDataDir = buider.userDataDir;
 		this.downloadDir = buider.downloadDir;
 	}
 	
@@ -83,15 +89,15 @@ public class ChromeWebDriver implements Closeable, WebDriver {
 		private boolean				enableDownload;
 		
 		private Builder() {
-			service  = new ChromeDriverService.Builder().build();
-			options  = new ChromeOptions();
-			
-			browserFile = BROWSER_FILE;
-			driverFile  = DRIVER_FILE;
-			userDataDir = USER_DATA_DIR;
-			downloadDir = new File(".");
-			
-			prefsMap = new TreeMap<>();
+			driver         = null;
+			service        = new ChromeDriverService.Builder().build();
+			options        = new ChromeOptions();
+			browserFile    = BROWSER_FILE;
+			driverFile     = DRIVER_FILE;
+			userDataDir    = USER_DATA_DIR;
+			downloadDir    = new File(".");
+			prefsMap       = new TreeMap<>();
+			enableDownload = true;
 		}
 		
 		public Builder withBrowserFile(File file) {
@@ -116,17 +122,6 @@ public class ChromeWebDriver implements Closeable, WebDriver {
 			driverFile = file;
 			return this;
 		}
-		public Builder withDownloadDir(File dir) {
-			// sanity check
-			if (!dir.isDirectory()) {
-				logger.error("no directory");
-				logger.error("  dir  {}!", dir.getAbsolutePath());
-				throw new UnexpectedException("no directory");
-			}
-			
-			downloadDir = dir;
-			return this;
-		}
 		public Builder withUserDataDir(File dir) {
 			// sanity check
 			if (!dir.isDirectory()) {
@@ -136,6 +131,17 @@ public class ChromeWebDriver implements Closeable, WebDriver {
 			}
 			
 			userDataDir = dir;
+			return this;
+		}
+		public Builder withDownloadDir(File dir) {
+			// sanity check
+			if (!dir.isDirectory()) {
+				logger.error("no directory");
+				logger.error("  dir  {}!", dir.getAbsolutePath());
+				throw new UnexpectedException("no directory");
+			}
+			
+			downloadDir = dir;
 			return this;
 		}
 		public Builder withArguments(String... args) {
@@ -154,6 +160,10 @@ public class ChromeWebDriver implements Closeable, WebDriver {
 		public ChromeWebDriver build() {
 			// build options
 			{
+				prefsMap.put("profile.default_content_settings.popups", 0);
+				prefsMap.put("download.default_directory",              downloadDir.getAbsolutePath());
+				prefsMap.put("plugins.always_open_pdf_externally",      1);
+
 				options.setExperimentalOption("prefs", prefsMap);
 				options.setBinary(browserFile.getAbsolutePath());
 				options.addArguments("--user-data-dir=" + userDataDir.getAbsolutePath());
@@ -167,8 +177,7 @@ public class ChromeWebDriver implements Closeable, WebDriver {
 			// build driver
 			driver = new ChromeDriver(service, options);
 			
-			var browser = new ChromeWebDriver(this);
-			return browser;
+			return new ChromeWebDriver(this);
 		}
 	}
 	
