@@ -3,22 +3,29 @@ package yokwe.util.selenium;
 import java.io.Closeable;
 import java.io.File;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import yokwe.util.UnexpectedException;
 
-public class ChromeWebDriver implements Closeable, WebDriver {
+public class ChromeWebDriver implements Closeable, WebDriver, JavascriptExecutor {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// redirect java.util.logging to slf4j
@@ -185,6 +192,7 @@ public class ChromeWebDriver implements Closeable, WebDriver {
 		return new Builder();
 	}
 	
+	
 	//
 	// WebDriver
 	//
@@ -254,28 +262,305 @@ public class ChromeWebDriver implements Closeable, WebDriver {
 	}
 	
 	
-	public static void main(String[] args) throws InterruptedException {
-		logger.info("START");
-		
-		var downloadDir = new File("tmp/download");
-		
-		var builder = ChromeWebDriver.builder();
-		builder.withDownloadDir(downloadDir);
-		builder.withEnableDownload(true);
-		
-//		builder.withArguments("--headless");
-		
-		// download dialog
-		builder.withPrefs("profile.default_content_settings.popups", 0);
-		builder.withPrefs("download.default_directory",              downloadDir.getAbsolutePath());
-		builder.withPrefs("plugins.always_open_pdf_externally",      1);
-
-		try (var browser = builder.build()) {
-			browser.driver.get("chrome://version");
-			Thread.sleep(Duration.ofSeconds(10));
-		}
-		
-		logger.info("STOP");
+	//
+	// JavascriptExecutor
+	//
+	@Override
+	public Object executeScript(String script, Object... args) {
+		return driver.executeScript(script, args);
 	}
 
+	@Override
+	public Object executeAsyncScript(String script, Object... args) {
+		return driver.executeAsyncScript(script, args);
+	}
+	
+	
+	//
+	// utility methods
+	//
+	void sleep(Duration duration) {
+		try {
+			Thread.sleep(duration);
+		} catch (InterruptedException e) {
+			//
+		}
+	}
+	
+	
+	//
+	// wait
+	//
+	public final Wait wait = new Wait();
+	public final class Wait {
+		//
+		// untilCondition
+		//
+		private static final Duration DEFAULT_WAIT_TIMEOUT = Duration.ofSeconds(5);
+		private static final Duration DEFAULT_WAIT_SLEEP   = Duration.ofMillis(500);
+		public <E> E untilExpectedCondition(ExpectedCondition<E> isTrue, Duration timeout) {
+			return new WebDriverWait(driver, timeout, DEFAULT_WAIT_SLEEP).until(isTrue);
+		}
+		//
+		// untilPresenceOfElement
+		//
+		public WebElement untilPresenceOfElement(By locator, Duration timeout) {
+			return untilExpectedCondition(ExpectedConditions.presenceOfElementLocated(locator), timeout);
+		}
+		public WebElement untilPresenceOfElement(By locator) {
+			return untilPresenceOfElement(locator, DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilClickable
+		//
+		public WebElement untilClickable(By locator, Duration timeout) {
+			return untilExpectedCondition(ExpectedConditions.elementToBeClickable(locator), timeout);
+		}
+		public WebElement untilClickable(By locator) {
+			return untilPresenceOfElement(locator, DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilTitleContains
+		//
+		public Boolean untilTitleContains(String string, Duration timeout) {
+			return untilExpectedCondition(ExpectedConditions.titleContains(string), timeout);
+		}
+		public Boolean untilTitleContains(String string) {
+			return untilTitleContains(string, DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilPageUpdate
+		//
+		private static ExpectedCondition<Boolean> pageUpdate(String page) {
+			return new ExpectedCondition<Boolean>() {
+				private String oldPage = page;
+				
+				@Override
+				public Boolean apply(WebDriver driver) {
+					return !driver.getPageSource().equals(oldPage);
+				}
+
+				@Override
+				public String toString() {
+					return "wait page transtin using oldPage";
+				}
+			};
+		}
+		public Boolean untilPageUpdate(String page, Duration timeout) {
+			return untilExpectedCondition(pageUpdate(page), timeout);
+		}
+		public Boolean untilPageUpdate(String page) {
+			return untilPageUpdate(page, DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilPageTransitionFinish
+		//
+		private static ExpectedCondition<Boolean> pageTransitionFinish(String page, int equalCount) {
+			return new ExpectedCondition<Boolean>() {
+				private int oldPage = page.length();
+				private int count   = 0;
+				@Override
+				public Boolean apply(WebDriver driver) {
+					var newPage = driver.getPageSource().length();
+					if (newPage == oldPage) {
+						count++;
+//						logger.info("equalCount  {}", equalCount);
+					} else {
+//						logger.info("XX  {}  {}", oldPage.length(), newPage.length());
+						oldPage = newPage;
+						count = 0;
+//						logger.info("equalCount  {}", equalCount);
+					}
+					return count == equalCount;
+				}
+
+				@Override
+				public String toString() {
+					return "wait finish page transitin using page length";
+				}
+			};
+		}
+		public Boolean untilPageTansitionFinish(int equalCount, Duration timeout) {
+			return untilExpectedCondition(pageTransitionFinish(driver.getPageSource(), equalCount), timeout);
+		}
+		public Boolean untilPageTansitionFinish(int equalCount) {
+			return untilPageTansitionFinish(equalCount, DEFAULT_WAIT_TIMEOUT);
+		}
+		public Boolean untilPageTansitionFinish() {
+			return untilPageTansitionFinish(2);
+		}
+		//
+		// untilPageContains
+		//
+		private static ExpectedCondition<Boolean> pageContains(String string_) {
+			return new ExpectedCondition<Boolean>() {
+				private String string = string_;
+				
+				@Override
+				public Boolean apply(WebDriver driver) {
+					return driver.getPageSource().contains(string);
+				}
+
+				@Override
+				public String toString() {
+					return "wait page contains " + string;
+				}
+			};
+		}
+		public Boolean untilPageContains(String page, Duration timeout) {
+			return untilExpectedCondition(pageContains(page), timeout);
+		}
+		public Boolean untilPageContains(String page) {
+			return untilPageContains(page, DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilPresenseOfWindow
+		//
+		public static ExpectedCondition<Boolean> presenceOfWindow(String string_) {
+			return new ExpectedCondition<Boolean>() {
+				private String string = string_;
+				
+				@Override
+				public Boolean apply(WebDriver driver) {
+					WindowInfo windowInfo = new WindowInfo(driver);
+					return windowInfo.titleContains(string);
+				}
+
+				@Override
+				public String toString() {
+					return "wait window that page title contains " + string;
+				}
+			};
+		}
+		public Boolean untilPresenceOfWindow(String string, Duration timeout) {
+			return untilExpectedCondition(presenceOfWindow(string), timeout);
+		}
+		public Boolean untilPresenceOfWindow(String string) {
+			return untilPresenceOfWindow(string, DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilAlertIsPresent
+		//
+		public Alert untilAlertIsPresent(Duration timeout) {
+			return untilExpectedCondition(ExpectedConditions.alertIsPresent(), timeout);
+		}
+		public Alert untilAlertIsPresent() {
+			return untilAlertIsPresent(DEFAULT_WAIT_TIMEOUT);
+		}
+		//
+		// untilDownloadFinish
+		//
+		public static ExpectedCondition<Boolean> downloadFinish(File file_) {
+			return new ExpectedCondition<Boolean>() {
+				private File file   = file_;
+				private long length = -1;
+				private int  count  = 0;
+				
+				@Override
+				public Boolean apply(WebDriver driver) {
+					if (file.exists()) {
+						var newLength = file.length();
+						if (length == newLength) {
+							count++;
+						} else {
+							count = 0;
+							length = newLength;
+						}
+						return 3 <= count;
+					} else {
+						return false;
+					}
+				}
+
+				@Override
+				public String toString() {
+					return "wait download finish " + file.getPath();
+				}
+			};
+		}
+		public Boolean untilDownloadFinish(File file, Duration timeout) {
+			return untilExpectedCondition(downloadFinish(file), timeout);
+		}
+		public Boolean untilDownloadFinish(File file) {
+			return untilDownloadFinish(file, DEFAULT_WAIT_TIMEOUT);
+		}
+	}
+	
+	
+	//
+	// WindowInfo
+	//
+	public static class WindowInfo {
+		private static class Entry {
+			public final String handle;
+			public final String title;
+			public final String url;
+			
+			public Entry(WebDriver driver) {
+				handle = driver.getWindowHandle();
+				title  = driver.getTitle();
+				url    = driver.getCurrentUrl();
+			}
+			
+			public boolean titleContains(String string) {
+				return title.contains(string);
+			}
+			public boolean urlContains(String string) {
+				return url.contains(string);
+			}
+			
+			@Override
+			public String toString() {
+				return String.format("{%s  %s  %s}", handle, title, url);
+			}
+		}
+
+		private final Entry[] array;
+		
+		public WindowInfo(WebDriver driver) {
+			var list = new ArrayList<Entry>();
+			{
+				// save current window
+				String save = driver.getWindowHandle();
+
+				for(var e: driver.getWindowHandles()) {
+					driver.switchTo().window(e);
+					list.add(new Entry(driver));
+				}
+				
+				// restore current window
+				driver.switchTo().window(save);
+			}
+			array = list.stream().toArray(Entry[]::new);
+		}
+		
+		public boolean titleContains(String string) {
+			for(var e: array) {
+				if (e.titleContains(string)) return true;
+			}
+			return false;
+		}
+		public boolean urlContains(String string) {
+			for(var e: array) {
+				if (e.urlContains(string)) return true;
+			}
+			return false;
+		}
+		public String getWindowHandleTitleContains(String string) {
+			for(var e: array) {
+				if (e.titleContains(string)) {
+					return e.handle;
+				}
+			}
+			return null;
+		}
+		public String getHandleByURLContains(String string) {
+			for(var e: array) {
+				if (e.urlContains(string)) {
+					return e.handle;
+				}
+			}
+			return null;
+		}
+	}
 }
