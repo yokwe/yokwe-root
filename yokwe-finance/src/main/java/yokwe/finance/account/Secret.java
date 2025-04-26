@@ -54,6 +54,7 @@ public class Secret {
 	public Type3 nikko;
 	public Type2 prestia;
 	public Type2 rakuten;
+	public Type3 smbc;
 	public Type2 smtb;
 	public Type2 sony;
 	
