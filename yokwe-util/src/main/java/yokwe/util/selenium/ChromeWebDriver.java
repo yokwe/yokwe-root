@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,14 +19,17 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Interactive;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class ChromeWebDriver implements Closeable, WebDriver, JavascriptExecutor {
+public class ChromeWebDriver implements Closeable, WebDriver, Interactive, JavascriptExecutor {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	// redirect java.util.logging to slf4j
@@ -38,10 +42,6 @@ public class ChromeWebDriver implements Closeable, WebDriver, JavascriptExecutor
 	private static final File BROWSER_FILE  = StorageSelenium.chromeForTesting.getFile("chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing");
 	private static final File DRIVER_FILE   = StorageSelenium.chromeForTesting.getFile("chromedriver-mac-arm64/chromedriver");
 	private static final File USER_DATA_DIR = StorageSelenium.chromeForTesting.getFile("user-data-dir");
-	
-//	private static final File BROWSER_FILE  = new File("tmp/chrome-for-testing/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing");
-//	private static final File DRIVER_FILE   = new File("tmp/chrome-for-testing/chromedriver-mac-arm64/chromedriver");
-//	private static final File USER_DATA_DIR = new File("tmp/chrome-for-testing/user-data-dir");
 	static {
 		// sanity check
 		boolean hasError = false;
@@ -277,16 +277,58 @@ public class ChromeWebDriver implements Closeable, WebDriver, JavascriptExecutor
 	
 	
 	//
+	// Interactive
+	//
+	@Override
+	public void perform(Collection<Sequence> actions) {
+		driver.perform(actions);
+	}
+
+	@Override
+	public void resetInputState() {
+		driver.resetInputState();
+	}
+	
+	
+	//
 	// utility methods
 	//
-	void sleep(Duration duration) {
+	public void sleep(Duration duration) {
 		try {
 			Thread.sleep(duration);
 		} catch (InterruptedException e) {
 			//
 		}
 	}
-	
+	public void savePageSource(File file) {
+		FileUtil.write().file(file, driver.getPageSource());
+	}
+	//
+	private static ExpectedCondition<String> getWindoHandleTitleContains(String string_) {
+		return new ExpectedCondition<String>() {
+			private String string = string_;
+			
+			@Override
+			public String apply(WebDriver driver) {
+				WindowInfo windowInfo = new WindowInfo(driver);
+				return windowInfo.getWindowHandleTitleContains(string);
+			}
+
+			@Override
+			public String toString() {
+				return "get window title contains " + string;
+			}
+		};
+	}
+	public void switchToWindoTitleContains(String string, Duration timeout) {
+		if (driver.getTitle().contains(string)) return;  // no need to switch window
+		var handle = wait.untilExpectedCondition(getWindoHandleTitleContains(string), timeout);
+		driver.switchTo().window(handle);
+	}
+	public void switchToWindoTitleContains(String string) {
+		switchToWindoTitleContains(string, Duration.ofSeconds(2));
+	}
+
 	
 	//
 	// wait
@@ -486,6 +528,29 @@ public class ChromeWebDriver implements Closeable, WebDriver, JavascriptExecutor
 		}
 	}
 	
+	
+	//
+	// check
+	//
+	public final Check check = new Check();
+	public final class Check {
+		public void titleContains(String expect) {
+			var actual = driver.getTitle();
+			if (actual.contains(expect)) return;
+			logger.error("Unexpected window title");
+			logger.error("  expect  {}!", expect);
+			logger.error("  actual  {}!", actual);
+			throw new UnexpectedException("Unexpected window title");
+		}
+		public void pageContains(String expect) {
+			var actual = driver.getPageSource();
+			if (actual.contains(expect)) return;
+			logger.error("Unexpected page source");
+			logger.error("  expect  {}!", expect);
+			logger.error("  actual  {}!", actual);
+			throw new UnexpectedException("Unexpected page source");
+		}
+	}
 	
 	//
 	// WindowInfo
