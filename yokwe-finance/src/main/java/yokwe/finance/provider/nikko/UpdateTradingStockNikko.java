@@ -6,16 +6,19 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriverException;
+
 import yokwe.finance.Storage;
-import yokwe.finance.account.nikko.UpdateAssetNikko;
+import yokwe.finance.account.Secret;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.TradingStockType;
 import yokwe.finance.type.TradingStockType.FeeType;
 import yokwe.finance.type.TradingStockType.TradeType;
-import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.selenium.ChromeWebDriver;
 
 public class UpdateTradingStockNikko {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -152,32 +155,71 @@ public class UpdateTradingStockNikko {
 	
 	private static int download() {
 		logger.info("download");
-		try(var browser = new WebBrowser()) {
-			logger.info("login");
-			UpdateAssetNikko.login(browser);
+		var builder = ChromeWebDriver.builder();
+//		builder.withArguments("--headless");
+		var driver = builder.build();
+		
+		try {
+			// login
+			{
+				logger.info("login");
+				driver.get("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/");
+				driver.wait.untilPageTansitionFinish();
+				
+				if (driver.getTitle().contains("システムメンテナンス")) {
+					logger.error("system maintenance");
+					throw new UnexpectedException("system maintenance");
+				}
+				
+				// sanity check
+				driver.check.titleContains("ログイン");
+				
+				var secret = Secret.read().nikko;
+				driver.wait.untilPresenceOfElement(By.name("koza1")).sendKeys(secret.branch);
+				driver.wait.untilPresenceOfElement(By.name("koza2")).sendKeys(secret.account);
+				driver.wait.untilPresenceOfElement(By.name("passwd")).sendKeys(secret.password);
+				
+				driver.wait.untilPresenceOfElement(By.xpath("//button[@class='hyoji-submit__button__type']")).click();
+				driver.wait.untilPageTansitionFinish();
+			}
 			
-			logger.info("trade");
-			UpdateAssetNikko.trade(browser);
+			// trade
+			{
+				logger.info("trade");
+				driver.wait.untilPresenceOfElement(By.name("menu03")).click();
+				driver.wait.untilPageTansitionFinish();
+				// sanity check
+				driver.check.titleContains("お取引");
+			}
 			
-			logger.info("listStockUS");
-			UpdateAssetNikko.listStockUS(browser);
+			// listStockUS
+			{
+				logger.info("listStockUS");
+				driver.wait.untilPresenceOfElement(By.linkText("米国株式")).click();
+				driver.wait.untilPageTansitionFinish();
+				// sanity check
+				driver.check.titleContains("米国株式 - 取扱銘柄一覧");
+			}
 			
-			int pageNoMax = ShowPageInfo.getInstance(browser.getPage()).stream().mapToInt(o -> o.pageNo).max().getAsInt();
+			int pageNoMax = ShowPageInfo.getInstance(driver.getPageSource()).stream().mapToInt(o -> o.pageNo).max().getAsInt();
 			logger.info("pageNoMax  {}", pageNoMax);
 			
 			int pageNo = 0;
 			for(;;) {
 				logger.info("pageNo     {}  /  {}", pageNo, pageNoMax);
-				var page = browser.getPage();				
+				var page = driver.getPageSource();				
 				FileUtil.write().file(getPath(pageNo), page);				
 				
 				if (page.contains("次の30件")) {
-					UpdateAssetNikko.next30Items(browser);
+					{
+						driver.wait.untilPresenceOfElement(By.linkText("次の30件")).click();
+						driver.wait.untilPageTansitionFinish();
+					}
 					
 					// sanity check
 					{
 						var pageNoExpect = pageNo + 1;
-						var pageNoActual = PageNoInfo.getInstance(browser.getPage()).pageNo;
+						var pageNoActual = PageNoInfo.getInstance(driver.getPageSource()).pageNo;
 						if (pageNoActual != pageNoExpect) {
 							logger.error("Unexpected");
 							logger.error("  pageNoExpect  {}", pageNoExpect);
@@ -192,16 +234,28 @@ public class UpdateTradingStockNikko {
 				break;
 			}
 			
-			logger.info("logout");
-			UpdateAssetNikko.logout(browser);
-			
-			logger.info("close");
-			browser.close();
-			
+			// logout
+			{
+				logger.info("logout");
+				driver.wait.untilPresenceOfElement(By.name("btn_logout")).click();
+				driver.wait.untilPageTansitionFinish();
+				
+				// sanity check
+				if (!driver.getTitle().contains("ログアウト")) {
+					logger.error("Unexpected window title");
+					logger.error("  {}!", driver.getTitle());
+					throw new UnexpectedException("Unexpected window title");
+				}
+			}
 			return pageNoMax;
+		} catch (WebDriverException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.error("{} {}", exceptionName, e);
+			throw new UnexpectedException(exceptionName, e);
+		} finally {
+			driver.quit();
 		}
 	}
-	
 	
 	private static void update() {
 		Storage.initialize();

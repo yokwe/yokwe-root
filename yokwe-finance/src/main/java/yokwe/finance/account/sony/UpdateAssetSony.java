@@ -2,6 +2,7 @@ package yokwe.finance.account.sony;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -23,10 +24,9 @@ import yokwe.finance.provider.sony.FundInfoSony;
 import yokwe.finance.provider.sony.StorageSony;
 import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
-import yokwe.finance.util.webbrowser.Target;
-import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.selenium.ChromeWebDriver;
 
 public final class UpdateAssetSony implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -39,67 +39,86 @@ public final class UpdateAssetSony implements UpdateAsset {
 	private static final File FILE_BALANCE_DEPOSIT_FOREIGN = storage.getFile("balance-deposit-foreign.html");
 	private static final File FILE_BALANCE_FUND            = storage.getFile("balance-fund.html");
 	
-	
-	private static final Target LOGIN_A = new Target.Get("https://o2o.moneykit.net/NBG100001G01.html");
-	private static final Target LOGIN_B = new Target.Click(By.linkText("ログイン"), "MONEYKit - ソニー銀行");
-	
-	private static final Target LOGOUT_A = new Target.Click(By.id("logout"));
-	private static final Target LOGOUT_B = new Target.Javascript("subYes()", "THANK YOU");
-	private static final Target LOGOUT_C = new Target.Javascript("allClose()");
-	
-	private static final Target TOP      = new Target.Javascript("hometop(1)");
-	
-	private static final Target BALANCE                 = new Target.Javascript("hometop(10)");
-	private static final Target BALANCE_DEPOSIT         = new Target.Javascript("balancecommon(1)");
-	private static final Target BALANCE_DEPOSIT_FOREIGN = new Target.Javascript("balancecommon(2)");
-	private static final Target BALANCE_FUND            = new Target.Javascript("balancecommon(3)");
-	
-	public static boolean isSystemMaintenance(WebBrowser webBrowser) {
-		LOGIN_A.action(webBrowser);
-		return webBrowser.getTitle().contains("システムメンテナンス");
-	}
-
-	public static void login(WebBrowser browser) {
-		var secret = Secret.read().sony;
-		login(browser, secret.account, secret.password);
-	}
-	public static void login(WebBrowser browser, String account, String password) {
-		LOGIN_A.action(browser);
-		browser.sendKey(By.name("KozaNo"),   account);
-		browser.sendKey(By.name("Password"), password);
-		
-		LOGIN_B.action(browser);
-	}
-	
-	public static void logout(WebBrowser browser) {
-		LOGOUT_A.action(browser);
-		browser.switchToByTitleContains("ログアウト");
-		
-		LOGOUT_B.action(browser);
-		LOGOUT_C.action(browser);
-	}
-	
-	public static void top(WebBrowser browser) {
-		TOP.action(browser);
-	}
-	
-	public static void balance(WebBrowser browser) {
-		BALANCE.action(browser);
-	}
-	public static void balanceDeopsit(WebBrowser browser) {
-		BALANCE_DEPOSIT.action(browser);
-	}
-	public static void balanceDeopsitForeign(WebBrowser browser) {
-		BALANCE_DEPOSIT_FOREIGN.action(browser);
-	}
-	public static void balanceFund(WebBrowser browser) {
-		BALANCE_FUND.action(browser);
-	}
-	
-	
 	@Override
 	public Storage getStorage() {
 		return storage;
+	}
+	
+		
+	@Override
+	public void download() {
+		var builder = ChromeWebDriver.builder();
+//		builder.withArguments("--headless");
+		var driver = builder.build();
+		try {
+			// login
+			{
+				logger.info("login");
+				driver.get("https://o2o.moneykit.net/NBG100001G01.html");
+				driver.wait.untilPageTansitionFinish();
+				
+				if (driver.getTitle().contains("システムメンテナンス")) {
+					logger.info("skip system maintenance");
+					return;
+				}
+				
+				var secret = Secret.read().sony;
+				driver.wait.untilPresenceOfElement(By.name("KozaNo")).sendKeys(secret.account);
+				driver.wait.untilPresenceOfElement(By.name("Password")).sendKeys(secret.password);
+				
+				driver.wait.untilPresenceOfElement(By.linkText("ログイン")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_TOP);
+				// sanity check
+				driver.check.titleContains("MONEYKit - ソニー銀行");
+			}
+			
+			// balance
+			{
+				logger.info("balance");
+				driver.executeScript("hometop(10)");
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_BALANCE);
+				
+				logger.info("balance deposit");
+				driver.executeScript("balancecommon(1)");
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_BALANCE_DEPOSIT);
+
+				logger.info("balance deposit foreign");
+				driver.executeScript("balancecommon(2)");
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_BALANCE_DEPOSIT_FOREIGN);
+
+				logger.info("balance fund");
+				driver.executeScript("balancecommon(3)");
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_BALANCE_FUND);
+			}
+			
+			// logout
+			{
+				logger.info("logout");
+				driver.wait.untilPresenceOfElement(By.id("logout")).click();
+				driver.wait.untilPageTansitionFinish();
+				
+				driver.switchToWindoTitleContains("ログアウト");
+				
+				driver.executeScript("subYes()");
+				driver.wait.untilPageTansitionFinish();
+				driver.check.titleContains("THANK YOU");
+				
+				// allClose()
+				driver.executeScript("allClose()");
+				
+				driver.sleep(Duration.ofSeconds(2));
+			}
+		} catch (WebDriverException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.warn("{} {}", exceptionName, e);
+		} finally {
+			driver.quit();
+		}
 	}
 	
 	
@@ -134,44 +153,6 @@ public final class UpdateAssetSony implements UpdateAsset {
 		return fundInfo;
 	}
 	
-	
-	@Override
-	public void download() {
-process:
-		try(var browser = new WebBrowser()) {
-			// check system maintenance
-			if (isSystemMaintenance(browser)) {
-				logger.info("skip system maintenance");
-				break process;
-			}
-
-			logger.info("login");
-			login(browser);
-			browser.savePage(FILE_TOP);
-			
-			logger.info("balance");
-			balance(browser);
-			browser.savePage(FILE_BALANCE);
-			
-			logger.info("balance deposit");
-			balanceDeopsit(browser);
-			browser.savePage(FILE_BALANCE_DEPOSIT);
-			
-			logger.info("balance deposit foreign");
-			balanceDeopsitForeign(browser);
-			browser.savePage(FILE_BALANCE_DEPOSIT_FOREIGN);
-			
-			logger.info("balance fund");
-			balanceFund(browser);
-			browser.savePage(FILE_BALANCE_FUND);
-			
-			logger.info("logout");
-			logout(browser);
-		} catch (WebDriverException e){
-			String exceptionName = e.getClass().getSimpleName();
-			logger.warn("{} {}", exceptionName, e);
-		}
-	}
 	
 	@Override
 	public void update() {

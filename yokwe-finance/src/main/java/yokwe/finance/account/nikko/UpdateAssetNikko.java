@@ -4,6 +4,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -22,17 +23,17 @@ import yokwe.finance.account.Secret;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
-import yokwe.finance.util.webbrowser.Target;
-import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.selenium.ChromeWebDriver;
 
 public final class UpdateAssetNikko implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage = Storage.account.nikko;
 	
+	private static final File FILE_LOGIN         = storage.getFile("login.html");
 	private static final File FILE_TOP           = storage.getFile("top.html");
 	private static final File FILE_BALANCE       = storage.getFile("balance.html");
 	private static final File FILE_BALANCE_BANK  = storage.getFile("balance-bank.html");
@@ -44,78 +45,6 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	
 	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
 	
-	private static final String URL_LOGIN = "https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/";
-	
-	private static final Target LOGIN_PAGE = new Target.Get(URL_LOGIN);
-	
-	private static final Target LOGIN_A = new Target.Get(URL_LOGIN, "ログイン");
-	private static final Target LOGIN_B = new Target.Click(By.xpath("//button[@class='hyoji-submit__button__type']"), "トップ");
-
-	private static final Target LOGOUT  = new Target.Click(By.name("btn_logout"), "ログアウト");
-	
-	private static final Target BALANCE      = new Target.Click(By.name("menu04"), "口座残高");
-	private static final Target BALANCE_BANK = new Target.Click(By.linkText("銀行・証券残高一覧"), "銀行・証券残高一覧");
-	
-	private static final Target TRADE                   = new Target.Click(By.name("menu03"), "お取引");
-	private static final Target TRADE_LIST_STOCK_US     = new Target.Click(By.linkText("米国株式"), "米国株式 - 取扱銘柄一覧");
-	private static final Target TRADE_LIST_FOREIGN_BOND = new Target.Click(By.linkText("外国債券"), "外国債券 - 取扱銘柄一覧");
-	
-	private static final Target NEXT_30_ITEMS     = new Target.Click(By.linkText("次の30件"));
-	
-	private static final Target TRADE_HISTORY           = new Target.Click(By.linkText("お取引履歴"), "お取引履歴 - 検索");
-	private static final Target TRADE_HISTORY_3_MONTH   = new Target.Click(By.xpath("//input[@id='term02']"));
-//	private static final Target TRADE_HISTORY_1_YEAR    = new Target.Click(By.xpath("//input[@id='term03']"));
-//	private static final Target TRADE_HISTORY_3_YEAR    = new Target.Click(By.xpath("//input[@id='term04']"));
-	private static final Target TRADE_HISTORY_DOWNLOAD  = new Target.Click(By.xpath("//input[@id='dlBtn']"));
-	
-	public static boolean isSystemMaintenance(WebBrowser webBrowser) {
-		LOGIN_PAGE.action(webBrowser);
-		return webBrowser.getTitle().contains("システムメンテナンス");
-	}
-	
-	public static void login(WebBrowser webBrowser) {
-		var secret = Secret.read().nikko;
-		login(webBrowser, secret.branch, secret.account, secret.password);
-	}
-	public static void login(WebBrowser webBrowser, String branch, String account, String password) {
-		LOGIN_A.action(webBrowser);
-		
-		webBrowser.sendKey(By.name("koza1"),  branch);
-		webBrowser.sendKey(By.name("koza2"),  account);
-		webBrowser.sendKey(By.name("passwd"), password);
-		
-		LOGIN_B.action(webBrowser);
-	}
-	public static void logout(WebBrowser webBrowser) {
-		LOGOUT.action(webBrowser);
-	}
-	public static void balance(WebBrowser webBrowser) {
-		BALANCE.action(webBrowser);
-	}
-	public static void balanceBank(WebBrowser webBrowser) {
-		BALANCE_BANK.action(webBrowser);
-	}
-	public static void trade(WebBrowser webBrowser) {
-		TRADE.action(webBrowser);
-	}
-	public static void listStockUS(WebBrowser webBrowser) {
-		TRADE_LIST_STOCK_US.action(webBrowser);
-	}
-	public static void listForeignBond(WebBrowser webBrowser) {
-		TRADE_LIST_FOREIGN_BOND.action(webBrowser);
-	}
-	public static void next30Items(WebBrowser webBrowser) {
-		NEXT_30_ITEMS.action(webBrowser);
-	}
-	public static void tradeHistory(WebBrowser webBrowser) {
-		TRADE_HISTORY.action(webBrowser);
-	}
-	public static void tradeHistoryDownload(WebBrowser webBrowser) {
-		TRADE_HISTORY_3_MONTH.action(webBrowser);
-		TRADE_HISTORY_DOWNLOAD.action(webBrowser);
-	}
-
-	
 	@Override
 	public Storage getStorage() {
 		return storage;
@@ -125,38 +54,82 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	public void download() {
 		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
 		
-process:
-		try(var browser = new WebBrowser(DIR_DOWNLOAD)) {
-			// check system maintenance
-			if (isSystemMaintenance(browser)) {
-				logger.info("skip system maintenance");
-				break process;
+		var builder = ChromeWebDriver.builder();
+//		builder.withArguments("--headless");
+		builder.withDownloadDir(DIR_DOWNLOAD);
+		var driver = builder.build();
+		try {
+			// login
+			{
+				logger.info("login");
+				driver.get("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/");
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_LOGIN);
+				
+				if (driver.getTitle().contains("システムメンテナンス")) {
+					logger.info("skip system maintenance");
+					return;
+				}
+				
+				// sanity check
+				driver.check.titleContains("ログイン");
+				
+				var secret = Secret.read().nikko;
+				driver.wait.untilPresenceOfElement(By.name("koza1")).sendKeys(secret.branch);
+				driver.wait.untilPresenceOfElement(By.name("koza2")).sendKeys(secret.account);
+				driver.wait.untilPresenceOfElement(By.name("passwd")).sendKeys(secret.password);
+				
+				driver.wait.untilPresenceOfElement(By.xpath("//button[@class='hyoji-submit__button__type']")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_TOP);
 			}
 			
-			logger.info("login");
-			login(browser);
-			browser.savePage(FILE_TOP);
+			// balance
+			{
+				logger.info("balance");
+				driver.wait.untilPresenceOfElement(By.name("menu04")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_BALANCE);
+				
+				// sanity check
+				driver.check.titleContains("口座残高");
+			}
 			
-			logger.info("balance");
-			balance(browser);
-			browser.savePage(FILE_BALANCE);
+			// balance bank
+			{
+				logger.info("balance bank");
+				driver.wait.untilPresenceOfElement(By.linkText("銀行・証券残高一覧")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_BALANCE_BANK);
+				
+				// sanity check
+				driver.check.titleContains("銀行・証券残高一覧");
+			}
 			
-			logger.info("balance bank");
-			balanceBank(browser);
-			browser.savePage(FILE_BALANCE_BANK);
-						
-			// download csv file
+			// trade history
 			{
 				logger.info("trade history");
-				trade(browser);
-				tradeHistory(browser);
-				tradeHistoryDownload(browser);
-				browser.sleep(1000);
+				driver.wait.untilPresenceOfElement(By.name("menu03")).click();
+				driver.wait.untilPageTansitionFinish();
+				// sanity check
+				driver.check.titleContains("お取引");
+
+				driver.wait.untilPresenceOfElement(By.linkText("お取引履歴")).click();
+				// sanity check
+				driver.check.titleContains("お取引履歴 - 検索");
 				
+				// click 3 month
+				driver.wait.untilPresenceOfElement(By.xpath("//input[@id='term02']")).click();
+				
+				// download
+				driver.wait.untilPresenceOfElement(By.xpath("//input[@id='dlBtn']")).click();
+				
+				// wait 1 second
+				driver.sleep(Duration.ofSeconds(1));
 				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().startsWith("Torireki"));
 				if (files.length == 1) {
 					var file = files[0];
-					browser.wait.untilDownloadFinish(file);
+					driver.wait.untilDownloadFinish(file);
 					
 					String string = FileUtil.read().withCharset(CHARSET_CSV).file(file);
 					FileUtil.write().file(FILE_TORIREKI, string);
@@ -171,11 +144,24 @@ process:
 				}
 			}
 			
-			logger.info("logout");
-			logout(browser);
-		} catch (WebDriverException e){
+			// logout
+			{
+				logger.info("logout");
+				driver.wait.untilPresenceOfElement(By.name("btn_logout")).click();
+				driver.wait.untilPageTansitionFinish();
+				
+				// sanity check
+				if (!driver.getTitle().contains("ログアウト")) {
+					logger.error("Unexpected window title");
+					logger.error("  {}!", driver.getTitle());
+					throw new UnexpectedException("Unexpected window title");
+				}
+			}
+		} catch (WebDriverException e) {
 			String exceptionName = e.getClass().getSimpleName();
 			logger.warn("{} {}", exceptionName, e);
+		} finally {
+			driver.quit();
 		}
 	}
 		

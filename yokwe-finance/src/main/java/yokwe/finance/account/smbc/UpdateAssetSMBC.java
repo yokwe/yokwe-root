@@ -1,28 +1,56 @@
 package yokwe.finance.account.smbc;
 
-import yokwe.finance.Storage;
+import org.openqa.selenium.WebDriverException;
 
-public class UpdateAssetSMBC {
+import yokwe.finance.Storage;
+import yokwe.finance.account.UpdateAsset;
+import yokwe.util.selenium.ChromeWebDriver;
+
+public class UpdateAssetSMBC implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage = Storage.account.smbc;
+	
+	@Override
+	public Storage getStorage() {
+		return storage;
+	}
+	
+	@Override
+	public void download() {
+		logger.info("download");
 
-	private static void update() {
-		try(var browser = new WebBrowserSMBC()) {
-			logger.info("login");
-			browser.login();
+		var builder = ChromeWebDriver.builder();
+//		builder.withArguments("--headless");
+		var driver = builder.build();
+		try {
+			// login
 			
-			browser.savePage(storage.getFile("top.html"));
-			
-			logger.info("logout");
-			browser.logout();
+		} catch (WebDriverException e) {
+			String exceptionName = e.getClass().getSimpleName();
+			logger.warn("{} {}", exceptionName, e);
+		} finally {
+			driver.quit();
 		}
+	}
+	
+	@Override
+	public void update() {
+		// FIXME
+		logger.info("update");
+	}
+	
+	
+	private static final UpdateAssetSMBC instance = new UpdateAssetSMBC();
+	public static UpdateAsset getInstance() {
+		return instance;
 	}
 	
 	public static void main(String[] args) {
 		logger.info("START");
 				
-		update();
+		instance.download();
+		instance.update();
 		
 		logger.info("STOP");
 	}

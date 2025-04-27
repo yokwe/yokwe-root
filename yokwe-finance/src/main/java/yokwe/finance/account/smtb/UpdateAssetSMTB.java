@@ -20,57 +20,21 @@ import yokwe.finance.account.smtb.BalancePage.Fund;
 import yokwe.finance.account.smtb.BalancePage.TermDepositJPY;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
-import yokwe.finance.util.webbrowser.Target;
-import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.selenium.ChromeWebDriver;
 
 public final class UpdateAssetSMTB implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage          = Storage.account.smtb;
 	
+	private static final File    FILE_LOGIN       = storage.getFile("login.html");
 	private static final File    FILE_TOP         = storage.getFile("top.html");
 	private static final File    FILE_BALANCE     = storage.getFile("balance.html");
 	private static final File    FILE_FUND        = storage.getFile("fund.html");
-	
-	
-	private static final Target LOGIN_A = new Target.Get("https://direct.smtb.jp/ap1/ib/login.do", "ログイン");
-	private static final Target LOGIN_B = new Target.Click(By.xpath("//input[contains(@value, 'ログイン')]"), "トップページ");
-	
-	private static final Target LOGOUT  = new Target.Click(By.xpath("//img[@alt='ログアウト']"), "ログアウト");
-	
-	// お取引き・残高照会
-	private static final Target BALANCE = new Target.Click(By.xpath("//img[@alt='お取引き・残高照会']"), "お取引・残高照会");
-	
-	//  残高明細・売却
-	private static final Target FUND = new Target.Click(By.xpath("//input[contains(@value, '残高明細・売却')]"), "投資信託売却｜保管残高明細");
-	
-	public static void login(WebBrowser browser) {
-		var secret = Secret.read().smtb;
-		login(browser, secret.account, secret.password);
-	}
-	public static void login(WebBrowser browser, String account, String password) {
-		LOGIN_A.action(browser);
-		
-		browser.sendKey(By.name("kaiinNo"),    account);
-		browser.sendKey(By.name("ibpassword"), password);
-		
-		LOGIN_B.action(browser);
-	}
-	
-	public static void logout(WebBrowser browser) {
-		LOGOUT.action(browser);
-	}
-	
-	public static void balance(WebBrowser browser) {
-		BALANCE.action(browser);
-	}
-	
-	public static void fund(WebBrowser browser) {
-		FUND.action(browser);
-	}
-	
+	private static final File    FILE_LOGOUT      = storage.getFile("logout.html");
+
 	@Override
 	public Storage getStorage() {
 		return storage;
@@ -78,24 +42,64 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		try(var browser = new WebBrowser()) {
-			logger.info("login");
-			login(browser);
-			browser.savePage(FILE_TOP);
+		var builder = ChromeWebDriver.builder();
+		builder.withArguments("--headless");
+		var driver = builder.build();
+		try {
+			// login
+			{
+				logger.info("login");
+				driver.get("https://direct.smtb.jp/ap1/ib/login.do");
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_LOGIN);
+				// sanity check
+				driver.check.titleContains("ログイン");
+				
+				var secret = Secret.read().smtb;
+				driver.wait.untilPresenceOfElement(By.name("kaiinNo")).sendKeys(secret.account);
+				driver.wait.untilPresenceOfElement(By.name("ibpassword")).sendKeys(secret.password);
+				
+				driver.wait.untilPresenceOfElement(By.xpath("//input[contains(@value, 'ログイン')]")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_TOP);
+				// sanity check
+				driver.check.titleContains("トップページ");
+			}
 			
-			logger.info("balance");
-			balance(browser);
-			browser.savePage(FILE_BALANCE);
+			// balance
+			{
+				logger.info("balance");
+				driver.wait.untilPresenceOfElement(By.xpath("//img[@alt='お取引き・残高照会']")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_BALANCE);
+				// sanity check
+				driver.check.titleContains("お取引・残高照会");
+			}
+			// fund
+			{
+				logger.info("fund");
+				// By.xpath("//input[contains(@value, '残高明細・売却')]"), "投資信託売却｜保管残高明細"
+				driver.wait.untilPresenceOfElement(By.xpath("//input[contains(@value, '残高明細・売却')]")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_FUND);
+				// sanity check
+				driver.check.titleContains("投資信託売却｜保管残高明細");
+			}
 			
-			logger.info("fund");
-			fund(browser);
-			browser.savePage(FILE_FUND);
-			
-			logger.info("logout");
-			logout(browser);
+			// logout
+			{
+				logger.info("logout");
+				driver.wait.untilPresenceOfElement(By.xpath("//img[@alt='ログアウト']")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_LOGOUT);
+				// sanity check
+				driver.check.titleContains("ログアウト");
+			}
 		} catch (WebDriverException e){
 			String exceptionName = e.getClass().getSimpleName();
 			logger.warn("{} {}", exceptionName, e);
+		} finally {
+			driver.quit();
 		}
 	}
 	

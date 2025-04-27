@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.interactions.Actions;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -25,74 +26,22 @@ import yokwe.finance.account.prestia.BalancePage.TermDepositForeign;
 import yokwe.finance.account.prestia.FundPage.FundReturns;
 import yokwe.finance.provider.prestia.StoragePrestia;
 import yokwe.finance.type.Currency;
-import yokwe.finance.util.webbrowser.Target;
-import yokwe.finance.util.webbrowser.WebBrowser;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
+import yokwe.util.selenium.ChromeWebDriver;
 
 public final class UpdateAssetPrestia implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Storage storage = Storage.account.prestia;
 	
+	private static final File FILE_LOGIN_A         = storage.getFile("login-a.html");
+	private static final File FILE_LOGIN_B         = storage.getFile("login-b.html");
+	private static final File FILE_LOGOUT          = storage.getFile("logout.html");
+
 	private static final File FILE_BALANCE         = storage.getFile("balance.html");
 	private static final File FILE_FUND_RETURNS    = storage.getFile("fund-returns.html");
 	
-	private static final Target LOGIN_A = new Target.Get("https://login.smbctb.co.jp/ib/portal/POSNIN1prestiatop.prst", "プレスティア オンライン");
-	private static final Target LOGIN_B = new Target.Click(By.linkText("サインオン"));
-	private static final Target LOGOUT  = new Target.Click(By.linkText("サインオフ"));
-	
-	private static final Target BALANCE_A = new Target.Click(By.id("header-nav-label-0"));
-	private static final Target BALANCE_B = new Target.Click(By.linkText("口座残高"));
-	
-	private static final Target FUND_ENTER_A = new Target.Click(By.id("header-nav-label-3"));
-	private static final Target FUND_ENTER_B = new Target.Click(By.linkText("投資信託サービス"), "インターネットバンキング投資信託");
-	private static final Target FUND_RETURNS = new Target.Click(By.xpath("//*[@id=\"navi02_03\"]/li[4]/a")); // トータルリターン
-	private static final Target FUND_EXIT    = new Target.Click(By.xpath("//*[@id=\"header\"]/img[1]"), "プレスティア オンライン");
-	
-	
-	private static void login(WebBrowser webBrowser) {
-		var secret = Secret.read().prestia;
-		login(webBrowser, secret.account, secret.password);
-	}
-	private static void login(WebBrowser webBrowser, String account, String password) {
-		LOGIN_A.action(webBrowser);
-		webBrowser.savePage(storage.getFile("login-a.html"));
-		
-		// To prevent pop up dialog for new login, use 0 for sleep
-		webBrowser.sendKey(By.id("dispuserId"),   account, 0);
-		webBrowser.sendKey(By.id("disppassword"), password, 0);
-		
-		LOGIN_B.action(webBrowser);
-		webBrowser.wait.untilPageContains("代表口座");
-		webBrowser.savePage(storage.getFile("login-b.html"));
-	}
-	private static void logout(WebBrowser webBrowser) {
-		LOGOUT.action(webBrowser);
-		webBrowser.wait.untilPageContains("サインオフが完了しました");
-	}
-	private static void balance(WebBrowser webBrowser) {
-		BALANCE_A.action(webBrowser);
-		BALANCE_B.action(webBrowser);
-	}
-	private static void fundEnter(WebBrowser webBrowser) {
-		FUND_ENTER_A.action(webBrowser);
-		FUND_ENTER_B.action(webBrowser);
-	}
-	private static void fundReturns(WebBrowser webBrowser) {
-		// hover mouse to navi02_03_active
-		webBrowser.moveMouse(By.id("navi02_03_active"));
-		
-		FUND_RETURNS.action(webBrowser);
-	}
-	private static void fundExit(WebBrowser webBrowser) {
-		FUND_EXIT.action(webBrowser);
-	}
-	
-	private static void savePage(WebBrowser webBrowser, File file) {
-		webBrowser.savePage(file);
-	}
-
 	
 	@Override
 	public Storage getStorage() {
@@ -101,25 +50,77 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		try(var browser = new WebBrowser()) {
-			logger.info("login");
-			login(browser);
+		var builder = ChromeWebDriver.builder();
+//		builder.withArguments("--headless");
+		var driver = builder.build();
+		try {
+			// login
+			{
+				logger.info("login");
+				driver.get("https://login.smbctb.co.jp/ib/portal/POSNIN1prestiatop.prst");
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_LOGIN_A);
+				// sanity check
+				driver.check.titleContains("プレスティア オンライン");
+				
+				var secret = Secret.read().prestia;
+				driver.wait.untilPresenceOfElement(By.id("dispuserId")).sendKeys(secret.account);
+				driver.wait.untilPresenceOfElement(By.id("disppassword")).sendKeys(secret.password);
+				driver.wait.untilPresenceOfElement(By.linkText("サインオン")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_LOGIN_B);
+				// sanity check
+				driver.check.pageContains("代表口座");
+			}
 			
-			logger.info("balance");
-			balance(browser);
-			savePage(browser, FILE_BALANCE);
+			// balance
+			{
+				logger.info("balance");
+				driver.wait.untilPresenceOfElement(By.id("header-nav-label-0")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.wait.untilPresenceOfElement(By.linkText("口座残高")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_BALANCE);
+			}
 			
-			logger.info("fund");
-			fundEnter(browser);
-			fundReturns(browser);
-			savePage(browser, FILE_FUND_RETURNS);
-			fundExit(browser);
+			// fund
+			{
+				logger.info("fund enter");
+				driver.wait.untilPresenceOfElement(By.id("header-nav-label-3")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.wait.untilPresenceOfElement(By.linkText("投資信託サービス")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.check.titleContains("インターネットバンキング投資信託");
+				
+				logger.info("fund return");
+				// hover mouse to navi02_03_active
+				new Actions(driver).moveToElement(driver.findElement(By.id("navi02_03_active"))).perform();
+				driver.wait.untilPageTansitionFinish();
+				driver.wait.untilPresenceOfElement(By.xpath("//*[@id=\"navi02_03\"]/li[4]/a")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_FUND_RETURNS);
+				
+				logger.info("fund exit");
+				driver.wait.untilPresenceOfElement(By.xpath("//*[@id=\"header\"]/img[1]")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.check.titleContains("プレスティア オンライン");
+			}
 			
-			logger.info("logout");
-			logout(browser);
+			// logout
+			{
+				logger.info("logout");
+				// By.linkText("サインオフ")
+				driver.wait.untilPresenceOfElement(By.linkText("サインオフ")).click();
+				driver.wait.untilPageTansitionFinish();
+				driver.savePageSource(FILE_LOGOUT);
+				// sanity check
+				driver.check.pageContains("サインオフが完了しました");
+			}
 		} catch (WebDriverException e){
 			String exceptionName = e.getClass().getSimpleName();
 			logger.warn("{} {}", exceptionName, e);
+		} finally {
+			driver.quit();
 		}
 	}
 	
