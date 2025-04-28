@@ -72,16 +72,12 @@ public class UpdateIntraDayStockPrice {
         public String[][] HISTMIN4;
         public String[][] HISTMIN5;
         public String[][] HISTMIN6;
+        public String HISTMIN7;
+        public String HISTMIN8;
+        public String HISTMIN9;
+        public String HISTMIN10;
         @Ignore
-        public String[][] HISTMIN7;
-        @Ignore
-        public String[][] HISTMIN8;
-        @Ignore
-        public String[][] HISTMIN9;
-        @Ignore
-        public String[][] HISTMIN10;
-        @Ignore
-        public String[][] HISTMIN11;
+        public String HISTMIN11;
         
         public String LOSH;    //"100",
         public String MPFU;    // "0.1",
@@ -170,35 +166,60 @@ public class UpdateIntraDayStockPrice {
 //		download.showRunCount();
 	}
 	
+	private static void update(Map<ChronoLocalDateTime<?>, OHLCVDateTime> map, String stockCode, String histmdate, String histmin) {
+		if (histmin.isEmpty()) return;
+		
+		var date = LocalDate.parse(histmdate.replace('/', '-'));
+		
+		for(var data: histmin.split("\\\\n")) {
+			var e = data.split(",");
+			// sanity check
+			if (e.length != 7) {
+				logger.error("Unexpected data");
+				logger.error("  e  {}!", ToString.withoutFieldName(e));
+				throw new UnexpectedException("Unexpected data");
+			}
+			update(map, stockCode, date, e);
+		}
+	}
 	private static void update(Map<ChronoLocalDateTime<?>, OHLCVDateTime> map, String stockCode, String histmdate, String[][] histmin) {
 		if (histmdate.isEmpty()) return;
 		
 		var date = LocalDate.parse(histmdate.replace('/', '-'));
 		
 		for(var e: histmin) {
-			var time   = LocalTime.parse(e[0]);
-			var open   = new BigDecimal(e[1]);
-			var close  = new BigDecimal(e[2]);
-			var high   = new BigDecimal(e[3]);
-			var low    = new BigDecimal(e[4]);
-			var volume = Long.valueOf(e[6]);
-			
-			var ohlcv = new OHLCVDateTime(LocalDateTime.of(date, time), open, high, low, close, volume);
-			
-			var old = map.put(ohlcv.dateTime, ohlcv);
-			if (old == null) {
-				// new entry
+			update(map, stockCode, date, e);
+		}
+	}
+	
+	private static void update(Map<ChronoLocalDateTime<?>, OHLCVDateTime> map, String stockCode, LocalDate date, String[] e) {
+		// sanity check
+		if (e.length != 7) {
+			logger.error("Unexpected data");
+			logger.error("  e  {}!", ToString.withoutFieldName(e));
+			throw new UnexpectedException("Unexpected data");
+		}
+		var time   = LocalTime.parse(e[0]);
+		var open   = new BigDecimal(e[1]);
+		var close  = new BigDecimal(e[2]);
+		var high   = new BigDecimal(e[3]);
+		var low    = new BigDecimal(e[4]);
+		var volume = Long.valueOf(e[6]);
+		
+		var ohlcv = new OHLCVDateTime(LocalDateTime.of(date, time), open, high, low, close, volume);
+		var old = map.put(ohlcv.dateTime, ohlcv);
+		if (old == null) {
+			// new entry
+		} else {
+			// existing entry
+			if (old.equals(ohlcv)) {
+				// expected
 			} else {
-				// existing entry
-				if (old.equals(ohlcv)) {
-					// expected
-				} else {
-					logger.error("Unexpected data");
-					logger.error("  stock  {}", stockCode);
-					logger.error("  new    {}", ohlcv);
-					logger.error("  old    {}", old);
-					throw new UnexpectedException("Unexpected data");
-				}
+				logger.error("Unexpected data");
+				logger.error("  stock  {}", stockCode);
+				logger.error("  new    {}", ohlcv);
+				logger.error("  old    {}", old);
+				throw new UnexpectedException("Unexpected data");
 			}
 		}
 	}
@@ -224,11 +245,16 @@ public class UpdateIntraDayStockPrice {
 					}
 					
 					update(map, stockCode, data.HISTMDATE1, data.HISTMIN1);
-//					update(map, stockCode, data.HISTMDATE2, data.HISTMIN2);
-//					update(map, stockCode, data.HISTMDATE3, data.HISTMIN3);
-//					update(map, stockCode, data.HISTMDATE4, data.HISTMIN4);
-//					update(map, stockCode, data.HISTMDATE5, data.HISTMIN5);
-//					update(map, stockCode, data.HISTMDATE6, data.HISTMIN6);
+					update(map, stockCode, data.HISTMDATE2, data.HISTMIN2);
+					update(map, stockCode, data.HISTMDATE3, data.HISTMIN3);
+					update(map, stockCode, data.HISTMDATE4, data.HISTMIN4);
+					update(map, stockCode, data.HISTMDATE5, data.HISTMIN5);
+					update(map, stockCode, data.HISTMDATE6, data.HISTMIN6);
+					
+					update(map, stockCode, data.HISTMDATE7,  data.HISTMIN7);
+					update(map, stockCode, data.HISTMDATE8,  data.HISTMIN8);
+					update(map, stockCode, data.HISTMDATE9,  data.HISTMIN9);
+					update(map, stockCode, data.HISTMDATE10, data.HISTMIN10);
 					
 					StorageJPX.IntraDayStockPrice.save(stockCode, map.values());
 				}
