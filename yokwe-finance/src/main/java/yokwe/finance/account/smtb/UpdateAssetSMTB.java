@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -22,7 +23,8 @@ import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeWebDriver;
+import yokwe.util.selenium.ChromeDriverBuilder;
+import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetSMTB implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -42,26 +44,23 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		var builder = ChromeWebDriver.builder();
+		var builder = ChromeDriverBuilder.builder();
 		builder.withArguments("--headless");
-		var driver = builder.build();
+		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
 		try {
 			// login
 			{
 				logger.info("login");
-				driver.get("https://direct.smtb.jp/ap1/ib/login.do");
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_LOGIN);
+				driver.getAndWait("https://direct.smtb.jp/ap1/ib/login.do");
+				driver.savePage(FILE_LOGIN);
 				// sanity check
 				driver.check.titleContains("ログイン");
 				
 				var secret = Secret.read().smtb;
-				driver.wait.untilPresenceOfElement(By.name("kaiinNo")).sendKeys(secret.account);
-				driver.wait.untilPresenceOfElement(By.name("ibpassword")).sendKeys(secret.password);
-				
-				driver.wait.untilPresenceOfElement(By.xpath("//input[contains(@value, 'ログイン')]")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_TOP);
+				driver.sendKey(By.name("kaiinNo"),    secret.account);
+				driver.sendKey(By.name("ibpassword"), secret.password);
+				driver.clickAndWait(By.xpath("//input[contains(@value, 'ログイン')]"));
+				driver.savePage(FILE_TOP);
 				// sanity check
 				driver.check.titleContains("トップページ");
 			}
@@ -69,19 +68,16 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 			// balance
 			{
 				logger.info("balance");
-				driver.wait.untilPresenceOfElement(By.xpath("//img[@alt='お取引き・残高照会']")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_BALANCE);
+				driver.clickAndWait(By.xpath("//img[@alt='お取引き・残高照会']"));
+				driver.savePage(FILE_BALANCE);
 				// sanity check
 				driver.check.titleContains("お取引・残高照会");
 			}
 			// fund
 			{
 				logger.info("fund");
-				// By.xpath("//input[contains(@value, '残高明細・売却')]"), "投資信託売却｜保管残高明細"
-				driver.wait.untilPresenceOfElement(By.xpath("//input[contains(@value, '残高明細・売却')]")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_FUND);
+				driver.clickAndWait(By.xpath("//input[contains(@value, '残高明細・売却')]"));
+				driver.savePage(FILE_FUND);
 				// sanity check
 				driver.check.titleContains("投資信託売却｜保管残高明細");
 			}
@@ -89,9 +85,8 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 			// logout
 			{
 				logger.info("logout");
-				driver.wait.untilPresenceOfElement(By.xpath("//img[@alt='ログアウト']")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_LOGOUT);
+				driver.clickAndWait(By.xpath("//img[@alt='ログアウト']"));
+				driver.savePage(FILE_LOGOUT);
 				// sanity check
 				driver.check.titleContains("ログアウト");
 			}

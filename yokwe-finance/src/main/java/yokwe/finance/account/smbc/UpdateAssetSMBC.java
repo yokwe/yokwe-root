@@ -4,7 +4,7 @@ import org.openqa.selenium.WebDriverException;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.UpdateAsset;
-import yokwe.util.selenium.ChromeWebDriver;
+import yokwe.util.selenium.ChromeDriverBuilder;
 
 public class UpdateAssetSMBC implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -20,7 +20,7 @@ public class UpdateAssetSMBC implements UpdateAsset {
 	public void download() {
 		logger.info("download");
 
-		var builder = ChromeWebDriver.builder();
+		var builder = ChromeDriverBuilder.builder();
 //		builder.withArguments("--headless");
 		var driver = builder.build();
 		try {

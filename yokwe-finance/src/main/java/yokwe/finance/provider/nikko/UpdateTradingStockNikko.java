@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Secret;
@@ -18,7 +19,8 @@ import yokwe.finance.type.TradingStockType.TradeType;
 import yokwe.util.FileUtil;
 import yokwe.util.ScrapeUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeWebDriver;
+import yokwe.util.selenium.ChromeDriverBuilder;
+import yokwe.util.selenium.WebDriverWrapper;
 
 public class UpdateTradingStockNikko {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -155,16 +157,15 @@ public class UpdateTradingStockNikko {
 	
 	private static int download() {
 		logger.info("download");
-		var builder = ChromeWebDriver.builder();
+		var builder = ChromeDriverBuilder.builder();
 //		builder.withArguments("--headless");
-		var driver = builder.build();
+		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
 		
 		try {
 			// login
 			{
 				logger.info("login");
-				driver.get("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/");
-				driver.wait.untilPageTansitionFinish();
+				driver.getAndWait("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/");
 				
 				if (driver.getTitle().contains("システムメンテナンス")) {
 					logger.error("system maintenance");
@@ -175,19 +176,16 @@ public class UpdateTradingStockNikko {
 				driver.check.titleContains("ログイン");
 				
 				var secret = Secret.read().nikko;
-				driver.wait.untilPresenceOfElement(By.name("koza1")).sendKeys(secret.branch);
-				driver.wait.untilPresenceOfElement(By.name("koza2")).sendKeys(secret.account);
-				driver.wait.untilPresenceOfElement(By.name("passwd")).sendKeys(secret.password);
-				
-				driver.wait.untilPresenceOfElement(By.xpath("//button[@class='hyoji-submit__button__type']")).click();
-				driver.wait.untilPageTansitionFinish();
+				driver.sendKey(By.name("koza1"),  secret.branch);
+				driver.sendKey(By.name("koza2"),  secret.account);
+				driver.sendKey(By.name("passwd"), secret.password);
+				driver.clickAndWait(By.xpath("//button[@class='hyoji-submit__button__type']"));
 			}
 			
 			// trade
 			{
 				logger.info("trade");
-				driver.wait.untilPresenceOfElement(By.name("menu03")).click();
-				driver.wait.untilPageTansitionFinish();
+				driver.clickAndWait(By.name("menu03"));
 				// sanity check
 				driver.check.titleContains("お取引");
 			}
@@ -195,8 +193,7 @@ public class UpdateTradingStockNikko {
 			// listStockUS
 			{
 				logger.info("listStockUS");
-				driver.wait.untilPresenceOfElement(By.linkText("米国株式")).click();
-				driver.wait.untilPageTansitionFinish();
+				driver.clickAndWait(By.linkText("米国株式"));
 				// sanity check
 				driver.check.titleContains("米国株式 - 取扱銘柄一覧");
 			}
@@ -211,10 +208,7 @@ public class UpdateTradingStockNikko {
 				FileUtil.write().file(getPath(pageNo), page);				
 				
 				if (page.contains("次の30件")) {
-					{
-						driver.wait.untilPresenceOfElement(By.linkText("次の30件")).click();
-						driver.wait.untilPageTansitionFinish();
-					}
+					driver.clickAndWait(By.linkText("次の30件"));
 					
 					// sanity check
 					{
@@ -237,15 +231,9 @@ public class UpdateTradingStockNikko {
 			// logout
 			{
 				logger.info("logout");
-				driver.wait.untilPresenceOfElement(By.name("btn_logout")).click();
-				driver.wait.untilPageTansitionFinish();
-				
+				driver.clickAndWait(By.name("btn_logout"));
 				// sanity check
-				if (!driver.getTitle().contains("ログアウト")) {
-					logger.error("Unexpected window title");
-					logger.error("  {}!", driver.getTitle());
-					throw new UnexpectedException("Unexpected window title");
-				}
+				driver.check.titleContains("ログアウト");
 			}
 			return pageNoMax;
 		} catch (WebDriverException e) {

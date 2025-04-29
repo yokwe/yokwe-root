@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -28,7 +28,8 @@ import yokwe.finance.provider.prestia.StoragePrestia;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeWebDriver;
+import yokwe.util.selenium.ChromeDriverBuilder;
+import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetPrestia implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -50,25 +51,23 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		var builder = ChromeWebDriver.builder();
+		var builder = ChromeDriverBuilder.builder();
 //		builder.withArguments("--headless");
-		var driver = builder.build();
+		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
 		try {
 			// login
 			{
 				logger.info("login");
-				driver.get("https://login.smbctb.co.jp/ib/portal/POSNIN1prestiatop.prst");
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_LOGIN_A);
+				driver.getAndWait("https://login.smbctb.co.jp/ib/portal/POSNIN1prestiatop.prst");
+				driver.savePage(FILE_LOGIN_A);
 				// sanity check
 				driver.check.titleContains("プレスティア オンライン");
 				
 				var secret = Secret.read().prestia;
-				driver.wait.untilPresenceOfElement(By.id("dispuserId")).sendKeys(secret.account);
-				driver.wait.untilPresenceOfElement(By.id("disppassword")).sendKeys(secret.password);
-				driver.wait.untilPresenceOfElement(By.linkText("サインオン")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_LOGIN_B);
+				driver.sendKey(By.id("dispuserId"),   secret.account);
+				driver.sendKey(By.id("disppassword"), secret.password);
+				driver.clickAndWait(By.linkText("サインオン"));
+				driver.savePage(FILE_LOGIN_B);
 				// sanity check
 				driver.check.pageContains("代表口座");
 			}
@@ -76,43 +75,36 @@ public final class UpdateAssetPrestia implements UpdateAsset {
 			// balance
 			{
 				logger.info("balance");
-				driver.wait.untilPresenceOfElement(By.id("header-nav-label-0")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.wait.untilPresenceOfElement(By.linkText("口座残高")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_BALANCE);
+				driver.clickAndWait(By.id("header-nav-label-0"));
+				driver.clickAndWait(By.linkText("口座残高"));
+				driver.savePage(FILE_BALANCE);
 			}
 			
 			// fund
 			{
 				logger.info("fund enter");
-				driver.wait.untilPresenceOfElement(By.id("header-nav-label-3")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.wait.untilPresenceOfElement(By.linkText("投資信託サービス")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.check.titleContains("インターネットバンキング投資信託");
+				driver.clickAndWait(By.id("header-nav-label-3"));
+				driver.clickAndWait(By.linkText("投資信託サービス"));
+				// sanity check
+				driver.check.pageContains("インターネットバンキング投資信託");
 				
 				logger.info("fund return");
 				// hover mouse to navi02_03_active
-				new Actions(driver).moveToElement(driver.findElement(By.id("navi02_03_active"))).perform();
-				driver.wait.untilPageTansitionFinish();
-				driver.wait.untilPresenceOfElement(By.xpath("//*[@id=\"navi02_03\"]/li[4]/a")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_FUND_RETURNS);
+				driver.moveToElementAndWait(By.id("navi02_03_active"));
+				driver.clickAndWait(By.xpath("//*[@id=\"navi02_03\"]/li[4]/a"));
+				driver.savePage(FILE_FUND_RETURNS);
 				
 				logger.info("fund exit");
-				driver.wait.untilPresenceOfElement(By.xpath("//*[@id=\"header\"]/img[1]")).click();
-				driver.wait.untilPageTansitionFinish();
+				driver.clickAndWait(By.xpath("//*[@id=\"header\"]/img[1]"));
+				// sanity check
 				driver.check.titleContains("プレスティア オンライン");
 			}
 			
 			// logout
 			{
 				logger.info("logout");
-				// By.linkText("サインオフ")
-				driver.wait.untilPresenceOfElement(By.linkText("サインオフ")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_LOGOUT);
+				driver.clickAndWait(By.linkText("サインオフ"));
+				driver.savePage(FILE_LOGOUT);
 				// sanity check
 				driver.check.pageContains("サインオフが完了しました");
 			}

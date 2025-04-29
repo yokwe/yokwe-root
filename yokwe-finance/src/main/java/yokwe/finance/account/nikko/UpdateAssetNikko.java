@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -26,7 +27,8 @@ import yokwe.finance.type.Currency;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeWebDriver;
+import yokwe.util.selenium.ChromeDriverBuilder;
+import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetNikko implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -54,17 +56,17 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	public void download() {
 		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
 		
-		var builder = ChromeWebDriver.builder();
+		var builder = ChromeDriverBuilder.builder();
 //		builder.withArguments("--headless");
 		builder.withDownloadDir(DIR_DOWNLOAD);
-		var driver = builder.build();
+		
+		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
 		try {
 			// login
 			{
 				logger.info("login");
-				driver.get("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/");
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_LOGIN);
+				driver.getAndWait("https://trade.smbcnikko.co.jp/Login/0/login/ipan_web/hyoji/");
+				driver.savePage(FILE_LOGIN);
 				
 				if (driver.getTitle().contains("システムメンテナンス")) {
 					logger.info("skip system maintenance");
@@ -75,21 +77,18 @@ public final class UpdateAssetNikko implements UpdateAsset {
 				driver.check.titleContains("ログイン");
 				
 				var secret = Secret.read().nikko;
-				driver.wait.untilPresenceOfElement(By.name("koza1")).sendKeys(secret.branch);
-				driver.wait.untilPresenceOfElement(By.name("koza2")).sendKeys(secret.account);
-				driver.wait.untilPresenceOfElement(By.name("passwd")).sendKeys(secret.password);
-				
-				driver.wait.untilPresenceOfElement(By.xpath("//button[@class='hyoji-submit__button__type']")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_TOP);
+				driver.sendKey(By.name("koza1"),  secret.branch);
+				driver.sendKey(By.name("koza2"),  secret.account);
+				driver.sendKey(By.name("passwd"), secret.password);
+				driver.clickAndWait(By.xpath("//button[@class='hyoji-submit__button__type']"));
+				driver.savePage(FILE_TOP);
 			}
 			
 			// balance
 			{
 				logger.info("balance");
-				driver.wait.untilPresenceOfElement(By.name("menu04")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_BALANCE);
+				driver.clickAndWait(By.name("menu04"));
+				driver.savePage(FILE_BALANCE);
 				
 				// sanity check
 				driver.check.titleContains("口座残高");
@@ -98,9 +97,8 @@ public final class UpdateAssetNikko implements UpdateAsset {
 			// balance bank
 			{
 				logger.info("balance bank");
-				driver.wait.untilPresenceOfElement(By.linkText("銀行・証券残高一覧")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_BALANCE_BANK);
+				driver.clickAndWait(By.linkText("銀行・証券残高一覧"));
+				driver.savePage(FILE_BALANCE_BANK);
 				
 				// sanity check
 				driver.check.titleContains("銀行・証券残高一覧");
@@ -109,20 +107,19 @@ public final class UpdateAssetNikko implements UpdateAsset {
 			// trade history
 			{
 				logger.info("trade history");
-				driver.wait.untilPresenceOfElement(By.name("menu03")).click();
-				driver.wait.untilPageTansitionFinish();
+				driver.clickAndWait(By.name("menu03"));
 				// sanity check
 				driver.check.titleContains("お取引");
 
-				driver.wait.untilPresenceOfElement(By.linkText("お取引履歴")).click();
+				driver.clickAndWait(By.linkText("お取引履歴"));
 				// sanity check
 				driver.check.titleContains("お取引履歴 - 検索");
 				
 				// click 3 month
-				driver.wait.untilPresenceOfElement(By.xpath("//input[@id='term02']")).click();
+				driver.click(By.xpath("//input[@id='term02']"));
 				
 				// download
-				driver.wait.untilPresenceOfElement(By.xpath("//input[@id='dlBtn']")).click();
+				driver.click(By.xpath("//input[@id='dlBtn']"));
 				
 				// wait 1 second
 				driver.sleep(Duration.ofSeconds(1));
@@ -147,15 +144,9 @@ public final class UpdateAssetNikko implements UpdateAsset {
 			// logout
 			{
 				logger.info("logout");
-				driver.wait.untilPresenceOfElement(By.name("btn_logout")).click();
-				driver.wait.untilPageTansitionFinish();
-				
+				driver.clickAndWait(By.name("btn_logout"));
 				// sanity check
-				if (!driver.getTitle().contains("ログアウト")) {
-					logger.error("Unexpected window title");
-					logger.error("  {}!", driver.getTitle());
-					throw new UnexpectedException("Unexpected window title");
-				}
+				driver.check.titleContains("ログアウト");
 			}
 		} catch (WebDriverException e) {
 			String exceptionName = e.getClass().getSimpleName();

@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -30,7 +31,8 @@ import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeWebDriver;
+import yokwe.util.selenium.ChromeDriverBuilder;
+import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetRakuten implements UpdateAsset {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -55,17 +57,16 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 	public void download() {
 		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
 		
-		var builder = ChromeWebDriver.builder();
+		var builder = ChromeDriverBuilder.builder();
 //		builder.withArguments("--headless");
 		builder.withDownloadDir(DIR_DOWNLOAD);
-		var driver = builder.build();
+		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
 		try {
 			// login
 			{
 				logger.info("login");
-				driver.get("https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html");
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_LOGIN);
+				driver.getAndWait("https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html");
+				driver.savePage(FILE_LOGIN);
 				
 				if (driver.getTitle().contains("追加認証")) {
 					logger.warn("追加認証");
@@ -74,38 +75,35 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 				driver.check.titleContains("総合口座ログイン | 楽天証券");
 				
 				var secret = Secret.read().rakuten;
-				driver.wait.untilPresenceOfElement(By.name("loginid")).sendKeys(secret.account);
-				driver.wait.untilPresenceOfElement(By.name("passwd")).sendKeys(secret.password);
+				driver.sendKey(By.name("loginid"), secret.account);
+				driver.sendKey(By.name("passwd"),  secret.password);
 				
-				driver.wait.untilPresenceOfElement(By.id("login-btn")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_TOP);
+				driver.clickAndWait(By.id("login-btn"));
+				driver.savePage(FILE_TOP);
 				
 				if (driver.getTitle().contains("追加認証")) {
 					logger.warn("追加認証");
 					return;
 				}
-
+				// sanity check
 				driver.check.titleContains("ホーム");
 			}
 			
 			// balance
 			{
 				logger.info("balance");
-				driver.wait.untilPresenceOfElement(By.xpath("//span[@class='pcm-gl-g-header-mymenu-btn']")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.wait.untilPresenceOfElement(By.xpath("//a[text()='保有商品一覧']")).click();
-				driver.wait.untilPageTansitionFinish();
-				driver.savePageSource(FILE_BALANCE);
+				driver.clickAndWait(By.xpath("//span[@class='pcm-gl-g-header-mymenu-btn']"));
+				driver.clickAndWait(By.xpath("//a[text()='保有商品一覧']"));
+				driver.savePage(FILE_BALANCE);
 				
 				if (driver.getTitle().contains("追加認証")) {
 					logger.warn("追加認証");
 					return;
 				}
-
+				// sanity check
 				driver.check.titleContains("保有商品一覧-すべて");
 				
-				driver.wait.untilPresenceOfElement(By.xpath("//img[@alt='CSVで保存']")).click();
+				driver.click(By.xpath("//img[@alt='CSVで保存']"));
 				driver.sleep(Duration.ofSeconds(1));
 				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().startsWith("assetbalance(all)_"));
 				
@@ -131,7 +129,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 				logger.info("logout");
 				driver.executeScript("logoutDialog()");
 				driver.wait.untilAlertIsPresent().accept();
-				driver.wait.untilPageTansitionFinish();
+				driver.sleep(Duration.ofSeconds(2));
 			}
 		} catch (WebDriverException e){
 			String exceptionName = e.getClass().getSimpleName();
