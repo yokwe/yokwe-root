@@ -2,6 +2,7 @@ package yokwe.util.selenium;
 
 import java.io.File;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +26,7 @@ import yokwe.util.UnexpectedException;
 public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExecutor > implements WebDriver, Interactive, JavascriptExecutor {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
+	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(5);
 	
 	private final T driver;
 	
@@ -117,7 +118,7 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 			driver.switchTo().window(handle);
 		}
 		public void titleContains(String string) {
-			titleContains(string, DEFAULT_TIMEOUT);
+			titleContains(string, DEFAULT_TIMEOUT_DURATION);
 		}
 	}
 	
@@ -127,101 +128,70 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 	//
 	public final Wait wait = new Wait();
 	public final class Wait {
-		private static final Duration DEFAULT_WAIT_SLEEP  = Duration.ofMillis(500);
-		private static final int      DEFAULT_EQUAL_COUNT = 2;
+		private static final Duration DEFAULT_WAIT_SLEEP     = Duration.ofMillis(200);
+		private static final Duration DEFAULT_PAGE_TRANSTION = Duration.ofSeconds(1);
+		private static final Duration DEFAULT_FILE_TRANSTION = Duration.ofSeconds(1);
 		//
 		// untilCondition
 		//
 		public <E> E untilExpectedCondition(ExpectedCondition<E> isTrue, Duration timeout) {
 			return new WebDriverWait(driver, timeout, DEFAULT_WAIT_SLEEP).until(isTrue);
 		}
+		public <E> E untilExpectedCondition(ExpectedCondition<E> isTrue) {
+			return untilExpectedCondition(isTrue, DEFAULT_TIMEOUT_DURATION);
+		}
 		//
 		// untilPresenceOfElement
 		//
-		public WebElement untilPresenceOfElement(By locator, Duration timeout) {
-			return untilExpectedCondition(ExpectedConditions.presenceOfElementLocated(locator), timeout);
-		}
 		public WebElement untilPresenceOfElement(By locator) {
-			return untilPresenceOfElement(locator, DEFAULT_TIMEOUT);
+			return untilExpectedCondition(ExpectedConditions.presenceOfElementLocated(locator));
 		}
 		//
 		// untilClickable
 		//
-		public WebElement untilClickable(By locator, Duration timeout) {
-			return untilExpectedCondition(ExpectedConditions.elementToBeClickable(locator), timeout);
-		}
 		public WebElement untilClickable(By locator) {
-			return untilPresenceOfElement(locator, DEFAULT_TIMEOUT);
+			return untilExpectedCondition(ExpectedConditions.elementToBeClickable(locator));
 		}
 		//
 		// untilTitleContains
 		//
-		public Boolean untilTitleContains(String string, Duration timeout) {
-			return untilExpectedCondition(ExpectedConditions.titleContains(string), timeout);
-		}
 		public Boolean untilTitleContains(String string) {
-			return untilTitleContains(string, DEFAULT_TIMEOUT);
-		}
-		//
-		// untilPageUpdate
-		//
-		private static ExpectedCondition<Boolean> pageUpdate(String page) {
-			return new ExpectedCondition<Boolean>() {
-				private String oldPage = page;
-				
-				@Override
-				public Boolean apply(WebDriver driver) {
-					return !driver.getPageSource().equals(oldPage);
-				}
-
-				@Override
-				public String toString() {
-					return "wait page transtin using oldPage";
-				}
-			};
-		}
-		public Boolean untilPageUpdate(String page, Duration timeout) {
-			return untilExpectedCondition(pageUpdate(page), timeout);
-		}
-		public Boolean untilPageUpdate(String page) {
-			return untilPageUpdate(page, DEFAULT_TIMEOUT);
+			return untilExpectedCondition(ExpectedConditions.titleContains(string));
 		}
 		//
 		// pageTransition
 		//
-		private static ExpectedCondition<Boolean> pageTransition(String page, int equalCount) {
+		private static ExpectedCondition<Boolean> pageTransition_(Duration duration_) {
 			return new ExpectedCondition<Boolean>() {
-				private int oldPage = page.length();
-				private int count   = 0;
+				private Duration      duration      = duration_;
+				private LocalDateTime oldPageTime   = null;
+				private int           oldPageLength = -1;
+				
 				@Override
 				public Boolean apply(WebDriver driver) {
-					var newPage = driver.getPageSource().length();
-					if (newPage == oldPage) {
-						count++;
-//						logger.info("equalCount  {}", equalCount);
-					} else {
-//						logger.info("XX  {}  {}", oldPage.length(), newPage.length());
-						oldPage = newPage;
-						count = 0;
-//						logger.info("equalCount  {}", equalCount);
+					var newPageTime   = LocalDateTime.now();
+					var newPageLength = driver.getPageSource().length();
+					
+					if (newPageLength != oldPageLength) {
+						// page has changed
+						// update oldPageTime and oldPageLength
+						oldPageTime   = newPageTime;
+						oldPageLength = newPageLength;
 					}
-					return count == equalCount;
+					return 0 < Duration.between(oldPageTime, newPageTime).compareTo(duration);
 				}
 
 				@Override
 				public String toString() {
-					return "wait finish page transitin using page length";
+					return "wait finish page transitin using page length  duration" + duration.toString();
 				}
 			};
 		}
-		public Boolean pageTransition(int equalCount, Duration timeout) {
-			return untilExpectedCondition(pageTransition(driver.getPageSource(), equalCount), timeout);
-		}
-		public Boolean pageTransition(int equalCount) {
-			return pageTransition(equalCount, DEFAULT_TIMEOUT);
+		public Boolean pageTransition(Duration duration) {
+			return untilExpectedCondition(pageTransition_(duration));
 		}
 		public Boolean pageTransition() {
-			return pageTransition(DEFAULT_EQUAL_COUNT);
+			return pageTransition(DEFAULT_PAGE_TRANSTION);
 		}
 		//
 		// untilPageContains
@@ -241,11 +211,8 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 				}
 			};
 		}
-		public Boolean untilPageContains(String page, Duration timeout) {
-			return untilExpectedCondition(pageContains(page), timeout);
-		}
 		public Boolean untilPageContains(String page) {
-			return untilPageContains(page, DEFAULT_TIMEOUT);
+			return untilExpectedCondition(pageContains(page));
 		}
 		//
 		// untilPresenseOfWindow
@@ -266,44 +233,37 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 				}
 			};
 		}
-		public Boolean untilPresenceOfWindow(String string, Duration timeout) {
-			return untilExpectedCondition(presenceOfWindow(string), timeout);
-		}
 		public Boolean untilPresenceOfWindow(String string) {
-			return untilPresenceOfWindow(string, DEFAULT_TIMEOUT);
+			return untilExpectedCondition(presenceOfWindow(string));
 		}
 		//
 		// untilAlertIsPresent
 		//
-		public Alert untilAlertIsPresent(Duration timeout) {
-			return untilExpectedCondition(ExpectedConditions.alertIsPresent(), timeout);
-		}
 		public Alert untilAlertIsPresent() {
-			return untilAlertIsPresent(DEFAULT_TIMEOUT);
+			return untilExpectedCondition(ExpectedConditions.alertIsPresent());
 		}
 		//
 		// untilDownloadFinish
 		//
-		public static ExpectedCondition<Boolean> downloadFinish(File file_) {
+		public static ExpectedCondition<Boolean> downloadFinish(File file_, Duration duration_) {
 			return new ExpectedCondition<Boolean>() {
-				private File file   = file_;
-				private long length = -1;
-				private int  count  = 0;
+				private File          file          = file_;
+				private Duration      duration      = duration_;
+				private LocalDateTime oldFileTime   = null;
+				private long          oldFileLength = -1;
 				
 				@Override
 				public Boolean apply(WebDriver driver) {
-					if (file.exists()) {
-						var newLength = file.length();
-						if (length == newLength) {
-							count++;
-						} else {
-							count = 0;
-							length = newLength;
-						}
-						return 3 <= count;
-					} else {
-						return false;
+					var newFileTime   = LocalDateTime.now();
+					var newFileLength = file.length();
+
+					if (newFileLength != oldFileLength) {
+						// file has changed
+						// update oldFileTime and oldFileLength
+						oldFileTime   = newFileTime;
+						oldFileLength = newFileLength;
 					}
+					return 0 < Duration.between(oldFileTime, newFileTime).compareTo(duration);
 				}
 
 				@Override
@@ -312,11 +272,11 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 				}
 			};
 		}
-		public Boolean untilDownloadFinish(File file, Duration timeout) {
-			return untilExpectedCondition(downloadFinish(file), timeout);
+		public Boolean untilDownloadFinish(File file, Duration duration) {
+			return untilExpectedCondition(downloadFinish(file, duration));
 		}
 		public Boolean untilDownloadFinish(File file) {
-			return untilDownloadFinish(file, DEFAULT_TIMEOUT);
+			return untilDownloadFinish(file, DEFAULT_FILE_TRANSTION);
 		}
 	}
 	
