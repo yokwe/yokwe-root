@@ -230,6 +230,10 @@ public class UpdateIntraDayStockPrice {
 			
 			var string = StorageJPX.IntraDayStockPriceJSON.load(stock.stockCode);
 			var result = JSON.unmarshal(Result.class, string);
+			if (result.section1.data == null) {
+				logger.warn("result.section1.data is null  {}  {}", stock.stockCode, stock.name);
+				continue;
+			}
 			{
 				for(var data: result.section1.data.values()) {
 					var stockCode = StockCodeJP.toStockCode5(data.TTCODE2);
