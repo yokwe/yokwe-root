@@ -123,7 +123,7 @@ public final class UpdateAssetNikko implements UpdateAsset {
 				
 				// wait 1 second
 				driver.sleep(Duration.ofSeconds(1));
-				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().startsWith("Torireki"));
+				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().endsWith(".csv"));
 				if (files.length == 1) {
 					var file = files[0];
 					driver.wait.untilDownloadFinish(file);
