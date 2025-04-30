@@ -26,7 +26,7 @@ import yokwe.util.UnexpectedException;
 public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExecutor > implements WebDriver, Interactive, JavascriptExecutor {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(5);
+	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(10);
 	
 	private final T driver;
 	
@@ -89,6 +89,12 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 	//
 	public Select select(By locator) {
 		return new Select(wait.untilPresenceOfElement(locator));
+	}
+	//
+	public Object executeScriptAndWait(String script, Object... args) {
+		var ret = executeScript(script, args);
+		wait.pageTransition();
+		return ret;
 	}
 	
 	//
@@ -187,11 +193,11 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 				}
 			};
 		}
-		public Boolean pageTransition(Duration duration) {
-			return untilExpectedCondition(pageTransition_(duration));
+		public Boolean pageTransition(Duration duration, Duration timeout) {
+			return untilExpectedCondition(pageTransition_(duration), timeout);
 		}
 		public Boolean pageTransition() {
-			return pageTransition(DEFAULT_PAGE_TRANSTION);
+			return pageTransition(DEFAULT_PAGE_TRANSTION, DEFAULT_TIMEOUT_DURATION);
 		}
 		//
 		// untilPageContains
