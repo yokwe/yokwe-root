@@ -63,8 +63,12 @@ public class UpdateAssetSMBC implements UpdateAsset {
 				driver.executeScriptAndWait("directib.LLDLDIL.login()");
 				driver.savePage(FILE_TOP);
 				
-				logger.info("sleep");
-				driver.sleep(Duration.ofSeconds(10));
+				if (driver.getTitle().contains("追加の本人確認")) {
+					logger.info("sleep 20 seconds");
+					driver.sleep(Duration.ofSeconds(20));
+				}
+				
+				driver.check.titleContains("トップ");
 			}
 			
 			//balance
@@ -72,7 +76,7 @@ public class UpdateAssetSMBC implements UpdateAsset {
 				logger.info("balance");
 				driver.clickAndWait(By.xpath("//div[@class='top-column01']/ul/li/a"));
 				// sanity check
-				driver.check.titleContains("明細照会 ： SMBCダイレクト");
+				driver.check.titleContains("明細照会");
 				
 				// さらに3ヵ月表示
 				logger.info("3 more month");
