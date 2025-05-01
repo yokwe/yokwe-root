@@ -52,10 +52,13 @@ public class StorageJPX {
 	// stock detail
 	public static final Storage.LoadSaveText2 StockDetailJSON =
 		new Storage.LoadSaveText2.Impl(storage, "stockDetail",  o -> o + ".json");
+	// stock detail
+	public static final Storage.LoadSaveText2 KessanJSON =
+		new Storage.LoadSaveText2.Impl(storage, "kessan",  o -> o + ".json");
 	
 	// intra stock price
 	public static final Storage.LoadSaveText2 IntraDayStockPriceJSON =
-			new Storage.LoadSaveText2.Impl(storage, "intra-day-stock-price-json", o -> o + ".json");
+		new Storage.LoadSaveText2.Impl(storage, "intra-day-stock-price-json", o -> o + ".json");
 	public static final Storage.LoadSave2<OHLCVDateTime, ChronoLocalDateTime<?>> IntraDayStockPrice =
 		new Storage.LoadSave2.Impl<>(OHLCVDateTime.class, OHLCVDateTime::getKey, storage, "intra-day-stock-price", o -> o + ".csv");
 
