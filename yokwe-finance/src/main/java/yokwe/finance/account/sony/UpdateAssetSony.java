@@ -68,6 +68,12 @@ public final class UpdateAssetSony implements UpdateAsset {
 				driver.sendKey(By.name("Password"), secret.password);		
 				driver.clickAndWait(By.linkText("ログイン"));
 				driver.savePage(FILE_TOP);
+				
+				if (driver.getTitle().contains("システムメンテナンス")) {
+					logger.info("skip system maintenance");
+					return;
+				}
+				
 				// sanity check
 				driver.check.titleContains("MONEYKit - ソニー銀行");
 			}
