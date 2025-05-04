@@ -56,7 +56,8 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 	}
 	//
 	public void click(By locator) {
-		wait.untilPresenceOfElement(locator).click();
+		wait.untilPresenceOfElement(locator);
+		wait.untilClickable(locator).click();
 	}
 	public void clickAndWait(By locator) {
 		click(locator);
