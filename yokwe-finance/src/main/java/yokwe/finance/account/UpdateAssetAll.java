@@ -13,6 +13,7 @@ import yokwe.finance.Storage;
 import yokwe.finance.account.nikko.UpdateAssetNikko;
 import yokwe.finance.account.prestia.UpdateAssetPrestia;
 import yokwe.finance.account.rakuten.UpdateAssetRakuten;
+import yokwe.finance.account.smbc.UpdateAssetSMBC;
 import yokwe.finance.account.smtb.UpdateAssetSMTB;
 import yokwe.finance.account.sony.UpdateAssetSony;
 import yokwe.util.FileUtil;
@@ -86,11 +87,12 @@ public final class UpdateAssetAll {
 	}
 	
 	private static final UpdateAsset[] array = {
-		UpdateAssetPrestia.getInstance(),
 		UpdateAssetNikko.getInstance(),
+		UpdateAssetPrestia.getInstance(),
 		UpdateAssetRakuten.getInstance(),
-		UpdateAssetSony.getInstance(),
+//		UpdateAssetSMBC.getInstance(),
 		UpdateAssetSMTB.getInstance(),
+		UpdateAssetSony.getInstance(),
 	};
 	
 	
