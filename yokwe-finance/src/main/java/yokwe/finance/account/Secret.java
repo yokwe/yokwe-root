@@ -56,7 +56,7 @@ public class Secret {
 	public Type2 rakuten;
 	public Type3 smbc;
 	public Type2 smtb;
-	public Type2 sony;
+	public Type3 sony;
 	
 	public Secret() {
 	}
