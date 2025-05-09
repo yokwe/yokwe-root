@@ -64,8 +64,8 @@ public class UpdateAssetSMBC implements UpdateAsset {
 				driver.savePage(FILE_TOP);
 				
 				if (driver.getTitle().contains("追加の本人確認")) {
-					logger.info("sleep 20 seconds");
-					driver.sleep(Duration.ofSeconds(20));
+					logger.info("sleep 60 seconds for additional authentication");
+					driver.sleep(Duration.ofSeconds(60));
 				}
 				
 				driver.check.titleContains("トップ");
