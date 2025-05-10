@@ -31,6 +31,7 @@ open module yokwe.util {
 	// selenium
 	requires transitive org.seleniumhq.selenium.api;
 	requires transitive org.seleniumhq.selenium.chrome_driver;
+	requires transitive org.seleniumhq.selenium.safari_driver;
 	requires transitive org.seleniumhq.selenium.http;
 	requires transitive org.seleniumhq.selenium.json;
 	requires transitive org.seleniumhq.selenium.os;
