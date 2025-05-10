@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.safari.SafariDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -28,6 +29,7 @@ import yokwe.finance.type.FundInfoJP;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 import yokwe.util.selenium.ChromeDriverBuilder;
+import yokwe.util.selenium.SafariDriverBuilder;
 import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetSony implements UpdateAsset {
@@ -49,14 +51,17 @@ public final class UpdateAssetSony implements UpdateAsset {
 		
 	@Override
 	public void download() {
-		var builder = ChromeDriverBuilder.builder();
+//		var builder = ChromeDriverBuilder.builder();
 //		builder.withArguments("--headless");
-		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
+//		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
+		
+		var driver = new WebDriverWrapper<SafariDriver>(SafariDriverBuilder.builder().build());
+		
 		try {
 			// login
 			{
 				logger.info("login");
-				driver.getAndWait("https://o2o.moneykit.net/NBG100001G01.html");
+				driver.getAndWait("https://sonybank.jp/pages/db/dbca0100/?lang=ja");
 				
 				if (driver.getTitle().contains("システムメンテナンス")) {
 					logger.info("skip system maintenance");
@@ -64,9 +69,10 @@ public final class UpdateAssetSony implements UpdateAsset {
 				}
 				
 				var secret = Secret.read().sony;
-				driver.sendKey(By.name("KozaNo"),   secret.account);
-				driver.sendKey(By.name("Password"), secret.password);		
-				driver.clickAndWait(By.linkText("ログイン"));
+				driver.sendKey(By.id("brchNum"),            secret.branch);
+				driver.sendKey(By.id("accountNum"),         secret.account);
+				driver.sendKey(By.id("loginPwd_inputPass"), secret.password);		
+				driver.clickAndWait(By.id("loginBtn"));
 				driver.savePage(FILE_TOP);
 				
 				if (driver.getTitle().contains("システムメンテナンス")) {
@@ -75,45 +81,47 @@ public final class UpdateAssetSony implements UpdateAsset {
 				}
 				
 				// sanity check
-				driver.check.titleContains("MONEYKit - ソニー銀行");
+				driver.check.titleContains("トップ - ソニー銀行");
 			}
 			
 			// balance
 			{
 				logger.info("balance");
-				driver.executeScript("hometop(10)");
-				driver.wait.pageTransition();
+				// btnBalance
+				driver.clickAndWait(By.id("btnBalance"));
 				driver.savePage(FILE_BALANCE);
 				
 				logger.info("balance deposit");
-				driver.executeScript("balancecommon(1)");
-				driver.wait.pageTransition();
+				driver.getAndWait("https://sonybank.jp/pages/dc/dcba1200/");
 				driver.savePage(FILE_BALANCE_DEPOSIT);
 
 				logger.info("balance deposit foreign");
-				driver.executeScript("balancecommon(2)");
-				driver.wait.pageTransition();
+				driver.getAndWait("https://sonybank.jp/pages/dc/dcba1300/");
 				driver.savePage(FILE_BALANCE_DEPOSIT_FOREIGN);
 
 				logger.info("balance fund");
-				driver.executeScript("balancecommon(3)");
-				driver.wait.pageTransition();
-				driver.savePage(FILE_BALANCE_FUND);
+				driver.getAndWait("https://sonybank.jp/pages/ia/iaca6300/");
+				if (driver.getPageSource().contains("現在メンテナンス中")) {
+					logger.info("businessErrorCloseButton");
+					driver.clickAndWait(By.xpath("//button[@data-testid='businessErrorCloseButton']"));
+				} else {
+					driver.savePage(FILE_BALANCE_FUND);
+				}
 			}
 			
 			// logout
 			{
 				logger.info("logout");
-				driver.clickAndWait(By.id("logout"));				
-				driver.switchToWindow.titleContains("ログアウト");
+				logger.info("userIcon");
+				driver.clickAndWait(By.id("userIcon"));
+				logger.info("logout");
+				driver.clickAndWait(By.id("logout"));
+				logger.info("decisionBtn");
+				driver.clickAndWait(By.id("decisionBtn"));
+				logger.info("closeBtn");
+				driver.clickAndWait(By.id("closeBtn"));
 				
-				driver.executeScript("subYes()");
-				driver.wait.pageTransition();
-				// sanity check
-				driver.check.titleContains("THANK YOU");
-				
-				// allClose()
-				driver.executeScript("allClose()");
+				logger.info("sleep");
 				driver.sleep(Duration.ofSeconds(2));
 			}
 		} catch (WebDriverException e) {
@@ -271,7 +279,7 @@ public final class UpdateAssetSony implements UpdateAsset {
 		logger.info("START");
 				
 		instance.download();
-		instance.update();
+//		instance.update();
 		
 		logger.info("STOP");
 	}
