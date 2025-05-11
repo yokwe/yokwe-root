@@ -65,7 +65,8 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 	}
 	//
 	public void sendKey(By locator, String string) {
-		wait.untilPresenceOfElement(locator).sendKeys(string);
+		wait.untilPresenceOfElement(locator);
+		wait.untilClickable(locator).sendKeys(string);
 	}
 	public void sendKeyAndWait(By locator, String string) {
 		sendKey(locator, string);
