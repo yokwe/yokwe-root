@@ -45,7 +45,7 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 	@Override
 	public void download() {
 		var builder = ChromeDriverBuilder.builder();
-		builder.withArguments("--headless");
+//		builder.withArguments("--headless");
 		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
 		try {
 			// login
