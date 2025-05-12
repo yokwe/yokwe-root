@@ -412,7 +412,7 @@ public class UpdateAssetStats {
 						var date = e.date.minusDays(i);
 						var fxRate = fxRateMap.get(date);
 						if (fxRate != null) {
-							logger.info("fxRateMap  use {} for {}", date, e.date);
+//							logger.info("fxRateMap  use {} for {}", date, e.date);
 							fxRateMap.put(e.date, fxRate);
 							break;
 						}
