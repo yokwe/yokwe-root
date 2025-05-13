@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -97,6 +99,13 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 		var ret = executeScript(script, args);
 		wait.pageTransition();
 		return ret;
+	}
+	//
+	public void setSize(int width, int height) {
+		manage().window().setSize(new Dimension(width, height));
+	}
+	public void setPos(int x, int y) {
+		manage().window().setPosition(new Point(x, y));
 	}
 	
 	//
