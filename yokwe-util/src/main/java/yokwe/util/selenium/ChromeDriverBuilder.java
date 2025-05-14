@@ -57,7 +57,6 @@ public class ChromeDriverBuilder {
 		private File                browserFile;
 		private File                driverFile;
 		private File                userDataDir;
-		private File                downloadDir;
 		
 		private Map<String, Object>	prefsMap;
 		private boolean				enableDownload;
@@ -68,7 +67,6 @@ public class ChromeDriverBuilder {
 			browserFile    = BROWSER_FILE;
 			driverFile     = DRIVER_FILE;
 			userDataDir    = USER_DATA_DIR;
-			downloadDir    = new File(".");
 			prefsMap       = new TreeMap<>();
 			enableDownload = true;
 		}
@@ -106,17 +104,6 @@ public class ChromeDriverBuilder {
 			userDataDir = dir;
 			return this;
 		}
-		public Builder withDownloadDir(File dir) {
-			// sanity check
-			if (!dir.isDirectory()) {
-				logger.error("no directory");
-				logger.error("  dir  {}!", dir.getAbsolutePath());
-				throw new UnexpectedException("no directory");
-			}
-			
-			downloadDir = dir;
-			return this;
-		}
 		public Builder withArguments(String... args) {
 			options.addArguments(args);
 			return this;
@@ -134,7 +121,6 @@ public class ChromeDriverBuilder {
 			// build options
 			{
 				prefsMap.put("profile.default_content_settings.popups", 0);
-				prefsMap.put("download.default_directory",              downloadDir.getAbsolutePath());
 				prefsMap.put("plugins.always_open_pdf_externally",      1);
 
 				options.setExperimentalOption("prefs", prefsMap);
