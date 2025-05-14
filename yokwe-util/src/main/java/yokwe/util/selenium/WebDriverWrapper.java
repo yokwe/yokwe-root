@@ -1,6 +1,7 @@
 package yokwe.util.selenium;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -10,13 +11,15 @@ import java.util.Set;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.Interactive;
 import org.openqa.selenium.interactions.Sequence;
+import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -25,15 +28,32 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
 
-public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExecutor > implements WebDriver, Interactive, JavascriptExecutor {
+public final class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExecutor > implements WebDriver, Interactive, JavascriptExecutor {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(10);
 	
+	private static final Point     DEFAULT_POSITION  = new Point(0, 0);
+	private static final Dimension DEFAULT_DIMENSION = new Dimension(1400, 800);
+	
 	private final T driver;
 	
-	public WebDriverWrapper(T driver) {
+	public static class Factory {
+		public static WebDriverWrapper<SafariDriver> createSafari() {
+			return new WebDriverWrapper<SafariDriver>(SafariDriverBuilder.builder().build());
+		}
+		public static WebDriverWrapper<ChromeDriver> createChrome() {
+			return new WebDriverWrapper<ChromeDriver>(ChromeDriverBuilder.builder().build());
+		}
+	}
+	
+	public WebDriverWrapper(T driver, Point position, Dimension dimension) {
 		this.driver = driver;
+		this.setPosition(position);
+		this.setSize(dimension);
+	}
+	public WebDriverWrapper(T driver) {
+		this(driver, DEFAULT_POSITION, DEFAULT_DIMENSION);
 	}
 	
 	
@@ -101,11 +121,41 @@ public class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExec
 		return ret;
 	}
 	//
-	public void setSize(int width, int height) {
-		manage().window().setSize(new Dimension(width, height));
+	public void setSize(Dimension dimension) {
+		manage().window().setSize(dimension);
 	}
-	public void setPos(int x, int y) {
-		manage().window().setPosition(new Point(x, y));
+	public void setPosition(Point position) {
+		manage().window().setPosition(position);
+	}
+	//
+	public File downloadFile(File dir, FileFilter fileFilter, Runnable download) {
+		// sanity check
+		if (!dir.isDirectory()) {
+			logger.error("dir is not diretory");
+			logger.error("  dir  {}!", dir.getAbsolutePath());
+			throw new UnexpectedException("dir is not diretory");
+		}
+		
+		// delete file from download directory using fileFilter
+		for(var file: dir.listFiles(fileFilter)) file.delete();
+		
+		download.run();
+		
+		sleep(Duration.ofSeconds(1));
+		File[] files = dir.listFiles(fileFilter);
+		
+		if (files.length == 1) {
+			var file = files[0];
+			wait.untilDownloadFinish(file);
+			return file;
+		} else {
+			logger.error("Unexpected download file");
+			logger.error("  files  {}", files.length);
+			for(var i = 0; i < files.length; i++) {
+				logger.error("  files  {}  {}", i, files[i].getPath());
+			}
+			throw new UnexpectedException("Unexpected download file");
+		}
 	}
 	
 	//
