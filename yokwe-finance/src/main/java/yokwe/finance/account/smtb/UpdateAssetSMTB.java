@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -23,7 +22,6 @@ import yokwe.finance.fund.StorageFund;
 import yokwe.finance.type.Currency;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeDriverBuilder;
 import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetSMTB implements UpdateAsset {
@@ -44,9 +42,8 @@ public final class UpdateAssetSMTB implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		var builder = ChromeDriverBuilder.builder();
-//		builder.withArguments("--headless");
-		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
+//		var driver = WebDriverWrapper.Factory.createChrome();
+		var driver = WebDriverWrapper.Factory.createSafari();
 		try {
 			// login
 			{

@@ -1,10 +1,11 @@
 package yokwe.finance.account.nikko;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
-import java.time.Duration;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,7 +16,6 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -27,7 +27,6 @@ import yokwe.finance.type.Currency;
 import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeDriverBuilder;
 import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetNikko implements UpdateAsset {
@@ -43,10 +42,6 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	private static final File FILE_TORIREKI      = storage.getFile("torireki.csv");
 	private static final File FILE_TRADE_HISTORY = storage.getFile("trade-history.csv");
 	
-	private static final File DIR_DOWNLOAD       = storage.getFile("download");
-	
-	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
-	
 	@Override
 	public Storage getStorage() {
 		return storage;
@@ -54,13 +49,8 @@ public final class UpdateAssetNikko implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
-		
-		var builder = ChromeDriverBuilder.builder();
-//		builder.withArguments("--headless");
-		builder.withDownloadDir(DIR_DOWNLOAD);
-		
-		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
+//		var driver = WebDriverWrapper.Factory.createChrome();
+		var driver = WebDriverWrapper.Factory.createSafari();
 		try {
 			// login
 			{
@@ -119,25 +109,21 @@ public final class UpdateAssetNikko implements UpdateAsset {
 				driver.click(By.xpath("//input[@id='term02']"));
 				
 				// download
-				driver.click(By.xpath("//input[@id='dlBtn']"));
-				
-				// wait 1 second
-				driver.sleep(Duration.ofSeconds(1));
-				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().endsWith(".csv"));
-				if (files.length == 1) {
-					var file = files[0];
-					driver.wait.untilDownloadFinish(file);
+				logger.info("download");
+				{
+					File       dir        = Path.of(System.getProperty("user.home"), "Downloads").toFile();
+					FileFilter fileFilter = o -> {var name = o.getName(); return name.startsWith("Torireki") && name.endsWith(".csv");};
+					Runnable   download   = () -> driver.click(By.xpath("//input[@id='dlBtn']"));
+
+					var file = driver.downloadFile(dir, fileFilter, download);
+					logger.info("file  {}", file.getPath());
 					
-					String string = FileUtil.read().withCharset(CHARSET_CSV).file(file);
+					var string = FileUtil.read().withCharset(Charset.forName("Shift_JIS")).file(file);
 					FileUtil.write().file(FILE_TORIREKI, string);
 					logger.info("save  {}  {}", string.length(), FILE_TORIREKI.getPath());
-				} else {
-					logger.error("Unexpected download file");
-					logger.error("  files  {}", files.length);
-					for(var i = 0; i < files.length; i++) {
-						logger.error("  files  {}  {}", i, files[i].getPath());
-					}
-					throw new UnexpectedException("Unexpected download file");
+					
+					// delete download file
+					file.delete();
 				}
 			}
 			

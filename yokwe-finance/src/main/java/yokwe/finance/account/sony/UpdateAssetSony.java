@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.safari.SafariDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -28,8 +26,6 @@ import yokwe.finance.type.Currency;
 import yokwe.finance.type.FundInfoJP;
 import yokwe.util.FileUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeDriverBuilder;
-import yokwe.util.selenium.SafariDriverBuilder;
 import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetSony implements UpdateAsset {
@@ -51,11 +47,8 @@ public final class UpdateAssetSony implements UpdateAsset {
 		
 	@Override
 	public void download() {
-//		var builder = ChromeDriverBuilder.builder();
-//		builder.withArguments("--headless");
-//		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
-		
-		var driver = new WebDriverWrapper<SafariDriver>(SafariDriverBuilder.builder().build());
+//		var driver = WebDriverWrapper.Factory.createChrome();
+		var driver = WebDriverWrapper.Factory.createSafari();
 		
 		try {
 			// login

@@ -1,19 +1,18 @@
 package yokwe.finance.account.smbc;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.time.Duration;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Secret;
 import yokwe.finance.account.UpdateAsset;
 import yokwe.util.FileUtil;
-import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeDriverBuilder;
 import yokwe.util.selenium.WebDriverWrapper;
 
 public class UpdateAssetSMBC implements UpdateAsset {
@@ -24,12 +23,8 @@ public class UpdateAssetSMBC implements UpdateAsset {
 	private static final File FILE_LOGIN     = storage.getFile("login.html");
 	private static final File FILE_TOP       = storage.getFile("top.html");
 	private static final File FILE_BALANCE   = storage.getFile("balance.html");
-	
-	private static final File DIR_DOWNLOAD   = storage.getFile("download");
 	private static final File FILE_CSV       = storage.getFile("meisai.csv");
 	
-	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
-
 	@Override
 	public Storage getStorage() {
 		return storage;
@@ -39,13 +34,8 @@ public class UpdateAssetSMBC implements UpdateAsset {
 	public void download() {
 		logger.info("download");
 		
-		// delete file in download
-		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
-		
-		var builder = ChromeDriverBuilder.builder();
-//		builder.withArguments("--headless");
-		builder.withDownloadDir(DIR_DOWNLOAD);
-		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
+//		var driver = WebDriverWrapper.Factory.createChrome();
+		var driver = WebDriverWrapper.Factory.createSafari();
 		try {
 			// login
 			{
@@ -61,6 +51,7 @@ public class UpdateAssetSMBC implements UpdateAsset {
 				driver.sendKey(By.name("password"),  secret.password);
 				
 				driver.executeScriptAndWait("directib.LLDLDIL.login()");
+				driver.sleep(Duration.ofSeconds(2));
 				driver.savePage(FILE_TOP);
 				
 				if (driver.getTitle().contains("追加の本人確認")) {
@@ -78,42 +69,27 @@ public class UpdateAssetSMBC implements UpdateAsset {
 				// sanity check
 				driver.check.titleContains("明細照会");
 				
-				// さらに3ヵ月表示
-				logger.info("3 more month");
-				driver.clickAndWait(By.xpath("//button[@class='btn-type02 js-moreBtn']"));
-				// さらに3ヵ月表示
-				logger.info("3 more month");
-				driver.clickAndWait(By.xpath("//button[@class='btn-type02 js-moreBtn']"));
-				// さらに3ヵ月表示
-				logger.info("3 more month");
-				driver.clickAndWait(By.xpath("//button[@class='btn-type02 js-moreBtn']"));
-				// さらに3ヵ月表示
-				logger.info("3 more month");
-				driver.clickAndWait(By.xpath("//button[@class='btn-type02 js-moreBtn']"));
+//				// さらに3ヵ月表示
+//				logger.info("3 more month");
+//				driver.clickAndWait(By.xpath("//button[@class='btn-type02 js-moreBtn']"));
 				//
 				driver.savePage(FILE_BALANCE);
 				
 				logger.info("download");
-				driver.click(By.xpath("//li[@class='item js-csvBtnArea']/div/a"));
-				
-				// wait 1 second
-				driver.sleep(Duration.ofSeconds(5));
-				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().endsWith(".csv"));
-				if (files.length == 1) {
-					var file = files[0];
+				{
+					File       dir        = Path.of(System.getProperty("user.home"), "Downloads").toFile();
+					FileFilter fileFilter = o -> {var name = o.getName(); return name.equals("meisai.csv");};
+					Runnable   download   = () -> driver.click(By.xpath("//li[@class='item js-csvBtnArea']/div/a"));
+
+					var file = driver.downloadFile(dir, fileFilter, download);
 					logger.info("file  {}", file.getPath());
-					driver.wait.untilDownloadFinish(file);
 					
-					String string = FileUtil.read().withCharset(CHARSET_CSV).file(file);
+					var string = FileUtil.read().withCharset(Charset.forName("Shift_JIS")).file(file);
 					FileUtil.write().file(FILE_CSV, string);
 					logger.info("save  {}  {}", string.length(), FILE_CSV.getPath());
-				} else {
-					logger.error("Unexpected download file");
-					logger.error("  files  {}", files.length);
-					for(var i = 0; i < files.length; i++) {
-						logger.error("  files  {}  {}", i, files[i].getPath());
-					}
-					throw new UnexpectedException("Unexpected download file");
+					
+					// delete download file
+					file.delete();
 				}
 				
 				logger.info("back");

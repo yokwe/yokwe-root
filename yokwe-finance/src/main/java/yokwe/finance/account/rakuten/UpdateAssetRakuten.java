@@ -2,10 +2,12 @@ package yokwe.finance.account.rakuten;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,7 +17,6 @@ import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.chrome.ChromeDriver;
 
 import yokwe.finance.Storage;
 import yokwe.finance.account.Asset;
@@ -31,7 +32,6 @@ import yokwe.util.CSVUtil;
 import yokwe.util.FileUtil;
 import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
-import yokwe.util.selenium.ChromeDriverBuilder;
 import yokwe.util.selenium.WebDriverWrapper;
 
 public final class UpdateAssetRakuten implements UpdateAsset {
@@ -43,10 +43,7 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 	private static final File    FILE_TOP         = storage.getFile("top.html");
 	private static final File    FILE_BALANCE     = storage.getFile("balance.html");
 	
-	private static final File    DIR_DOWNLOAD     = storage.getFile("download");
 	private static final File    FILE_BALANCE_ALL = storage.getFile("balance-all.csv");
-	
-	private static final Charset CHARSET_CSV = Charset.forName("Shift_JIS");
 	
 	@Override
 	public Storage getStorage() {
@@ -55,12 +52,8 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 	
 	@Override
 	public void download() {
-		for(var e: DIR_DOWNLOAD.listFiles()) e.delete();
-		
-		var builder = ChromeDriverBuilder.builder();
-//		builder.withArguments("--headless");
-		builder.withDownloadDir(DIR_DOWNLOAD);
-		var driver = new WebDriverWrapper<ChromeDriver>(builder.build());
+//		var driver = WebDriverWrapper.Factory.createChrome();
+		var driver = WebDriverWrapper.Factory.createSafari();
 		try {
 			// login
 			{
@@ -103,24 +96,21 @@ public final class UpdateAssetRakuten implements UpdateAsset {
 				// sanity check
 				driver.check.titleContains("保有商品一覧-すべて");
 				
-				driver.click(By.xpath("//img[@alt='CSVで保存']"));
-				driver.sleep(Duration.ofSeconds(1));
-				File[] files = DIR_DOWNLOAD.listFiles(o -> o.getName().startsWith("assetbalance(all)_"));
-				
-				if (files.length == 1) {
-					var file = files[0];
-					driver.wait.untilDownloadFinish(file);
+				logger.info("download");
+				{
+					File       dir        = Path.of(System.getProperty("user.home"), "Downloads").toFile();
+					FileFilter fileFilter = o -> {var name = o.getName(); return name.startsWith("assetbalance(all)") && name.endsWith(".csv");};
+					Runnable   download   = () -> driver.click(By.xpath("//img[@alt='CSVで保存']"));
 					
-					String string = FileUtil.read().withCharset(CHARSET_CSV).file(file);
+					var file = driver.downloadFile(dir, fileFilter, download);
+					logger.info("file  {}", file.getPath());
+					
+					var string = FileUtil.read().withCharset(Charset.forName("Shift_JIS")).file(file);
 					FileUtil.write().file(FILE_BALANCE_ALL, string);
 					logger.info("save  {}  {}", string.length(), FILE_BALANCE_ALL.getPath());
-				} else {
-					logger.error("Unexpected download file");
-					logger.error("  files  {}", files.length);
-					for(var i = 0; i < files.length; i++) {
-						logger.error("  files  {}  {}", i, files[i].getPath());
-					}
-					throw new UnexpectedException("Unexpected download file");
+					
+					// delete download file
+					file.delete();
 				}
 			}
 			
