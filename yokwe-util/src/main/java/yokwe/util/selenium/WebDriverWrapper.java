@@ -45,6 +45,9 @@ public final class WebDriverWrapper<T extends WebDriver & Interactive & Javascri
 		public static WebDriverWrapper<ChromeDriver> createChrome() {
 			return new WebDriverWrapper<ChromeDriver>(ChromeDriverBuilder.builder().build());
 		}
+		public static WebDriverWrapper<ChromeDriver> createChromeHeadless() {
+			return new WebDriverWrapper<ChromeDriver>(ChromeDriverBuilder.builder().withArguments("--headless=new").build());
+		}
 	}
 	
 	public WebDriverWrapper(T driver, Point position, Dimension dimension) {
