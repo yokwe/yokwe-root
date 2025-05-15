@@ -80,8 +80,13 @@ rsync-to-Backup2T: check-data-path
 
 kill-soffice:
 	@ps xg > tmp/kill_soffice
-	@awk '/LibreOffice/ && /soffice/ {print; system("killall -v soffice");}' tmp/kill_soffice
+	@awk '/LibreOffice/ && /soffice/ {print; system("killall -v soffice"); exit;}' tmp/kill_soffice
 
+kill-selenium-driver:
+	@ps xg > tmp/kill_selenium_driver
+	@awk '/safaridriver/ {print; system("killall -v safaridriver"); exit;}' tmp/kill_selenium_driver
+	@awk '/chromedriver/ {print; system("killall -v chromedriver"); exit;}' tmp/kill_selenium_driver
+	
 # maintenance of save and log
 clear-save-file: check-data-path
 	find ${DATA_PATH}/save -mtime +7d -print -delete
