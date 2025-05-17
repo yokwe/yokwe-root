@@ -31,7 +31,7 @@ import yokwe.util.UnexpectedException;
 public final class WebDriverWrapper<T extends WebDriver & Interactive & JavascriptExecutor > implements WebDriver, Interactive, JavascriptExecutor {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(10);
+	private static final Duration DEFAULT_TIMEOUT_DURATION = Duration.ofSeconds(60);
 	
 	private static final Point     DEFAULT_POSITION  = new Point(0, 0);
 	private static final Dimension DEFAULT_DIMENSION = new Dimension(1400, 800);
@@ -260,8 +260,52 @@ public final class WebDriverWrapper<T extends WebDriver & Interactive & Javascri
 		public Boolean pageTransition(Duration duration, Duration timeout) {
 			return untilExpectedCondition(pageTransition_(duration), timeout);
 		}
+		public Boolean pageTransition(Duration timeout) {
+			return untilExpectedCondition(pageTransition_(DEFAULT_PAGE_TRANSTION), timeout);
+		}
 		public Boolean pageTransition() {
 			return pageTransition(DEFAULT_PAGE_TRANSTION, DEFAULT_TIMEOUT_DURATION);
+		}
+		//
+		// readyStateComplete
+		//
+		private static ExpectedCondition<Boolean> dcumentReadyStateComplete_() {
+			return new ExpectedCondition<Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					return ((JavascriptExecutor) driver).executeScript("return document.readyState").equals("complete");
+				}
+				
+				@Override
+				public String toString() {
+					return "wait document.readyState become complete";
+				}
+			};
+		}
+		public Boolean documentReadyStateComplete() {
+			return untilExpectedCondition(dcumentReadyStateComplete_(), DEFAULT_TIMEOUT_DURATION);
+		}
+		//
+		// jQuery not active
+		//
+		private static ExpectedCondition<Boolean> jQueryNotActive_() {
+			return new ExpectedCondition<Boolean>() {
+				@Override
+				public Boolean apply(WebDriver driver) {
+					return (Boolean)((JavascriptExecutor) driver).executeScript("jQuery.active == 0");
+				}
+				
+				@Override
+				public String toString() {
+					return "wait jQuery not active";
+				}
+			};
+		}
+		public Boolean jQueryNotActive() {
+			return untilExpectedCondition(jQueryNotActive_(), DEFAULT_TIMEOUT_DURATION);
+		}
+		public Boolean jQueryNotActive(Duration timeout) {
+			return untilExpectedCondition(jQueryNotActive_(), timeout);
 		}
 		//
 		// untilPageContains
