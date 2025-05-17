@@ -89,10 +89,10 @@ public final class UpdateAssetAll {
 	private static final UpdateAsset[] array = {
 		UpdateAssetNikko.getInstance(),
 		UpdateAssetPrestia.getInstance(),
-		UpdateAssetRakuten.getInstance(),
+//		UpdateAssetRakuten.getInstance(),
 //		UpdateAssetSMBC.getInstance(),
 		UpdateAssetSMTB.getInstance(),
-		UpdateAssetSony.getInstance(),
+//		UpdateAssetSony.getInstance(),
 	};
 	
 	
