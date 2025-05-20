@@ -256,6 +256,53 @@ public interface Storage {
 			}
 		}
 	}
+	public interface LoadSaveListNoSort <E> {
+		public Class<E>  getClazz();
+		public String    getPath();
+		
+		default File getFile() {
+			return new File(getPath());
+		}
+		default void save(List<E> list) {
+			CSVUtil.write(getClazz()).file(getPath(), list);
+		}
+		default void save(Collection<E> collection) {
+			save(new ArrayList<E>(collection));
+		}
+		default List<E> load() {
+			return CSVUtil.read(getClazz()).file(getPath());
+		}
+		default List<E> load(Reader reader) {
+			return CSVUtil.read(getClazz()).file(reader);
+		}
+		default List<E> getList() {
+			var list = load();
+			return list != null ? list : new ArrayList<>();
+		}
+		default List<E> getList(Reader reader) {
+			var list = load(reader);
+			return list != null ? list : new ArrayList<>();
+		}		
+		
+		public class Impl <E> implements LoadSaveListNoSort<E> {
+			private final Class<E>       clazz;
+			private final String         path;
+			
+			public Impl(Class<E> clazz, Storage storage, String name) {
+				this.clazz  = clazz;
+				this.path   = storage.getPath(name);
+			}
+			
+			@Override
+			public Class<E> getClazz() {
+				return clazz;
+			}
+			@Override
+			public String getPath() {
+				return path;
+			}
+		}
+	}
 	public interface LoadSaveText2 {
 		public String  getFileName(String name);
 		public String  getPath(String name);
@@ -424,6 +471,13 @@ public interface Storage {
 		public static final Storage yahoo   =  new Storage.Impl(base, "yahoo");
 	}
 	
+	public static final class trade {
+		public static final Storage base = new Impl(root, "trade");
+		
+		public static final Storage nikko    =  new Storage.Impl(base, "nikko");
+		public static final Storage rakuten  =  new Storage.Impl(base, "rakuten");
+	}
+
 	
 	public static void main(String[] args) {
 		org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
@@ -437,6 +491,7 @@ public interface Storage {
 		logger.info("provider   {}", Storage.provider.base.getPath());
 		logger.info("report     {}", Storage.report.getPath());
 		logger.info("stock      {}", Storage.stock.getPath());
+		logger.info("trade      {}", Storage.trade.base.getPath());
 		
 		logger.info("STOP");
 	}
