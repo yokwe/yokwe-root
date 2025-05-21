@@ -50,14 +50,33 @@ public class UpdateAccountHistory {
 	}
 	
 	private static boolean equals(List<AccountHistory> listA, List<AccountHistory> listB) {
-		if (listA.size() != listB.size()) return false;
-		int size = listA.size();
-		for(int i = 0; i < size; i++) {
-			var a = listA.get(i);
-			var b = listB.get(i);
-			if (!a.equals(b)) return false;
+		if (listA.size() == listB.size()) {
+			int size = listA.size();
+			for(int i = 0; i < size; i++) {
+				var a = listA.get(i);
+				var b = listB.get(i);
+				if (a.equals(b)) continue;
+				
+				logger.info("XX  a  {}", a);
+				logger.info("XX  b  {}", b);
+				
+				logger.info("   {}  {}  {}  {}", a.settlementDate.equals(b.settlementDate), a.settlementDate, b.settlementDate, "settlementDate");
+				logger.info("   {}  {}  {}  {}", a.tradeDate.equals(b.tradeDate), a.tradeDate, b.tradeDate, "tradeDate");
+				logger.info("   {}  {}  {}  {}", a.currency.equals(b.currency), a.currency, b.currency, "currency");
+				logger.info("   {}  {}  {}  {}", a.asset.equals(b.asset), a.asset, b.asset, "asset");
+				logger.info("   {}  {}  {}  {}", a.transaction.equals(b.transaction), a.transaction, b.transaction, "transaction");
+				logger.info("   {}  {}  {}  {}", a.units.equals(b.units), a.units, b.units, "units");
+				logger.info("   {}  {}  {}  {}", a.unitPrice.equals(b.unitPrice), a.unitPrice, b.unitPrice, "unitPrice");
+				logger.info("   {}  {}  {}  {}", a.amount.equals(b.amount), a.amount, b.amount, "amount");
+				logger.info("   {}  {}  {}  {}", a.code.equals(b.code), a.code, b.code, "code");
+				logger.info("   {}  {}  {}  {}", a.comment.equals(b.comment), a.comment, b.comment, "comment");
+				
+				return false;
+			}
+			return true;
+		} else {
+			return false;
 		}
-		return true;
 	}
 	
 	private static List<AccountHistory> merge(List<AccountHistory> oldList, List<AccountHistory> newList) {
@@ -79,14 +98,18 @@ public class UpdateAccountHistory {
 		for(var entry: newMap.entrySet()) {
 			var date  = entry.getKey();
 			var nList = entry.getValue();
+			Collections.sort(nList);
 			if (oldMap.containsKey(date)) {
 				var oList = oldMap.get(date);
+				Collections.sort(oList);
 				if (equals(nList,  oList)) {
 					list.addAll(oList);
 				} else {
+					logger.info("replace {}  {}", oList.getFirst().currency, date);
 					list.addAll(nList);
 				}
 			} else {
+				logger.info("add     {}  {}", nList.getFirst().currency, date);
 				list.addAll(nList);
 			}
 		}
