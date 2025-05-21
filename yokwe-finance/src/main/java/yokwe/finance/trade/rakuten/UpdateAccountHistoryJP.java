@@ -434,7 +434,8 @@ public class UpdateAccountHistoryJP {
 				ret.add(accountHistory);
 			} else {
 				countC++;
-				logger.info("too early  {}", accountHistory.settlementDate);
+				ret.add(accountHistory);
+				logger.info("settlementDate is future date  {}", accountHistory);
 			}
 		}
 		
