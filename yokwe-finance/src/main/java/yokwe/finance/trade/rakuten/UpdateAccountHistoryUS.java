@@ -7,6 +7,7 @@ import static yokwe.finance.trade.rakuten.UpdateAccountHistory.toLocalDate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,6 +26,7 @@ public class UpdateAccountHistoryUS {
 		// build stockNameMap
 		{
 			var files = DIR_DOWNLOAD.listFiles((d, n) -> n.startsWith("tradehistory(US)_") && n.endsWith(".csv"));
+			Arrays.sort(files);
 			for(var file : files) {
 				var list = CSVUtil.read(TradeHistoryUS.class).file(file);
 				logger.info("read  {}  {}", list.size(), file.getName());
@@ -37,6 +39,7 @@ public class UpdateAccountHistoryUS {
 		// update oldList
 		{
 			var files = DIR_DOWNLOAD.listFiles((d, n) -> n.startsWith("adjusthistory(US)") && n.endsWith(".csv"));
+			Arrays.sort(files);
 			for(var file: files) {
 				var name = file.getName();
 				logger.info("file  {}", file.getName());
