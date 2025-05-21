@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -47,33 +48,63 @@ public class UpdateAccountHistory {
 			throw new UnexpectedException("Unexpeced string");
 		}
 	}
+	
+	private static boolean equals(List<AccountHistory> listA, List<AccountHistory> listB) {
+		if (listA.size() != listB.size()) return false;
+		int size = listA.size();
+		for(int i = 0; i < size; i++) {
+			var a = listA.get(i);
+			var b = listB.get(i);
+			if (!a.equals(b)) return false;
+		}
+		return true;
+	}
+	
+	private static List<AccountHistory> merge(List<AccountHistory> oldList, List<AccountHistory> newList) {
+		var list = new ArrayList<AccountHistory>();
 		
-	public static List<AccountHistory> merge(List<AccountHistory> oldList, List<AccountHistory> newList) {
+		var oldMap = oldList.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
+		var newMap = newList.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
+		
+		// copy oldMap not appeared in newMap to list
+		for(var entry: oldMap.entrySet()) {
+			var date  = entry.getKey();
+			var oList = entry.getValue();
+			
+			if (!newMap.containsKey(date)) {
+				list.addAll(oList);
+			}
+		}
+		
+		for(var entry: newMap.entrySet()) {
+			var date  = entry.getKey();
+			var nList = entry.getValue();
+			if (oldMap.containsKey(date)) {
+				var oList = oldMap.get(date);
+				if (equals(nList,  oList)) {
+					list.addAll(oList);
+				} else {
+					list.addAll(nList);
+				}
+			} else {
+				list.addAll(nList);
+			}
+		}
+		
+		return list;
+	}
+	public static List<AccountHistory> mergeMixed(List<AccountHistory> oldList, List<AccountHistory> newList) {
 		var oldListJPY = oldList.stream().filter(o -> o.currency == Currency.JPY).collect(Collectors.toList());
-		var oldListUSD = oldList.stream().filter(o -> o.currency == Currency.USD).collect(Collectors.toList());
 		var newListJPY = newList.stream().filter(o -> o.currency == Currency.JPY).collect(Collectors.toList());
+		var listJPY    = merge(oldListJPY, newListJPY);
+		
+		var oldListUSD = oldList.stream().filter(o -> o.currency == Currency.USD).collect(Collectors.toList());
 		var newListUSD = newList.stream().filter(o -> o.currency == Currency.USD).collect(Collectors.toList());
+		var listUSD    = merge(oldListUSD, newListUSD);
 		
-		// JPY
-		{
-			var settlementDateSet = oldListJPY.stream().map(o -> o.settlementDate).collect(Collectors.toSet());
-			for(var e: newListJPY) {
-				if (settlementDateSet.contains(e.settlementDate)) continue;
-				oldListJPY.add(e);
-			}
-		}
-		// USD
-		{
-			var settlementDateSet = oldListUSD.stream().map(o -> o.settlementDate).collect(Collectors.toSet());
-			for(var e: newListUSD) {
-				if (settlementDateSet.contains(e.settlementDate)) continue;
-				oldListUSD.add(e);
-			}
-		}
-		
-		var ret = new ArrayList<AccountHistory>(oldListJPY.size() + oldListUSD.size());
-		ret.addAll(oldListJPY);
-		ret.addAll(oldListUSD);
+		var ret = new ArrayList<AccountHistory>(listJPY.size() + listUSD.size());
+		ret.addAll(listJPY);
+		ret.addAll(listUSD);
 		Collections.sort(ret);
 		
 		return ret;
