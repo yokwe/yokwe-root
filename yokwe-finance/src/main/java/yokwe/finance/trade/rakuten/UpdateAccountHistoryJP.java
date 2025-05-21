@@ -2,7 +2,7 @@ package yokwe.finance.trade.rakuten;
 
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.DIR_DOWNLOAD;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.TODAY;
-import static yokwe.finance.trade.rakuten.UpdateAccountHistory.merge;
+import static yokwe.finance.trade.rakuten.UpdateAccountHistory.mergeMixed;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.toLocalDate;
 
 import java.math.BigDecimal;
@@ -45,7 +45,7 @@ public class UpdateAccountHistoryJP {
 				var array = CSVUtil.read(AdjustHistoryJP.class).file(file).toArray(AdjustHistoryJP[]::new);
 				logger.info("read  {}  {}", array.length, name);
 				var newList = toAccountHistory(array);
-				oldList = merge(oldList, newList);
+				oldList = mergeMixed(oldList, newList);
 			}
 		}
 				
