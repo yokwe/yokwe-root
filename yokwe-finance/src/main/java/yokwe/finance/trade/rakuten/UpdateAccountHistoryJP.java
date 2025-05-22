@@ -422,7 +422,6 @@ public class UpdateAccountHistoryJP {
 		}
 	}
 	
-	static int countSkip = 0;
 	private static List<AccountHistory> toAccountHistory(AdjustHistoryJP[] array) {
 		var ret = new ArrayList<AccountHistory>();
 		for(var e: array) {

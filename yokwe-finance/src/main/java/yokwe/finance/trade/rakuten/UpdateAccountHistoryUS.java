@@ -309,7 +309,6 @@ public class UpdateAccountHistoryUS {
 		}
 	}
 	
-	static int countSkip = 0;
 	private static List<AccountHistory> toAccountHistory(AdjustHistoryUS[] array) {
 		var ret = new ArrayList<AccountHistory>();
 		for(var e: array) {
