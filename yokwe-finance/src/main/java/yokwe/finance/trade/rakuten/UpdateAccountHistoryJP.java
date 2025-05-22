@@ -423,25 +423,15 @@ public class UpdateAccountHistoryJP {
 	static int countSkip = 0;
 	private static List<AccountHistory> toAccountHistory(AdjustHistoryJP[] array) {
 		var ret = new ArrayList<AccountHistory>();
-		int countA = 0;
-		int countB = 0;
-		int countC = 0;
 		for(var e: array) {
-			countA++;
 			var accountHistory = functionMap.get(e.tradeType).apply(e);
 			if (accountHistory.settlementDate.isBefore(TODAY)) {
-				countB++;
 				ret.add(accountHistory);
 			} else {
-				countC++;
 				ret.add(accountHistory);
 				logger.info("settlementDate is future date  {}", accountHistory);
 			}
 		}
-		
-		logger.info("countA  {}", countA);
-		logger.info("countB  {}", countB);
-		logger.info("countC  {}", countC);
 		
 		return ret;
 	}
