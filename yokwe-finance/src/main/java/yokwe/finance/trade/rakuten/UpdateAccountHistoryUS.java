@@ -36,6 +36,8 @@ public class UpdateAccountHistoryUS {
 		}
 
 		var oldList = StorageRakuten.AccountHistory.getList();
+		logger.info("read  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getFile().getName());
+		
 		// update oldList
 		{
 			var files = DIR_DOWNLOAD.listFiles((d, n) -> n.startsWith("adjusthistory(US)") && n.endsWith(".csv"));
@@ -310,27 +312,15 @@ public class UpdateAccountHistoryUS {
 	static int countSkip = 0;
 	private static List<AccountHistory> toAccountHistory(AdjustHistoryUS[] array) {
 		var ret = new ArrayList<AccountHistory>();
-		int countA = 0;
-		int countB = 0;
-		int countC = 0;
 		for(var e: array) {
-			countA++;
 			var accountHistory = functionMap.get(e.tradeType).apply(e);
-			if (accountHistory == null) continue; // FIXME
-			
 			if (accountHistory.settlementDate.isBefore(TODAY)) {
-				countB++;
 				ret.add(accountHistory);
 			} else {
-				countC++;
 				ret.add(accountHistory);
-				logger.info("settlementDate is future date  {}", accountHistory);
+				logger.warn("settlementDate is future date  {}", accountHistory);
 			}
 		}
-		
-		logger.info("countA  {}", countA);
-		logger.info("countB  {}", countB);
-		logger.info("countC  {}", countC);
 		
 		return ret;
 	}

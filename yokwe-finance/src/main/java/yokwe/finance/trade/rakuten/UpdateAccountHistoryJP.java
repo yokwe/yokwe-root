@@ -37,6 +37,8 @@ public class UpdateAccountHistoryJP {
 		}
 		
 		var oldList = StorageRakuten.AccountHistory.getList();
+		logger.info("read  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getFile().getName());
+		
 		// update oldList
 		{
 			var files = DIR_DOWNLOAD.listFiles((d, n) -> n.startsWith("adjusthistory(JP)") && n.endsWith(".csv"));
@@ -429,7 +431,7 @@ public class UpdateAccountHistoryJP {
 				ret.add(accountHistory);
 			} else {
 				ret.add(accountHistory);
-				logger.info("settlementDate is future date  {}", accountHistory);
+				logger.warn("settlementDate is future date  {}", accountHistory);
 			}
 		}
 		
