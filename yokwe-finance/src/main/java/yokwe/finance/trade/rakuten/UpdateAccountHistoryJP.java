@@ -2,12 +2,14 @@ package yokwe.finance.trade.rakuten;
 
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.DIR_DOWNLOAD;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.TODAY;
+import static yokwe.finance.trade.rakuten.UpdateAccountHistory.copyNewFiles;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.mergeMixed;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.toLocalDate;
 
+import java.io.FilenameFilter;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -23,10 +25,19 @@ import yokwe.util.UnexpectedException;
 public class UpdateAccountHistoryJP {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	private static final FilenameFilter FILTER_TRADEHISTORY_JP  = (d, n) -> n.startsWith("tradehistory(JP)_") && n.endsWith(".csv");
+	private static final FilenameFilter FILTER_ADJUSTHISTORY_JP = (d, n) -> n.startsWith("adjusthistory(JP)_") && n.endsWith(".csv");
+	
+	
+	public static void copyFiles() {
+		copyNewFiles(FILTER_TRADEHISTORY_JP);
+		copyNewFiles(FILTER_ADJUSTHISTORY_JP);		
+	}
+	
 	public static void update() {
 		// build stockNameMap
 		{
-			var files = DIR_DOWNLOAD.listFiles((d, n) -> n.startsWith("tradehistory(JP)_") && n.endsWith(".csv"));
+			var files = DIR_DOWNLOAD.listFiles(FILTER_TRADEHISTORY_JP);
 			Arrays.sort(files);
 			for(var file : files) {
 				var list = CSVUtil.read(TradeHistoryJP.class).file(file);
@@ -41,7 +52,7 @@ public class UpdateAccountHistoryJP {
 		
 		// update oldList
 		{
-			var files = DIR_DOWNLOAD.listFiles((d, n) -> n.startsWith("adjusthistory(JP)") && n.endsWith(".csv"));
+			var files = DIR_DOWNLOAD.listFiles(FILTER_ADJUSTHISTORY_JP);
 			Arrays.sort(files);
 			for(var file: files) {
 				var name = file.getName();
@@ -116,24 +127,24 @@ public class UpdateAccountHistoryJP {
 		throw new UnexpectedException("Unexpected name");
 	}
 	
-	private static Map<AdjustHistoryJP.TradeType, Function<AdjustHistoryJP, AccountHistory>> functionMap = new TreeMap<>();
-	static {
-		functionMap.put(AdjustHistoryJP.TradeType.DIVIDEND_STOCK,    new TradeTypeFunction.DIVIDEND_STOCK());
-		functionMap.put(AdjustHistoryJP.TradeType.DEPOSIT_CAMPAIGN,  new TradeTypeFunction.DEPOSIT_CAMPAIGN());
-		functionMap.put(AdjustHistoryJP.TradeType.DEOSIT_TRANSFER,   new TradeTypeFunction.DEOSIT_TRANSFER());
-		functionMap.put(AdjustHistoryJP.TradeType.WITHDRAW_TRANSFER, new TradeTypeFunction.WITHDRAW_TRANSFER());
-		functionMap.put(AdjustHistoryJP.TradeType.SELL_STOCK,        new TradeTypeFunction.SELL_STOCK());
-		functionMap.put(AdjustHistoryJP.TradeType.SELL_FUND,         new TradeTypeFunction.SELL_FUND());
-		functionMap.put(AdjustHistoryJP.TradeType.BUY_FUND,          new TradeTypeFunction.BUY_FUND());
-		functionMap.put(AdjustHistoryJP.TradeType.BUY_STOCK,         new TradeTypeFunction.BUY_STOCK());
-		functionMap.put(AdjustHistoryJP.TradeType.TAX_INCOME,        new TradeTypeFunction.TAX_INCOME());
-		functionMap.put(AdjustHistoryJP.TradeType.TAX_LOCAL,         new TradeTypeFunction.TAX_LOCAL());
-		functionMap.put(AdjustHistoryJP.TradeType.TAX_REFUND_INCOME, new TradeTypeFunction.TAX_REFUND_INCOME());
-		functionMap.put(AdjustHistoryJP.TradeType.TAX_REFUND_LOCAL,  new TradeTypeFunction.TAX_REFUND_LOCAL());
-		functionMap.put(AdjustHistoryJP.TradeType.DEPOSIT_REALTIME,  new TradeTypeFunction.DEPOSIT_REALTIME());
-		functionMap.put(AdjustHistoryJP.TradeType.DEPOSIT_POINT,     new TradeTypeFunction.DEPOSIT_POINT());
-		functionMap.put(AdjustHistoryJP.TradeType.WITHDRAW,          new TradeTypeFunction.WITHDRAW());
-	}
+	private static Map<AdjustHistoryJP.TradeType, Function<AdjustHistoryJP, AccountHistory>> functionMap = Map.ofEntries(
+		Map.entry(AdjustHistoryJP.TradeType.DIVIDEND_STOCK,    new TradeTypeFunction.DIVIDEND_STOCK()),
+		Map.entry(AdjustHistoryJP.TradeType.DEPOSIT_CAMPAIGN,  new TradeTypeFunction.DEPOSIT_CAMPAIGN()),
+		Map.entry(AdjustHistoryJP.TradeType.DEOSIT_TRANSFER,   new TradeTypeFunction.DEOSIT_TRANSFER()),
+		Map.entry(AdjustHistoryJP.TradeType.WITHDRAW_TRANSFER, new TradeTypeFunction.WITHDRAW_TRANSFER()),
+		Map.entry(AdjustHistoryJP.TradeType.SELL_STOCK,        new TradeTypeFunction.SELL_STOCK()),
+		Map.entry(AdjustHistoryJP.TradeType.SELL_FUND,         new TradeTypeFunction.SELL_FUND()),
+		Map.entry(AdjustHistoryJP.TradeType.BUY_FUND,          new TradeTypeFunction.BUY_FUND()),
+		Map.entry(AdjustHistoryJP.TradeType.BUY_STOCK,         new TradeTypeFunction.BUY_STOCK()),
+		Map.entry(AdjustHistoryJP.TradeType.TAX_INCOME,        new TradeTypeFunction.TAX_INCOME()),
+		Map.entry(AdjustHistoryJP.TradeType.TAX_LOCAL,         new TradeTypeFunction.TAX_LOCAL()),
+		Map.entry(AdjustHistoryJP.TradeType.TAX_REFUND_INCOME, new TradeTypeFunction.TAX_REFUND_INCOME()),
+		Map.entry(AdjustHistoryJP.TradeType.TAX_REFUND_LOCAL,  new TradeTypeFunction.TAX_REFUND_LOCAL()),
+		Map.entry(AdjustHistoryJP.TradeType.DEPOSIT_REALTIME,  new TradeTypeFunction.DEPOSIT_REALTIME()),
+		Map.entry(AdjustHistoryJP.TradeType.DEPOSIT_POINT,     new TradeTypeFunction.DEPOSIT_POINT()),
+		Map.entry(AdjustHistoryJP.TradeType.WITHDRAW,          new TradeTypeFunction.WITHDRAW())
+	);
+
 	private static class TradeTypeFunction {
 		private static class DIVIDEND_STOCK implements Function<AdjustHistoryJP, AccountHistory> {
 			@Override
@@ -430,7 +441,8 @@ public class UpdateAccountHistoryJP {
 				ret.add(accountHistory);
 			} else {
 				ret.add(accountHistory);
-				logger.warn("settlementDate is future date  {}", accountHistory);
+				logger.warn("settlementDate has future date  {}  {}  {} {}",
+					accountHistory.settlementDate, accountHistory.currency, accountHistory.transaction, accountHistory.comment);
 			}
 		}
 		

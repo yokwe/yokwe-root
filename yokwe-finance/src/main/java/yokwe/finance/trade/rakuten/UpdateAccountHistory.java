@@ -1,8 +1,11 @@
 package yokwe.finance.trade.rakuten;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
@@ -11,13 +14,18 @@ import java.util.stream.Collectors;
 
 import yokwe.finance.trade.AccountHistory;
 import yokwe.finance.trade.AccountHistory.Currency;
+import yokwe.util.FileUtil;
+import yokwe.util.HashCode;
+import yokwe.util.StringUtil;
 import yokwe.util.UnexpectedException;
 
 public class UpdateAccountHistory {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public static final LocalDate TODAY        = LocalDate.now();
-	public static final File      DIR_DOWNLOAD = StorageRakuten.storage.getFile("download");
+	public static final LocalDate TODAY         = LocalDate.now();
+	public static final File      DIR_DOWNLOAD  = StorageRakuten.storage.getFile("download");
+	public static final File      USER_DOWNLOAD = new File(System.getProperty("user.home"), "Downloads");
+	public static final Charset   SHIFT_JIS     = Charset.forName("SHIFT_JIS");
 
 	public static void main(String[] args) {
 		logger.info("START");
@@ -28,6 +36,9 @@ public class UpdateAccountHistory {
 	}
 	
 	private static void update() {
+		UpdateAccountHistoryJP.copyFiles();
+		UpdateAccountHistoryUS.copyFiles();
+		
 		UpdateAccountHistoryJP.update();
 		UpdateAccountHistoryUS.update();
 	}
@@ -131,5 +142,27 @@ public class UpdateAccountHistory {
 		Collections.sort(ret);
 		
 		return ret;
+	}
+	
+	public static void copyNewFiles(FilenameFilter filenameFilter) {
+		var newFileList = Arrays.asList(USER_DOWNLOAD.listFiles(filenameFilter));
+		var oldFileList = Arrays.asList(DIR_DOWNLOAD.listFiles(filenameFilter));
+		var oldHashSet  = oldFileList.stream().map(o -> StringUtil.toHexString(HashCode.getHashCode(o))).collect(Collectors.toSet());
+		
+		for(var newFile: newFileList) {
+			var newHash = StringUtil.toHexString(HashCode.getHashCode(newFile));
+			if (oldHashSet.contains(newHash)) {
+				// exist
+			} else {
+				// not exist
+				var file = new File(DIR_DOWNLOAD, newFile.getName());
+				var string  = FileUtil.read().withCharset(SHIFT_JIS).file(newFile);
+				FileUtil.write().file(file, string);
+				logger.info("copy    {}", file.getName());
+			}
+			// delete new file
+			FileUtil.delete(newFile);
+			logger.info("delete  {}", newFile.getName());
+		}
 	}
 }

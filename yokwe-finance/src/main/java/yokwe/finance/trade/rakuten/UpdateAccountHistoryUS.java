@@ -2,9 +2,11 @@ package yokwe.finance.trade.rakuten;
 
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.DIR_DOWNLOAD;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.TODAY;
+import static yokwe.finance.trade.rakuten.UpdateAccountHistory.copyNewFiles;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.mergeMixed;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.toLocalDate;
 
+import java.io.FilenameFilter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,10 +24,18 @@ import yokwe.util.UnexpectedException;
 public class UpdateAccountHistoryUS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	private static final FilenameFilter FILTER_TRADEHISTORY_US  = (d, n) -> n.startsWith("tradehistory(US)_") && n.endsWith(".csv");
+	private static final FilenameFilter FILTER_ADJUSTHISTORY_US = (d, n) -> n.startsWith("adjusthistory(US)_") && n.endsWith(".csv");
+	
+	public static void copyFiles() {
+		copyNewFiles(FILTER_TRADEHISTORY_US);
+		copyNewFiles(FILTER_ADJUSTHISTORY_US);		
+	}
+
 	public static void update() {
 		// build stockNameMap
 		{
-			var files = DIR_DOWNLOAD.listFiles((d, n) -> n.startsWith("tradehistory(US)_") && n.endsWith(".csv"));
+			var files = DIR_DOWNLOAD.listFiles(FILTER_TRADEHISTORY_US);
 			Arrays.sort(files);
 			for(var file : files) {
 				var list = CSVUtil.read(TradeHistoryUS.class).file(file);
@@ -40,7 +50,7 @@ public class UpdateAccountHistoryUS {
 		
 		// update oldList
 		{
-			var files = DIR_DOWNLOAD.listFiles((d, n) -> n.startsWith("adjusthistory(US)") && n.endsWith(".csv"));
+			var files = DIR_DOWNLOAD.listFiles(FILTER_ADJUSTHISTORY_US);
 			Arrays.sort(files);
 			for(var file: files) {
 				var name = file.getName();
@@ -102,19 +112,18 @@ public class UpdateAccountHistoryUS {
 		throw new UnexpectedException("Unexpected name");
 	}
 	
-	private static Map<AdjustHistoryUS.TradeType, Function<AdjustHistoryUS, AccountHistory>> functionMap = new TreeMap<>();
-	static {
-		functionMap.put(AdjustHistoryUS.TradeType.DIVIDEND_BOND,     new TradeTypeFunction.DIVIDEND_BOND());
-		functionMap.put(AdjustHistoryUS.TradeType.SELL_BOND,         new TradeTypeFunction.SELL_BOND());
-		functionMap.put(AdjustHistoryUS.TradeType.BUY_BOND,          new TradeTypeFunction.BUY_BOND());
-		functionMap.put(AdjustHistoryUS.TradeType.DIVIDEND_STOCK,    new TradeTypeFunction.DIVIDEND_STOCK());
-		functionMap.put(AdjustHistoryUS.TradeType.SELL_STOCK,        new TradeTypeFunction.SELL_STOCK());
-		functionMap.put(AdjustHistoryUS.TradeType.BUY_STOCK,         new TradeTypeFunction.BUY_STOCK());
-		functionMap.put(AdjustHistoryUS.TradeType.SELL_MMF,          new TradeTypeFunction.SELL_MMF());
-		functionMap.put(AdjustHistoryUS.TradeType.BUY_MMF,           new TradeTypeFunction.BUY_MMF());
-		functionMap.put(AdjustHistoryUS.TradeType.DEOSIT_TRANSFER,   new TradeTypeFunction.DEOSIT_TRANSFER());
-		functionMap.put(AdjustHistoryUS.TradeType.WITHDRAW_TRANSFER, new TradeTypeFunction.WITHDRAW_TRANSFER());
-	}
+	private static Map<AdjustHistoryUS.TradeType, Function<AdjustHistoryUS, AccountHistory>> functionMap = Map.ofEntries(
+		Map.entry(AdjustHistoryUS.TradeType.DIVIDEND_BOND,     new TradeTypeFunction.DIVIDEND_BOND()),
+		Map.entry(AdjustHistoryUS.TradeType.SELL_BOND,         new TradeTypeFunction.SELL_BOND()),
+		Map.entry(AdjustHistoryUS.TradeType.BUY_BOND,          new TradeTypeFunction.BUY_BOND()),
+		Map.entry(AdjustHistoryUS.TradeType.DIVIDEND_STOCK,    new TradeTypeFunction.DIVIDEND_STOCK()),
+		Map.entry(AdjustHistoryUS.TradeType.SELL_STOCK,        new TradeTypeFunction.SELL_STOCK()),
+		Map.entry(AdjustHistoryUS.TradeType.BUY_STOCK,         new TradeTypeFunction.BUY_STOCK()),
+		Map.entry(AdjustHistoryUS.TradeType.SELL_MMF,          new TradeTypeFunction.SELL_MMF()),
+		Map.entry(AdjustHistoryUS.TradeType.BUY_MMF,           new TradeTypeFunction.BUY_MMF()),
+		Map.entry(AdjustHistoryUS.TradeType.DEOSIT_TRANSFER,   new TradeTypeFunction.DEOSIT_TRANSFER()),
+		Map.entry(AdjustHistoryUS.TradeType.WITHDRAW_TRANSFER, new TradeTypeFunction.WITHDRAW_TRANSFER())
+	);
 	
 	private static class TradeTypeFunction {
 		private static class DIVIDEND_BOND implements Function<AdjustHistoryUS, AccountHistory> {
