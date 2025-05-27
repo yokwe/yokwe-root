@@ -30,7 +30,7 @@ public class AccountHistory implements Comparable<AccountHistory>	{
 		//
 		BUY,
 		SELL,
-		RECEIVE_STOCK,
+		IMPORT,
 //		SPLIT,
 		;
 	}
