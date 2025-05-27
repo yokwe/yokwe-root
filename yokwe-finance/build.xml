@@ -464,5 +464,13 @@
 			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
 		</java>
 	</target>
+	<target name="trade-rakute-update-account-report">
+		<java module="yokwe.finance/yokwe.finance.trade.rakuten.UpdateAccountReport" fork="true">
+			<modulepath refid="build.classpath" />
+			<modulepath refid="target.jar" />
+			<classpath  refid="libreoffice.lib" />
+			<sysproperty key="logback.configurationFile" value="${logback.conf}" />
+		</java>
+	</target>
 
 </project>

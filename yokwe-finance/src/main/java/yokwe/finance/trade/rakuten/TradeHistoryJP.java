@@ -71,7 +71,7 @@ public class TradeHistoryJP {
 	@CSVUtil.ColumnName("市場名称")                            public String      marketName;        // "東証"
 	@CSVUtil.ColumnName("口座区分")                            public AccountType accountType;       // "特定"
 	@CSVUtil.ColumnName("取引区分")                            public TradeMode   cashOrMargin;      // "現物" ""
-	@CSVUtil.ColumnName("売買区分")                            public TradeType   trydeType;         // "買付" "売付" "入庫"
+	@CSVUtil.ColumnName("売買区分")                            public TradeType   tradeType;         // "買付" "売付" "入庫"
 	@CSVUtil.ColumnName("信用区分")                            public String      marginType;        // "-"
 	@CSVUtil.ColumnName("弁済期限")                            public String      marginDueDate;     // "-"
 	@CSVUtil.ColumnName("数量［株］")                          public String      units;             // "2,800" "-"

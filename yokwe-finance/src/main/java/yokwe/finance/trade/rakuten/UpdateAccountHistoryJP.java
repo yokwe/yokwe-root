@@ -10,14 +10,19 @@ import java.io.FilenameFilter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.trade.AccountHistory;
+import yokwe.finance.trade.AccountHistory.Asset;
+import yokwe.finance.trade.AccountHistory.Currency;
+import yokwe.finance.trade.AccountHistory.Transaction;
 import yokwe.finance.type.StockCodeJP;
 import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
@@ -35,6 +40,9 @@ public class UpdateAccountHistoryJP {
 	}
 	
 	public static void update() {
+		var oldList = StorageRakuten.AccountHistory.getList();
+		logger.info("read  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getFile().getName());
+		
 		// build stockNameMap
 		{
 			var files = DIR_DOWNLOAD.listFiles(FILTER_TRADEHISTORY_JP);
@@ -44,11 +52,16 @@ public class UpdateAccountHistoryJP {
 				logger.info("read  {}  {}", list.size(), file.getName());
 				buildStockNameMap(list);
 				logger.info("stockNameMap  {}", stockNameMap.size());
+				
+				var newList = toAccountHistory(list.toArray(TradeHistoryJP[]::new));
+				logger.info("newList       {}", newList.size());
+				
+				for(var e: newList) {
+					if (!oldList.contains(e)) oldList.add(e);
+				}
+				Collections.sort(oldList);
 			}
 		}
-		
-		var oldList = StorageRakuten.AccountHistory.getList();
-		logger.info("read  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getFile().getName());
 		
 		// update oldList
 		{
@@ -64,7 +77,7 @@ public class UpdateAccountHistoryJP {
 				oldList = mergeMixed(oldList, newList);
 			}
 		}
-				
+		
 		logger.info("save  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getPath());
 		StorageRakuten.AccountHistory.save(oldList);
 	}
@@ -241,9 +254,64 @@ public class UpdateAccountHistoryJP {
 				return ret;
 			}
 		}
+		
+		
+		private static Map<String, String> fundNameMap = new TreeMap<>();
+		//                 name    isinCode
+		private static Map<String, String> fundCodeMap = new TreeMap<>();
+		//                 isinCode name
+		static {
+			for(var e: yokwe.finance.provider.rakuten.StorageRakuten.FundCodeNameRakuten.getList()) {
+				var name = e.name;
+				var code = e.isinCode;
+				fundNameMap.put(name, code);
+			}
+			for(var e: StorageFund.FundInfo.getList()) {
+				var name = e.name;
+				var code = e.isinCode;
+				fundNameMap.put(name, code);
+				fundCodeMap.put(code, name);
+			}
+		}
+		private static String getCode(String name) {
+			if (name.contains("/")) {
+				name = name.substring(0, name.indexOf("/"));
+			}
+			{
+				var code = fundNameMap.get(name);
+				if (code != null) return code;
+			}
+			{
+				if (name.contains("(")) {
+					var code = fundNameMap.get(name.substring(0, name.indexOf("(")));
+					if (code != null) return code;
+				}
+			}
+			{
+				if (name.contains("SMT")) {
+					var code = fundNameMap.get(name.replace("SMT", "ＳＭＴ"));
+					if (code != null) return code;
+				}
+			}
+			{
+				var code = fundNameMap.get(name.replace(" ", ""));
+				if (code != null) return code;
+			}
+			{
+				var code = fundNameMap.get(name.replace("(", "（").replace(")", "）"));
+				if (code != null) return code;
+			}
+			logger.error("Unexpected name");
+			logger.error("  name  {}!", name);
+			throw new UnexpectedException("Unexpected name");
+		}
+		//                 name    isinCode
 		private static class SELL_FUND implements Function<AdjustHistoryJP, AccountHistory> {
 			@Override
 			public AccountHistory apply(AdjustHistoryJP e) {
+				var code = getCode(e.name);
+				var name = fundCodeMap.get(code);
+				
 				var ret = new AccountHistory();
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
@@ -254,8 +322,8 @@ public class UpdateAccountHistoryJP {
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
-				ret.code           = "";
-				ret.comment        = e.name;
+				ret.code           = code;
+				ret.comment        = name;
 				
 				return ret;
 			}
@@ -263,6 +331,9 @@ public class UpdateAccountHistoryJP {
 		private static class BUY_FUND implements Function<AdjustHistoryJP, AccountHistory> {
 			@Override
 			public AccountHistory apply(AdjustHistoryJP e) {
+				var code = getCode(e.name);
+				var name = fundCodeMap.get(code);
+				
 				var ret = new AccountHistory();
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
@@ -273,8 +344,8 @@ public class UpdateAccountHistoryJP {
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
-				ret.code           = "";
-				ret.comment        = e.name;
+				ret.code           = code;
+				ret.comment        = name;
 				
 				return ret;
 			}
@@ -443,6 +514,38 @@ public class UpdateAccountHistoryJP {
 				ret.add(accountHistory);
 				logger.warn("settlementDate has future date  {}  {}  {} {}",
 					accountHistory.settlementDate, accountHistory.currency, accountHistory.transaction, accountHistory.comment);
+			}
+		}
+		
+		return ret;
+	}
+	
+	private static List<AccountHistory> toAccountHistory(TradeHistoryJP[] array) {
+		var ret = new ArrayList<AccountHistory>();
+		for(var e: array) {
+			switch(e.tradeType) {
+			case BUY:
+			case SELL:
+				break;
+			case TRANSFER_IN: {
+				var accountHistory = new AccountHistory();
+				accountHistory.settlementDate = toLocalDate(e.settlementDate); // 受渡日
+				accountHistory.tradeDate      = toLocalDate(e.tradeDate);      // 約定日
+				accountHistory.currency       = Currency.JPY;
+				accountHistory.asset          = Asset.STOCK;
+				accountHistory.transaction    = Transaction.IMPORT;
+				accountHistory.units          = new BigDecimal(e.units.replace(",", ""));
+				accountHistory.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
+				accountHistory.amount         = accountHistory.units.multiply(accountHistory.unitPrice);
+				accountHistory.code           = StockCodeJP.toStockCode5(e.code);
+				accountHistory.comment        = e.name;
+				ret.add(accountHistory);
+			}
+				break;
+			default:
+				logger.error("Unexpeced tradeType");
+				logger.error("  {}", e.toString());
+				throw new UnexpectedException("Unexpeced tradeType");
 			}
 		}
 		
