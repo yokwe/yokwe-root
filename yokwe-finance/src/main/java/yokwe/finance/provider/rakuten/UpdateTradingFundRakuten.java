@@ -96,7 +96,6 @@ public class UpdateTradingFundRakuten {
 	}
 
 	private static void update() {
-		List<TradingFundType> list = new ArrayList<>();
 		{
 			var isinCodeSet = StorageFund.FundInfo.getList().stream().map(o -> o.isinCode).collect(Collectors.toSet());
 			
@@ -110,24 +109,42 @@ public class UpdateTradingFundRakuten {
 			
 			PageData pageData = JSON.unmarshal(PageData.class, page);
 			logger.info("page  {}", pageData.toString());
-			for(int i = 0; i < pageData.data.length; i++) {
-				String[] data = pageData.data[i];
-				
-				String isinCode      = data[0];
-				String name          = data[1].replace("&amp;", "&");
-//				String actual_charge = data[2];
+			
+			{
+				List<TradingFundType> list = new ArrayList<>();
+				for(int i = 0; i < pageData.data.length; i++) {
+					String[] data = pageData.data[i];
+					
+					String isinCode      = data[0];
+					String name          = data[1].replace("&amp;", "&");
+//					String actual_charge = data[2];
 
-				// sanity check
-				if (isinCodeSet.contains(isinCode)) {
-					list.add(new TradingFundType(isinCode, BigDecimal.ZERO));
-				} else {
-					logger.warn("Bogus isinCode  {}  {}", isinCode, name);
+					// sanity check
+					if (isinCodeSet.contains(isinCode)) {
+						list.add(new TradingFundType(isinCode, BigDecimal.ZERO));
+					} else {
+						logger.warn("Bogus isinCode  {}  {}", isinCode, name);
+					}
 				}
+				logger.info("save  {}  {}", list.size(), StorageRakuten.TradingFundRakuten.getPath());
+				StorageRakuten.TradingFundRakuten.save(list);
+			}
+			{
+				List<FundCodeName> list = new ArrayList<>();
+				for(int i = 0; i < pageData.data.length; i++) {
+					String[] data = pageData.data[i];
+					
+					String isinCode      = data[0];
+					String name          = data[1].replace("&amp;", "&");
+//					String actual_charge = data[2];
+
+					list.add(new FundCodeName(isinCode, name));
+				}
+				logger.info("save  {}  {}", list.size(), StorageRakuten.FundCodeNameRakuten.getPath());
+				StorageRakuten.FundCodeNameRakuten.save(list);
 			}
 		}
 		
-		logger.info("save  {}  {}", list.size(), StorageRakuten.TradingFundRakuten.getPath());
-		StorageRakuten.TradingFundRakuten.save(list);
 	}
 	
 	
