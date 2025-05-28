@@ -20,8 +20,8 @@ import yokwe.util.UnexpectedException;
 public class Holding {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	static MathContext UP_0 = new MathContext(0, RoundingMode.UP);
-	static MathContext UP_4 = new MathContext(4, RoundingMode.UP);
+	private static MathContext UP_0 = new MathContext(0, RoundingMode.UP);
+	private static MathContext UP_4 = new MathContext(4, RoundingMode.UP);
 	
 	private enum Asset {
 		BOND,
@@ -37,23 +37,28 @@ public class Holding {
 	public static Asset toAsset(String symbol) {
 		if (stockCodeJPSet.contains(symbol)) return Asset.STOCK_JP;
 		if (stockCodeUSSet.contains(symbol)) return Asset.STOCK_US;
-		if (fundCodeJPSet.contains(symbol)) return Asset.FUND_JP;
+		if (fundCodeJPSet.contains(symbol))  return Asset.FUND_JP;
 		logger.error("Unexpected symbol");
 		logger.error("  symbol  {}", symbol);
 		throw new UnexpectedException("Unexpected symbol");
 	}
 	
-	private final Asset  asset;
-	private final String symbol;
+	private final Asset      asset;
+	private final String     symbol;
+	private final BigDecimal priceFactor;
 	
 	private int totalUnits;
 	private int totalCost;
 	
+	public Holding(String symbol, BigDecimal priceFactor) {
+		this.asset       = toAsset(symbol);
+		this.symbol      = symbol;
+		this.priceFactor = priceFactor;
+		this.totalUnits  = 0;
+		this.totalCost   = 0;
+	}
 	public Holding(String symbol) {
-		this.asset      = toAsset(symbol);
-		this.symbol     = symbol;
-		this.totalUnits = 0;
-		this.totalCost  = 0;
+		this(symbol, BigDecimal.ONE);
 	}
 	
 	@Override
@@ -85,7 +90,7 @@ public class Holding {
 	// sell returns cost of selling stock
 	public int sell(int units) {
 		// sanity check
-		if (totalUnits <= 0 || totalCost <= 0) {
+		if (totalUnits <= 0 || totalUnits < units|| totalCost <= 0) {
 			logger.error("Unexpected totalUnits");
 			logger.error("  units    {}", units);
 			logger.error("  holding  {}", this.toString());
@@ -103,21 +108,28 @@ public class Holding {
 	}
 	
 	private int getValue(BigDecimal unitPrice, BigDecimal units) {
-		return unitPrice.multiply(units, UP_0).intValue();
+		return unitPrice.multiply(units, UP_0).divide(priceFactor, UP_0).intValue();
 	}
 	
 	private static Map<String, DailyValueMap> priceMap = new TreeMap<>();
 	//                 symbol
 	public int valueAsOf(LocalDate date) {
-		if (asset == Asset.BOND) {
-			return totalCost;
-		}
-		var map = getPriceMap(asset, symbol);
+		if (totalUnits == 0) return 0;
+		
+		if (asset == Asset.BOND) return totalCost;
+		
+		var map = getPriceMap();
 		var unitPrice = map.get(date);
-		return getValue(unitPrice, BigDecimal.valueOf(totalUnits));
+		if (unitPrice == null) {
+//			logger.warn("no data in priceMap  {}  {}", symbol, date);
+			logger.warn("no data in priceMap  {}  {}  {}  --  {}", symbol, date, map.firstKey(), map.lastKey());
+			return -1;
+		}
+		var value = getValue(unitPrice, BigDecimal.valueOf(totalUnits));
+		return value;
 	}
 	
-	private DailyValueMap getPriceMap(Asset asset, String symbol) {
+	private DailyValueMap getPriceMap() {
 		var map = priceMap.get(symbol);
 		if (map == null) {
 			List<DailyValue> list;
@@ -126,7 +138,7 @@ public class Holding {
 				list = StorageStock.StockPriceJP.getList(symbol).stream().map(o -> new DailyValue(o.date, o.close)).toList();
 				break;
 			case STOCK_US:
-				list = StorageFund.FundPrice.getList(symbol).stream().map(o -> new DailyValue(o.date, o.price)).toList();
+				list = StorageStock.StockPriceUS.getList(symbol).stream().map(o -> new DailyValue(o.date, o.close)).toList();
 				break;
 			case FUND_JP:
 				list = StorageFund.FundPrice.getList(symbol).stream().map(o -> new DailyValue(o.date, o.price)).toList();
@@ -147,6 +159,7 @@ public class Holding {
 			
 			map = new DailyValueMap(list);
 			priceMap.put(symbol, map);
+			logger.info("XX  {}  {}  {}  {}", symbol, asset, map.firstKey(), map.lastKey());
 		}
 		
 		return map;

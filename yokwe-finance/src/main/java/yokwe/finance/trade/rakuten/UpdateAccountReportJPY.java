@@ -1,5 +1,8 @@
 package yokwe.finance.trade.rakuten;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -325,11 +328,12 @@ public class UpdateAccountReportJPY {
 				var code    = accountHistory.code;
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
-				
+
 				// update portfolio
 				context.portfolio.buy(code, units, amount);
 				
 				// update context
+				context.fundTotal += amount;
 				context.stockCost += amount;
 
 				// build report
@@ -349,7 +353,7 @@ public class UpdateAccountReportJPY {
 				ret.sellCost      = 0;
 				ret.sellGain      = 0;
 				ret.code          = code;
-				ret.comment       = comment;
+				ret.comment       = "入庫：" + comment;
 				
 				return ret;
 			}
@@ -363,8 +367,12 @@ public class UpdateAccountReportJPY {
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
 				
+				var priceFactor = accountHistory.unitPrice.multiply(BigDecimal.valueOf(units)).divideToIntegralValue(BigDecimal.valueOf(amount)).round(new MathContext(3, RoundingMode.UP));
+				logger.info("priceFactor  {}  {}", code, priceFactor.toPlainString());
+				
+				
 				// update portfolio
-				context.portfolio.buy(code, units, amount);
+				context.portfolio.buy(code, units, amount, priceFactor);
 				
 				// update context
 				context.cashTotal -= amount;
@@ -392,8 +400,6 @@ public class UpdateAccountReportJPY {
 				return ret;
 			}
 		}
-		
-		
 		private static class SELL_FUND implements BiFunction<Context, AccountHistory, AccountReportJPY> {
 			@Override
 			public AccountReportJPY apply(Context context, AccountHistory accountHistory) {
@@ -403,8 +409,11 @@ public class UpdateAccountReportJPY {
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
 				
+				var priceFactor = accountHistory.unitPrice.multiply(BigDecimal.valueOf(units)).divideToIntegralValue(BigDecimal.valueOf(amount)).round(new MathContext(3, RoundingMode.UP));
+				logger.info("priceFactor  {}  {}", code, priceFactor.toPlainString());
+				
 				// update portfolio
-				var sellCost = context.portfolio.sell(code, units);
+				var sellCost = context.portfolio.sell(code, units, priceFactor);
 				var gain     = amount - sellCost;
 
 				// update context
