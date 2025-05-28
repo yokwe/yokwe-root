@@ -11,6 +11,11 @@ public class Portfolio {
 	//              symbol  holding
 	// FIXME needs rule for BOND
 	
+	// for sanity check
+	public TreeMap<String, Holding> getHoldingMap() {
+		return holdingMap;
+	}
+	
 	private Holding getHolding(String symbol, BigDecimal priceFactor) {
 		var ret = holdingMap.get(symbol);
 		if (ret == null) {
