@@ -19,17 +19,13 @@ public class Portfolio {
 		}
 		return ret;
 	}
-	private Holding getHolding(String symbol) {
-		return getHolding(symbol, BigDecimal.ONE);
-	}
 	
-	public void buy(String symbol, int units, int value) {
-		var holding = getHolding(symbol);
-		holding.buy(units, value);
-	}
 	public void buy(String symbol, int units, int value, BigDecimal priceFactor) {
 		var holding = getHolding(symbol, priceFactor);
 		holding.buy(units, value);
+	}
+	public void buy(String symbol, int units, int value) {
+		buy(symbol, units, value, BigDecimal.ONE);
 	}
 	// sell return cost of selling stock
 	public int sell(String symbol, int units, BigDecimal priceFactor) {
