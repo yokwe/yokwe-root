@@ -368,7 +368,7 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 				
 				var priceFactor = accountHistory.unitPrice.multiply(BigDecimal.valueOf(units)).divideToIntegralValue(BigDecimal.valueOf(amount)).round(new MathContext(3, RoundingMode.UP));
-				logger.info("priceFactor  {}  {}", code, priceFactor.toPlainString());
+//				logger.info("priceFactor  {}  {}", code, priceFactor.toPlainString());
 				
 				
 				// update portfolio
@@ -410,7 +410,7 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 				
 				var priceFactor = accountHistory.unitPrice.multiply(BigDecimal.valueOf(units)).divideToIntegralValue(BigDecimal.valueOf(amount)).round(new MathContext(3, RoundingMode.UP));
-				logger.info("priceFactor  {}  {}", code, priceFactor.toPlainString());
+//				logger.info("priceFactor  {}  {}", code, priceFactor.toPlainString());
 				
 				// update portfolio
 				var sellCost = context.portfolio.sell(code, units, priceFactor);
