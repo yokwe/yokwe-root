@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.TreeMap;
 
 public class Portfolio {
-	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
+//	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	private TreeMap<String, Holding> holdingMap = new TreeMap<>();
 	//              symbol  holding
