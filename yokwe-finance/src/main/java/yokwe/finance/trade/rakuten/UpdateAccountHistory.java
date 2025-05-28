@@ -25,6 +25,13 @@ public class UpdateAccountHistory {
 	public static final File      DIR_DOWNLOAD  = StorageRakuten.storage.getFile("download");
 	public static final File      USER_DOWNLOAD = new File(System.getProperty("user.home"), "Downloads");
 	public static final Charset   SHIFT_JIS     = Charset.forName("SHIFT_JIS");
+	
+	public static final FilenameFilter FILTER_ADJUSTHISTORY_JP    = (d, n) -> n.startsWith("adjusthistory(JP)_") && n.endsWith(".csv");
+	public static final FilenameFilter FILTER_ADJUSTHISTORY_US    = (d, n) -> n.startsWith("adjusthistory(US)_") && n.endsWith(".csv");
+	public static final FilenameFilter FILTER_TRADEHISTORY_JP     = (d, n) -> n.startsWith("tradehistory(JP)_") && n.endsWith(".csv");
+	public static final FilenameFilter FILTER_TRADEHISTORY_US     = (d, n) -> n.startsWith("tradehistory(US)_") && n.endsWith(".csv");
+	public static final FilenameFilter FILTER_TRADEHISTORY_FB     = (d, n) -> n.startsWith("tradehistory(FB)_") && n.endsWith(".csv");
+	public static final FilenameFilter FILTER_TRADEHISTORY_INVST  = (d, n) -> n.startsWith("tradehistory(INVST)_") && n.endsWith(".csv");
 
 	public static void main(String[] args) {
 		logger.info("START");
@@ -35,13 +42,22 @@ public class UpdateAccountHistory {
 	}
 	
 	private static void update() {
-		UpdateAccountHistoryJP.copyFiles();
-		UpdateAccountHistoryUS.copyFiles();
+		copyFiles();
 		
 		UpdateAccountHistoryJP.update();
 		UpdateAccountHistoryUS.update();
 	}
 	
+	public static void copyFiles() {
+		copyNewFiles(FILTER_ADJUSTHISTORY_JP);		
+		copyNewFiles(FILTER_ADJUSTHISTORY_US);		
+		copyNewFiles(FILTER_TRADEHISTORY_JP);
+		copyNewFiles(FILTER_TRADEHISTORY_US);
+		copyNewFiles(FILTER_TRADEHISTORY_FB);		
+		copyNewFiles(FILTER_TRADEHISTORY_INVST);		
+	}
+	
+
 	
 	private static final Pattern PAT_DATE = Pattern.compile("(20[0-9][0-9])/([1-9]|1[012])/([1-9]|[12][0-9]|3[01])");
 	public static LocalDate toLocalDate(String string) {

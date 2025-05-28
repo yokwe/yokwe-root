@@ -1,12 +1,12 @@
 package yokwe.finance.trade.rakuten;
 
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.DIR_DOWNLOAD;
+import static yokwe.finance.trade.rakuten.UpdateAccountHistory.FILTER_ADJUSTHISTORY_US;
+import static yokwe.finance.trade.rakuten.UpdateAccountHistory.FILTER_TRADEHISTORY_US;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.TODAY;
-import static yokwe.finance.trade.rakuten.UpdateAccountHistory.copyNewFiles;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.mergeMixed;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.toLocalDate;
 
-import java.io.FilenameFilter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,14 +24,6 @@ import yokwe.util.UnexpectedException;
 public class UpdateAccountHistoryUS {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final FilenameFilter FILTER_TRADEHISTORY_US  = (d, n) -> n.startsWith("tradehistory(US)_") && n.endsWith(".csv");
-	private static final FilenameFilter FILTER_ADJUSTHISTORY_US = (d, n) -> n.startsWith("adjusthistory(US)_") && n.endsWith(".csv");
-	
-	public static void copyFiles() {
-		copyNewFiles(FILTER_TRADEHISTORY_US);
-		copyNewFiles(FILTER_ADJUSTHISTORY_US);		
-	}
-
 	public static void update() {
 		// build stockNameMap
 		{
@@ -336,6 +328,7 @@ public class UpdateAccountHistoryUS {
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		UpdateAccountHistory.copyFiles();
 		update();
 		
 		logger.info("STOP");

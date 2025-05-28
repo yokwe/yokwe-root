@@ -1,12 +1,12 @@
 package yokwe.finance.trade.rakuten;
 
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.DIR_DOWNLOAD;
+import static yokwe.finance.trade.rakuten.UpdateAccountHistory.FILTER_ADJUSTHISTORY_JP;
+import static yokwe.finance.trade.rakuten.UpdateAccountHistory.FILTER_TRADEHISTORY_JP;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.TODAY;
-import static yokwe.finance.trade.rakuten.UpdateAccountHistory.copyNewFiles;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.mergeMixed;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.toLocalDate;
 
-import java.io.FilenameFilter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,16 +29,7 @@ import yokwe.util.UnexpectedException;
 
 public class UpdateAccountHistoryJP {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	private static final FilenameFilter FILTER_TRADEHISTORY_JP  = (d, n) -> n.startsWith("tradehistory(JP)_") && n.endsWith(".csv");
-	private static final FilenameFilter FILTER_ADJUSTHISTORY_JP = (d, n) -> n.startsWith("adjusthistory(JP)_") && n.endsWith(".csv");
-	
-	
-	public static void copyFiles() {
-		copyNewFiles(FILTER_TRADEHISTORY_JP);
-		copyNewFiles(FILTER_ADJUSTHISTORY_JP);		
-	}
-	
+		
 	public static void update() {
 		var oldList = StorageRakuten.AccountHistory.getList();
 		logger.info("read  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getFile().getName());
@@ -555,6 +546,7 @@ public class UpdateAccountHistoryJP {
 	public static void main(String[] args) {
 		logger.info("START");
 		
+		UpdateAccountHistory.copyFiles();
 		update();
 		
 		logger.info("STOP");
