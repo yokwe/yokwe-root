@@ -116,6 +116,7 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 
 				// update context
+				// fundTotal = cashTotal + stockCost
 				context.fundTotal += amount;
 				context.cashTotal += amount;
 				
@@ -149,6 +150,7 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 				
 				// update context
+				// fundTotal = cashTotal + stockCost
 				context.fundTotal -= amount;
 				context.cashTotal -= amount;
 
@@ -183,6 +185,7 @@ public class UpdateAccountReportJPY {
 				var name   = accountHistory.comment;
 				
 				// update context
+				// fundTotal = cashTotal + stockCost
 				context.fundTotal    += amount;
 				context.cashTotal    += amount;
 				context.realizedGain += amount;
@@ -217,9 +220,9 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 				
 				// update context
+				// fundTotal = cashTotal + stockCost
 				context.fundTotal    += amount;
 				context.cashTotal    += amount;
-				context.realizedGain += amount;
 
 				// build report
 				var ret = new AccountReportJPY();
@@ -256,6 +259,7 @@ public class UpdateAccountReportJPY {
 				context.portfolio.buy(code, units, amount);
 				
 				// update context
+				// fundTotal = cashTotal + stockCost
 				context.cashTotal -= amount;
 				context.stockCost += amount;
 
@@ -295,6 +299,8 @@ public class UpdateAccountReportJPY {
 				var gain     = amount - sellCost;
 
 				// update context
+				// fundTotal = cashTotal + stockCost
+				context.fundTotal    += amount - sellCost;
 				context.cashTotal    += amount;
 				context.stockCost    -= sellCost;
 				context.realizedGain += gain;
@@ -331,7 +337,8 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 
 				// update portfolio
-				context.portfolio.buy(code, units, amount);
+//				context.portfolio.buy(code, units, amount);
+				context.portfolio.buy(code, units, 0);
 				
 				// update context
 				context.fundTotal += amount;
@@ -376,6 +383,7 @@ public class UpdateAccountReportJPY {
 				context.portfolio.buy(code, units, amount, priceFactor);
 				
 				// update context
+				// fundTotal = cashTotal + stockCost
 				context.cashTotal -= amount;
 				context.stockCost += amount;
 
@@ -418,6 +426,8 @@ public class UpdateAccountReportJPY {
 				var gain     = amount - sellCost;
 
 				// update context
+				// fundTotal = cashTotal + stockCost
+				context.fundTotal    += amount - sellCost;
 				context.cashTotal    += amount;
 				context.stockCost    -= sellCost;
 				context.realizedGain += gain;
