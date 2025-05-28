@@ -14,14 +14,7 @@ public class AccountHistory implements Comparable<AccountHistory>	{
 		;
 	}
 	
-	public enum Asset {
-		CASH,
-		STOCK,
-		FUND,
-		BOND,
-		;
-	}
-	public enum Transaction {
+	public enum Operation {
 		DEPOSIT,
 		WITHDRAW,
 		DIVIDEND,
@@ -30,16 +23,23 @@ public class AccountHistory implements Comparable<AccountHistory>	{
 		//
 		BUY,
 		SELL,
-		IMPORT,
 //		SPLIT,
 		;
 	}
-	
+
+	public enum Asset {
+		CASH,
+		STOCK,
+		FUND,
+		BOND,
+		;
+	}
+
 	public LocalDate    settlementDate; // 受渡日
 	public LocalDate    tradeDate;      // 約定日
 	public Currency     currency;
+	public Operation    operation;
 	public Asset        asset;
-	public Transaction  transaction;
 	public BigDecimal   units;
 	public BigDecimal   unitPrice;
 	public BigDecimal   amount;         // plus for sell, dividend and deposit.  minus for withdraw, fee
@@ -56,8 +56,8 @@ public class AccountHistory implements Comparable<AccountHistory>	{
 		int ret = this.settlementDate.compareTo(that.settlementDate);
 		if (ret == 0) ret = this.tradeDate.compareTo(that.tradeDate);
 		if (ret == 0) ret = this.currency.compareTo(that.currency);
+		if (ret == 0) ret = this.operation.compareTo(that.operation);
 		if (ret == 0) ret = this.asset.compareTo(that.asset);
-		if (ret == 0) ret = this.transaction.compareTo(that.transaction);
 		if (ret == 0) ret = this.code.compareTo(that.code);
 		if (ret == 0) ret = this.comment.compareTo(that.comment);
 		if (ret == 0) ret = this.units.compareTo(that.units);
@@ -73,8 +73,8 @@ public class AccountHistory implements Comparable<AccountHistory>	{
 			if (!this.settlementDate.equals(that.settlementDate)) return false;
 			if (!this.tradeDate.equals(that.tradeDate)) return false;
 			if (!this.currency.equals(that.currency)) return false;
+			if (!this.operation.equals(that.operation)) return false;
 			if (!this.asset.equals(that.asset)) return false;
-			if (!this.transaction.equals(that.transaction)) return false;
 			if (!this.units.equals(that.units)) return false;
 			if (!this.unitPrice.equals(that.unitPrice)) return false;
 			if (!this.amount.equals(that.amount)) return false;

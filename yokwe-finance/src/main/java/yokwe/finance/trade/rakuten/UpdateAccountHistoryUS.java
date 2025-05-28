@@ -127,7 +127,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.DIVIDEND;
+				ret.operation    = AccountHistory.Operation.DIVIDEND;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -146,7 +146,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.BOND;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.SELL;
+				ret.operation    = AccountHistory.Operation.SELL;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -165,7 +165,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.BOND;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.BUY;
+				ret.operation    = AccountHistory.Operation.BUY;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -184,7 +184,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.DIVIDEND;
+				ret.operation    = AccountHistory.Operation.DIVIDEND;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -203,7 +203,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.STOCK;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.SELL;
+				ret.operation    = AccountHistory.Operation.SELL;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -222,7 +222,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.STOCK;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.BUY;
+				ret.operation    = AccountHistory.Operation.BUY;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -241,7 +241,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.FUND;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.SELL;
+				ret.operation    = AccountHistory.Operation.SELL;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -260,7 +260,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.FUND;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.BUY;
+				ret.operation    = AccountHistory.Operation.BUY;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -279,7 +279,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.DEPOSIT;
+				ret.operation    = AccountHistory.Operation.DEPOSIT;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -298,7 +298,7 @@ public class UpdateAccountHistoryUS {
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.USD;
-				ret.transaction    = AccountHistory.Transaction.WITHDRAW;
+				ret.operation    = AccountHistory.Operation.WITHDRAW;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();

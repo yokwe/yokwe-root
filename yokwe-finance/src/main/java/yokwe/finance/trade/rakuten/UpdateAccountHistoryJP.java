@@ -4,13 +4,11 @@ import static yokwe.finance.trade.rakuten.UpdateAccountHistory.DIR_DOWNLOAD;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.FILTER_ADJUSTHISTORY_JP;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.FILTER_TRADEHISTORY_JP;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.TODAY;
-import static yokwe.finance.trade.rakuten.UpdateAccountHistory.mergeMixed;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.toLocalDate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,7 +20,7 @@ import yokwe.finance.stock.StorageStock;
 import yokwe.finance.trade.AccountHistory;
 import yokwe.finance.trade.AccountHistory.Asset;
 import yokwe.finance.trade.AccountHistory.Currency;
-import yokwe.finance.trade.AccountHistory.Transaction;
+import yokwe.finance.trade.AccountHistory.Operation;
 import yokwe.finance.type.StockCodeJP;
 import yokwe.util.CSVUtil;
 import yokwe.util.UnexpectedException;
@@ -31,26 +29,21 @@ public class UpdateAccountHistoryJP {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
 	public static void update() {
-		var oldList = StorageRakuten.AccountHistory.getList();
-		logger.info("read  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getFile().getName());
-		
-		// build stockNameMap
+		var list = new ArrayList<AccountHistory>();
+		// build stockNameMap and historyList
 		{
 			var files = DIR_DOWNLOAD.listFiles(FILTER_TRADEHISTORY_JP);
 			Arrays.sort(files);
 			for(var file : files) {
-				var list = CSVUtil.read(TradeHistoryJP.class).file(file);
-				logger.info("read  {}  {}", list.size(), file.getName());
-				buildStockNameMap(list);
+				var array = CSVUtil.read(TradeHistoryJP.class).file(file).toArray(TradeHistoryJP[]::new);
+				logger.info("read  {}  {}", array.length, file.getName());
+				buildStockNameMap(array);
 				logger.info("stockNameMap  {}", stockNameMap.size());
 				
-				var newList = toAccountHistory(list.toArray(TradeHistoryJP[]::new));
+				var newList = toAccountHistory(array);
 				logger.info("newList       {}", newList.size());
 				
-				for(var e: newList) {
-					if (!oldList.contains(e)) oldList.add(e);
-				}
-				Collections.sort(oldList);
+				list.addAll(newList);
 			}
 		}
 		
@@ -59,18 +52,16 @@ public class UpdateAccountHistoryJP {
 			var files = DIR_DOWNLOAD.listFiles(FILTER_ADJUSTHISTORY_JP);
 			Arrays.sort(files);
 			for(var file: files) {
-				var name = file.getName();
-				logger.info("file  {}", file.getName());
-				
 				var array = CSVUtil.read(AdjustHistoryJP.class).file(file).toArray(AdjustHistoryJP[]::new);
-				logger.info("read  {}  {}", array.length, name);
+				logger.info("read  {}  {}", array.length, file.getName());
 				var newList = toAccountHistory(array);
-				oldList = mergeMixed(oldList, newList);
+				logger.info("newList       {}", newList.size());
+				
+				list.addAll(newList);
 			}
 		}
-		
-		logger.info("save  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getPath());
-		StorageRakuten.AccountHistory.save(oldList);
+		logger.info("save  {}  {}", list.size(), StorageRakuten.AccountHistory.getPath());
+		StorageRakuten.AccountHistory.save(list);
 	}
 	
 	
@@ -87,8 +78,8 @@ public class UpdateAccountHistoryJP {
 		}
 	}
 	private static Map<String, String> stockNameMap = new TreeMap<>();
-	private static void buildStockNameMap(List<TradeHistoryJP> list) {
-		for(var e: list) {
+	private static void buildStockNameMap(TradeHistoryJP[] array) {
+		for(var e: array) {
 			var code = e.code;
 			var name = e.name;
 			
@@ -157,9 +148,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.DIVIDEND;
+				ret.operation      = AccountHistory.Operation.DIVIDEND;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -176,9 +167,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.DEPOSIT;
+				ret.operation      = AccountHistory.Operation.DEPOSIT;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -195,9 +186,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.DEPOSIT;
+				ret.operation      = AccountHistory.Operation.DEPOSIT;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -214,9 +205,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.WITHDRAW;
+				ret.operation      = AccountHistory.Operation.WITHDRAW;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -233,9 +224,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.STOCK;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.SELL;
+				ret.operation      = AccountHistory.Operation.SELL;
+				ret.asset          = AccountHistory.Asset.STOCK;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -307,9 +298,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.FUND;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.SELL;
+				ret.operation      = AccountHistory.Operation.SELL;
+				ret.asset          = AccountHistory.Asset.FUND;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -329,9 +320,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.FUND;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.BUY;
+				ret.operation      = AccountHistory.Operation.BUY;
+				ret.asset          = AccountHistory.Asset.FUND;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -348,9 +339,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.STOCK;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.BUY;
+				ret.operation      = AccountHistory.Operation.BUY;
+				ret.asset          = AccountHistory.Asset.STOCK;
 				ret.units          = new BigDecimal(e.units.replace(",", ""));
 				ret.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -367,9 +358,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.TAX;
+				ret.operation      = AccountHistory.Operation.TAX;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -386,9 +377,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.TAX;
+				ret.operation      = AccountHistory.Operation.TAX;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -405,9 +396,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.TAX;
+				ret.operation      = AccountHistory.Operation.TAX;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -424,9 +415,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.TAX;
+				ret.operation      = AccountHistory.Operation.TAX;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -443,9 +434,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.DEPOSIT;
+				ret.operation      = AccountHistory.Operation.DEPOSIT;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -462,9 +453,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.DEPOSIT;
+				ret.operation      = AccountHistory.Operation.DEPOSIT;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", ""));
@@ -481,9 +472,9 @@ public class UpdateAccountHistoryJP {
 				
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
-				ret.asset          = AccountHistory.Asset.CASH;
 				ret.currency       = AccountHistory.Currency.JPY;
-				ret.transaction    = AccountHistory.Transaction.WITHDRAW;
+				ret.operation      = AccountHistory.Operation.WITHDRAW;
+				ret.asset          = AccountHistory.Asset.CASH;
 				ret.units          = BigDecimal.ZERO;
 				ret.unitPrice      = BigDecimal.ZERO;
 				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).negate();
@@ -504,7 +495,7 @@ public class UpdateAccountHistoryJP {
 			} else {
 				ret.add(accountHistory);
 				logger.warn("settlementDate has future date  {}  {}  {} {}",
-					accountHistory.settlementDate, accountHistory.currency, accountHistory.transaction, accountHistory.comment);
+					accountHistory.settlementDate, accountHistory.currency, accountHistory.operation, accountHistory.comment);
 			}
 		}
 		
@@ -523,13 +514,14 @@ public class UpdateAccountHistoryJP {
 				accountHistory.settlementDate = toLocalDate(e.settlementDate); // 受渡日
 				accountHistory.tradeDate      = toLocalDate(e.tradeDate);      // 約定日
 				accountHistory.currency       = Currency.JPY;
+				accountHistory.operation      = Operation.DEPOSIT;
 				accountHistory.asset          = Asset.STOCK;
-				accountHistory.transaction    = Transaction.IMPORT;
 				accountHistory.units          = new BigDecimal(e.units.replace(",", ""));
 				accountHistory.unitPrice      = new BigDecimal(e.unitPrice.replace(",", ""));
 				accountHistory.amount         = accountHistory.units.multiply(accountHistory.unitPrice);
 				accountHistory.code           = StockCodeJP.toStockCode5(e.code);
-				accountHistory.comment        = e.name;
+				accountHistory.comment        = toStockName(accountHistory.code);
+				
 				ret.add(accountHistory);
 			}
 				break;

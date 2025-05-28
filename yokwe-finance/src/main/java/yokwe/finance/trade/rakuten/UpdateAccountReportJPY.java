@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import yokwe.finance.trade.AccountHistory;
 import yokwe.finance.trade.AccountHistory.Asset;
 import yokwe.finance.trade.AccountHistory.Currency;
-import yokwe.finance.trade.AccountHistory.Transaction;
+import yokwe.finance.trade.AccountHistory.Operation;
 import yokwe.finance.trade.AccountReportJPY;
 import yokwe.finance.trade.Portfolio;
 import yokwe.util.StringUtil;
@@ -89,23 +89,24 @@ public class UpdateAccountReportJPY {
 		int        realizedGain = 0;
 	}
 	
-	private static record TransactionAsset (Transaction transaction, Asset asset) {
+	private static record TransactionAsset (Operation transaction, Asset asset) {
 		public TransactionAsset(AccountHistory history) {
-			this(history.transaction, history.asset);
+			this(history.operation, history.asset);
 		}
 	}
 	
 	private static Map<TransactionAsset, BiFunction<Context, AccountHistory, AccountReportJPY>> functionMap = Map.ofEntries(
-		Map.entry(new TransactionAsset(Transaction.DEPOSIT,  Asset.CASH),  new ConvertFunction.DEPOSIT_CASH()),
-		Map.entry(new TransactionAsset(Transaction.WITHDRAW, Asset.CASH),  new ConvertFunction.WITHDRAW_CASH()),
-		Map.entry(new TransactionAsset(Transaction.DIVIDEND, Asset.CASH),  new ConvertFunction.DIVIDEND_CASH()),
-		Map.entry(new TransactionAsset(Transaction.TAX,      Asset.CASH),  new ConvertFunction.TAX_CASH()),
-		Map.entry(new TransactionAsset(Transaction.BUY,      Asset.STOCK), new ConvertFunction.BUY_STOCK()),
-		Map.entry(new TransactionAsset(Transaction.SELL,     Asset.STOCK), new ConvertFunction.SELL_STOCK()),
-		Map.entry(new TransactionAsset(Transaction.IMPORT,   Asset.STOCK), new ConvertFunction.IMPORT_STOCK()),
-		Map.entry(new TransactionAsset(Transaction.BUY,      Asset.FUND),  new ConvertFunction.BUY_FUND()),
-		Map.entry(new TransactionAsset(Transaction.SELL,     Asset.FUND),  new ConvertFunction.SELL_FUND())
+		Map.entry(new TransactionAsset(Operation.DEPOSIT,  Asset.CASH),  new ConvertFunction.DEPOSIT_CASH()),
+		Map.entry(new TransactionAsset(Operation.WITHDRAW, Asset.CASH),  new ConvertFunction.WITHDRAW_CASH()),
+		Map.entry(new TransactionAsset(Operation.DIVIDEND, Asset.CASH),  new ConvertFunction.DIVIDEND_CASH()),
+		Map.entry(new TransactionAsset(Operation.TAX,      Asset.CASH),  new ConvertFunction.TAX_CASH()),
+		Map.entry(new TransactionAsset(Operation.BUY,      Asset.STOCK), new ConvertFunction.BUY_STOCK()),
+		Map.entry(new TransactionAsset(Operation.SELL,     Asset.STOCK), new ConvertFunction.SELL_STOCK()),
+		Map.entry(new TransactionAsset(Operation.DEPOSIT,  Asset.STOCK), new ConvertFunction.DEPOSIT_STOCK()),
+		Map.entry(new TransactionAsset(Operation.BUY,      Asset.FUND),  new ConvertFunction.BUY_FUND()),
+		Map.entry(new TransactionAsset(Operation.SELL,     Asset.FUND),  new ConvertFunction.SELL_FUND())
 	);
+	
 	private static class ConvertFunction {
 		private static class DEPOSIT_CASH implements BiFunction<Context, AccountHistory, AccountReportJPY> {
 			@Override
@@ -320,7 +321,7 @@ public class UpdateAccountReportJPY {
 				return ret;
 			}
 		}
-		private static class IMPORT_STOCK implements BiFunction<Context, AccountHistory, AccountReportJPY> {
+		private static class DEPOSIT_STOCK implements BiFunction<Context, AccountHistory, AccountReportJPY> {
 			@Override
 			public AccountReportJPY apply(Context context, AccountHistory accountHistory) {
 				var date    = accountHistory.settlementDate;
