@@ -80,11 +80,8 @@ public class Holding {
 	}
 	
 	public void buy(int units, int cost) {
-		// adjust totalCost
-		totalCost += cost;
-		
-		// adjust totalUnits
 		totalUnits += units;
+		totalCost  += cost;
 	}
 	
 	// sell returns cost of selling stock
