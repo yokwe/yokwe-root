@@ -217,13 +217,14 @@ public class UpdateAccountReportJPY {
 			@Override
 			public AccountReportJPY apply(Context context, AccountHistory accountHistory) {
 				var date    = accountHistory.settlementDate;
-				var amount  = accountHistory.amount.intValue();
+				var amount  = accountHistory.amount.intValue();  // negative for tax, positive for tax refund
 				var comment = accountHistory.comment;
 				
 				// update context
 				// fundTotal = cashTotal + stockCost
 				context.fundTotal    += amount;
 				context.cashTotal    += amount;
+				context.realizedGain += amount;
 
 				// build report
 				var ret = new AccountReportJPY();
