@@ -97,18 +97,20 @@ public class Holding {
 			throw new UnexpectedException("Unexpected totalUnits");
 		}
 		
-		// adjust totalCost
-		var unitPrice = BigDecimal.valueOf(totalCost).divide(BigDecimal.valueOf(totalUnits), UP_4);
-		int cost = getValue(unitPrice, BigDecimal.valueOf(units));
-		totalCost -= cost;
-		
-		// adjust totalUnits
-		totalUnits -= units;
-		return cost;
-	}
-	
-	private int getValue(BigDecimal unitPrice, BigDecimal units) {
-		return unitPrice.multiply(units, UP_0).divide(priceFactor, UP_0).intValue();
+		if (totalUnits == units) {
+			var cost = totalCost;
+			
+			totalUnits = 0;
+			totalCost = 0;
+			return cost;
+		} else {
+			var unitPrice = BigDecimal.valueOf(totalCost).divide(BigDecimal.valueOf(totalUnits), UP_4);
+			var cost = unitPrice.multiply(BigDecimal.valueOf(units)).intValue();
+			
+			totalUnits -= units;
+			totalCost  -= cost;
+			return cost;
+		}
 	}
 	
 	private static Map<String, DailyValueMap> priceMap = new TreeMap<>();
@@ -125,7 +127,7 @@ public class Holding {
 			logger.warn("no data in priceMap  {}  {}  {}  --  {}", symbol, date, map.firstKey(), map.lastKey());
 			return -1;
 		}
-		var value = getValue(unitPrice, BigDecimal.valueOf(totalUnits));
+		var value = unitPrice.multiply(BigDecimal.valueOf(totalUnits), UP_0).divide(priceFactor, UP_0).intValue();
 		return value;
 	}
 	
@@ -159,7 +161,6 @@ public class Holding {
 			
 			map = new DailyValueMap(list);
 			priceMap.put(symbol, map);
-			logger.info("XX  {}  {}  {}  {}", symbol, asset, map.firstKey(), map.lastKey());
 		}
 		
 		return map;
