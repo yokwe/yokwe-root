@@ -37,8 +37,8 @@ public class DailyValueMap implements Map<LocalDate, BigDecimal> {
 		
 		var firstKey = map.firstKey();
 		if (date.isBefore(firstKey)) {
-			logger.warn("get  {}  {}", date, firstKey);
-			return BigDecimal.ZERO;
+//			logger.warn("get ZERO for  {}  --  {}", date, firstKey);
+			return null;
 		}
 
 		for(;;) {
@@ -55,6 +55,12 @@ public class DailyValueMap implements Map<LocalDate, BigDecimal> {
 		throw new UnexpectedException("Unexpected date");
 	}
 	
+	public LocalDate firstKey() {
+		return map.firstKey();
+	}
+	public LocalDate lastKey() {
+		return map.lastKey();
+	}
 	
 	//
 	// implements Map
