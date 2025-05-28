@@ -18,6 +18,7 @@ import yokwe.finance.trade.AccountHistory.Operation;
 import yokwe.finance.trade.AccountReportJPY;
 import yokwe.finance.trade.Portfolio;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.LibreOffice;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
@@ -250,7 +251,7 @@ public class UpdateAccountReportJPY {
 			@Override
 			public AccountReportJPY apply(Context context, AccountHistory accountHistory) {
 				var date    = accountHistory.settlementDate;
-				var amount  = accountHistory.amount.negate().intValue();
+				var amount  = accountHistory.amount.negate().intValue(); // make positive
 				var code    = accountHistory.code;
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
@@ -337,12 +338,10 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 
 				// update portfolio
-//				context.portfolio.buy(code, units, amount);
 				context.portfolio.buy(code, units, 0);
 				
 				// update context
-				context.fundTotal += amount;
-				context.stockCost += amount;
+				// fundTotal = cashTotal + stockCost
 
 				// build report
 				var ret = new AccountReportJPY();
@@ -475,6 +474,26 @@ public class UpdateAccountReportJPY {
 			}
 			
 			ret.add(function.apply(context, e));
+		}
+		
+		// sanity check
+		{
+			var stockCost = 0;
+			for(var e: context.portfolio.getHoldingMap().values()) {
+				stockCost += e.totalCost();
+			}
+			if (context.stockCost != stockCost) {
+				logger.error("Unexpected stockCost value");
+				logger.warn("fundTotal     {}", context.fundTotal);
+				logger.warn("cashTotal     {}", context.cashTotal);
+				logger.warn("stockCost     {}", context.stockCost);
+				logger.warn("realizedGain  {}", context.realizedGain);
+				for(var holding: context.portfolio.getHoldingMap().values()) {
+					if (holding.totalUnits() == 0) continue;
+					logger.error("holding       {}  {}  {}", holding.symbol(), holding.totalUnits(), holding.totalCost());
+				}
+				throw new UnexpectedException("Unexpected stockCost value");
+			}
 		}
 		
 		return ret;
