@@ -124,21 +124,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = amount;
-				ret.withdraw      = 0;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = 0;
-				ret.buy           = 0;
-				ret.sell          = 0;
-				ret.sellCost      = 0;
-				ret.sellGain      = 0;
-				ret.code          = "";
-				ret.comment       = comment;
+				ret.date           = date;
+				ret.deposit        = amount;
+				ret.withdraw       = 0;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = 0;
+				ret.buy            = 0;
+				ret.sell           = 0;
+				ret.sellCost       = 0;
+				ret.sellGain       = 0;
+				ret.code           = "";
+				ret.comment        = comment;
 				
 				return ret;
 			}
@@ -158,21 +159,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = 0;
-				ret.withdraw      = amount;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = 0;
-				ret.buy           = 0;
-				ret.sell          = 0;
-				ret.sellCost      = 0;
-				ret.sellGain      = 0;
-				ret.code          = "";
-				ret.comment       = comment;
+				ret.date           = date;
+				ret.deposit        = 0;
+				ret.withdraw       = amount;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = 0;
+				ret.buy            = 0;
+				ret.sell           = 0;
+				ret.sellCost       = 0;
+				ret.sellGain       = 0;
+				ret.code           = "";
+				ret.comment        = comment;
 				
 				return ret;
 			}
@@ -194,21 +196,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = 0;
-				ret.withdraw      = 0;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = amount;
-				ret.buy           = 0;
-				ret.sell          = 0;
-				ret.sellCost      = 0;
-				ret.sellGain      = 0;
-				ret.code          = code;
-				ret.comment       = name;
+				ret.date           = date;
+				ret.deposit        = 0;
+				ret.withdraw       = 0;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = amount;
+				ret.buy            = 0;
+				ret.sell           = 0;
+				ret.sellCost       = 0;
+				ret.sellGain       = 0;
+				ret.code           = code;
+				ret.comment        = name;
 				
 				return ret;
 			}
@@ -229,21 +232,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = amount < 0 ? 0 : amount;
-				ret.withdraw      = amount < 0 ? -amount : 0;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = 0;
-				ret.buy           = 0;
-				ret.sell          = 0;
-				ret.sellCost      = 0;
-				ret.sellGain      = 0;
-				ret.code          = "";
-				ret.comment       = comment;
+				ret.date           = date;
+				ret.deposit        = amount < 0 ? 0 : amount;
+				ret.withdraw       = amount < 0 ? -amount : 0;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = 0;
+				ret.buy            = 0;
+				ret.sell           = 0;
+				ret.sellCost       = 0;
+				ret.sellGain       = 0;
+				ret.code           = "";
+				ret.comment        = comment;
 				
 				return ret;
 			}
@@ -268,21 +272,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = 0;
-				ret.withdraw      = 0;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = 0;
-				ret.buy           = amount;
-				ret.sell          = 0;
-				ret.sellCost      = 0;
-				ret.sellGain      = 0;
-				ret.code          = code;
-				ret.comment       = comment;
+				ret.date           = date;
+				ret.deposit        = 0;
+				ret.withdraw       = 0;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = 0;
+				ret.buy            = amount;
+				ret.sell           = 0;
+				ret.sellCost       = 0;
+				ret.sellGain       = 0;
+				ret.code           = code;
+				ret.comment        = comment;
 				
 				return ret;
 			}
@@ -310,21 +315,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = 0;
-				ret.withdraw      = 0;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = 0;
-				ret.buy           = 0;
-				ret.sell          = amount;
-				ret.sellCost      = sellCost;
-				ret.sellGain      = gain;
-				ret.code          = code;
-				ret.comment       = comment;
+				ret.date           = date;
+				ret.deposit        = 0;
+				ret.withdraw       = 0;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = 0;
+				ret.buy            = 0;
+				ret.sell           = amount;
+				ret.sellCost       = sellCost;
+				ret.sellGain       = gain;
+				ret.code           = code;
+				ret.comment        = comment;
 				
 				return ret;
 			}
@@ -347,21 +353,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = 0;
-				ret.withdraw      = 0;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = 0;
-				ret.buy           = amount;
-				ret.sell          = 0;
-				ret.sellCost      = 0;
-				ret.sellGain      = 0;
-				ret.code          = code;
-				ret.comment       = "入庫：" + comment;
+				ret.date           = date;
+				ret.deposit        = 0;
+				ret.withdraw       = 0;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = 0;
+				ret.buy            = amount;
+				ret.sell           = 0;
+				ret.sellCost       = 0;
+				ret.sellGain       = 0;
+				ret.code           = code;
+				ret.comment        = "入庫：" + comment;
 				
 				return ret;
 			}
@@ -390,21 +397,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = 0;
-				ret.withdraw      = 0;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = 0;
-				ret.buy           = amount;
-				ret.sell          = 0;
-				ret.sellCost      = 0;
-				ret.sellGain      = 0;
-				ret.code          = code;
-				ret.comment       = comment;
+				ret.date           = date;
+				ret.deposit        = 0;
+				ret.withdraw       = 0;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = 0;
+				ret.buy            = amount;
+				ret.sell           = 0;
+				ret.sellCost       = 0;
+				ret.sellGain       = 0;
+				ret.code           = code;
+				ret.comment        = comment;
 				
 				return ret;
 			}
@@ -435,21 +443,22 @@ public class UpdateAccountReportJPY {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date          = date;
-				ret.deposit       = 0;
-				ret.withdraw      = 0;
-				ret.fundTotal     = context.fundTotal;
-				ret.cashTotal     = context.cashTotal;
-				ret.stockValue    = context.portfolio.valueAsOf(date);
-				ret.stockCost     = context.stockCost;
-				ret.realizedGain  = context.realizedGain;
-				ret.dividend      = 0;
-				ret.buy           = 0;
-				ret.sell          = amount;
-				ret.sellCost      = sellCost;
-				ret.sellGain      = gain;
-				ret.code          = code;
-				ret.comment       = comment;
+				ret.date           = date;
+				ret.deposit        = 0;
+				ret.withdraw       = 0;
+				ret.fundTotal      = context.fundTotal;
+				ret.cashTotal      = context.cashTotal;
+				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockCost      = context.stockCost;
+				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+				ret.realizedGain   = context.realizedGain;
+				ret.dividend       = 0;
+				ret.buy            = 0;
+				ret.sell           = amount;
+				ret.sellCost       = sellCost;
+				ret.sellGain       = gain;
+				ret.code           = code;
+				ret.comment        = comment;
 				
 				return ret;
 			}

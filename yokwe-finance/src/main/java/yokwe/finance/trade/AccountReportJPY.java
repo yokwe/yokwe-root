@@ -37,6 +37,10 @@ public class AccountReportJPY extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_JPY)
 	public int stockCost = 0;
 	
+	@ColumnName("未実現損益")
+	@NumberFormat(SpreadSheet.FORMAT_JPY)
+	public int unrealizedGain = 0;
+	
 	@ColumnName("実現損益")
 	@NumberFormat(SpreadSheet.FORMAT_JPY)
 	public int realizedGain = 0;
