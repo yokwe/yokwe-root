@@ -4,11 +4,13 @@ import static yokwe.finance.trade.rakuten.UpdateAccountHistory.DIR_DOWNLOAD;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.FILTER_ADJUSTHISTORY_JP;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.FILTER_TRADEHISTORY_JP;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.TODAY;
+import static yokwe.finance.trade.rakuten.UpdateAccountHistory.mergeMixed;
 import static yokwe.finance.trade.rakuten.UpdateAccountHistory.toLocalDate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -29,7 +31,8 @@ public class UpdateAccountHistoryJP {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 		
 	public static void update() {
-		var list = new ArrayList<AccountHistory>();
+		List<AccountHistory> depositList = new ArrayList<AccountHistory>();
+
 		// build stockNameMap and historyList
 		{
 			var files = DIR_DOWNLOAD.listFiles(FILTER_TRADEHISTORY_JP);
@@ -40,14 +43,13 @@ public class UpdateAccountHistoryJP {
 				buildStockNameMap(array);
 				logger.info("stockNameMap  {}", stockNameMap.size());
 				
-				var newList = toAccountHistory(array);
-				logger.info("newList       {}", newList.size());
-				
-				list.addAll(newList);
+				depositList = toDepositList(array);
+				logger.info("depositList       {}", depositList.size());
 			}
 		}
 		
 		// update oldList
+		var oldList = StorageRakuten.AccountHistory.getList();
 		{
 			var files = DIR_DOWNLOAD.listFiles(FILTER_ADJUSTHISTORY_JP);
 			Arrays.sort(files);
@@ -57,11 +59,26 @@ public class UpdateAccountHistoryJP {
 				var newList = toAccountHistory(array);
 				logger.info("newList       {}", newList.size());
 				
-				list.addAll(newList);
+				// merge depositList if necessary
+				{
+					Collections.sort(newList);
+					var dateFirst = newList.get(0).settlementDate;
+					var dateLast  = newList.get(newList.size() - 1).settlementDate;
+					logger.info("newList       {}  {}", dateFirst, dateLast);
+
+					for(var e: depositList) {
+						if (e.settlementDate.isBefore(dateFirst)) continue;
+						if (e.settlementDate.isAfter(dateLast))   continue;
+						newList.add(e);
+					}
+					logger.info("newList       {}", newList.size());
+				}
+				
+				oldList = mergeMixed(oldList, newList);
 			}
 		}
-		logger.info("save  {}  {}", list.size(), StorageRakuten.AccountHistory.getPath());
-		StorageRakuten.AccountHistory.save(list);
+		logger.info("save  {}  {}", oldList.size(), StorageRakuten.AccountHistory.getPath());
+		StorageRakuten.AccountHistory.save(oldList);
 	}
 	
 	
@@ -502,7 +519,7 @@ public class UpdateAccountHistoryJP {
 		return ret;
 	}
 	
-	private static List<AccountHistory> toAccountHistory(TradeHistoryJP[] array) {
+	private static List<AccountHistory> toDepositList(TradeHistoryJP[] array) {
 		var ret = new ArrayList<AccountHistory>();
 		for(var e: array) {
 			switch(e.tradeType) {
