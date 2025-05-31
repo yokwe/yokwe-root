@@ -44,7 +44,7 @@ public class UpdateAccountHistoryJP {
 				logger.info("stockNameMap  {}", stockNameMap.size());
 				
 				depositList = toDepositList(array);
-				logger.info("depositList       {}", depositList.size());
+				logger.info("depositList   {}", depositList.size());
 			}
 		}
 		
@@ -64,8 +64,6 @@ public class UpdateAccountHistoryJP {
 					Collections.sort(newList);
 					var dateFirst = newList.get(0).settlementDate;
 					var dateLast  = newList.get(newList.size() - 1).settlementDate;
-					logger.info("newList       {}  {}", dateFirst, dateLast);
-
 					for(var e: depositList) {
 						if (e.settlementDate.isBefore(dateFirst)) continue;
 						if (e.settlementDate.isAfter(dateLast))   continue;
