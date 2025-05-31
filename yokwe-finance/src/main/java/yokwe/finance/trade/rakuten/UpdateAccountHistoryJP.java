@@ -509,7 +509,7 @@ public class UpdateAccountHistoryJP {
 			case BUY:
 			case SELL:
 				break;
-			case TRANSFER_IN: {
+			case DEPOSIT: {
 				var accountHistory = new AccountHistory();
 				accountHistory.settlementDate = toLocalDate(e.settlementDate); // 受渡日
 				accountHistory.tradeDate      = toLocalDate(e.tradeDate);      // 約定日

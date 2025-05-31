@@ -42,10 +42,10 @@ public class TradeHistoryJP {
 	}
 
 	public enum TradeType {
-		BUY ("買付"),
-		SELL("売付"),
-		TRANSFER_IN("入庫"),
-		TRANSFER_OUT("出庫"),
+		BUY     ("買付"),
+		SELL    ("売付"),
+		DEPOSIT ("入庫"),
+		WITHDRAW("出庫"),
 		;
 		
 		public final String string;
