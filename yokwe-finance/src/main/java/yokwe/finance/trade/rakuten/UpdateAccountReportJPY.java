@@ -3,6 +3,7 @@ package yokwe.finance.trade.rakuten;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -263,7 +264,7 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 				
 				// update portfolio
-				context.portfolio.getHolding(code, name).buy(units, amount);
+				context.portfolio.getHolding(code, name).buy(date, units, amount);
 				
 				// update context
 				// fundTotal = cashTotal + stockCost
@@ -304,7 +305,7 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 				
 				// update portfolio
-				var sellCost = context.portfolio.getHolding(code, name).sell(units);
+				var sellCost = context.portfolio.getHolding(code, name).sell(date, units, amount);
 				var gain     = amount - sellCost;
 
 				// update context
@@ -348,7 +349,7 @@ public class UpdateAccountReportJPY {
 				var comment = accountHistory.comment;
 
 				// update portfolio
-				context.portfolio.getHolding(code, name).buy(units, 0);
+				context.portfolio.getHolding(code, name).buy(date, units, 0);
 				
 				// update context
 				// fundTotal = cashTotal + stockCost
@@ -391,7 +392,7 @@ public class UpdateAccountReportJPY {
 				
 				
 				// update portfolio
-				context.portfolio.getHolding(code, name, priceFactor).buy(units, amount);
+				context.portfolio.getHolding(code, name, priceFactor).buy(date, units, amount);
 				
 				// update context
 				// fundTotal = cashTotal + stockCost
@@ -435,7 +436,7 @@ public class UpdateAccountReportJPY {
 //				logger.info("priceFactor  {}  {}", code, priceFactor.toPlainString());
 				
 				// update portfolio
-				var sellCost = context.portfolio.getHolding(code, name, priceFactor).sell(units);
+				var sellCost = context.portfolio.getHolding(code, name, priceFactor).sell(date, units, amount);
 				var gain     = amount - sellCost;
 
 				// update context
@@ -470,6 +471,33 @@ public class UpdateAccountReportJPY {
 		}
 
 	}
+	
+	private static AccountReportJPY reportAsOf(Context context, LocalDate date) {
+		// update context
+		// fundTotal = cashTotal + stockCost
+		
+		// build report
+		var ret = new AccountReportJPY();
+		
+		ret.date           = date;
+		ret.deposit        = 0;
+		ret.withdraw       = 0;
+		ret.fundTotal      = context.fundTotal;
+		ret.cashTotal      = context.cashTotal;
+		ret.stockValue     = context.portfolio.valueAsOf(date);
+		ret.stockCost      = context.stockCost;
+		ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+		ret.realizedGain   = context.realizedGain;
+		ret.dividend       = 0;
+		ret.buy            = 0;
+		ret.sell           = 0;
+		ret.sellCost       = 0;
+		ret.sellGain       = 0;
+		ret.code           = "";
+		ret.comment        = "";
+		
+		return ret;
+	}
 
 	private static List<AccountReportJPY> getAccountReportList() {
 		var ret = new ArrayList<AccountReportJPY>();
@@ -491,6 +519,9 @@ public class UpdateAccountReportJPY {
 			ret.add(function.apply(context, e));
 		}
 		
+		// add line of today
+		ret.add(reportAsOf(context, LocalDate.now()));
+		
 		// sanity check
 		{
 			var stockCost = 0;
@@ -499,13 +530,13 @@ public class UpdateAccountReportJPY {
 			}
 			if (context.stockCost != stockCost) {
 				logger.error("Unexpected stockCost value");
-				logger.warn("fundTotal     {}", context.fundTotal);
-				logger.warn("cashTotal     {}", context.cashTotal);
-				logger.warn("stockCost     {}", context.stockCost);
-				logger.warn("realizedGain  {}", context.realizedGain);
+				logger.error("fundTotal     {}", context.fundTotal);
+				logger.error("cashTotal     {}", context.cashTotal);
+				logger.error("stockCost     {}", context.stockCost);
+				logger.error("realizedGain  {}", context.realizedGain);
 				for(var holding: context.portfolio.getHoldingMap().values()) {
 					if (holding.totalUnits() == 0) continue;
-					logger.error("holding       {}  {}  {}", holding.code(), holding.totalUnits(), holding.totalCost());
+					logger.error("holding       {}  {}  {}", holding.code, holding.totalUnits(), holding.totalCost());
 				}
 				throw new UnexpectedException("Unexpected stockCost value");
 			}
