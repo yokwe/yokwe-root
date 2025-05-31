@@ -16,29 +16,16 @@ public class Portfolio {
 		return holdingMap;
 	}
 	
-	private Holding getHolding(String symbol, BigDecimal priceFactor) {
+	public Holding getHolding(String symbol, String name, BigDecimal priceFactor) {
 		var ret = holdingMap.get(symbol);
 		if (ret == null) {
-			ret = new Holding(symbol, priceFactor);
+			ret = new Holding(symbol, name, priceFactor);
 			holdingMap.put(symbol, ret);
 		}
 		return ret;
 	}
-	
-	public void buy(String symbol, int units, int value, BigDecimal priceFactor) {
-		var holding = getHolding(symbol, priceFactor);
-		holding.buy(units, value);
-	}
-	public void buy(String symbol, int units, int value) {
-		buy(symbol, units, value, BigDecimal.ONE);
-	}
-	// sell return cost of selling stock
-	public int sell(String symbol, int units, BigDecimal priceFactor) {
-		var holding = getHolding(symbol, priceFactor);
-		return holding.sell(units);
-	}
-	public int sell(String symbol, int units) {
-		return sell(symbol, units, BigDecimal.ONE);
+	public Holding getHolding(String symbol, String name) {
+		return getHolding(symbol, name, BigDecimal.ONE);
 	}
 	
 	public int valueAsOf(LocalDate date) {
