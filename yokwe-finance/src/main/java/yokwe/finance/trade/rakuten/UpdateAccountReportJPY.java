@@ -258,11 +258,12 @@ public class UpdateAccountReportJPY {
 				var date    = accountHistory.settlementDate;
 				var amount  = accountHistory.amount.negate().intValue(); // make positive
 				var code    = accountHistory.code;
+				var name    = accountHistory.comment;
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
 				
 				// update portfolio
-				context.portfolio.buy(code, units, amount);
+				context.portfolio.getHolding(code, name).buy(units, amount);
 				
 				// update context
 				// fundTotal = cashTotal + stockCost
@@ -298,11 +299,12 @@ public class UpdateAccountReportJPY {
 				var date    = accountHistory.settlementDate;
 				var amount  = accountHistory.amount.intValue();
 				var code    = accountHistory.code;
+				var name    = accountHistory.comment;
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
 				
 				// update portfolio
-				var sellCost = context.portfolio.sell(code, units);
+				var sellCost = context.portfolio.getHolding(code, name).sell(units);
 				var gain     = amount - sellCost;
 
 				// update context
@@ -341,11 +343,12 @@ public class UpdateAccountReportJPY {
 				var date    = accountHistory.settlementDate;
 				var amount  = accountHistory.amount.intValue();
 				var code    = accountHistory.code;
+				var name    = accountHistory.comment;
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
 
 				// update portfolio
-				context.portfolio.buy(code, units, 0);
+				context.portfolio.getHolding(code, name).buy(units, 0);
 				
 				// update context
 				// fundTotal = cashTotal + stockCost
@@ -379,6 +382,7 @@ public class UpdateAccountReportJPY {
 				var date    = accountHistory.settlementDate;
 				var amount  = accountHistory.amount.negate().intValue();
 				var code    = accountHistory.code;
+				var name    = accountHistory.comment;
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
 				
@@ -387,7 +391,7 @@ public class UpdateAccountReportJPY {
 				
 				
 				// update portfolio
-				context.portfolio.buy(code, units, amount, priceFactor);
+				context.portfolio.getHolding(code, name, priceFactor).buy(units, amount);
 				
 				// update context
 				// fundTotal = cashTotal + stockCost
@@ -423,6 +427,7 @@ public class UpdateAccountReportJPY {
 				var date    = accountHistory.settlementDate;
 				var amount  = accountHistory.amount.intValue();
 				var code    = accountHistory.code;
+				var name    = accountHistory.comment;
 				var units   = accountHistory.units.intValue();
 				var comment = accountHistory.comment;
 				
@@ -430,7 +435,7 @@ public class UpdateAccountReportJPY {
 //				logger.info("priceFactor  {}  {}", code, priceFactor.toPlainString());
 				
 				// update portfolio
-				var sellCost = context.portfolio.sell(code, units, priceFactor);
+				var sellCost = context.portfolio.getHolding(code, name, priceFactor).sell(units);
 				var gain     = amount - sellCost;
 
 				// update context
@@ -500,7 +505,7 @@ public class UpdateAccountReportJPY {
 				logger.warn("realizedGain  {}", context.realizedGain);
 				for(var holding: context.portfolio.getHoldingMap().values()) {
 					if (holding.totalUnits() == 0) continue;
-					logger.error("holding       {}  {}  {}", holding.symbol(), holding.totalUnits(), holding.totalCost());
+					logger.error("holding       {}  {}  {}", holding.code(), holding.totalUnits(), holding.totalCost());
 				}
 				throw new UnexpectedException("Unexpected stockCost value");
 			}
