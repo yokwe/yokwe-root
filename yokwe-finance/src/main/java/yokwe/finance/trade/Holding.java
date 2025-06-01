@@ -140,8 +140,10 @@ public class Holding {
 		// sanity check
 		if (totalUnits <= 0 || totalUnits < units|| totalCost <= 0) {
 			logger.error("Unexpected totalUnits");
-			logger.error("  units    {}", units);
-			logger.error("  holding  {}", this.toString());
+			logger.error("  date       {}", date);
+			logger.error("  units      {}", units);
+			logger.error("  sellValue  {}", sellValue);
+			logger.error("  holding    {}", this.toString());
 			throw new UnexpectedException("Unexpected totalUnits");
 		}
 		
