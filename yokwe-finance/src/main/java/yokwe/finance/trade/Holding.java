@@ -138,17 +138,24 @@ public class Holding {
 	// sell returns cost of selling stock
 	public int sell(LocalDate date, int units, int sellValue) {
 		// sanity check
-		if (totalUnits <= 0 || totalUnits < units|| totalCost <= 0) {
+		if (totalUnits < 0 || totalCost < 0) {
 			logger.error("Unexpected totalUnits");
-			logger.error("  date       {}", date);
-			logger.error("  units      {}", units);
-			logger.error("  sellValue  {}", sellValue);
+			logger.error("  param      {}  {}  {}", date, units, sellValue);
+			logger.error("  totalUnits {}", totalUnits);
+			logger.error("  totalCost  {}", totalCost);
 			logger.error("  holding    {}", this.toString());
 			throw new UnexpectedException("Unexpected totalUnits");
 		}
 		
 		int sellCost;
-		if (totalUnits == units) {
+		if (totalUnits < units) {
+			// FIXME for GS米ドルファンド
+			logger.warn("totalUnits  {}  units  {}", totalUnits, units);
+			sellCost = totalCost;
+			
+			totalUnits = 0;
+			totalCost  = 0;
+		} else if (totalUnits == units) {
 			sellCost = totalCost;
 			
 			totalUnits = 0;
