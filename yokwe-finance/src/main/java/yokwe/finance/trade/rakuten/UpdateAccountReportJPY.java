@@ -1,5 +1,7 @@
 package yokwe.finance.trade.rakuten;
 
+import static yokwe.finance.trade.rakuten.UpdateAccountReport.URL_TEMPLATE;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -26,8 +28,6 @@ import yokwe.util.libreoffice.SpreadSheet;
 
 public class UpdateAccountReportJPY {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	private static final String URL_TEMPLATE  = StringUtil.toURLString("data/form/ACCOUNT.ods");
 	
 	public static void main(String[] args) {
 		logger.info("START");
@@ -93,6 +93,101 @@ public class UpdateAccountReportJPY {
 		int        cashTotal    = 0;
 		int        stockCost    = 0;
 		int        realizedGain = 0;
+	}
+	
+	private static List<AccountReportJPY> getAccountReportList() {
+		var ret = new ArrayList<AccountReportJPY>();
+		
+		var context = new Context();
+
+		var list = StorageRakuten.AccountHistory.getList().stream().filter(o -> o.currency == Currency.JPY).collect(Collectors.toList());
+		// map needs to use TreeMap for entrySet ordering
+		var map  = list.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
+		
+		// convert AccountHistory to AccountReportJPY
+		LocalDate lastDate = null;
+		for(var entry: map.entrySet()) {
+			var date    = entry.getKey();
+			var mapList = entry.getValue();
+			
+			for(;;) {
+				if (lastDate == null) break;
+				lastDate = lastDate.plusDays(1);
+				if (!lastDate.isBefore(date)) break;
+				ret.add(reportAsOf(context, lastDate));
+			}
+			lastDate = date;
+			
+			for(var e: mapList) {
+				var key = new TransactionAsset(e);
+				var function = functionMap.get(key);
+				if (function == null) {
+					logger.info("no function  {}  {}", key);
+					continue;
+				}
+				ret.add(function.apply(context, e));
+			}
+		}
+		
+		// add line of today
+		{
+			var today = LocalDate.now();
+			for(;;) {
+				if (lastDate == null) break;
+				lastDate = lastDate.plusDays(1);
+				if (lastDate.isAfter(today)) break;
+				ret.add(reportAsOf(context, lastDate));
+			}
+		}
+		
+		// sanity check
+		{
+			var stockCost = 0;
+			for(var e: context.portfolio.getHoldingMap().values()) {
+				stockCost += e.totalCost();
+			}
+			if (context.stockCost != stockCost) {
+				logger.error("Unexpected stockCost value");
+				logger.error("fundTotal     {}", context.fundTotal);
+				logger.error("cashTotal     {}", context.cashTotal);
+				logger.error("stockCost     {}", context.stockCost);
+				logger.error("realizedGain  {}", context.realizedGain);
+				for(var holding: context.portfolio.getHoldingMap().values()) {
+					if (holding.totalUnits() == 0) continue;
+					logger.error("holding       {}  {}  {}", holding.code, holding.totalUnits(), holding.totalCost());
+				}
+//				throw new UnexpectedException("Unexpected stockCost value");
+			}
+		}
+		
+		return ret;
+	}
+	
+	private static AccountReportJPY reportAsOf(Context context, LocalDate date) {
+		// update context
+		// fundTotal = cashTotal + stockCost
+		
+		// build report
+		var ret = new AccountReportJPY();
+		
+		ret.date           = date;
+		ret.deposit        = 0;
+		ret.withdraw       = 0;
+		ret.fundTotal      = context.fundTotal;
+		ret.cashTotal      = context.cashTotal;
+		ret.stockValue     = context.portfolio.valueAsOf(date);
+		ret.stockCost      = context.stockCost;
+		ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+		ret.realizedGain   = context.realizedGain;
+		ret.dividend       = 0;
+		ret.buy            = 0;
+		ret.sell           = 0;
+		ret.sellCost       = 0;
+		ret.sellGain       = 0;
+		ret.code           = "";
+		ret.comment        = "";
+		
+		return ret;
 	}
 	
 	private static record TransactionAsset (Operation transaction, Asset asset) {
@@ -265,7 +360,6 @@ public class UpdateAccountReportJPY {
 				var code    = accountHistory.code;
 				var name    = accountHistory.comment;
 				var units   = accountHistory.units.intValue();
-				var comment = accountHistory.comment;
 				
 				// update portfolio
 				context.portfolio.getHolding(code, name).buy(date, units, amount);
@@ -293,7 +387,7 @@ public class UpdateAccountReportJPY {
 				ret.sellCost       = 0;
 				ret.sellGain       = 0;
 				ret.code           = code;
-				ret.comment        = comment;
+				ret.comment        = name;
 				
 				return ret;
 			}
@@ -473,102 +567,5 @@ public class UpdateAccountReportJPY {
 				return ret;
 			}
 		}
-
 	}
-	
-	private static AccountReportJPY reportAsOf(Context context, LocalDate date) {
-		// update context
-		// fundTotal = cashTotal + stockCost
-		
-		// build report
-		var ret = new AccountReportJPY();
-		
-		ret.date           = date;
-		ret.deposit        = 0;
-		ret.withdraw       = 0;
-		ret.fundTotal      = context.fundTotal;
-		ret.cashTotal      = context.cashTotal;
-		ret.stockValue     = context.portfolio.valueAsOf(date);
-		ret.stockCost      = context.stockCost;
-		ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
-		ret.realizedGain   = context.realizedGain;
-		ret.dividend       = 0;
-		ret.buy            = 0;
-		ret.sell           = 0;
-		ret.sellCost       = 0;
-		ret.sellGain       = 0;
-		ret.code           = "";
-		ret.comment        = "";
-		
-		return ret;
-	}
-
-	private static List<AccountReportJPY> getAccountReportList() {
-		var ret = new ArrayList<AccountReportJPY>();
-		
-		var context = new Context();
-
-		var list = StorageRakuten.AccountHistory.getList().stream().filter(o -> o.currency == Currency.JPY).collect(Collectors.toList());
-		// map needs to use TreeMap for entrySet ordering
-		var map  = list.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
-		
-		// convert AccountHistory to AccountReportJPY
-		LocalDate lastDate = null;
-		for(var entry: map.entrySet()) {
-			var date    = entry.getKey();
-			var mapList = entry.getValue();
-			
-			for(;;) {
-				if (lastDate == null) break;
-				lastDate = lastDate.plusDays(1);
-				if (!lastDate.isBefore(date)) break;
-				ret.add(reportAsOf(context, lastDate));
-			}
-			lastDate = date;
-			
-			for(var e: mapList) {
-				var key = new TransactionAsset(e);
-				var function = functionMap.get(key);
-				if (function == null) {
-					logger.info("no function  {}  {}", key);
-					continue;
-				}
-				ret.add(function.apply(context, e));
-			}
-		}
-		
-		// add line of today
-		{
-			var today = LocalDate.now();
-			for(;;) {
-				if (lastDate == null) break;
-				lastDate = lastDate.plusDays(1);
-				if (lastDate.isAfter(today)) break;
-				ret.add(reportAsOf(context, lastDate));
-			}
-		}
-		
-		// sanity check
-		{
-			var stockCost = 0;
-			for(var e: context.portfolio.getHoldingMap().values()) {
-				stockCost += e.totalCost();
-			}
-			if (context.stockCost != stockCost) {
-				logger.error("Unexpected stockCost value");
-				logger.error("fundTotal     {}", context.fundTotal);
-				logger.error("cashTotal     {}", context.cashTotal);
-				logger.error("stockCost     {}", context.stockCost);
-				logger.error("realizedGain  {}", context.realizedGain);
-				for(var holding: context.portfolio.getHoldingMap().values()) {
-					if (holding.totalUnits() == 0) continue;
-					logger.error("holding       {}  {}  {}", holding.code, holding.totalUnits(), holding.totalCost());
-				}
-//				throw new UnexpectedException("Unexpected stockCost value");
-			}
-		}
-		
-		return ret;
-	}
-	
 }
