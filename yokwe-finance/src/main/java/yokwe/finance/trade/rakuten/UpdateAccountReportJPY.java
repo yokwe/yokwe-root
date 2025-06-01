@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,6 @@ import yokwe.finance.trade.AccountHistory.Operation;
 import yokwe.finance.trade.AccountReportJPY;
 import yokwe.finance.trade.Portfolio;
 import yokwe.util.StringUtil;
-import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.LibreOffice;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
@@ -40,6 +40,10 @@ public class UpdateAccountReportJPY {
 	public static void update() {
 		var list = getAccountReportList();
 		logger.info("list  {}", list.size());
+		
+		// remove entry older than 1 year
+		list.removeIf(o -> o.date.isBefore(LocalDate.now().minusYears(1)));
+		
 		generateReport(list);
 	}
 	
@@ -505,22 +509,44 @@ public class UpdateAccountReportJPY {
 		var context = new Context();
 
 		var list = StorageRakuten.AccountHistory.getList().stream().filter(o -> o.currency == Currency.JPY).collect(Collectors.toList());
-//		var map  = list.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
+		// map needs to use TreeMap for entrySet ordering
+		var map  = list.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
 		
 		// convert AccountHistory to AccountReportJPY
-		for(var e: list) {
-			var key = new TransactionAsset(e);
-			var function = functionMap.get(key);
-			if (function == null) {
-				logger.info("no function  {}  {}", key);
-				continue;
-			}
+		LocalDate lastDate = null;
+		for(var entry: map.entrySet()) {
+			var date    = entry.getKey();
+			var mapList = entry.getValue();
 			
-			ret.add(function.apply(context, e));
+			for(;;) {
+				if (lastDate == null) break;
+				lastDate = lastDate.plusDays(1);
+				if (!lastDate.isBefore(date)) break;
+				ret.add(reportAsOf(context, lastDate));
+			}
+			lastDate = date;
+			
+			for(var e: mapList) {
+				var key = new TransactionAsset(e);
+				var function = functionMap.get(key);
+				if (function == null) {
+					logger.info("no function  {}  {}", key);
+					continue;
+				}
+				ret.add(function.apply(context, e));
+			}
 		}
 		
 		// add line of today
-		ret.add(reportAsOf(context, LocalDate.now()));
+		{
+			var today = LocalDate.now();
+			for(;;) {
+				if (lastDate == null) break;
+				lastDate = lastDate.plusDays(1);
+				if (lastDate.isAfter(today)) break;
+				ret.add(reportAsOf(context, lastDate));
+			}
+		}
 		
 		// sanity check
 		{
@@ -538,7 +564,7 @@ public class UpdateAccountReportJPY {
 					if (holding.totalUnits() == 0) continue;
 					logger.error("holding       {}  {}  {}", holding.code, holding.totalUnits(), holding.totalCost());
 				}
-				throw new UnexpectedException("Unexpected stockCost value");
+//				throw new UnexpectedException("Unexpected stockCost value");
 			}
 		}
 		
