@@ -2,6 +2,7 @@ package yokwe.finance.trade;
 
 import java.time.LocalDate;
 
+import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
@@ -72,4 +73,9 @@ public class AccountReportJPY extends Sheet {
 	@ColumnName("コメント")
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
 	public String comment = "";
+	
+	@Override
+	public String toString() {
+		return ToString.withFieldName(this);
+	}
 }
