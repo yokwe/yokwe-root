@@ -1,6 +1,6 @@
 package yokwe.finance.trade.nikko;
 
-import java.io.File;
+import java.util.Arrays;
 
 import yokwe.util.CSVUtil;
 import yokwe.util.ToString;
@@ -8,7 +8,7 @@ import yokwe.util.ToString;
 public class Torireki {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	public enum Product {
+	public enum ProductType {
 		// ---, MRF・MMFなど, 償還金（外国債券）, 入出金, 分配金（外国投信）, 利金（外国債券）, 国内投資信託（累積投資）, 外国債券, 外国株式, 外貨建MMF
 		NONE            ("---"),
 		MRF             ("MRF・MMFなど"),
@@ -22,7 +22,7 @@ public class Torireki {
 		FOREIGN_MMF     ("外貨建MMF");
 		
 		public final String string;
-		private Product(String string) {
+		private ProductType(String string) {
 			this.string = string;
 		}
 		
@@ -33,18 +33,21 @@ public class Torireki {
 	}
 
 	public enum TradeType {
-		REDEMPTION   ("償還金"),
-		RECEIVE_STOCK("入庫"),
 		DEPOSIT      ("入金"),
-		REINVESTMENT ("再投資"),
 		WITHDRAW     ("出金"),
 		TRANSFER     ("振替"),
-		DIVIDEND     ("分配金*"),
-		DIVIDNED_BOND("利金*"),
-		SELL         ("売却"),
 		BALANCE      ("残高"),
+		// stock
+		RECEIVE_STOCK("入庫"),
+		BUY          ("買付"),
+		REINVESTMENT ("再投資"),
+		SELL         ("売却"),
+		DIVIDEND     ("分配金*"),
+		// fund
+		DIVIDNED_BOND("利金*"),
+		REDEMPTION   ("償還金"),
 		WITHDRAW_MMF ("解約"),
-		BUY          ("買付");
+		;
 		
 		public final String string;
 		private TradeType(String string) {
@@ -78,8 +81,8 @@ public class Torireki {
 
 	@CSVUtil.ColumnName("受渡日")               public String      settlementDate;  // 24/02/15
 	@CSVUtil.ColumnName("約定日")               public String      tradeDate;       // 24/02/15 or ---
-	@CSVUtil.ColumnName("商品等")               public Product     product;         // or ---
-	@CSVUtil.ColumnName("取引種類")             public TradeType   trade;           // 
+	@CSVUtil.ColumnName("商品等")               public ProductType productType;         // or ---
+	@CSVUtil.ColumnName("取引種類")             public TradeType   tradeType;       // 
 	@CSVUtil.ColumnName("銘柄名（ファンド名）") public String      name;            //
 	@CSVUtil.ColumnName("銘柄コード")           public String      code;            // blank or -
 	@CSVUtil.ColumnName("口座")                 public AccountType accountType;     // 特定 or -
@@ -101,8 +104,8 @@ public class Torireki {
 			return
 				this.settlementDate.equals(that.settlementDate) &&
 				this.tradeDate.equals(that.tradeDate) &&
-				this.product.equals(that.product) &&
-				this.trade.equals(that.trade) &&
+				this.productType.equals(that.productType) &&
+				this.tradeType.equals(that.tradeType) &&
 				this.name.equals(that.name) &&
 				this.code.equals(that.code) &&
 				this.accountType.equals(that.accountType) &&
@@ -120,9 +123,12 @@ public class Torireki {
 	public static void main(String[] args) {
 		logger.info("START");
 		
-		var file = new File("tmp/tradeHistory/Torireki20250517.csv");
-		var list = CSVUtil.read(Torireki.class).file(file);
-		logger.info("load  {}  {}", list.size(), file.getPath());
+		var files = StorageNikko.storage.getFile("download").listFiles((d, n) -> n.startsWith("Torireki") && n.endsWith(".csv"));
+		Arrays.sort(files);
+		for(var file: files) {
+			var list = CSVUtil.read(Torireki.class).file(file);
+			logger.info("load  {}  {}", list.size(), file.getPath());
+		}
 		
 		logger.info("STOP");
 	}

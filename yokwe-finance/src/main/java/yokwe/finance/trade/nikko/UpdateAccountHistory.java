@@ -108,7 +108,7 @@ public class UpdateAccountHistory {
 				logger.info("   {}  {}  {}  {}", a.tradeDate.equals(b.tradeDate), a.tradeDate, b.tradeDate, "tradeDate");
 				logger.info("   {}  {}  {}  {}", a.currency.equals(b.currency), a.currency, b.currency, "currency");
 				logger.info("   {}  {}  {}  {}", a.asset.equals(b.asset), a.asset, b.asset, "asset");
-				logger.info("   {}  {}  {}  {}", a.transaction.equals(b.transaction), a.transaction, b.transaction, "transaction");
+				logger.info("   {}  {}  {}  {}", a.operation.equals(b.operation), a.operation, b.operation, "transaction");
 				logger.info("   {}  {}  {}  {}", a.units.equals(b.units), a.units, b.units, "units");
 				logger.info("   {}  {}  {}  {}", a.unitPrice.equals(b.unitPrice), a.unitPrice, b.unitPrice, "unitPrice");
 				logger.info("   {}  {}  {}  {}", a.amount.equals(b.amount), a.amount, b.amount, "amount");
@@ -139,12 +139,7 @@ public class UpdateAccountHistory {
 		
 		return ret;
 	}
-	
-	private static Map<Torireki.TradeType, Map<Torireki.ProductType, Function<Torireki, AccountHistory>>> functionMap2 = new TreeMap<>();
-	static {
-//		functionMap2.put(Torireki.TradeType.DEPOSIT, new TreeMap<Torireki.ProductType, Function<Torireki, AccountHistory>>)
-	}
-	
+		
 	private static Map<Torireki.TradeType, Function<Torireki, AccountHistory>> functionMap = new TreeMap<>();
 	static {
 		functionMap.put(Torireki.TradeType.DEPOSIT,       new TradeTypeFunction.DEPOSIT());
@@ -179,7 +174,7 @@ public class UpdateAccountHistory {
 						ret.tradeDate      = ret.settlementDate;
 						ret.asset          = AccountHistory.Asset.CASH;
 						ret.currency       = AccountHistory.Currency.JPY;
-						ret.transaction    = AccountHistory.Transaction.DEPOSIT;
+						ret.operation      = AccountHistory.Operation.DEPOSIT;
 						ret.units          = BigDecimal.ZERO;
 						ret.unitPrice      = BigDecimal.ZERO;
 						ret.amount         = new BigDecimal(e.deposit.replace(",", ""));
@@ -210,7 +205,7 @@ public class UpdateAccountHistory {
 						ret.tradeDate      = ret.settlementDate;
 						ret.asset          = AccountHistory.Asset.CASH;
 						ret.currency       = AccountHistory.Currency.JPY;
-						ret.transaction    = AccountHistory.Transaction.WITHDRAW;
+						ret.operation      = AccountHistory.Operation.WITHDRAW;
 						ret.units          = BigDecimal.ZERO;
 						ret.unitPrice      = BigDecimal.ZERO;
 						ret.amount         = new BigDecimal(e.withdraw.replace(",", "")).negate();
@@ -241,7 +236,7 @@ public class UpdateAccountHistory {
 						ret.tradeDate      = ret.settlementDate;
 						ret.asset          = AccountHistory.Asset.CASH;
 						ret.currency       = AccountHistory.Currency.JPY;
-						ret.transaction    = AccountHistory.Transaction.WITHDRAW;
+						ret.operation      = AccountHistory.Operation.WITHDRAW;
 						ret.units          = BigDecimal.ZERO;
 						ret.unitPrice      = BigDecimal.ZERO;
 						ret.amount         = new BigDecimal(e.withdraw.replace(",", "")).negate();
@@ -278,7 +273,7 @@ public class UpdateAccountHistory {
 						ret.tradeDate      = toLocalDate(e.settlementDate);
 						ret.asset          = AccountHistory.Asset.STOCK;
 						ret.currency       = AccountHistory.Currency.JPY;
-						ret.transaction    = AccountHistory.Transaction.IMPORT;
+						ret.operation      = AccountHistory.Operation.DEPOSIT;
 						ret.units          = new BigDecimal(e.units.replace(",", ""));
 						ret.unitPrice      = BigDecimal.ZERO;
 						ret.amount         = BigDecimal.ZERO;
