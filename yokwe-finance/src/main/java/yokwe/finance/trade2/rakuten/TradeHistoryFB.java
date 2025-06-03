@@ -1,5 +1,8 @@
 package yokwe.finance.trade2.rakuten;
 
+import static yokwe.finance.trade2.rakuten.UpdateTransaction.toLocalDate;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +100,7 @@ public class TradeHistoryFB {
 	@CSVUtil.ColumnName("受渡日")           public String   settlementDate;    // 2025/5/20
 	@CSVUtil.ColumnName("種類")             public BondType bondType;          // 外国債券
 	@CSVUtil.ColumnName("銘柄コード")       public String   bondCode;          // A00396006
-	@CSVUtil.ColumnName("銘柄名")           public String   bondName;          // "三井住友フィナンシャルグループ 米ドル建債券 3.446% 2027/01/11"
+	@CSVUtil.ColumnName("銘柄名")           public String   name;              // "三井住友フィナンシャルグループ 米ドル建債券 3.446% 2027/01/11"
 	@CSVUtil.ColumnName("口座")             public Account  account;           // "特定"
 	@CSVUtil.ColumnName("通貨")             public Currency currency;          // "米ドル" or "-"
 	@CSVUtil.ColumnName("決済通貨")         public Currency tradeCurrency;     // "米ドル" or "-"
@@ -108,7 +111,7 @@ public class TradeHistoryFB {
 	@CSVUtil.ColumnName("約定単価")         public String   unitPrice;         // "95.49 %"
 	@CSVUtil.ColumnName("適用為替レート")   public String   fxRate;            // "143.88"
 	@CSVUtil.ColumnName("経過利子")         public String   accuredInterest;   // "5.17"
-	@CSVUtil.ColumnName("受渡金額")         public String   deliveryAmount;    // "1,914.97"
+	@CSVUtil.ColumnName("受渡金額")         public String   amount;            // "1,914.97"
 	
 	@Override
 	public String toString() {
@@ -143,14 +146,38 @@ public class TradeHistoryFB {
 	private static class Functions {
 		private static class BUY implements Function<TradeHistoryFB, Transaction> {
 			@Override
-			public Transaction apply(TradeHistoryFB t) {
-				return null; // FIXME
+			public Transaction apply(TradeHistoryFB e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = Transaction.Type.BUY;
+				ret.asset          = Transaction.Asset.BOND_US;
+				ret.units          = Integer.valueOf(e.units.replace(",", ""));
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).negate().movePointRight(2).intValue();
+				ret.code           = "";
+				ret.comment        = e.name;
+				
+				return ret;
 			}
 		}
 		private static class SELL implements Function<TradeHistoryFB, Transaction> {
 			@Override
-			public Transaction apply(TradeHistoryFB t) {
-				return null; // FIXME
+			public Transaction apply(TradeHistoryFB e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = Transaction.Type.SELL;
+				ret.asset          = Transaction.Asset.BOND_US;
+				ret.units          = Integer.valueOf(e.units.replace(",", ""));
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue();
+				ret.code           = "";
+				ret.comment        = e.name;
+				
+				return ret;
 			}
 		}
 	}

@@ -1,11 +1,18 @@
 package yokwe.finance.trade2.rakuten;
 
+import static yokwe.finance.trade2.rakuten.UpdateTransaction.toLocalDate;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.trade2.Transaction;
+import yokwe.finance.type.StockCodeJP;
 import yokwe.util.CSVUtil;
 import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
@@ -46,8 +53,8 @@ public class TradeHistoryJP {
 	}
 	
 	public enum Account {
-		NONE   ("-"),
 		SPECIAL("特定"),
+		NONE   ("-"),
 		;
 		
 		public final String string;
@@ -137,6 +144,8 @@ public class TradeHistoryJP {
 	
 	
 	static List<Transaction> toTransaction(List<TradeHistoryJP> list) {
+		buildStockNameCode(list);
+		
 		var ret = new ArrayList<Transaction>();
 		for(var e: list) {
 			var t = toTransaction(e);
@@ -164,27 +173,120 @@ public class TradeHistoryJP {
 	private static class Functions {
 		private static class BUY implements Function<TradeHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(TradeHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(TradeHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.BUY;
+				ret.asset          = Transaction.Asset.STOCK_JP;
+				ret.units          = Integer.valueOf(e.units.replace(",", ""));
+				ret.amount         = -Integer.valueOf(e.amount.replace(",", ""));
+				ret.code           = TradeHistoryJP.toStockCode(e.name);
+				ret.comment        = TradeHistoryJP.toStockName(ret.code);
+				
+				return ret;
 			}
 		}
 		private static class SELL implements Function<TradeHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(TradeHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(TradeHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.SELL;
+				ret.asset          = Transaction.Asset.STOCK_JP;
+				ret.units          = Integer.valueOf(e.units.replace(",", ""));
+				ret.amount         = Integer.valueOf(e.amount.replace(",", ""));
+				ret.code           = TradeHistoryJP.toStockCode(e.name);
+				ret.comment        = TradeHistoryJP.toStockName(ret.code);
+				
+				return ret;
 			}
 		}
 		private static class DEPOSIT implements Function<TradeHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(TradeHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(TradeHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.DEPOSIT;
+				ret.asset          = Transaction.Asset.STOCK_JP;
+				ret.units          = Integer.valueOf(e.units.replace(",", ""));
+				ret.amount         = new BigDecimal(e.unitPrice.replace(",", "")).multiply(BigDecimal.valueOf(ret.units)).intValue();
+				ret.code           = TradeHistoryJP.toStockCode(e.name);
+				ret.comment        = TradeHistoryJP.toStockName(ret.code);
+				
+				return ret;
 			}
 		}
 		private static class WITHDRAW implements Function<TradeHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(TradeHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(TradeHistoryJP e) {
+				throw new UnexpectedException(""); // FIXME
 			}
 		}
 	}
+	
+	private static Map<String, String> stockNameMap = new TreeMap<>();
+	//                 name    code
+	private static void buildStockNameCode(List<TradeHistoryJP> list) {
+		for(var e: list) {
+			stockNameMap.put(e.name,  StockCodeJP.toStockCode5(e.code));
+		}
+	}
+	public static String toStockCode(String stockName) {
+		// find stock code from stockNameMap
+		{
+			var code = stockNameMap.get(stockName);
+			if (code != null) return code;
+		}
+		
+		// find stock code from stockNameMap
+		for(var entry: stockNameMap.entrySet()) {
+			var name = entry.getKey();
+			var code = entry.getValue();
+			
+			if (stockName.replace("　", "").equals(name)) {
+				// save for later use
+				stockNameMap.put(stockName, code);
+				return code;
+			}
+		}
+		
+		// find stock code from stockCodeMap
+		for(var entry: stockCodeMap.entrySet()) {
+			var code = entry.getKey();
+			var name = entry.getValue();
+			
+			if (name.startsWith(stockName)) {
+				// save for later use
+				stockNameMap.put(stockName, code);
+				return code;
+			}
+		}
+		
+		logger.error("Unexpected name");
+		logger.error("  name  {}!", stockName);
+		throw new UnexpectedException("Unexpected name");
+	}
+	//
+	private static Map<String, String> stockCodeMap = StorageStock.StockInfoJP.getList().stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
+	//                 code    name
+	public static String toStockName(String code) {
+		var ret = stockCodeMap.get(code);
+		if (ret != null) {
+			return ret;
+		} else {
+			logger.error("Unexpected code");
+			logger.error("  code  {}!", code);
+			throw new UnexpectedException("Unexpected code");
+		}
+	}
+
 }

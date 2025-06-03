@@ -1,5 +1,7 @@
 package yokwe.finance.trade2.rakuten;
 
+import static yokwe.finance.trade2.rakuten.UpdateTransaction.toLocalDate;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -128,19 +130,19 @@ public class AdjustHistoryJP {
 	}
 	
 	private static Map<Type, Function<AdjustHistoryJP, Transaction>> functionMap = Map.ofEntries(
-		Map.entry(Type.DEPOSIT_REALTIME,  new Functions.DEPOSIT_REALTIME()),
-		Map.entry(Type.DEPOSIT_POINT,     new Functions.DEPOSIT_POINT()),
-		Map.entry(Type.DEPOSIT_CAMPAIGN,  new Functions.DEPOSIT_CAMPAIGN()),
+		Map.entry(Type.DEPOSIT_REALTIME,  new Functions.DEPOSIT()),
+		Map.entry(Type.DEPOSIT_POINT,     new Functions.DEPOSIT()),
+		Map.entry(Type.DEPOSIT_CAMPAIGN,  new Functions.DEPOSIT()),
 		Map.entry(Type.DEOSIT_TRANSFER,   new Functions.DEOSIT_TRANSFER()),
 		//
 		Map.entry(Type.WITHDRAW,          new Functions.WITHDRAW()),
 		Map.entry(Type.WITHDRAW_TRANSFER, new Functions.WITHDRAW_TRANSFER()),
 		//
 		Map.entry(Type.DIVIDEND_STOCK,    new Functions.DIVIDEND_STOCK()),
-		Map.entry(Type.TAX_INCOME,        new Functions.TAX_INCOME()),
-		Map.entry(Type.TAX_LOCAL,         new Functions.TAX_LOCAL()),
-		Map.entry(Type.TAX_REFUND_INCOME, new Functions.TAX_REFUND_INCOME()),
-		Map.entry(Type.TAX_REFUND_LOCAL,  new Functions.TAX_REFUND_LOCAL()),
+		Map.entry(Type.TAX_INCOME,        new Functions.TAX()),
+		Map.entry(Type.TAX_LOCAL,         new Functions.TAX()),
+		Map.entry(Type.TAX_REFUND_INCOME, new Functions.TAX_REFUND()),
+		Map.entry(Type.TAX_REFUND_LOCAL,  new Functions.TAX_REFUND()),
 		//
 		Map.entry(Type.BUY_STOCK,         new Functions.NULL()),
 		Map.entry(Type.BUY_FUND,          new Functions.NULL()),
@@ -149,72 +151,132 @@ public class AdjustHistoryJP {
 		Map.entry(Type.SELL_FUND,         new Functions.NULL())
 	);
 	private static class Functions {
-		private static class DEPOSIT_REALTIME implements Function<AdjustHistoryJP, Transaction> {
+		private static class DEPOSIT implements Function<AdjustHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
-			}
-		}
-		private static class DEPOSIT_POINT implements Function<AdjustHistoryJP, Transaction> {
-			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
-			}
-		}
-		private static class DEPOSIT_CAMPAIGN implements Function<AdjustHistoryJP, Transaction> {
-			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.DEPOSIT;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = Integer.valueOf(e.amountDeposit.replace(",", ""));
+				ret.code           = "";
+				ret.comment        = e.type.toString();
+				
+				return ret;
 			}
 		}
 		private static class DEOSIT_TRANSFER implements Function<AdjustHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.DEPOSIT_TRANSFER;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = Integer.valueOf(e.amountDeposit.replace(",", ""));
+				ret.code           = "";
+				ret.comment        = e.type.toString();
+				
+				return ret;
 			}
 		}
 		//
 		private static class WITHDRAW implements Function<AdjustHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.WITHDRAW;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = -Integer.valueOf(e.amountWithdraw.replace(",", ""));
+				ret.code           = "";
+				ret.comment        = e.type.toString();
+				
+				return ret;
 			}
 		}
 		private static class WITHDRAW_TRANSFER implements Function<AdjustHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.WITHDRAW_TRANSFER;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = -Integer.valueOf(e.amountWithdraw.replace(",", ""));
+				ret.code           = "";
+				ret.comment        = e.type.toString();
+				
+				return ret;
 			}
 		}
 		//
 		private static class DIVIDEND_STOCK implements Function<AdjustHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.DIVIDEND;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = Integer.valueOf(e.amountDeposit.replace(",", ""));
+				ret.code           = TradeHistoryJP.toStockCode(e.name);
+				ret.comment        = TradeHistoryJP.toStockName(ret.code);
+				
+				return ret;
 			}
 		}
-		private static class TAX_INCOME implements Function<AdjustHistoryJP, Transaction> {
+		private static class TAX implements Function<AdjustHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.TAX;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = -Integer.valueOf(e.amountWithdraw.replace(",", ""));
+				ret.code           = "";
+				ret.comment        = e.type.toString();
+				
+				return ret;
 			}
 		}
-		private static class TAX_LOCAL implements Function<AdjustHistoryJP, Transaction> {
+		private static class TAX_REFUND implements Function<AdjustHistoryJP, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
-			}
-		}
-		private static class TAX_REFUND_INCOME implements Function<AdjustHistoryJP, Transaction> {
-			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
-			}
-		}
-		private static class TAX_REFUND_LOCAL implements Function<AdjustHistoryJP, Transaction> {
-			@Override
-			public Transaction apply(AdjustHistoryJP t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryJP e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.JPY;
+				ret.type           = Transaction.Type.TAX;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = Integer.valueOf(e.amountDeposit.replace(",", ""));
+				ret.code           = "";
+				ret.comment        = e.type.toString();
+				
+				return ret;
 			}
 		}
 		//

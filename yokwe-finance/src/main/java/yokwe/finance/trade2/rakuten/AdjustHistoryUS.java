@@ -1,5 +1,8 @@
 package yokwe.finance.trade2.rakuten;
 
+import static yokwe.finance.trade2.rakuten.UpdateTransaction.toLocalDate;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -156,27 +159,75 @@ public class AdjustHistoryUS {
 	private static class Functions {
 		private static class DEOSIT_TRANSFER implements Function<AdjustHistoryUS, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryUS t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryUS e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = Transaction.Type.DEPOSIT_TRANSFER;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", "")).movePointRight(2).intValue();
+				ret.code           = "";
+				ret.comment        = e.type.toString();
+				
+				return ret;
 			}
 		}
 		private static class WITHDRAW_TRANSFER implements Function<AdjustHistoryUS, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryUS t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryUS e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = Transaction.Type.WITHDRAW_TRANSFER;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = new BigDecimal(e.amountWithdraw.replace(",", "")).movePointRight(2).intValue();
+				ret.code           = "";
+				ret.comment        = e.type.toString();
+				
+				return ret;
 			}
 		}
 		//
 		private static class DIVIDEND_STOCK implements Function<AdjustHistoryUS, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryUS t) {
-				return null; // FIXMEs
+			public Transaction apply(AdjustHistoryUS e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = Transaction.Type.DIVIDEND;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", "")).movePointRight(2).intValue();
+				ret.code           = TradeHistoryUS.toStockCode(e.name);
+				ret.comment        = TradeHistoryUS.toStockName(ret.code);
+				
+				return ret;
 			}
 		}
 		private static class DIVIDEND_BOND implements Function<AdjustHistoryUS, Transaction> {
 			@Override
-			public Transaction apply(AdjustHistoryUS t) {
-				return null; // FIXME
+			public Transaction apply(AdjustHistoryUS e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = Transaction.Type.DIVIDEND;
+				ret.asset          = Transaction.Asset.CASH;
+				ret.units          = 0;
+				ret.amount         = new BigDecimal(e.amountDeposit.replace(",", "")).movePointRight(2).intValue();
+				ret.code           = "";
+				ret.comment        = e.name;
+				
+				return ret;
 			}
 		}
 		//

@@ -1,10 +1,16 @@
 package yokwe.finance.trade2.rakuten;
 
+import static yokwe.finance.trade2.rakuten.UpdateTransaction.toLocalDate;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import yokwe.finance.stock.StorageStock;
 import yokwe.finance.trade2.Transaction;
 import yokwe.util.CSVUtil;
 import yokwe.util.ToString;
@@ -121,6 +127,8 @@ public class TradeHistoryUS {
 	
 	
 	static List<Transaction> toTransaction(List<TradeHistoryUS> list) {
+		buildStockNameCode(list);
+		//
 		var ret = new ArrayList<Transaction>();
 		for(var e: list) {
 			var t = toTransaction(e);
@@ -146,15 +154,85 @@ public class TradeHistoryUS {
 	private static class Functions {
 		private static class BUY implements Function<TradeHistoryUS, Transaction> {
 			@Override
-			public Transaction apply(TradeHistoryUS t) {
-				return null; // FIXME
+			public Transaction apply(TradeHistoryUS e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = Transaction.Type.BUY;
+				ret.asset          = Transaction.Asset.STOCK_US;
+				ret.units          = Integer.valueOf(e.units.replace(",", ""));
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).negate().intValue();
+				ret.code           = TradeHistoryUS.toStockCode(e.name);
+				ret.comment        = TradeHistoryUS.toStockName(ret.code);
+				
+				return ret;
 			}
 		}
 		private static class SELL implements Function<TradeHistoryUS, Transaction> {
 			@Override
-			public Transaction apply(TradeHistoryUS t) {
-				return null; // FIXME
+			public Transaction apply(TradeHistoryUS e) {
+				var ret = new Transaction();
+				
+				ret.settlementDate = toLocalDate(e.settlementDate);
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = Transaction.Type.SELL;
+				ret.asset          = Transaction.Asset.STOCK_US;
+				ret.units          = Integer.valueOf(e.units.replace(",", ""));
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue();
+				ret.code           = TradeHistoryUS.toStockCode(e.name);
+				ret.comment        = TradeHistoryUS.toStockName(ret.code);
+				
+				return ret;
 			}
 		}
 	}
+	
+	
+	private static Map<String, String> stockNameMap = new TreeMap<>();
+	//                 name    code
+	private static void buildStockNameCode(List<TradeHistoryUS> list) {
+		for(var e: list) {
+			stockNameMap.put(e.name,  e.code);
+		}
+	}
+	public static String toStockCode(String stockName) {
+		// find stock code from stockNameMap
+		{
+			var code = stockNameMap.get(stockName);
+			if (code != null) return code;
+		}
+				
+		// find stock code from stockCodeMap
+		for(var entry: stockCodeMap.entrySet()) {
+			var code = entry.getKey();
+			var name = entry.getValue();
+			
+			if (name.equals(stockName)) {
+				// save for later use
+				stockNameMap.put(stockName, code);
+				return code;
+			}
+		}
+		
+		logger.error("Unexpected name");
+		logger.error("  name  {}!", stockName);
+		throw new UnexpectedException("Unexpected name");
+	}
+	
+	private static Map<String, String> stockCodeMap = StorageStock.StockInfoUSAll.getList().stream().collect(Collectors.toMap(o -> o.stockCode, o -> o.name));
+	//                 code    name
+	public static String toStockName(String code) {
+		var ret = stockCodeMap.get(code);
+		if (ret != null) {
+			return ret;
+		} else {
+			logger.error("Unexpected code");
+			logger.error("  code  {}!", code);
+			throw new UnexpectedException("Unexpected code");
+		}
+	}
+
 }

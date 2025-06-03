@@ -3,9 +3,11 @@ package yokwe.finance.trade2.rakuten;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import yokwe.finance.trade2.Transaction;
@@ -130,6 +132,24 @@ public class UpdateTransaction {
 			return ToString.withFieldName(this);
 		}
 	}
+	
+	
+	private static final Pattern PAT_DATE = Pattern.compile("(20[0-9][0-9])/([1-9]|1[012])/([1-9]|[12][0-9]|3[01])");
+	static LocalDate toLocalDate(String string) {
+		var matcher = PAT_DATE.matcher(string);
+		if (matcher.matches()) {
+			var y = matcher.group(1);
+			var m = matcher.group(2);
+			var d = matcher.group(3);
+			
+			return LocalDate.of(Integer.valueOf(y), Integer.valueOf(m), Integer.valueOf(d));
+		} else {
+			logger.error("Unexpeced string");
+			logger.error("  string  {}!", string);
+			throw new UnexpectedException("Unexpeced string");
+		}
+	}
+	
 	
 	public static void main(String[] args) {
 		logger.info("START");

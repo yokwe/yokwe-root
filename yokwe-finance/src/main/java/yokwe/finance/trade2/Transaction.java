@@ -13,10 +13,13 @@ public class Transaction implements Comparable<Transaction> {
 	
 	public enum Type {
 		DEPOSIT,
-		WITHDRAW,
 		DEPOSIT_TRANSFER,
+		//
+		WITHDRAW,
 		WITHDRAW_TRANSFER,
+		//
 		DIVIDEND,
+		//
 		FEE,
 		TAX,
 		//
