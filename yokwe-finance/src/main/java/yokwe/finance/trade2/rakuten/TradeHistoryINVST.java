@@ -256,7 +256,7 @@ public class TradeHistoryINVST {
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.currency       = Transaction.Currency.USD;
-				ret.type           = Transaction.Type.REINVEST;
+				ret.type           = Transaction.Type.DIVIDEND;
 				ret.asset          = Transaction.Asset.MMF_US;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
 				ret.amount         = ret.units;
