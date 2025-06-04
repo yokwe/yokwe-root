@@ -155,7 +155,7 @@ public class TradeHistoryFB {
 				ret.type           = Transaction.Type.BUY;
 				ret.asset          = Transaction.Asset.BOND_US;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = new BigDecimal(e.amount.replace(",", "")).negate().movePointRight(2).intValue();
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue();
 				ret.code           = "";
 				ret.comment        = e.name;
 				

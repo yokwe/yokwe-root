@@ -163,7 +163,7 @@ public class TradeHistoryUS {
 				ret.type           = Transaction.Type.BUY;
 				ret.asset          = Transaction.Asset.STOCK_US;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).negate().intValue();
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue();
 				ret.code           = TradeHistoryUS.toStockCode(e.name);
 				ret.comment        = TradeHistoryUS.toStockName(ret.code);
 				

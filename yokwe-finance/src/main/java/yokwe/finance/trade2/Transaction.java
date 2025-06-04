@@ -20,8 +20,8 @@ public class Transaction implements Comparable<Transaction> {
 		//
 		DIVIDEND,
 		//
-		FEE,
 		TAX,
+		TAX_REFUND,
 		//
 		BUY,
 		SELL,

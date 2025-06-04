@@ -167,7 +167,7 @@ public class TradeHistoryINVST {
 				ret.type           = Transaction.Type.BUY;
 				ret.asset          = Transaction.Asset.FUND_JP;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = -(amount - amountPoint);
+				ret.amount         = amount - amountPoint;
 				ret.code           = toFundCode(e.name);
 				ret.comment        = toFundName(ret.code);
 				
@@ -215,7 +215,7 @@ public class TradeHistoryINVST {
 				ret.type           = Transaction.Type.BUY;
 				ret.asset          = Transaction.Asset.MMF_US;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).negate().intValue();
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue();
 				ret.code           = "";
 				ret.comment        = e.name;
 				

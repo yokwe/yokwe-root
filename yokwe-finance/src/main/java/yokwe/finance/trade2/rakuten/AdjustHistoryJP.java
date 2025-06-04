@@ -199,7 +199,7 @@ public class AdjustHistoryJP {
 				ret.type           = Transaction.Type.WITHDRAW;
 				ret.asset          = Transaction.Asset.CASH;
 				ret.units          = 0;
-				ret.amount         = -Integer.valueOf(e.amountWithdraw.replace(",", ""));
+				ret.amount         = Integer.valueOf(e.amountWithdraw.replace(",", ""));
 				ret.code           = "";
 				ret.comment        = e.type.toString();
 				
@@ -217,7 +217,7 @@ public class AdjustHistoryJP {
 				ret.type           = Transaction.Type.WITHDRAW_TRANSFER;
 				ret.asset          = Transaction.Asset.CASH;
 				ret.units          = 0;
-				ret.amount         = -Integer.valueOf(e.amountWithdraw.replace(",", ""));
+				ret.amount         = Integer.valueOf(e.amountWithdraw.replace(",", ""));
 				ret.code           = "";
 				ret.comment        = e.type.toString();
 				
@@ -254,7 +254,7 @@ public class AdjustHistoryJP {
 				ret.type           = Transaction.Type.TAX;
 				ret.asset          = Transaction.Asset.CASH;
 				ret.units          = 0;
-				ret.amount         = -Integer.valueOf(e.amountWithdraw.replace(",", ""));
+				ret.amount         = Integer.valueOf(e.amountWithdraw.replace(",", ""));
 				ret.code           = "";
 				ret.comment        = e.type.toString();
 				
@@ -269,7 +269,7 @@ public class AdjustHistoryJP {
 				ret.settlementDate = toLocalDate(e.settlementDate);
 				ret.tradeDate      = toLocalDate(e.tradeDate);
 				ret.currency       = Transaction.Currency.JPY;
-				ret.type           = Transaction.Type.TAX;
+				ret.type           = Transaction.Type.TAX_REFUND;
 				ret.asset          = Transaction.Asset.CASH;
 				ret.units          = 0;
 				ret.amount         = Integer.valueOf(e.amountDeposit.replace(",", ""));

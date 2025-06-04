@@ -182,7 +182,7 @@ public class TradeHistoryJP {
 				ret.type           = Transaction.Type.BUY;
 				ret.asset          = Transaction.Asset.STOCK_JP;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = -Integer.valueOf(e.amount.replace(",", ""));
+				ret.amount         = Integer.valueOf(e.amount.replace(",", ""));
 				ret.code           = TradeHistoryJP.toStockCode(e.name);
 				ret.comment        = TradeHistoryJP.toStockName(ret.code);
 				
