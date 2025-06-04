@@ -34,11 +34,14 @@ public class UpdateTransaction {
 		}
 		return file;
 	}
+	private static File getDownloadFile(String prefix, String type, String date) {
+		return getDownloadFile(prefix + "(" + type + ")_" + date + ".csv");
+	}
 	private static File getAdjustHistory(String type, String date) {
-		return getDownloadFile("adjusthistory(" + type + ")_" + date + ".csv");
+		return getDownloadFile("adjusthistory", type, date);
 	}
 	private static File getTradeHistory(String type, String date) {
-		return getDownloadFile("tradehistory(" + type + ")_" + date + ".csv");
+		return getDownloadFile("tradehistory", type, date);
 	}
 
 	static File getAdjustHistoryJP(String date) {
@@ -103,8 +106,13 @@ public class UpdateTransaction {
 		if (files.length == 0) return null;
 		
 		Arrays.sort(files);
+		for(var e: files) {
+			logger.info("file  {}", e.getName());
+		}
 		var name = files[files.length - 1].getName();
-		return name.substring(name.indexOf('_') + 1, name.indexOf('.'));
+		var date = name.substring(name.indexOf('_') + 1, name.indexOf('.'));
+		logger.info("date  {}", date);
+		return date;
 	}
 	
 	static class CSVFiles {

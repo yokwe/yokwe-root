@@ -115,7 +115,7 @@ public class AdjustHistoryJP {
 			if (t == null) continue;
 			ret.add(toTransaction(e));
 		}
-		logger.info("ret  {}", ret.size());
+		logger.info("toTransaction  {}", ret.size());
 		return ret;
 	}
 	

@@ -113,7 +113,7 @@ public class TradeHistoryINVST {
 			if (t == null) continue;
 			ret.add(toTransaction(e));
 		}
-		logger.info("ret  {}", ret.size());
+		logger.info("toTransaction  {}", ret.size());
 		return ret;
 	}
 	static Transaction toTransaction(TradeHistoryINVST e) {
@@ -259,7 +259,7 @@ public class TradeHistoryINVST {
 				ret.type           = Transaction.Type.REINVEST;
 				ret.asset          = Transaction.Asset.MMF_US;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = 0;
+				ret.amount         = ret.units;
 				ret.code           = "";
 				ret.comment        = e.name;
 				
