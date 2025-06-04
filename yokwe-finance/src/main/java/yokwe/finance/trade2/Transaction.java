@@ -12,11 +12,11 @@ public class Transaction implements Comparable<Transaction> {
 	}
 	
 	public enum Type {
-		WITHDRAW_TRANSFER,
-		DEPOSIT_TRANSFER,
-		//
 		DEPOSIT,
 		WITHDRAW,
+		//
+		WITHDRAW_TRANSFER,
+		DEPOSIT_TRANSFER,
 		//
 		DIVIDEND,
 		//
