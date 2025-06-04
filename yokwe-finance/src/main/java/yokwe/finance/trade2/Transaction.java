@@ -12,11 +12,11 @@ public class Transaction implements Comparable<Transaction> {
 	}
 	
 	public enum Type {
-		DEPOSIT,
+		WITHDRAW_TRANSFER,
 		DEPOSIT_TRANSFER,
 		//
+		DEPOSIT,
 		WITHDRAW,
-		WITHDRAW_TRANSFER,
 		//
 		DIVIDEND,
 		//
@@ -60,9 +60,9 @@ public class Transaction implements Comparable<Transaction> {
 	public int compareTo(Transaction that) {
 		int ret = this.settlementDate.compareTo(that.settlementDate);
 		if (ret == 0) ret = this.tradeDate.compareTo(that.tradeDate);
-		if (ret == 0) ret = this.currency.compareTo(that.currency);
 		if (ret == 0) ret = this.type.compareTo(that.type);
 		if (ret == 0) ret = this.asset.compareTo(that.asset);
+		if (ret == 0) ret = this.currency.compareTo(that.currency);
 		if (ret == 0) ret = this.code.compareTo(that.code);
 		if (ret == 0) ret = this.comment.compareTo(that.comment);
 		if (ret == 0) ret = Integer.compare(this.units, that.units);
