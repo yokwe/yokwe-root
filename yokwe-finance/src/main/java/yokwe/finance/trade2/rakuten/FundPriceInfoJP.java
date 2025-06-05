@@ -49,8 +49,8 @@ public class FundPriceInfoJP {
 				logger.error("Unexpeced value");
 				logger.error("  code      {}", oldValue.code);
 				logger.error("  name      {}", oldValue.name);
-				logger.error("  oldValue  {}", oldValue.value);
-				logger.error("  newValue  {}", newValue.value);
+				logger.error("  oldValue  {}", oldValue.units);
+				logger.error("  newValue  {}", newValue.units);
 				throw new UnexpectedException("Unexpeced value");
 			}
 		}

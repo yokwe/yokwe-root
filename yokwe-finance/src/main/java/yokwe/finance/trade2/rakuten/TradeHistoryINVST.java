@@ -116,6 +116,7 @@ public class TradeHistoryINVST {
 			ret.add(toTransaction(e));
 		}
 		logger.info("toTransaction  {}", ret.size());
+		
 		FundPriceInfoJP.save();
 		
 		return ret;
