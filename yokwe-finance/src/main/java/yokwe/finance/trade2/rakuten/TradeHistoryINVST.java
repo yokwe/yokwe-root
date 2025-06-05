@@ -23,7 +23,7 @@ public class TradeHistoryINVST {
 		
 		var date = UpdateTransaction.getFileDate();
 		logger.info("date  {}", date);
-
+		
 		var file = UpdateTransaction.getTradeHistoryINVST(date);
 		var list = CSVUtil.read(TradeHistoryINVST.class).file(file);
 		logger.info("load  {}  {}", list.size(), file.getPath());
@@ -107,6 +107,8 @@ public class TradeHistoryINVST {
 	
 	
 	static List<Transaction> toTransaction(List<TradeHistoryINVST> list) {
+		FundPriceInfoJP.load();
+
 		var ret = new ArrayList<Transaction>();
 		for(var e: list) {
 			var t = toTransaction(e);
@@ -114,6 +116,8 @@ public class TradeHistoryINVST {
 			ret.add(toTransaction(e));
 		}
 		logger.info("toTransaction  {}", ret.size());
+		FundPriceInfoJP.save();
+		
 		return ret;
 	}
 	static Transaction toTransaction(TradeHistoryINVST e) {
@@ -147,16 +151,24 @@ public class TradeHistoryINVST {
 		private static class BUY implements Function<TradeHistoryINVST, Transaction> {
 			@Override
 			public Transaction apply(TradeHistoryINVST e) {
-				int amount;
+				var code = toFundCode(e.name);
+				var name = toFundName(code);
+
+				FundPriceInfoJP.add(code, name, e);
+
+				int amountJPY;
 				int amountPoint;
-				if (e.amountJPY.contains("(")) {
-					var i = e.amountJPY.indexOf("(");
-					var j = e.amountJPY.indexOf(")");
-					amount = Integer.valueOf(e.amountJPY.substring(0, i).replace(",", ""));
-					amountPoint = Integer.valueOf(e.amountJPY.substring(i + 1, j).replace(",", ""));
-				} else {
-					amount = Integer.valueOf(e.amountJPY.replace(",", ""));
-					amountPoint = 0;
+				{
+					var string = e.amountJPY.replace(",", "");
+					if (string.contains("(")) {
+						var i = string.indexOf("(");
+						var j = string.indexOf(")");
+						amountJPY   = Integer.valueOf(string.substring(0, i));
+						amountPoint = Integer.valueOf(string.substring(i + 1, j));
+					} else {
+						amountJPY   = Integer.valueOf(string);
+						amountPoint = 0;
+					}
 				}
 				
 				var ret = new Transaction();
@@ -167,9 +179,9 @@ public class TradeHistoryINVST {
 				ret.type           = Transaction.Type.BUY;
 				ret.asset          = Transaction.Asset.FUND_JP;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = amount - amountPoint;
-				ret.code           = toFundCode(e.name);
-				ret.comment        = toFundName(ret.code);
+				ret.amount         = amountJPY - amountPoint;
+				ret.code           = code;
+				ret.comment        = name;
 				
 				return ret;
 			}
