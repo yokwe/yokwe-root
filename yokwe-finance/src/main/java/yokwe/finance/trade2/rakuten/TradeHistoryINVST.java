@@ -158,17 +158,17 @@ public class TradeHistoryINVST {
 				FundPriceInfoJP.add(code, name, e);
 
 				int amountJPY;
-				int amountPoint;
+//				int amountPoint;
 				{
 					var string = e.amountJPY.replace(",", "");
 					if (string.contains("(")) {
 						var i = string.indexOf("(");
-						var j = string.indexOf(")");
+//						var j = string.indexOf(")");
 						amountJPY   = Integer.valueOf(string.substring(0, i));
-						amountPoint = Integer.valueOf(string.substring(i + 1, j));
+//						amountPoint = Integer.valueOf(string.substring(i + 1, j));
 					} else {
 						amountJPY   = Integer.valueOf(string);
-						amountPoint = 0;
+//						amountPoint = 0;
 					}
 				}
 				
@@ -180,7 +180,8 @@ public class TradeHistoryINVST {
 				ret.type           = Transaction.Type.BUY;
 				ret.asset          = Transaction.Asset.FUND_JP;
 				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = amountJPY - amountPoint;
+//				ret.amount         = amountJPY - amountPoint;
+				ret.amount         = amountJPY; // to match the value of "預り金（MRF）［円］" in adjusthistory\(JP\)_XXXXXXXX.csv, use amountJPY
 				ret.code           = code;
 				ret.comment        = name;
 				
