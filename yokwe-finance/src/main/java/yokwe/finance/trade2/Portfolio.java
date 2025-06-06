@@ -43,6 +43,15 @@ public class Portfolio {
 		var entry = getEntry(transaction);
 		return entry.sell(transaction);
 	}
+	public int valueAsOf(LocalDate date) {
+		int ret = 0;
+		for(var e: entryMap.values()) {
+			var value = e.valueAsOf(date);
+			if (value < 0) return -1;
+			ret += value;
+		}
+		return ret;
+	}
 	
 	
 	public interface Entry extends Comparable<Entry> {
@@ -52,7 +61,7 @@ public class Portfolio {
 		public void buy(Transaction transaction);
 		// sell returns sell cost
 		public int sell(Transaction transaction);
-		public int valueAsOf(LocalDate date, int units);
+		public int valueAsOf(LocalDate date);
 		
 		@Override
 		default int compareTo(Entry that) {
@@ -173,7 +182,9 @@ public class Portfolio {
 				super(transaction);
 			}
 			@Override
-			public int valueAsOf(LocalDate date, int units) {
+			public int valueAsOf(LocalDate date) {
+				if (totalUnits == 0) return 0;
+				
 				DailyValueMap dailyValueMap;
 				if (map.containsKey(code)) {
 					dailyValueMap = map.get(code);
@@ -187,7 +198,9 @@ public class Portfolio {
 					dailyValueMap = new DailyValueMap(list);
 					map.put(code, dailyValueMap);
 				}
-				return dailyValueMap.get(date).multiply(BigDecimal.valueOf(units), ROUND_UP_4).intValue();
+				var price = dailyValueMap.get(date);
+				if (price == null) return -1;
+				return price.multiply(BigDecimal.valueOf(totalUnits), ROUND_UP_4).intValue();
 			}
 		}
 		public class FUND_JP extends Base {
@@ -197,7 +210,9 @@ public class Portfolio {
 				super(transaction);
 			}
 			@Override
-			public int valueAsOf(LocalDate date, int units) {
+			public int valueAsOf(LocalDate date) {
+				if (totalUnits == 0) return 0;
+				
 				DailyValueMap dailyValueMap;
 				if (map.containsKey(code)) {
 					dailyValueMap = map.get(code);
@@ -211,7 +226,7 @@ public class Portfolio {
 					dailyValueMap = new DailyValueMap(list);
 					map.put(code, dailyValueMap);
 				}
-				return dailyValueMap.get(date).multiply(BigDecimal.valueOf(units), ROUND_UP_4).intValue();
+				return dailyValueMap.get(date).multiply(BigDecimal.valueOf(totalUnits), ROUND_UP_4).intValue();
 			}
 		}
 		public class STOCK_US extends Base {
@@ -221,7 +236,9 @@ public class Portfolio {
 				super(transaction);
 			}
 			@Override
-			public int valueAsOf(LocalDate date, int units) {
+			public int valueAsOf(LocalDate date) {
+				if (totalUnits == 0) return 0;
+				
 				DailyValueMap dailyValueMap;
 				if (map.containsKey(code)) {
 					dailyValueMap = map.get(code);
@@ -235,7 +252,7 @@ public class Portfolio {
 					dailyValueMap = new DailyValueMap(list);
 					map.put(code, dailyValueMap);
 				}
-				return dailyValueMap.get(date).multiply(BigDecimal.valueOf(units), ROUND_UP_4).intValue();
+				return dailyValueMap.get(date).multiply(BigDecimal.valueOf(totalUnits), ROUND_UP_4).intValue();
 			}
 		}
 		public class BOND_US extends Base {
@@ -243,8 +260,8 @@ public class Portfolio {
 				super(transaction);
 			}
 			@Override
-			public int valueAsOf(LocalDate date, int units) {
-				return units;
+			public int valueAsOf(LocalDate date) {
+				return totalUnits;
 			}
 		}
 		public class MMF_US extends Base {
@@ -252,8 +269,8 @@ public class Portfolio {
 				super(transaction);
 			}
 			@Override
-			public int valueAsOf(LocalDate date, int units) {
-				return units;
+			public int valueAsOf(LocalDate date) {
+				return totalUnits;
 			}
 		}
 	}
