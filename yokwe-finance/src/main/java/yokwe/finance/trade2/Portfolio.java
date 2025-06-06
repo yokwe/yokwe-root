@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -143,12 +144,15 @@ public class Portfolio {
 				return sellCost;
 			}
 		}
-		public class STOCK_JP extends Base {
-			private static Map<String, DailyValueMap> map = new TreeMap<>();
+		abstract class BaseMap extends Base {
+			protected Map<String, DailyValueMap> map = new TreeMap<>();
 			
-			private STOCK_JP(Transaction transaction) {
+			BaseMap(Transaction transaction) {
 				super(transaction);
 			}
+			
+			abstract protected List<DailyValue> getList(String code);
+
 			@Override
 			public int valueAsOf(LocalDate date) {
 				if (totalUnits == 0) return 0;
@@ -157,7 +161,7 @@ public class Portfolio {
 				if (map.containsKey(code)) {
 					dailyValueMap = map.get(code);
 				} else {
-					var list = StorageStock.StockPriceJP.getList(code).stream().map(o -> new DailyValue(o.date, o.close)).toList();
+					var list = getList(code);
 					if (list.isEmpty()) {
 						logger.error("list is empty");
 						logger.error("  {}", code);
@@ -171,56 +175,32 @@ public class Portfolio {
 				return price.multiply(BigDecimal.valueOf(totalUnits), ROUND_UP_4).intValue();
 			}
 		}
-		public class FUND_JP extends Base {
-			private static Map<String, DailyValueMap> map = new TreeMap<>();
-			
+
+		public class STOCK_JP extends BaseMap {
+			private STOCK_JP(Transaction transaction) {
+				super(transaction);
+			}
+			@Override
+			protected List<DailyValue> getList(String code) {
+				return StorageStock.StockPriceJP.getList(code).stream().map(o -> new DailyValue(o.date, o.close)).toList();
+			}
+		}
+		public class FUND_JP extends BaseMap {
 			private FUND_JP(Transaction transaction) {
 				super(transaction);
 			}
 			@Override
-			public int valueAsOf(LocalDate date) {
-				if (totalUnits == 0) return 0;
-				
-				DailyValueMap dailyValueMap;
-				if (map.containsKey(code)) {
-					dailyValueMap = map.get(code);
-				} else {
-					var list = StorageFund.FundPrice.getList(code).stream().map(o -> new DailyValue(o.date, o.price)).toList();
-					if (list.isEmpty()) {
-						logger.error("list is empty");
-						logger.error("  {}", code);
-						throw new UnexpectedException("list is empty");
-					}
-					dailyValueMap = new DailyValueMap(list);
-					map.put(code, dailyValueMap);
-				}
-				return dailyValueMap.get(date).multiply(BigDecimal.valueOf(totalUnits), ROUND_UP_4).intValue();
+			protected List<DailyValue> getList(String code) {
+				return StorageFund.FundPrice.getList(code).stream().map(o -> new DailyValue(o.date, o.price)).toList();
 			}
 		}
-		public class STOCK_US extends Base {
-			private static Map<String, DailyValueMap> map = new TreeMap<>();
-			
+		public class STOCK_US extends BaseMap {
 			private STOCK_US(Transaction transaction) {
 				super(transaction);
 			}
 			@Override
-			public int valueAsOf(LocalDate date) {
-				if (totalUnits == 0) return 0;
-				
-				DailyValueMap dailyValueMap;
-				if (map.containsKey(code)) {
-					dailyValueMap = map.get(code);
-				} else {
-					var list = StorageStock.StockPriceUS.getList(code).stream().map(o -> new DailyValue(o.date, o.close)).toList();
-					if (list.isEmpty()) {
-						logger.error("list is empty");
-						logger.error("  {}", code);
-						throw new UnexpectedException("list is empty");
-					}
-					dailyValueMap = new DailyValueMap(list);
-					map.put(code, dailyValueMap);
-				}
-				return dailyValueMap.get(date).multiply(BigDecimal.valueOf(totalUnits), ROUND_UP_4).intValue();
+			protected List<DailyValue> getList(String code) {
+				return StorageStock.StockPriceUS.getList(code).stream().map(o -> new DailyValue(o.date, o.close)).toList();
 			}
 		}
 		public class BOND_US extends Base {
