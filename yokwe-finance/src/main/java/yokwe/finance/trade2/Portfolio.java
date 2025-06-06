@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.trade2.Transaction.Asset;
+import yokwe.finance.trade2.rakuten.StorageRakuten;
 import yokwe.finance.type.DailyValue;
 import yokwe.finance.type.DailyValueMap;
 import yokwe.util.UnexpectedException;
@@ -186,8 +188,16 @@ public class Portfolio {
 			}
 		}
 		public class FUND_JP extends BaseMap {
+			private Map<String, FundPriceInfoJPType> fundPriceInfoMap = StorageRakuten.FundPriceInfoJP.getList().stream().collect(Collectors.toMap(o -> o.code, Function.identity()));
+			//          code
 			private FUND_JP(Transaction transaction) {
 				super(transaction);
+			}
+			@Override
+			public int valueAsOf(LocalDate date) {
+				var value = super.valueAsOf(date);
+				var units = fundPriceInfoMap.get(code).units;
+				return BigDecimal.valueOf(value).divide(BigDecimal.valueOf(units), 0, RoundingMode.HALF_UP).intValue();
 			}
 			@Override
 			protected List<DailyValue> getList(String code) {
