@@ -35,14 +35,10 @@ public class UpdateAccountReport {
 	
 	public static void update() {
 		var transactionList = StorageRakuten.TransactionList.getList();
-		var listJPY = transactionList.stream().filter(o -> o.currency == Currency.JPY).collect(Collectors.toList());
-		logger.info("listJPY  {}", listJPY.size());
-		var listUSD = transactionList.stream().filter(o -> o.currency == Currency.USD).collect(Collectors.toList());
-		logger.info("listUSD  {}", listJPY.size());
-
-		var reportJPY = toAccountReportJPY(listJPY);
+		
+		var reportJPY = toAccountReportJPY(transactionList);
 		logger.info("reportJPY  {}", reportJPY.size());
-		var reportUSD = toAccountReportUSD(listUSD);
+		var reportUSD = toAccountReportUSD(transactionList);
 		logger.info("reportUSD  {}", reportUSD.size());
 		
 		// remove entry older than 1 year
@@ -116,9 +112,9 @@ public class UpdateAccountReport {
 	private static List<AccountReportJPY> toAccountReportJPY(List<Transaction> transactionList) {
 		var context = new Context();
 		
-		var list = transactionList.stream().filter(o -> o.currency == Currency.JPY).collect(Collectors.toList());
 		// map needs to use TreeMap for entrySet ordering
-		var map  = list.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
+		var map = transactionList.stream().filter(o -> o.currency == Currency.JPY).
+			collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
 		
 		var ret = new ArrayList<AccountReportJPY>();
 		
@@ -127,6 +123,7 @@ public class UpdateAccountReport {
 			var date    = entry.getKey();
 			var mapList = entry.getValue();
 			
+			// fill gap
 			for(;;) {
 				if (lastDate == null) break;
 				lastDate = lastDate.plusDays(1);
@@ -140,7 +137,7 @@ public class UpdateAccountReport {
 			}
 		}
 		
-		// add line of today
+		// fill gap to today
 		{
 			var today = LocalDate.now();
 			for(;;) {
