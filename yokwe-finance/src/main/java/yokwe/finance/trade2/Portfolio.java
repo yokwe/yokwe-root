@@ -1,7 +1,6 @@
 package yokwe.finance.trade2;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,9 +19,6 @@ import yokwe.util.UnexpectedException;
 
 public class Portfolio {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
-	
-	private static MathContext ROUND_UP_4 = new MathContext(4, RoundingMode.UP);
-	
 	
 	private Map<String, Entry> entryMap = new TreeMap<>();
 	//          code
@@ -60,6 +56,8 @@ public class Portfolio {
 	public interface Entry extends Comparable<Entry> {
 		public Asset  asset();
 		public String code();
+		public int    totalUnits();
+		public int    totalCost();
 		
 		public void buy(Transaction transaction);
 		// sell returns sell cost
@@ -107,6 +105,14 @@ public class Portfolio {
 			public String code() {
 				return code;
 			}
+			@Override
+			public int totalUnits() {
+				return totalUnits;
+			}
+			@Override
+			public int totalCost() {
+				return totalCost;
+			}
 			
 			@Override
 			public void buy(Transaction transaction) {
@@ -129,8 +135,8 @@ public class Portfolio {
 				
 				int sellCost;
 				if (units < totalUnits) {
-					var unitPrice = BigDecimal.valueOf(totalCost).divide(BigDecimal.valueOf(totalUnits), ROUND_UP_4);
-					sellCost = unitPrice.multiply(BigDecimal.valueOf(units)).intValue();
+					var unitPrice = BigDecimal.valueOf(totalCost).divide(BigDecimal.valueOf(totalUnits), 0, RoundingMode.UP);
+					sellCost = unitPrice.multiply(BigDecimal.valueOf(units)).setScale(0, RoundingMode.HALF_UP).intValue();
 					
 					totalUnits -= units;
 					totalCost  -= sellCost;
@@ -174,7 +180,7 @@ public class Portfolio {
 				}
 				var price = dailyValueMap.get(date);
 				if (price == null) return -1;
-				return price.multiply(BigDecimal.valueOf(totalUnits), ROUND_UP_4).intValue();
+				return price.multiply(BigDecimal.valueOf(totalUnits)).setScale(0, RoundingMode.HALF_UP).intValue();
 			}
 		}
 
