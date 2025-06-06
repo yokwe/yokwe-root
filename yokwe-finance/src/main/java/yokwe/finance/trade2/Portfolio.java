@@ -72,44 +72,12 @@ public class Portfolio {
 		
 		
 		static Map<Asset, Function<Transaction, Entry>> map = Map.ofEntries(
-			Map.entry(Asset.STOCK_JP, new Functions.STOCK_JP()),
-			Map.entry(Asset.FUND_JP,  new Functions.FUND_JP()),
-			Map.entry(Asset.STOCK_US, new Functions.STOCK_US()),
-			Map.entry(Asset.BOND_US,  new Functions.BOND_US()),
-			Map.entry(Asset.MMF_US,   new Functions.MMF_US())
+			Map.entry(Asset.STOCK_JP, o -> new Entry.STOCK_JP(o)),
+			Map.entry(Asset.FUND_JP,  o -> new Entry.FUND_JP(o)),
+			Map.entry(Asset.STOCK_US, o -> new Entry.STOCK_US(o)),
+			Map.entry(Asset.BOND_US,  o -> new Entry.BOND_US(o)),
+			Map.entry(Asset.MMF_US,   o -> new Entry.MMF_US(o))
 		);
-		static class Functions {
-			static class STOCK_JP implements Function<Transaction, Entry> {
-				@Override
-				public Entry apply(Transaction transaction) {
-					return new Entry.STOCK_JP(transaction);
-				}
-			}
-			static class FUND_JP implements Function<Transaction, Entry> {
-				@Override
-				public Entry apply(Transaction transaction) {
-					return new Entry.FUND_JP(transaction);
-				}
-			}
-			static class STOCK_US implements Function<Transaction, Entry> {
-				@Override
-				public Entry apply(Transaction transaction) {
-					return new Entry.STOCK_US(transaction);
-				}
-			}
-			static class BOND_US implements Function<Transaction, Entry> {
-				@Override
-				public Entry apply(Transaction transaction) {
-					return new Entry.BOND_US(transaction);
-				}
-			}
-			static class MMF_US implements Function<Transaction, Entry> {
-				@Override
-				public Entry apply(Transaction transaction) {
-					return new Entry.MMF_US(transaction);
-				}
-			}
-		}
 
 		static Entry getInstance(Transaction transaction) {
 			return map.get(transaction.asset).apply(transaction);
