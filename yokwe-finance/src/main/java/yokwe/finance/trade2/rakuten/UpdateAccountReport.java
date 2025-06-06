@@ -210,18 +210,19 @@ public class UpdateAccountReport {
 		}
 		//
 		private static AccountReportJPY deposit(Context context, Transaction transaction) {
-			var date    = transaction.settlementDate;
+			var settle  = transaction.settlementDate;
+			var trade   = transaction.tradeDate;
 			var amount  = transaction.amount;
 			var comment = transaction.comment;
 
 			var ret = new AccountReportJPY();
 			
-			ret.date           = date;
+			ret.date           = settle;
 			ret.deposit        = amount;
 			ret.withdraw       = 0;
 			ret.fundTotal      = context.fundTotal;
 			ret.cashTotal      = context.cashTotal;
-			ret.stockValue     = context.portfolio.valueAsOf(date);
+			ret.stockValue     = context.portfolio.valueAsOf(trade);
 			ret.stockCost      = context.stockCost;
 			ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
 			ret.realizedGain   = context.realizedGain;
@@ -236,18 +237,19 @@ public class UpdateAccountReport {
 			return ret;
 		}
 		private static AccountReportJPY withdraw(Context context, Transaction transaction) {
-			var date    = transaction.settlementDate;
+			var settle  = transaction.settlementDate;
+			var trade   = transaction.tradeDate;
 			var amount  = transaction.amount;
 			var comment = transaction.comment;
 
 			var ret = new AccountReportJPY();
 			
-			ret.date           = date;
+			ret.date           = settle;
 			ret.deposit        = 0;
 			ret.withdraw       = amount;
 			ret.fundTotal      = context.fundTotal;
 			ret.cashTotal      = context.cashTotal;
-			ret.stockValue     = context.portfolio.valueAsOf(date);
+			ret.stockValue     = context.portfolio.valueAsOf(trade);
 			ret.stockCost      = context.stockCost;
 			ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
 			ret.realizedGain   = context.realizedGain;
@@ -262,7 +264,8 @@ public class UpdateAccountReport {
 			return ret;
 		}
 		private static AccountReportJPY buy(Context context, Transaction transaction) {
-			var date    = transaction.settlementDate;
+			var settle  = transaction.settlementDate;
+			var trade   = transaction.tradeDate;
 			var amount  = transaction.amount;
 			var code    = transaction.code;
 			var name    = transaction.comment;
@@ -270,12 +273,12 @@ public class UpdateAccountReport {
 			// build report
 			var ret = new AccountReportJPY();
 			
-			ret.date           = date;
+			ret.date           = settle;
 			ret.deposit        = 0;
 			ret.withdraw       = 0;
 			ret.fundTotal      = context.fundTotal;
 			ret.cashTotal      = context.cashTotal;
-			ret.stockValue     = context.portfolio.valueAsOf(date);
+			ret.stockValue     = context.portfolio.valueAsOf(trade);
 			ret.stockCost      = context.stockCost;
 			ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
 			ret.realizedGain   = context.realizedGain;
@@ -290,7 +293,8 @@ public class UpdateAccountReport {
 			return ret;
 		}
 		private static AccountReportJPY sell(Context context, Transaction transaction, int sellCost) {
-			var date    = transaction.settlementDate;
+			var settle  = transaction.settlementDate;
+			var trade   = transaction.tradeDate;
 			var amount  = transaction.amount;
 			var code    = transaction.code;
 			var name    = transaction.comment;
@@ -300,12 +304,12 @@ public class UpdateAccountReport {
 			// build report
 			var ret = new AccountReportJPY();
 			
-			ret.date           = date;
+			ret.date           = settle;
 			ret.deposit        = 0;
 			ret.withdraw       = 0;
 			ret.fundTotal      = context.fundTotal;
 			ret.cashTotal      = context.cashTotal;
-			ret.stockValue     = context.portfolio.valueAsOf(date);
+			ret.stockValue     = context.portfolio.valueAsOf(trade);
 			ret.stockCost      = context.stockCost;
 			ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
 			ret.realizedGain   = context.realizedGain;
@@ -393,7 +397,8 @@ public class UpdateAccountReport {
 		private static class DIVIDEND_CASH implements BiFunction<Context, Transaction, AccountReportJPY> {
 			@Override
 			public AccountReportJPY apply(Context context, Transaction transaction) {
-				var date   = transaction.settlementDate;
+				var settle  = transaction.settlementDate;
+				var trade   = transaction.tradeDate;
 				var amount = transaction.amount;
 				var code   = transaction.code;
 				var name   = transaction.comment;
@@ -407,12 +412,12 @@ public class UpdateAccountReport {
 				// build report
 				var ret = new AccountReportJPY();
 				
-				ret.date           = date;
+				ret.date           = settle;
 				ret.deposit        = 0;
 				ret.withdraw       = 0;
 				ret.fundTotal      = context.fundTotal;
 				ret.cashTotal      = context.cashTotal;
-				ret.stockValue     = context.portfolio.valueAsOf(date);
+				ret.stockValue     = context.portfolio.valueAsOf(trade);
 				ret.stockCost      = context.stockCost;
 				ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
 				ret.realizedGain   = context.realizedGain;
