@@ -2,11 +2,13 @@ package yokwe.finance.trade2.rakuten;
 
 import static yokwe.finance.trade.rakuten.UpdateAccountReport.URL_TEMPLATE;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -44,8 +46,8 @@ public class UpdateAccountReport {
 		logger.info("reportUSD  {}", reportUSD.size());
 		
 		// remove entry older than 1 year
-//		reportJPY.removeIf(o -> o.date.isBefore(LocalDate.now().minusYears(1)));
-//		reportUSD.removeIf(o -> o.date.isBefore(LocalDate.now().minusYears(1)));
+		reportJPY.removeIf(o -> o.date.isBefore(LocalDate.now().minusYears(1)));
+		reportUSD.removeIf(o -> o.date.isBefore(LocalDate.now().minusYears(1)));
 		
 		generateReport(reportJPY, reportUSD);
 	}
@@ -114,13 +116,41 @@ public class UpdateAccountReport {
 	private static List<AccountReportJPY> toAccountReportJPY(List<Transaction> transactionList) {
 		var context = new Context();
 		
+		var list = transactionList.stream().filter(o -> o.currency == Currency.JPY).collect(Collectors.toList());
+		// map needs to use TreeMap for entrySet ordering
+		var map  = list.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
+		
 		var ret = new ArrayList<AccountReportJPY>();
-		for(var e: transactionList) {
-			var entry = FunctionJPY.toAccountReportJPY(context, e);
-			if (entry == null) continue;
-			logger.info("XX  {}", entry.toString());
-			ret.add(entry);
+		
+		LocalDate lastDate = null;
+		for(var entry: map.entrySet()) {
+			var date    = entry.getKey();
+			var mapList = entry.getValue();
+			
+			for(;;) {
+				if (lastDate == null) break;
+				lastDate = lastDate.plusDays(1);
+				if (!lastDate.isBefore(date)) break;
+				ret.add(FunctionJPY.reportAsOf(context, lastDate));
+			}
+			lastDate = date;
+			
+			for(var e: mapList) {
+				ret.add(FunctionJPY.toAccountReportJPY(context, e));
+			}
 		}
+		
+		// add line of today
+		{
+			var today = LocalDate.now();
+			for(;;) {
+				if (lastDate == null) break;
+				lastDate = lastDate.plusDays(1);
+				if (lastDate.isAfter(today)) break;
+				ret.add(FunctionJPY.reportAsOf(context, lastDate));
+			}
+		}
+		
 		return ret;
 	}
 	private static class FunctionJPY {
@@ -289,6 +319,32 @@ public class UpdateAccountReport {
 			ret.sellGain       = gain;
 			ret.code           = code;
 			ret.comment        = name;
+			
+			return ret;
+		}
+		private static AccountReportJPY reportAsOf(Context context, LocalDate date) {
+			// update context
+			// fundTotal = cashTotal + stockCost
+			
+			// build report
+			var ret = new AccountReportJPY();
+			
+			ret.date           = date;
+			ret.deposit        = 0;
+			ret.withdraw       = 0;
+			ret.fundTotal      = context.fundTotal;
+			ret.cashTotal      = context.cashTotal;
+			ret.stockValue     = context.portfolio.valueAsOf(date);
+			ret.stockCost      = context.stockCost;
+			ret.unrealizedGain = (ret.stockValue <= 0) ? 0 : (ret.stockValue - ret.stockCost);
+			ret.realizedGain   = context.realizedGain;
+			ret.dividend       = 0;
+			ret.buy            = 0;
+			ret.sell           = 0;
+			ret.sellCost       = 0;
+			ret.sellGain       = 0;
+			ret.code           = "";
+			ret.comment        = "";
 			
 			return ret;
 		}
