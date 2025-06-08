@@ -176,7 +176,7 @@ public class UpdateAccountReport {
 			Map.entry(Transaction.Asset.STOCK_JP, new DEPOSTI_STOCK_JP())
 		)),
 		Map.entry(Transaction.Type.WITHDRAW, Map.ofEntries(
-				Map.entry(Transaction.Asset.CASH, new WITHDRAW())
+			Map.entry(Transaction.Asset.CASH, new WITHDRAW())
 		)),
 		Map.entry(Transaction.Type.DEPOSIT_TRANSFER, Map.ofEntries(
 			Map.entry(Transaction.Asset.CASH, new DEPOSIT())
