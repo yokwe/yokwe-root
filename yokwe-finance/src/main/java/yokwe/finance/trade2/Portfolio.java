@@ -287,7 +287,8 @@ public class Portfolio {
 			}
 			@Override
 			protected List<DailyValue> getList(String code) {
-				return StorageStock.StockPriceUS.getList(code).stream().map(o -> new DailyValue(o.date, o.close)).toList();
+				// change o.close from dollar value to cent value
+				return StorageStock.StockPriceUS.getList(code).stream().map(o -> new DailyValue(o.date, o.close.movePointRight(2))).toList();
 			}
 		}
 		public class BOND_US extends Base {
