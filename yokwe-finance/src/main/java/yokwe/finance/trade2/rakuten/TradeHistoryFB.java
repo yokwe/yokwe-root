@@ -122,9 +122,9 @@ public class TradeHistoryFB {
 	static List<Transaction> toTransaction(List<TradeHistoryFB> list) {
 		var ret = new ArrayList<Transaction>();
 		for(var e: list) {
-			var t = toTransaction(e);
-			if (t == null) continue;
-			ret.add(toTransaction(e));
+			var transaction = toTransaction(e);
+			if (transaction == null) continue;
+			ret.add(transaction);
 		}
 		logger.info("toTransaction  {}", ret.size());
 		return ret;
@@ -154,8 +154,8 @@ public class TradeHistoryFB {
 				ret.currency       = Transaction.Currency.USD;
 				ret.type           = Transaction.Type.BUY;
 				ret.asset          = Transaction.Asset.BOND_US;
-				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue();
+				ret.units          = Integer.valueOf(e.units.replace(",", "")) * 100;                        // change dollar to cent
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue(); // change dollar to cent
 				ret.code           = "";
 				ret.comment        = e.name;
 				
@@ -172,8 +172,8 @@ public class TradeHistoryFB {
 				ret.currency       = Transaction.Currency.USD;
 				ret.type           = Transaction.Type.SELL;
 				ret.asset          = Transaction.Asset.BOND_US;
-				ret.units          = Integer.valueOf(e.units.replace(",", ""));
-				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue();
+				ret.units          = Integer.valueOf(e.units.replace(",", "")) * 100;                        // change dollar to cent
+				ret.amount         = new BigDecimal(e.amount.replace(",", "")).movePointRight(2).intValue(); // change dollar to cent
 				ret.code           = "";
 				ret.comment        = e.name;
 				
