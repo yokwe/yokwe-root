@@ -25,6 +25,8 @@ public class Transaction implements Comparable<Transaction> {
 		//
 		BUY,
 		SELL,
+		//
+		BALANCE,
 		;
 	}
 

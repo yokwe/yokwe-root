@@ -18,6 +18,7 @@ import yokwe.finance.trade2.Portfolio;
 import yokwe.finance.trade2.Transaction;
 import yokwe.finance.trade2.Transaction.Currency;
 import yokwe.util.StringUtil;
+import yokwe.util.UnexpectedException;
 import yokwe.util.libreoffice.LibreOffice;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
@@ -126,7 +127,8 @@ public class UpdateAccountReport {
 			lastDate = date;
 			
 			for(var e: mapList) {
-				ret.add(toAccountReportJPY(context, e));
+				var accountReport = toAccountReport(context, e);
+				if (accountReport != null) ret.add(accountReport);
 			}
 		}
 		
@@ -205,9 +207,12 @@ public class UpdateAccountReport {
 			Map.entry(Transaction.Asset.STOCK_US, new SELL()),
 			Map.entry(Transaction.Asset.BOND_US,  new SELL()),
 			Map.entry(Transaction.Asset.MMF_US,   new SELL())
+		)),
+		Map.entry(Transaction.Type.BALANCE, Map.ofEntries(
+			Map.entry(Transaction.Asset.CASH, new BALANCE())
 		))
 	);
-	private static AccountReport toAccountReportJPY(Context context, Transaction transaction) {
+	private static AccountReport toAccountReport(Context context, Transaction transaction) {
 		var assetMap = typeMap.get(transaction.type);
 		if (assetMap == null) logger.warn("unexpected  type  {}  asset  {}", transaction.type, transaction.asset);
 		var func = assetMap.get(transaction.asset);
@@ -390,6 +395,20 @@ public class UpdateAccountReport {
 			ret.sellGain = gain;
 			
 			return ret;
+		}
+	}
+	//
+	private static class BALANCE implements BiFunction<Context, Transaction, AccountReport> {
+		@Override
+		public AccountReport apply(Context context, Transaction transaction) {
+			// sanity check
+			var balance  = transaction.amount;
+			if (balance != context.cashTotal) {
+				logger.error("balance not match");
+				logger.error("  {}  {}  {}  --  {}", transaction.settlementDate, transaction.currency, context.cashTotal, balance);
+				throw new UnexpectedException("balance not match");
+			}
+			return null;
 		}
 	}
 

@@ -112,8 +112,10 @@ public class AdjustHistoryJP {
 		var ret = new ArrayList<Transaction>();
 		for(var e: list) {
 			var transaction = toTransaction(e);
-			if (transaction == null) continue;
-			ret.add(transaction);
+			if (transaction != null) ret.add(transaction);
+			
+			var balance = toBalance(e);
+			if (balance != null) ret.add(balance);
 		}
 		logger.info("toTransaction  {}", ret.size());
 		return ret;
@@ -127,6 +129,23 @@ public class AdjustHistoryJP {
 			throw new UnexpectedException("Uneexpected type");
 		}
 		return function.apply(e);
+	}
+	static Transaction toBalance(AdjustHistoryJP e) {
+		if (e.balance.isEmpty()) return null;
+		
+		var ret = new Transaction();
+		
+		ret.settlementDate = toLocalDate(e.settlementDate);
+		ret.tradeDate      = ret.settlementDate;
+		ret.currency       = Transaction.Currency.JPY;
+		ret.type           = Transaction.Type.BALANCE;
+		ret.asset          = Transaction.Asset.CASH;
+		ret.units          = 0;
+		ret.amount         = Integer.valueOf(e.balance.replace(",", ""));
+		ret.code           = "";
+		ret.comment        = "";
+		
+		return ret;
 	}
 	
 	private static Map<Type, Function<AdjustHistoryJP, Transaction>> functionMap = Map.ofEntries(

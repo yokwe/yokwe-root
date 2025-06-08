@@ -125,8 +125,10 @@ public class AdjustHistoryUS {
 		var ret = new ArrayList<Transaction>();
 		for(var e: list) {
 			var transaction = toTransaction(e);
-			if (transaction == null) continue;
-			ret.add(transaction);
+			if (transaction != null) ret.add(transaction);
+			
+			var balance = toBalance(e);
+			if (balance != null) ret.add(balance);
 		}
 		logger.info("toTransaction  {}", ret.size());
 		return ret;
@@ -140,7 +142,24 @@ public class AdjustHistoryUS {
 		}
 		return function.apply(e);
 	}
-	
+	static Transaction toBalance(AdjustHistoryUS e) {
+		if (e.balance.isEmpty()) return null;
+		
+		var ret = new Transaction();
+		
+		ret.settlementDate = toLocalDate(e.settlementDate);
+		ret.tradeDate      = ret.settlementDate;
+		ret.currency       = Transaction.Currency.USD;
+		ret.type           = Transaction.Type.BALANCE;
+		ret.asset          = Transaction.Asset.CASH;
+		ret.units          = 0;
+		ret.amount         = new BigDecimal(e.balance.replace(",", "")).movePointRight(2).intValue();
+		ret.code           = "";
+		ret.comment        = "";
+		
+		return ret;
+	}
+
 	private static Map<Type, Function<AdjustHistoryUS, Transaction>> functionMap = Map.ofEntries(
 		Map.entry(Type.DEOSIT_TRANSFER,   new Functions.DEOSIT_TRANSFER()),
 		Map.entry(Type.WITHDRAW_TRANSFER, new Functions.WITHDRAW_TRANSFER()),
