@@ -20,16 +20,74 @@ import yokwe.util.UnexpectedException;
 public class Portfolio {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
+	public static class Trade {
+		public enum Type {
+			BUY,
+			SELL,
+			;
+		}
+		
+		public static Trade buy(Transaction transaction) {
+			if (transaction.type != Transaction.Type.BUY) {
+				logger.error("Unexpected type");
+				logger.error("  transaction  {}", transaction.toString());
+				throw new UnexpectedException("Unexpected type");
+			}
+			var ret = new Trade();
+			
+			ret.settlemenDate = transaction.settlementDate;
+			ret.tradeDate     = transaction.tradeDate;
+			ret.type          = Type.BUY;
+			ret.asset         = transaction.asset;
+			ret.code          = transaction.code;
+			ret.units         = transaction.units;
+			ret.cost          = transaction.amount;
+			
+			
+			return ret;
+		}
+		
+		LocalDate settlemenDate;
+		LocalDate tradeDate;
+		Type      type;
+		Asset     asset;
+		String    code;
+		int       units;
+		int       cost;
+		int       totalCost;
+		int       totalUnits;
+	}
+	
+	
+	
 	private Map<String, Entry> entryMap = new TreeMap<>();
 	//          code
+	
+	
 	private Entry getEntry(Transaction transaction) {
-		var code = transaction.code;
+		String key;
+		switch (transaction.asset) {
+		case STOCK_JP:
+		case FUND_JP:
+		case STOCK_US:
+			key = transaction.code;
+			break;
+		case BOND_US:
+		case MMF_US:
+			key = transaction.comment;
+			break;
+		default:
+			logger.error("Unexpected asset");
+			logger.error("  {}", transaction);
+			throw new UnexpectedException("Unexpected asset");
+		}
+		
 		Entry entry;
-		if (entryMap.containsKey(code)) {
-			entry = entryMap.get(code);
+		if (entryMap.containsKey(key)) {
+			entry = entryMap.get(key);
 		} else {
 			entry = Entry.getInstance(transaction);
-			entryMap.put(code, entry);
+			entryMap.put(key, entry);
 		}
 		return entry;
 	}
@@ -88,6 +146,7 @@ public class Portfolio {
 		abstract class Base implements Entry {
 			final Asset  asset;
 			final String code;
+			final String name;
 			
 			int totalUnits = 0;
 			int totalCost  = 0;
@@ -95,6 +154,12 @@ public class Portfolio {
 			Base(Transaction transaction) {
 				this.asset = transaction.asset;
 				this.code  = transaction.code;
+				this.name  = transaction.comment;
+			}
+			
+			@Override
+			public String toString() {
+				return String.format("{%s  %s  %d  %d  %s}",  asset, code, totalUnits, totalCost, name);
 			}
 			
 			@Override
@@ -118,6 +183,7 @@ public class Portfolio {
 			public void buy(Transaction transaction) {
 				var units = transaction.units;
 				var cost  = transaction.amount;
+				
 				totalUnits += units;
 				totalCost  += cost;
 			}
@@ -127,7 +193,7 @@ public class Portfolio {
 				if (totalUnits < 0 || totalCost < 0) {
 					logger.error("Unexpected totalUnits");
 					logger.error("  transaction  {}", transaction.toString());
-					logger.error("  etnry        {}", this.toString());
+					logger.error("  this         {}  {}  {}  {}", asset, code, totalUnits, totalCost);
 					throw new UnexpectedException("Unexpected totalUnits");
 				}
 				
@@ -160,7 +226,12 @@ public class Portfolio {
 			}
 			
 			abstract protected List<DailyValue> getList(String code);
-
+			
+			@Override
+			public String toString() {
+				return String.format("{%s  %s  %d  %d  %s}",  asset, code, totalUnits, totalCost, name);
+			}
+			
 			@Override
 			public int valueAsOf(LocalDate date) {
 				if (totalUnits == 0) return 0;
