@@ -15,86 +15,67 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class AccountReportUSD extends Sheet {
 	@ColumnName("年月日")
 	@NumberFormat(SpreadSheet.FORMAT_DATE)
-	public LocalDate date;
+	public final LocalDate date;
 	
 	@ColumnName("入金")
 	@NumberFormat(SpreadSheet.FORMAT_USD_BLANK)
-	public BigDecimal deposit;
+	public final BigDecimal deposit;
 	
 	@ColumnName("出金")
 	@NumberFormat(SpreadSheet.FORMAT_USD_BLANK)
-	public BigDecimal withdraw;
+	public final BigDecimal withdraw;
 	
 	@ColumnName("資金")
 	@NumberFormat(SpreadSheet.FORMAT_USD)
-	public BigDecimal fundTotal;
+	public final BigDecimal fundTotal;
 	
 	@ColumnName("現金")
 	@NumberFormat(SpreadSheet.FORMAT_USD)
-	public BigDecimal cashTotal;
+	public final BigDecimal cashTotal;
 	
 	@ColumnName("証券評価")
 	@NumberFormat(SpreadSheet.FORMAT_USD)
-	public BigDecimal stockValue;
+	public final BigDecimal stockValue;
 	
 	@ColumnName("証券原価")
 	@NumberFormat(SpreadSheet.FORMAT_USD)
-	public BigDecimal stockCost;
+	public final BigDecimal stockCost;
 	
 	@ColumnName("未実現損益")
 	@NumberFormat(SpreadSheet.FORMAT_USD)
-	public BigDecimal unrealizedGain;
+	public final BigDecimal unrealizedGain;
 	
 	@ColumnName("実現損益")
 	@NumberFormat(SpreadSheet.FORMAT_USD)
-	public BigDecimal realizedGain;
+	public final BigDecimal realizedGain;
 	
 	@ColumnName("配当")
 	@NumberFormat(SpreadSheet.FORMAT_USD_BLANK)
-	public BigDecimal dividend;
+	public final BigDecimal dividend;
 	
 	@ColumnName("購入")
 	@NumberFormat(SpreadSheet.FORMAT_USD_BLANK)
-	public BigDecimal buy;
+	public final BigDecimal buy;
 	
 	@ColumnName("売却")
 	@NumberFormat(SpreadSheet.FORMAT_USD_BLANK)
-	public BigDecimal sell;
+	public final BigDecimal sell;
 	
 	@ColumnName("売却原価")
 	@NumberFormat(SpreadSheet.FORMAT_USD_BLANK)
-	public BigDecimal sellCost;
+	public final BigDecimal sellCost;
 	
 	@ColumnName("売却損益")
 	@NumberFormat(SpreadSheet.FORMAT_USD_BLANK)
-	public BigDecimal sellGain;
+	public final BigDecimal sellGain;
 	
 	@ColumnName("銘柄")
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
-	public String code;
+	public final String code;
 	
 	@ColumnName("コメント")
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
-	public String comment;
-	
-	public AccountReportUSD() {
-		this.date           = null;
-		this.deposit        = BigDecimal.ZERO;
-		this.withdraw       = BigDecimal.ZERO;
-		this.fundTotal      = BigDecimal.ZERO;
-		this.cashTotal      = BigDecimal.ZERO;
-		this.stockValue     = BigDecimal.ZERO;
-		this.stockCost      = BigDecimal.ZERO;
-		this.unrealizedGain = BigDecimal.ZERO;
-		this.realizedGain   = BigDecimal.ZERO;
-		this.dividend       = BigDecimal.ZERO;
-		this.buy            = BigDecimal.ZERO;
-		this.sell           = BigDecimal.ZERO;
-		this.sellCost       = BigDecimal.ZERO;
-		this.sellGain       = BigDecimal.ZERO;
-		this.code           = "";
-		this.comment        = "";
-	}
+	public final String comment;
 	
 	public AccountReportUSD(AccountReport that) {
 		this.date           = that.date;
