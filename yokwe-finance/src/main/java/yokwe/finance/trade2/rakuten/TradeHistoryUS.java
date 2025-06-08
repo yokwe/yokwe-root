@@ -131,9 +131,9 @@ public class TradeHistoryUS {
 		//
 		var ret = new ArrayList<Transaction>();
 		for(var e: list) {
-			var t = toTransaction(e);
-			if (t == null) continue;
-			ret.add(toTransaction(e));
+			var transaction = toTransaction(e);
+			if (transaction == null) continue;
+			ret.add(transaction);
 		}
 		logger.info("toTransaction  {}", ret.size());
 		return ret;

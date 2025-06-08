@@ -111,9 +111,9 @@ public class TradeHistoryINVST {
 
 		var ret = new ArrayList<Transaction>();
 		for(var e: list) {
-			var t = toTransaction(e);
-			if (t == null) continue;
-			ret.add(toTransaction(e));
+			var transaction = toTransaction(e);
+			if (transaction == null) continue;
+			ret.add(transaction);
 		}
 		logger.info("toTransaction  {}", ret.size());
 		
@@ -131,20 +131,16 @@ public class TradeHistoryINVST {
 		return function.apply(e);
 	}
 	
-	private static Map<Type, Function<TradeHistoryINVST, Transaction>> functionMapJPY = Map.ofEntries(
-		Map.entry(Type.BUY,      new FunctionsJPY.BUY()),
-		Map.entry(Type.SELL,     new FunctionsJPY.SELL()),
-		Map.entry(Type.REINVEST, new FunctionsJPY.REINVEST())
-	);
-	private static Map<Type, Function<TradeHistoryINVST, Transaction>> functionMapUSD = Map.ofEntries(
-		Map.entry(Type.BUY,      new FunctionsUSD.BUY()),
-		Map.entry(Type.SELL,     new FunctionsUSD.SELL()),
-		Map.entry(Type.REINVEST, new FunctionsUSD.REINVEST())
-	);
-
-	private static Map<Currency, Map<Type, Function<TradeHistoryINVST, Transaction>>> functionMap = Map.ofEntries(
-		Map.entry(Currency.JPY, functionMapJPY),
-		Map.entry(Currency.USD, functionMapUSD)
+	private static Map<Currency, Map<Type, Function<TradeHistoryINVST, Transaction>>> functionMap =Map.ofEntries(
+		Map.entry(Currency.JPY, Map.ofEntries(
+			Map.entry(Type.BUY,      new FunctionsJPY.BUY()),
+			Map.entry(Type.SELL,     new FunctionsJPY.SELL()),
+			Map.entry(Type.REINVEST, new FunctionsJPY.REINVEST())
+		)),
+		Map.entry(Currency.USD, Map.ofEntries(
+			Map.entry(Type.BUY,      new FunctionsUSD.BUY()),
+			Map.entry(Type.SELL,     new FunctionsUSD.SELL()),
+			Map.entry(Type.REINVEST, new FunctionsUSD.REINVEST())))
 	);
 	
 	
