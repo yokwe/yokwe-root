@@ -306,7 +306,6 @@ public class UpdateAccountReport {
 			
 			// update context
 			// fundTotal = cashTotal + stockCost
-			context.fundTotal    += amount;
 			context.realizedGain += amount;
 			
 			var ret = getAccountReport(context, transaction);
