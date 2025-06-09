@@ -271,14 +271,10 @@ public class Portfolio {
 				super(transaction);
 			}
 			@Override
-			public int valueAsOf(LocalDate date) {
-				var value = super.valueAsOf(date);
-				var units = fundPriceInfoMap.get(code).units;
-				return BigDecimal.valueOf(value).divide(BigDecimal.valueOf(units), 0, RoundingMode.HALF_UP).intValue();
-			}
-			@Override
 			protected List<DailyValue> getList(String code) {
-				return StorageFund.FundPrice.getList(code).stream().map(o -> new DailyValue(o.date, o.price)).toList();
+				var shift = fundPriceInfoMap.get(code).shift;
+				// apply movePointLeft(shift) to adjust price value for one unit
+				return StorageFund.FundPrice.getList(code).stream().map(o -> new DailyValue(o.date, o.price.movePointLeft(shift))).toList();
 			}
 		}
 		public class STOCK_US extends BaseMap {
