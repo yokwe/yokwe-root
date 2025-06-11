@@ -28,6 +28,11 @@ public class LocalDateMap<V> implements Map<LocalDate, V>, NavigableMap<LocalDat
 			super(o -> o.plusDays(1));
 		}
 	}
+	public static class Null<V> extends LocalDateMap<V> {
+		public Null() {
+			super(o -> null);
+		}
+	}
 	
 	public static class DailyValueMap extends PreviousDay<BigDecimal>{
 		public DailyValueMap(List<DailyValue> list) {
@@ -81,11 +86,12 @@ public class LocalDateMap<V> implements Map<LocalDate, V>, NavigableMap<LocalDat
 					return null;
 				}
 				
-				var ret = map.get(key);
-				if (ret != null) return ret;
-				
 				// update key for next iteration
 				key = updateKey.apply(key);
+				if (key == null) return null;
+				
+				var ret = map.get(key);
+				if (ret != null) return ret;
 			}
 		}
 	}
