@@ -14,7 +14,7 @@ import yokwe.finance.stock.StorageStock;
 import yokwe.finance.trade2.Transaction.Asset;
 import yokwe.finance.trade2.rakuten.StorageRakuten;
 import yokwe.finance.type.DailyValue;
-import yokwe.finance.type.DailyValueMap;
+import yokwe.finance.type.LocalDateMap.DailyValueMap;
 import yokwe.util.UnexpectedException;
 
 public class Portfolio {

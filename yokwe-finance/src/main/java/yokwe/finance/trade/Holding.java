@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import yokwe.finance.fund.StorageFund;
 import yokwe.finance.stock.StorageStock;
 import yokwe.finance.type.DailyValue;
-import yokwe.finance.type.DailyValueMap;
+import yokwe.finance.type.LocalDateMap.DailyValueMap;
 import yokwe.util.ToString;
 import yokwe.util.UnexpectedException;
 
@@ -149,7 +149,6 @@ public class Holding {
 		
 		int sellCost;
 		if (totalUnits < units) {
-			// FIXME for GS米ドルファンド
 			logger.warn("totalUnits  {}  units  {}", totalUnits, units);
 			sellCost = totalCost;
 			
