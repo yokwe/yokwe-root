@@ -19,13 +19,6 @@ public class LocalDateMap<V> implements Map<LocalDate, V>, NavigableMap<LocalDat
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
 	public static class PreviousDay<V> extends LocalDateMap<V> {
-		public static class BigDecimal extends PreviousDay<java.math.BigDecimal> {
-			public BigDecimal() {}
-			public BigDecimal(List<DailyValue> list) {
-				this();
-				list.stream().forEach(o -> this.put(o.date, o.value));
-			}
-		}
 		public PreviousDay() {
 			super(o -> o.minusDays(1));
 		}
