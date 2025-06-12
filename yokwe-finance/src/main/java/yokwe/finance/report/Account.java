@@ -6,10 +6,10 @@ import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
-@Sheet.SheetName("account-jpy")
+@Sheet.SheetName("account")
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
-public class AccountJPY extends Sheet {
+public class Account extends Sheet {
 	@ColumnName("年月日")
 	@NumberFormat(SpreadSheet.FORMAT_DATE)
 	public LocalDate date;

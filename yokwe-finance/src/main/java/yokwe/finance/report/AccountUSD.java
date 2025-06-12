@@ -9,7 +9,7 @@ import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
-@Sheet.SheetName("account-usd")
+@Sheet.SheetName("account")
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public class AccountUSD extends Sheet {
@@ -77,7 +77,7 @@ public class AccountUSD extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
 	public final String comment;
 	
-	public AccountUSD(AccountJPY that) {
+	public AccountUSD(Account that) {
 		this.date           = that.date;
 		this.deposit        = BigDecimal.valueOf(that.deposit).movePointLeft(2);
 		this.withdraw       = BigDecimal.valueOf(that.withdraw).movePointLeft(2);
@@ -101,11 +101,11 @@ public class AccountUSD extends Sheet {
 		return ToString.withFieldName(this);
 	}
 	
-	public static AccountUSD toAccountReportUSD(AccountJPY that) {
+	public static AccountUSD toAccountUSD(Account that) {
 		return new AccountUSD(that);
 	}
 	
-	public static List<AccountUSD> toAccountReportUSD(List<AccountJPY> list) {
+	public static List<AccountUSD> toAccountUSD(List<Account> list) {
 		return list.stream().map(o -> new AccountUSD(o)).collect(Collectors.toList());
 	}
 }
