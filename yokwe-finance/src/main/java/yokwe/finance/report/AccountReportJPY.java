@@ -1,4 +1,4 @@
-package yokwe.finance.trade2;
+package yokwe.finance.report;
 
 import java.time.LocalDate;
 
@@ -6,10 +6,10 @@ import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
-@Sheet.SheetName("account-report")
+@Sheet.SheetName("account-report-jpy")
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
-public class AccountReport extends Sheet {
+public class AccountReportJPY extends Sheet {
 	@ColumnName("年月日")
 	@NumberFormat(SpreadSheet.FORMAT_DATE)
 	public LocalDate date;

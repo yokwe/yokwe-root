@@ -1,4 +1,4 @@
-package yokwe.finance.trade2;
+package yokwe.finance.report;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -77,7 +77,7 @@ public class AccountReportUSD extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
 	public final String comment;
 	
-	public AccountReportUSD(AccountReport that) {
+	public AccountReportUSD(AccountReportJPY that) {
 		this.date           = that.date;
 		this.deposit        = BigDecimal.valueOf(that.deposit).movePointLeft(2);
 		this.withdraw       = BigDecimal.valueOf(that.withdraw).movePointLeft(2);
@@ -101,11 +101,11 @@ public class AccountReportUSD extends Sheet {
 		return ToString.withFieldName(this);
 	}
 	
-	public static AccountReportUSD toAccountReportUSD(AccountReport that) {
+	public static AccountReportUSD toAccountReportUSD(AccountReportJPY that) {
 		return new AccountReportUSD(that);
 	}
 	
-	public static List<AccountReportUSD> toAccountReportUSD(List<AccountReport> list) {
+	public static List<AccountReportUSD> toAccountReportUSD(List<AccountReportJPY> list) {
 		return list.stream().map(o -> new AccountReportUSD(o)).collect(Collectors.toList());
 	}
 }
