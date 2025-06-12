@@ -23,7 +23,7 @@ import yokwe.util.libreoffice.SpreadSheet;
 public class UpdateAccountRakuten {
 	private static final org.slf4j.Logger logger = yokwe.util.LoggerUtil.getLogger();
 	
-	private static final String URL_TEMPLATE  = StringUtil.toURLString("data/form/ACCOUNT-REPORT.ods");
+	private static final String URL_TEMPLATE  = StringUtil.toURLString("data/form/ACCOUNT.ods");
 
 	public static void main(String[] args) {
 		logger.info("START");
@@ -45,9 +45,9 @@ public class UpdateAccountRakuten {
 		reportJPY.removeIf(o -> o.date.isBefore(LocalDate.now().minusYears(1)));
 		reportUSD.removeIf(o -> o.date.isBefore(LocalDate.now().minusYears(1)));
 		
-		generateReport(reportJPY, AccountReportUSD.toAccountReportUSD(reportUSD));
+		generateReport(reportJPY, AccountUSD.toAccountReportUSD(reportUSD));
 	}
-	private static void generateReport(List<AccountReportJPY> listJPY, List<AccountReportUSD> listUSD) {
+	private static void generateReport(List<AccountJPY> listJPY, List<AccountUSD> listUSD) {
 		String urlReport;
 		{
 			String timestamp  = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
@@ -67,13 +67,13 @@ public class UpdateAccountRakuten {
 			SpreadSheet docSave = new SpreadSheet();
 			
 			{
-				String sheetName = Sheet.getSheetName(AccountReportJPY.class);
+				String sheetName = Sheet.getSheetName(AccountJPY.class);
 				logger.info("sheet     {}", sheetName);
 				docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
 				Sheet.fillSheet(docSave, listJPY);
 			}
 			{
-				String sheetName = Sheet.getSheetName(AccountReportUSD.class);
+				String sheetName = Sheet.getSheetName(AccountUSD.class);
 				logger.info("sheet     {}", sheetName);
 				docSave.importSheet(docLoad, sheetName, docSave.getSheetCount());
 				Sheet.fillSheet(docSave, listUSD);
@@ -103,13 +103,13 @@ public class UpdateAccountRakuten {
 		int        realizedGain = 0;
 	}
 	
-	private static List<AccountReportJPY> toAccountReport(List<Transaction> transactionList) {
+	private static List<AccountJPY> toAccountReport(List<Transaction> transactionList) {
 		var context = new Context();
 		
 		// map needs to use TreeMap for entrySet ordering
 		var map = transactionList.stream().collect(Collectors.groupingBy(o -> o.settlementDate, TreeMap::new, Collectors.toCollection(ArrayList::new)));
 		
-		var ret = new ArrayList<AccountReportJPY>();
+		var ret = new ArrayList<AccountJPY>();
 		
 		LocalDate lastDate = null;
 		for(var entry: map.entrySet()) {
@@ -145,8 +145,8 @@ public class UpdateAccountRakuten {
 		return ret;
 	}
 	
-	private static AccountReportJPY getAccountReport(Context context, LocalDate date, String code, String comment) {
-		var ret = new AccountReportJPY();
+	private static AccountJPY getAccountReport(Context context, LocalDate date, String code, String comment) {
+		var ret = new AccountJPY();
 		
 		ret.date           = date;
 		ret.fundTotal      = context.fundTotal;
@@ -160,16 +160,16 @@ public class UpdateAccountRakuten {
 
 		return ret;
 	}
-	private static AccountReportJPY getAccountReport(Context context, Transaction transaction) {
+	private static AccountJPY getAccountReport(Context context, Transaction transaction) {
 		return getAccountReport(context, transaction.settlementDate, transaction.code, transaction.comment);
 	}
 	
-	private static AccountReportJPY reportAsOf(Context context, LocalDate date) {
+	private static AccountJPY reportAsOf(Context context, LocalDate date) {
 		return getAccountReport(context, date, "", "");
 	}
 	
 	
-	private static final Map<Transaction.Type, Map<Transaction.Asset, BiFunction<Context, Transaction, AccountReportJPY>>> typeMap = Map.ofEntries(
+	private static final Map<Transaction.Type, Map<Transaction.Asset, BiFunction<Context, Transaction, AccountJPY>>> typeMap = Map.ofEntries(
 		Map.entry(Transaction.Type.DEPOSIT, Map.ofEntries(
 			Map.entry(Transaction.Asset.CASH,     new DEPOSIT()),
 			Map.entry(Transaction.Asset.STOCK_JP, new DEPOSTI_STOCK_JP())
@@ -211,7 +211,7 @@ public class UpdateAccountRakuten {
 			Map.entry(Transaction.Asset.CASH, new BALANCE())
 		))
 	);
-	private static AccountReportJPY toAccountReport(Context context, Transaction transaction) {
+	private static AccountJPY toAccountReport(Context context, Transaction transaction) {
 		var assetMap = typeMap.get(transaction.type);
 		if (assetMap == null) logger.warn("unexpected  type  {}  asset  {}", transaction.type, transaction.asset);
 		var func = assetMap.get(transaction.asset);
@@ -219,9 +219,9 @@ public class UpdateAccountRakuten {
 		return func.apply(context, transaction);
 	}
 	//
-	private static class DEPOSIT implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class DEPOSIT implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			var amount  = transaction.amount;
 
 			// update context
@@ -236,9 +236,9 @@ public class UpdateAccountRakuten {
 			return ret;
 		}
 	}
-	private static class WITHDRAW implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class WITHDRAW implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			var amount  = transaction.amount;
 			
 			// update context
@@ -253,9 +253,9 @@ public class UpdateAccountRakuten {
 			return ret;
 		}
 	}
-	private static class DEPOSTI_STOCK_JP implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class DEPOSTI_STOCK_JP implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			var amount  = transaction.amount;
 			
 			// update portfolio
@@ -273,9 +273,9 @@ public class UpdateAccountRakuten {
 			return ret;
 		}
 	}
-	private static class DIVIDEND_CASH implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class DIVIDEND_CASH implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			var amount = transaction.amount;
 			
 			// update context
@@ -291,9 +291,9 @@ public class UpdateAccountRakuten {
 			return ret;
 		}
 	}
-	private static class DIVIDEND_MMF_US implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class DIVIDEND_MMF_US implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			var amount = transaction.amount;
 			
 			// update portfolio
@@ -314,9 +314,9 @@ public class UpdateAccountRakuten {
 			return ret;
 		}
 	}
-	private static class TAX implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class TAX implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			var amount  = transaction.amount;
 			
 			// update context
@@ -332,9 +332,9 @@ public class UpdateAccountRakuten {
 			return ret;
 		}
 	}
-	private static class TAX_REFUND implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class TAX_REFUND implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			var amount  = transaction.amount;
 			
 			// update context
@@ -350,9 +350,9 @@ public class UpdateAccountRakuten {
 			return ret;
 		}
 	}
-	private static class BUY implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class BUY implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {			
+		public AccountJPY apply(Context context, Transaction transaction) {			
 			// update portfolio
 			context.portfolio.buy(transaction);
 			
@@ -370,9 +370,9 @@ public class UpdateAccountRakuten {
 		}
 	}
 	//
-	private static class SELL implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class SELL implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			var amount  = transaction.amount;
 			
 			// update portfolio
@@ -396,9 +396,9 @@ public class UpdateAccountRakuten {
 		}
 	}
 	//
-	private static class BALANCE implements BiFunction<Context, Transaction, AccountReportJPY> {
+	private static class BALANCE implements BiFunction<Context, Transaction, AccountJPY> {
 		@Override
-		public AccountReportJPY apply(Context context, Transaction transaction) {
+		public AccountJPY apply(Context context, Transaction transaction) {
 			// sanity check
 			var balance  = transaction.amount;
 			if (balance != context.cashTotal) {

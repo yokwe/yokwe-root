@@ -9,10 +9,10 @@ import yokwe.util.ToString;
 import yokwe.util.libreoffice.Sheet;
 import yokwe.util.libreoffice.SpreadSheet;
 
-@Sheet.SheetName("account-report-usd")
+@Sheet.SheetName("account-usd")
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
-public class AccountReportUSD extends Sheet {
+public class AccountUSD extends Sheet {
 	@ColumnName("年月日")
 	@NumberFormat(SpreadSheet.FORMAT_DATE)
 	public final LocalDate date;
@@ -77,7 +77,7 @@ public class AccountReportUSD extends Sheet {
 	@NumberFormat(SpreadSheet.FORMAT_STRING)
 	public final String comment;
 	
-	public AccountReportUSD(AccountReportJPY that) {
+	public AccountUSD(AccountJPY that) {
 		this.date           = that.date;
 		this.deposit        = BigDecimal.valueOf(that.deposit).movePointLeft(2);
 		this.withdraw       = BigDecimal.valueOf(that.withdraw).movePointLeft(2);
@@ -101,11 +101,11 @@ public class AccountReportUSD extends Sheet {
 		return ToString.withFieldName(this);
 	}
 	
-	public static AccountReportUSD toAccountReportUSD(AccountReportJPY that) {
-		return new AccountReportUSD(that);
+	public static AccountUSD toAccountReportUSD(AccountJPY that) {
+		return new AccountUSD(that);
 	}
 	
-	public static List<AccountReportUSD> toAccountReportUSD(List<AccountReportJPY> list) {
-		return list.stream().map(o -> new AccountReportUSD(o)).collect(Collectors.toList());
+	public static List<AccountUSD> toAccountReportUSD(List<AccountJPY> list) {
+		return list.stream().map(o -> new AccountUSD(o)).collect(Collectors.toList());
 	}
 }
