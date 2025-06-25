@@ -176,8 +176,8 @@ public class UpdateAccountRakuten {
 	private static final Map<Transaction.Type, Map<Transaction.Asset, BiFunction<Context, Transaction, Account>>> typeMap = Map.ofEntries(
 		Map.entry(Transaction.Type.DEPOSIT, Map.ofEntries(
 			Map.entry(Transaction.Asset.CASH,     new DEPOSIT()),
-			Map.entry(Transaction.Asset.STOCK_JP, new DEPOSTI_STOCK()),
-			Map.entry(Transaction.Asset.STOCK_US, new DEPOSTI_STOCK())
+			Map.entry(Transaction.Asset.STOCK_JP, new DEPOSTI_STOCK_JP()),
+			Map.entry(Transaction.Asset.STOCK_US, new DEPOSTI_STOCK_US())
 		)),
 		Map.entry(Transaction.Type.WITHDRAW, Map.ofEntries(
 			Map.entry(Transaction.Asset.CASH, new WITHDRAW())
@@ -258,7 +258,7 @@ public class UpdateAccountRakuten {
 			return ret;
 		}
 	}
-	private static class DEPOSTI_STOCK implements BiFunction<Context, Transaction, Account> {
+	private static class DEPOSTI_STOCK_JP implements BiFunction<Context, Transaction, Account> {
 		@Override
 		public Account apply(Context context, Transaction transaction) {
 			var amount  = transaction.amount;
@@ -270,6 +270,28 @@ public class UpdateAccountRakuten {
 			
 			// update context
 			// fundTotal = cashTotal + stockCost
+			
+			var ret = getAccount(context, transaction);
+			
+			ret.buy  = amount;
+			
+			return ret;
+		}
+	}
+	private static class DEPOSTI_STOCK_US implements BiFunction<Context, Transaction, Account> {
+		@Override
+		public Account apply(Context context, Transaction transaction) {
+			var amount  = transaction.amount;
+			
+			// update portfolio
+			transaction.amount = 0;
+			context.portfolio.buy(transaction);
+			transaction.amount = amount;
+			
+			// update context
+			// fundTotal = cashTotal + stockCost
+			context.fundTotal += amount;
+			context.stockCost += amount;
 			
 			var ret = getAccount(context, transaction);
 			
