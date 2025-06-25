@@ -3,6 +3,8 @@ package yokwe.finance.trade2.rakuten;
 import static yokwe.finance.trade2.rakuten.UpdateTransaction.toLocalDate;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +52,10 @@ public class TradeHistoryUS {
 	}
 	
 	public enum Mode {
-		CASH  ("現物"),
-		MARGIN("信用"),
+		CASH    ("現物"),
+		MARGIN  ("信用"),
+		DEPOSIT ("入庫"),
+		WITHDRAW("出庫"),
 		;
 		
 		public final String string;
@@ -68,6 +72,7 @@ public class TradeHistoryUS {
 	public enum Type {
 		BUY ("買付"),
 		SELL("売付"),
+		NONE(""),
 		;
 		
 		public final String string;
@@ -83,6 +88,7 @@ public class TradeHistoryUS {
 
 	public enum Currency {
 		USD("ＵＳドル"),
+		NONE("-"),
 		;
 		
 		public final String string;
@@ -105,7 +111,7 @@ public class TradeHistoryUS {
 	@CSVUtil.ColumnName("ティッカー")           public String   code;              // stock code
 	@CSVUtil.ColumnName("銘柄名")               public String   name;              // stock name
 	@CSVUtil.ColumnName("口座")                 public Account  accountType;       // "特定"
-	@CSVUtil.ColumnName("取引区分")             public Mode     mode;              // "現物"
+	@CSVUtil.ColumnName("取引区分")             public Mode     mode;              // "現物" "入庫"
 	@CSVUtil.ColumnName("売買区分")             public Type     type;              // "買付" "売付"
 	@CSVUtil.ColumnName("信用区分")             public String   marginType;        // "-"
 	@CSVUtil.ColumnName("弁済期限")             public String   marginDueDate;     // "-"
@@ -149,7 +155,8 @@ public class TradeHistoryUS {
 	}
 	private static Map<Type, Function<TradeHistoryUS, Transaction>> functionMap = Map.ofEntries(
 		Map.entry(Type.BUY,      new Functions.BUY()),
-		Map.entry(Type.SELL,     new Functions.SELL())
+		Map.entry(Type.SELL,     new Functions.SELL()),
+		Map.entry(Type.NONE,     new Functions.NONE())
 	);
 	private static class Functions {
 		private static class BUY implements Function<TradeHistoryUS, Transaction> {
@@ -186,6 +193,63 @@ public class TradeHistoryUS {
 				ret.comment        = TradeHistoryUS.toStockName(ret.code);
 				
 				return ret;
+			}
+		}
+		private static class NONE implements Function<TradeHistoryUS, Transaction> {
+			private static Map<Mode, Transaction.Type> modeMap = Map.ofEntries(
+				Map.entry(Mode.DEPOSIT,  Transaction.Type.DEPOSIT),
+				Map.entry(Mode.WITHDRAW, Transaction.Type.WITHDRAW)
+			);
+			
+			private static List<DepositStockUSType> depositStockUSList = StorageRakuten.DepositStockUS.getList();
+			private static BigDecimal getUnitPrice(LocalDate date, String code) {
+				for(var e: depositStockUSList) {
+					if (e.date.equals(date) && e.code.equals(code)) {
+						var totalAmount = e.costUSD.movePointRight(2); // convert dollar value to cent value
+						var totalUnits  = BigDecimal.valueOf(e.units);
+						
+						return totalAmount.divide(totalUnits, 4, RoundingMode.DOWN); // FIXME is this correct?
+					}
+				}
+				logger.error("Uneexpected value");
+				logger.error("  date   {}", date);
+				logger.error("  code   {}", code);
+				throw new UnexpectedException("Uneexpected value");
+			}
+			
+			private Transaction deposit(TradeHistoryUS e) {
+				var date      = toLocalDate(e.settlementDate);
+				var code      = TradeHistoryUS.toStockCode(e.name);
+				var units     = Integer.valueOf(e.units.replace(",", ""));
+				var unitPrice = getUnitPrice(date, code);
+				var amount    = BigDecimal.valueOf(units).multiply(unitPrice).setScale(0, RoundingMode.DOWN).intValue();
+				
+				var ret = new Transaction();
+				
+				ret.settlementDate = date;
+				ret.tradeDate      = toLocalDate(e.tradeDate);
+				ret.currency       = Transaction.Currency.USD;
+				ret.type           = modeMap.get(e.mode);
+				ret.asset          = Transaction.Asset.STOCK_US;
+				ret.units          = units;
+				ret.amount         = amount;
+				ret.code           = code;
+				ret.comment        = TradeHistoryUS.toStockName(code);
+				
+				return ret;
+			}
+			private Transaction withdraw(TradeHistoryUS e) {
+				throw new UnexpectedException("Unexpected");
+			}
+			
+			@Override
+			public Transaction apply(TradeHistoryUS e) {
+				if (e.mode == Mode.DEPOSIT)  return deposit(e);
+				if (e.mode == Mode.WITHDRAW) return withdraw(e);
+				
+				logger.error("Uneexpected mode");
+				logger.error("  mode   {}", e.mode);
+				throw new UnexpectedException("Uneexpected mode");
 			}
 		}
 	}

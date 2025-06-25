@@ -14,4 +14,8 @@ public class StorageRakuten {
 	// fund-price-factor
 	public static final Storage.LoadSaveList<FundPriceInfoJPType> FundPriceInfoJP =
 		new Storage.LoadSaveList.Impl<FundPriceInfoJPType>(FundPriceInfoJPType.class,  storage, "fund-price-info-jp-rakuten.csv");
+	
+	// stock-cost-us
+	public static final Storage.LoadSaveList<DepositStockUSType> DepositStockUS =
+		new Storage.LoadSaveList.Impl<DepositStockUSType>(DepositStockUSType.class,  storage, "deposit-stock-us.csv");
 }
