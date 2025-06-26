@@ -109,6 +109,13 @@ public class Portfolio {
 		}
 		return ret;
 	}
+	public int totalCost() {
+		int ret = 0;
+		for(var e: entryMap.values()) {
+			ret += e.totalCost();
+		}
+		return ret;
+	}
 	
 	
 	public interface Entry extends Comparable<Entry> {
