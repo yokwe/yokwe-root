@@ -7,91 +7,55 @@ import yokwe.util.libreoffice.Sheet;
 @Sheet.HeaderRow(0)
 @Sheet.DataRow(1)
 public final class StockStatsJP extends Sheet implements Comparable<StockStatsJP> {
-	@Sheet.ColumnName("stockCode") public String stockCode;
+	@Sheet.ColumnName("stockCode") public String stockCode = null;
 	
-	@Sheet.ColumnName("type")     public String type;
-	@Sheet.ColumnName("sector")   public String sector;
-	@Sheet.ColumnName("industry") public String industry;
-	@Sheet.ColumnName("name")     public String name;
-	@Sheet.ColumnName("date")     public String date;
+	@Sheet.ColumnName("type")     public String type     = null;
+	@Sheet.ColumnName("sector")   public String sector   = null;
+	@Sheet.ColumnName("industry") public String industry = null;
+	@Sheet.ColumnName("name")     public String name     = null;
 	
-	@Sheet.ColumnName("marketCap") public long   marketCap;
+	@Sheet.ColumnName("marketCap") public long   marketCap = -1;
 	
 	// current price and volume
-	@Sheet.ColumnName("pricec") public int    pricec;
-	@Sheet.ColumnName("price")  public double price;
+	@Sheet.ColumnName("pricec") public int    pricec  = -1;
+	@Sheet.ColumnName("price")  public double price   = -1;
+	@Sheet.ColumnName("invest") public int    invest  = -1;
 	// last price
-	@Sheet.ColumnName("last")   public double last;
+	@Sheet.ColumnName("last")   public double last    = -1;
 	
 	// dividend
-	@Sheet.ColumnName("divc")          public int    divc;
-	@Sheet.ColumnName("lastDiv")       public double lastDiv;
-	@Sheet.ColumnName("forwardYield")  public double forwardYield;
-	@Sheet.ColumnName("annualDiv")     public double annualDiv;
-	@Sheet.ColumnName("trailingYield") public double trailingYield;
+	@Sheet.ColumnName("divc")          public int    divc          = -1;
+	@Sheet.ColumnName("lastDiv")       public double lastDiv       = -1;
+	@Sheet.ColumnName("forwardYield")  public double forwardYield  = -1;
+	@Sheet.ColumnName("annualDiv")     public double annualDiv     = -1;
+	@Sheet.ColumnName("trailingYield") public double trailingYield = -1;
 	
 	// rate of return
-	@Sheet.ColumnName("rorPrice")        public double rorPrice;
-	@Sheet.ColumnName("rorReinvested")   public double rorReinvested;
-	@Sheet.ColumnName("rorNoReinvested") public double rorNoReinvested;
+	@Sheet.ColumnName("rorNoReinvested") public double rorNoReinvested = -1;
 	
 	// stats - sd hv rsi
 	//  30 < pricec
-	@Sheet.ColumnName("sd")  public double sd;
-	@Sheet.ColumnName("hv")  public double hv;
+	@Sheet.ColumnName("sd")  public double sd = -1;
+	@Sheet.ColumnName("hv")  public double hv = -1;
 	// 15 <= pricec
-	@Sheet.ColumnName("rsi14") public double rsi14;
-	@Sheet.ColumnName("rsi7")  public double rsi7;
+	@Sheet.ColumnName("rsi14") public double rsi14 = -1;
+	@Sheet.ColumnName("rsi7")  public double rsi7  = -1;
 	
 	// min max
-	@Sheet.ColumnName("min")   public double min;
-	@Sheet.ColumnName("max")   public double max;
-	@Sheet.ColumnName("minY3") public double minY3;
-	@Sheet.ColumnName("maxY3") public double maxY3;
+	@Sheet.ColumnName("min")   public double min   = -1;
+	@Sheet.ColumnName("max")   public double max   = -1;
+	@Sheet.ColumnName("minY3") public double minY3 = -1;
+	@Sheet.ColumnName("maxY3") public double maxY3 = -1;
 	
 	// volume
-	@Sheet.ColumnName("vol")  public long   vol;
+	@Sheet.ColumnName("vol")   public double vol   = -1;
 	// 5 <= pricec
-	@Sheet.ColumnName("vol5") public long   vol5;
+	@Sheet.ColumnName("vol5")  public double vol5  = -1;
 	// 20 <= pricec
-	@Sheet.ColumnName("vol21") public long  vol21;
+	@Sheet.ColumnName("vol21") public double vol21 = -1;
 	
-	@Sheet.ColumnName("nisa") public String nisa;
+	@Sheet.ColumnName("nisa") public String nisa = null;
 	
-	public StockStatsJP() {
-		stockCode = null;
-		
-		type      = null;
-		name      = null;
-		date      = null;
-		pricec    = -1;
-		price     = -1;
-		
-		last      = -1;
-		
-		divc          = -1;
-		lastDiv       = -1;
-		forwardYield  = -1;
-		annualDiv     = -1;
-		trailingYield = -1;
-		
-		sd        = -1;
-		hv        = -1;
-		
-		rsi14     = -1;
-		rsi7      = -1;
-		
-		min       = -1;
-		max       = -1;
-		minY3     = -1;
-		maxY3     = -1;
-		
-		vol       = -1;
-		vol5      = -1;
-		vol21     = -1;
-		
-	}
-
 	@Override
 	public int compareTo(StockStatsJP that) {
 		return this.stockCode.compareTo(that.stockCode);

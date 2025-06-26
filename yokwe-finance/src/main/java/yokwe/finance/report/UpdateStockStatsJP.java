@@ -90,13 +90,11 @@ public class UpdateStockStatsJP {
 				{
 					StockStats stockStats = StockStats.getInstance(stockCode, dateStop, priceList, divList);
 					
-					stats.date      = stockStats.date.toString();
 					stats.price     = stockStats.price;
 					stats.pricec    = stockStats.pricec;
+					stats.invest    = (int)(stockStats.price * stockInfo.tradeUnit);
 					stats.last      = stockStats.last;
 					
-					stats.rorPrice        = stockStats.rorPrice;
-					stats.rorReinvested   = stockStats.rorReinvested;
 					stats.rorNoReinvested = stockStats.rorNoReinvested;
 					
 					stats.sd        = stockStats.sd;
@@ -109,17 +107,21 @@ public class UpdateStockStatsJP {
 					stats.minY3     = stockStats.minY3;
 					stats.maxY3     = stockStats.maxY3;
 					
-					if (stats.divc == -1) {
-						stats.divc          = stockStats.divc;
-					}
+//					if (stats.divc == -1) {
+//						stats.divc          = stockStats.divc;
+//					}
+					stats.divc          = stockStats.divc;
 					stats.lastDiv       = stockStats.lastDiv;
 					stats.forwardYield  = stockStats.forwardYield;
 					stats.annualDiv     = stockStats.annualDiv;
 					stats.trailingYield = stockStats.trailingYield;
 
-					stats.vol       = stockStats.vol;
-					stats.vol5      = stockStats.vol5;
-					stats.vol21     = stockStats.vol21;
+//					stats.vol       = (double)stockStats.vol / stockInfo.issued.doubleValue();
+//					stats.vol5      = (double)stockStats.vol5 / stockInfo.issued.doubleValue();
+//					stats.vol21     = (double)stockStats.vol21 / stockInfo.issued.doubleValue();
+					stats.vol       = (double)stockStats.vol   * stats.price;
+					stats.vol5      = (double)stockStats.vol5  * stats.price;
+					stats.vol21     = (double)stockStats.vol21 * stats.price;
 				}
 				
 				if (stockInfo.type.isETF()) {
