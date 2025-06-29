@@ -177,7 +177,8 @@ public class Portfolio {
 				String name = holding.name;
 				Data   data = dataMap.get(name);
 				// update data.rateOfReturn
-				data.rateOfReturn = holding.fundStats.rateOfReturn(nMonth, nOffset);
+				// FIXME use rateOfReturnNoReinvest instead of rateOfReturn
+				data.rateOfReturn = holding.fundStats.rateOfReturnNoReinvest(nMonth, nOffset);
 				// update data.returnArray
 				{
 					LocalDate[] dateArray   = holding.fundStats.dateArray(nMonth, nOffset);
