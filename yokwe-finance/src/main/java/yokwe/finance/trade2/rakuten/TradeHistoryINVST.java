@@ -4,8 +4,10 @@ import static yokwe.finance.trade2.rakuten.UpdateTransaction.toLocalDate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 
@@ -210,11 +212,16 @@ public class TradeHistoryINVST {
 		}
 	}
 	private static class FunctionsUSD {
+		private static final Set<String> mmfSet = new HashSet<>();
+		static {
+			mmfSet.add("GS米ドルファンド");
+			mmfSet.add("ノーザン・トラスト・米ドル・リクイディティ・ファンド(楽天・米ドルMMF)");
+		}
 		private static class BUY implements Function<TradeHistoryINVST, Transaction> {
 			@Override
 			public Transaction apply(TradeHistoryINVST e) {
-				if (!e.name.equals("GS米ドルファンド")) {
-					throw new UnexpectedException(""); // FIXME
+				if (!mmfSet.contains(e.name)) {
+					throw new UnexpectedException("Unexpected mmf name"); // FIXME
 				}
 				
 				var ret = new Transaction();
