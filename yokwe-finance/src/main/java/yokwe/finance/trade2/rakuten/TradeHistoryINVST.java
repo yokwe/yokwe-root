@@ -242,8 +242,8 @@ public class TradeHistoryINVST {
 		private static class SELL implements Function<TradeHistoryINVST, Transaction> {
 			@Override
 			public Transaction apply(TradeHistoryINVST e) {
-				if (!e.name.equals("GS米ドルファンド")) {
-					throw new UnexpectedException(""); // FIXME
+				if (!mmfSet.contains(e.name)) {
+					throw new UnexpectedException("Unexpected mmf name"); // FIXME
 				}
 				
 				var ret = new Transaction();
