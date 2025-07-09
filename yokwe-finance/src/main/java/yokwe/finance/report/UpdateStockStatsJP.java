@@ -91,7 +91,7 @@ public class UpdateStockStatsJP {
 					StockStats stockStats = StockStats.getInstance(stockCode, dateStop, priceList, divList);
 					
 					stats.price     = stockStats.price;
-					stats.pricec    = stockStats.pricec;
+					stats.pricec    = priceList.size();
 					stats.invest    = (int)(stockStats.price * stockInfo.tradeUnit);
 					stats.last      = stockStats.last;
 					
